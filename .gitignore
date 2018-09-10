@@ -1,0 +1,4 @@
+.DS_Store
+.venv
+get-pip.py
+out/

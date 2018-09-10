@@ -1,0 +1,81 @@
+SQL-99 Complete, Really
+Copyright (c) 2005-2016 Trudy Pelzer & Peter Gulutzan.
+All rights reserved.
+
+Redistribution and use in source and 'compiled' forms (PDF, PostScript, HTML,
+RTF, etc), with or without modification, are permitted provided that the
+following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer as the first lines of this file
+unmodified.
+
+2. Redistributions in compiled form (transformed to other DTDs, converted to
+PDF, PostScript, HTML, RTF, and other formats) must reproduce the above
+copyright notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+
+3. The name of the author may not be used to endorse or promote products
+derived from this documentation without specific prior written permission.
+
+THIS DOCUMENTATION IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+IN ANY WAY OUT OF THE USE OF THIS DOCUMENTATION, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+================================================================================
+
+SQL-99 Complete, Really
+
+Peter Gulutzan and Trudy Pelzer
+
+Designations used by companies to distinguish their products are often claimed
+as trademarks. In all instances where authors are aware of a trademark claim,
+the product name appears in initial capital letters, in all capital letters, or
+in accordance with the vendor's capitalization preference. Readers should
+contact the appropriate companies for more complete information on trademarks
+and trademark registrations. All trademarks and registered trademarks in this
+book are the property of their respective holders.
+
+Copyright (c) 1999 by Ocelot Computer Services Incorporated, except where
+noted otherwise. Published by Ocelot Computer Services Incorporated. All rights
+reserved. No part of this publication may reproduced or distributed in any form
+or by any means, or stored in a database or retrieval system, without the prior
+written permission of the publisher; with the exception that the program
+listings may be entered, stored, and executed in a computer system, but they
+may not be reproduced for publication.
+
+The programs in this book are presented for instructional value. The programs
+have been carefully tested, but are not guaranteed for any particular purpose.
+The publisher does not offer any warranties and does not guarantee the
+accuracy, adequacy, or completeness of any information herein and is not
+responsible for any errors or omissions. The publisher assumes no liability for
+damages resulting from the use of the information in this book or for any
+infringement of the intellectual property rights of third parties that would
+result from the use of this information.
+
+Trademarks:
+
+Access: Microsoft Corp.
+DB2: International Business Machines Corp.
+dBASE IV: Inprise Corporation
+Delphi: Inprise Corporation
+Informix: Informix Corporation
+Ingres: Computer Associates International Inc.
+Java: Sun Microsystems Inc.
+Ocelot, OCELOT DBMS: Ocelot Computer Services Inc.
+Oracle: Oracle Corp.
+Paradox: Inprise Corporation
+SQL Server: Sybase, Inc.
+SQL/DS: International Business Machines Corp.
+Unicode: Unicode, Inc.
+Windows, Windows95, WindowsNT, SQL Server: Microsoft Corp.
+
+All trademarks (those above and any others mentioned in this book) are the
+property of their respective owners.
