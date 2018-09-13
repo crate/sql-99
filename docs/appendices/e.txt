@@ -1,0 +1,76 @@
+APPENDIX E -- SQL Web Sites
+
+You will get millions of hits if you submit the keyword SQL to any Internet
+search engine. You will get only 12 hits from this list. But they all have one
+interesting common feature: FREE STUFF. Our list of SQL web sites includes:
+     ## Private companies which produce SQL databases or SQL-related programs,
+and which allow downloads of real working programs.
+     ## Both government and private bodies which produce SQL-related
+standards.
+     ## Sites which offer timely and real SQL news.
+
+Our selection is primarily of English-speaking sites. As URLs change, and as
+new sites match our criteria, we will update a copy of this list at our own
+web site:
+   http://ourworld.compuserve.com/homepages/OCELOTSQL/sites.htm
+
+So probably your best way to keep up-to-date is to add our web site to your
+favourite places, and click links from there.
+
+Here's the list:
+
+Beagle SQL
+www.beaglesql.com
+  Strictly a work in progress. Linux oriented.
+
+Gnu SQL
+www.ispras.ru/~kml/gss
+  Alpha. The usual gnu software license.
+
+Intelligent Enterprise Journal
+www.intelligententerprise.com
+  An online regular database magazine.
+
+ISO
+ftp://jerry.ece.umassd.edu
+  This is the archive site for ISO standards committee minutes and memoranda.
+
+Microsoft
+www.microsoft.com/msdn
+  You can get the ODBC manual from here, as a .hlp file.
+
+miniSQL
+www.hughes.com.au
+  A Unix-oriented SQL-89 implementation.
+
+NIST
+speckle.ncsl.nist.gov/~ftp/sql-testing
+  A large group of SQL conformance tests (C source code). Somewhat dated.
+
+mySQL
+www.tcx.se
+  Another Unix-oriented SQL-89 implementation.
+
+Ocelot
+ourworld.compuserve.com/homepages/OCELOTSQL
+  Any errata for this book, plus updated copy of this list, plus downloads.
+
+Oracle
+www.oracle.com
+  Apparently you can download 30-day free trials (we didn't try).
+
+Postresql
+www.postgresql.org/index.htm
+  One of the few "free" SQL implementations that supports UDTs.
+
+Sun
+www.sun.com/products/jdbc
+  Get a copy of the test suite for the JDBC here.
+
+Unicode
+www.unicode.org
+  Look for "code charts".
+
+Yard
+www.yard.de
+  "Yard SQL" is free for educational institutions.

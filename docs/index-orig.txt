@@ -1,0 +1,1322 @@
+INDEX
+
+- A -
+
+abandoned
+ABS
+ABSOLUTE
+access mode
+ACTION
+ADA
+ADD
+add column definition
+add domain constraint definition
+add table constraint definition
+ADMIN
+AFTER trigger
+ALL
+ALTER
+alter column action
+alter column definition
+ALTER DOMAIN
+alter domain action
+ALTER TABLE
+alter table action
+ambiguous cursor name
+AND
+ANY
+applicable privileges
+approximate numeric literal
+approximate numeric type
+ARE
+ARRAY
+array concatenate function
+array data
+array element
+array locator
+array type
+array value constructor
+array value expression
+array value function
+AS
+as clause
+ASC
+ASENSITIVE
+ASSERTION
+assertion definition
+asterisk
+ASYMMETRIC
+AT
+ATOMIC
+atomic SQL statement
+attribute
+attribute definition
+attribute name
+AUTHORIZATION
+AuthorizationID
+authorization identifier
+AVG
+
+- B -
+
+base table
+BEFORE trigger
+BEGIN
+BETWEEN
+BINARY
+binary large object
+binary large object string type
+binary string literal
+binary string type
+binding style
+BIT
+bit concatenation
+bit factor
+BIT_LENGTH
+bit string literal
+bit string type
+bit substring function
+BLOB
+blob concatenation
+blob overlay function
+blob position expression
+blob trim function
+BOOLEAN
+boolean literal
+boolean test
+boolean type
+boolean value expression
+BOTH
+bracketed comment
+BREADTH
+BY
+
+- C -
+
+C
+CALL
+CARDINAL_NUMBER
+CARDINALITY
+cardinality expression
+CASCADE
+CASCADED
+CASE
+case abbreviation
+case expression
+CAST
+cast to distinct
+cast to distinct identifier
+cast to source
+cast to source identifier
+CATALOG
+CATALOG_NAME
+CHAIN
+CHAR
+CHAR_LENGTH
+char length expression
+CHARACTER
+CHARACTER_DATA
+character enumeration
+character large object
+CHARACTER_LENGTH
+character like predicate
+character match value
+CHARACTER_MAXIMUM_LENGTH
+CHARACTER_OCTET_LENGTH
+character pattern
+character repertoire
+character representation
+character set
+CHARACTER_SET_CATALOG
+character set definition
+CHARACTER_SET_NAME
+CHARACTER_SET_SCHEMA
+character set specification
+CHARACTER_SETS
+character string literal
+character string type
+character substring function
+character translation
+character type
+character value expression
+CHECK
+CHECK_CLAUSE
+CHECK_COLUMN_USAGE
+check constraint
+check constraint definition
+CHECK_CONSTRAINTS
+CHECK_OPTION
+CHECK_TABLE_USAGE
+CHECK_TIME
+CHECKED
+CLASS
+CLASS_ORIGIN
+CLOB
+CLOSE
+CLOSE CURSOR
+cluster
+COALESCE
+COBOL
+coercibility
+Coercible
+COLLATE
+collate clause
+collating sequence
+COLLATION
+COLLATION_CATALOG
+COLLATION_DEFINITION
+COLLATION_DICTIONARY
+COLLATION_NAME
+COLLATION_SCHEMA
+COLLATION_TYPE
+COLLATIONS
+collection
+collection expression
+collection type
+collection type constructor
+collection value constructor
+collection value expression
+COLUMN
+column constraint
+COLUMN_DEFAULT
+column definition
+COLUMN_DOMAIN_USAGE
+column list
+COLUMN_NAME
+column name list
+column options
+COLUMN_PRIVILEGES
+column reference
+column scope clause
+COLUMNS
+COMMAND_FUNCTION
+COMMAND_FUNCTION_CODE
+comment
+COMMIT
+COMMITTED
+comp op
+comparable
+comparison predicate
+compatible
+COMPLETION
+CONCATENATE
+concatenated grouping
+concatenation
+concatenation operator
+condition information
+condition information item
+condition information item name
+CONDITION_NUMBER
+conditions
+conformance
+conforming SQL-implementation
+CONNECT
+CONNECTION
+connection exception
+CONNECTION_NAME
+connection user name
+CONSTRAINT
+CONSTRAINT_CATALOG
+constraint characteristics
+constraint check time
+CONSTRAINT_COLUMN_USAGE
+constraint mode
+CONSTRAINT_NAME
+constraint name definition
+CONSTRAINT_SCHEMA
+CONSTRAINT_TABLE_USAGE
+CONSTRAINT_TYPE
+CONSTRAINTS
+containing SQL
+containing SQL not permitted
+CONTINUE
+CONVERT
+Coordinated Universal Time
+correlation name
+CORRESPONDING
+corresponding join columns
+COUNT
+CREATE
+created by
+created local temporary table
+CROSS
+cross join
+CUBE
+CURRENT
+CURRENT_DATE
+current date value function
+current local time value function
+current local timestamp value function
+CURRENT_PATH
+CURRENT_ROLE
+current SQL-connection
+current SQL-session
+CURRENT_TIME
+current time value function
+CURRENT_TIMESTAMP
+current timestamp value function
+CURRENT_USER
+CURSOR
+CURSOR_NAME
+cursor sensitivity
+cursor specification
+CYCLE
+cycle clause
+cycle column
+cycle mark column
+cycle mark value
+
+- D -
+
+DATA_TYPE
+DATA_TYPE_DESCRIPTOR
+database
+DATE
+date literal
+date string
+date value
+DATETIME_INTERVAL_CODE
+DATETIME_INTERVAL_PRECISION
+datetime literal
+DATETIME_PRECISION
+datetime type
+datetime value
+datetime value expression
+datetime value function
+DAY
+day-time interval
+day-time literal
+days value
+DEALLOCATE
+DEC
+DECIMAL
+DECLARE
+DECLARE CURSOR
+declared local temporary table
+DEFAULT
+DEFAULT_CHARACTER_SET_CATALOG
+DEFAULT_CHARACTER_SET_NAME
+DEFAULT_CHARACTER_SET_SCHEMA
+default clause
+DEFAULT_COLLATE_CATALOG
+DEFAULT_COLLATE_NAME
+DEFAULT_COLLATE_SCHEMA
+default collation
+default option
+default specification
+default SQL-connection
+default SQL-session
+default time zone
+DEFERRABLE
+DEFERRED
+DEFINITION_SCHEMA
+degree
+DELETE_RULE
+DELETE
+delete statement: positioned
+delete statement: searched
+delimited identifier
+delimiter token
+deprecated
+DEPTH
+DEREF
+dereference operation
+dereference operator
+derived column
+derived table
+DESC
+DESCRIBE
+DESCRIPTOR
+descriptor area
+DETERMINISTIC
+deterministic characteristic
+DIAGNOSTICS
+diagnostics area limit
+diagnostics size
+digit
+direct invocation
+direct SQL statement
+direct subtable
+direct supertable
+DISCONNECT
+DISPATCH
+dispatch clause
+DISTINCT
+distinct predicate
+division by zero
+DML
+does not possibly contain SQL
+DOMAIN
+DOMAIN_CATALOG
+domain constraint
+DOMAIN_DEFAULT
+domain definition
+domain descriptor
+DOMAIN_NAME
+DOMAIN_SCHEMA
+DOMAINS
+dormant SQL-connection
+dormant SQL-session
+DOUBLE
+double quote
+DROP
+DROP ASSERTION
+drop behavior
+DROP CHARACTER SET
+DROP COLLATION
+drop column default clause
+drop column definition
+drop column scope clause
+drop domain constraint definition
+drop domain default clause
+DROP DOMAIN
+DROP ROLE
+drop routine statement
+DROP SCHEMA
+drop table constraint definition
+DROP TABLE
+drop transform statment
+DROP TRANSLATION
+drop trigger statement
+drop user-defined cast statement
+drop user-defined ordering statement
+DROP VIEW
+duplicate
+dyadic
+DYNAMIC
+DYNAMIC_FUNCTION
+DYNAMIC_FUNCTION_CODE
+
+- E -
+
+EACH
+element
+element reference
+element type
+ELSE
+else clause
+embedded SQL host program
+empty specification
+ENABLED_APPLICABLE_ROLES
+ENABLED_ROLE
+ENABLED_ROLES
+END
+END-EXEC
+environment
+EQUAL_KEY_DEGREES
+EQUALS
+equals operator
+equals ordering form
+ESCAPE
+escape character
+escape octet
+EVERY
+exact numeric literal
+exact numeric type
+EXCEPT
+EXCEPTION
+EXEC
+executable routine
+EXECUTE
+EXECUTE IMMEDIATE
+execute privilege
+EXISTING
+existing collation name
+existing translation name
+EXISTS
+exponent
+EXTERNAL
+external body reference
+EXTERNAL_NAME
+external routine
+external routine authorization identifier
+external routine invocation
+external routine name
+externally-invoked procedure
+EXTRACT
+extract expression
+extract field
+
+- F -
+
+FALSE
+FETCH
+fetch orientation
+fetch target list
+field definition
+field name
+field reference
+FINAL
+finality
+FIRST
+FLOAT
+fold
+FOR
+FOREIGN
+FORM_OF_USE
+form-of-use conversion
+form-of-use conversion name
+FORTRAN
+FOUND
+FREE
+free locator statement
+FROM
+from clause
+from sql function
+FULL
+full ordering form
+FUNCTION
+
+- G -
+
+GENERAL
+general literal
+general value specification
+GENERATED
+GET
+get diagnostics statement
+GLOBAL
+global or local
+global temporary table
+GO
+GOTO
+grand total
+GRANT
+GRANT ROLE
+GRANTEE
+GRANTOR
+greater than operator
+greater than or equals operator
+GROUP
+group by clause
+group name
+grouped table
+grouped view
+GROUPING
+grouping column reference
+grouping operation
+grouping set
+
+- H -
+
+handle
+HASH
+hash function specification
+HAVING
+having clause
+hex string literal
+hexit
+HOLD
+hold locator statement
+holdable-cursor
+holdable-locator
+HOST
+host parameter
+host parameter data type
+host parameter declaration
+host parameter name
+HOUR
+hours value
+
+- I -
+
+identifier
+IDENTITY
+IGNORE
+IMMEDIATE
+implementation-defined
+implementation-defined character set name
+implementation-dependent
+IN
+in predicate value
+in value list
+INDICATOR
+indicator overflow
+indicator parameter
+INFORMATION_SCHEMA
+inherited column
+initial alphabetic character
+INITIALIZE
+INITIALLY
+INITIALLY_DEFERRED
+INNER
+inner table
+INOUT
+INPUT
+input parameter
+input SQL parameter
+INSENSITIVE
+INSERT
+insert column list
+instance
+INSTANTIABLE
+instantiable clause
+INT
+INTEGER
+integrity constraint
+integrity constraint violation
+interface
+INTERSECT
+INTERVAL
+interval absolute value function
+interval data type descriptor
+interval fractional seconds precision
+interval leading field precision
+interval literal
+INTERVAL_PRECISION
+interval qualifier
+INTERVAL_TYPE
+interval value expression
+INTO
+introducer
+invocable routine
+IS
+IS_DEFERRABLE
+IS_DETERMINISTIC
+IS_GRANTABLE
+IS_NULLABLE
+IS_UPDATABLE
+ISOLATION
+isolation level
+ITERATE
+
+- J -
+
+JOIN
+join columns
+join condition
+join type
+joined table
+
+- K -
+
+KEY
+KEY_COLUMN_USAGE
+KEY_DEGREE_GREATER_THAN_OR_ EQUAL_TO_ KEY_MEMBER
+KEY_TYPE
+keyword
+keyword parameter tag
+known not nullable
+
+- L -
+
+LANGUAGE
+language clause
+large object length
+LAST
+LATERAL
+lateral derived table
+LEADING
+LEFT
+left bracket trigraph
+LENGTH
+length expression
+LESS
+less than operator
+less than or equals operator
+LEVEL
+level of isolation
+levels clause
+LIKE
+like clause
+LIMIT
+literal
+LOCAL
+local temporary table
+LOCALTIME
+LOCALTIMESTAMP
+LOCATOR
+LOW
+LOWER
+lower case
+
+- M -
+
+mantissa
+MATCH
+MATCH_OPTION
+match type
+matching rows
+MAX
+maximal supertype
+maximum dynamic result sets
+MESSAGE_LENGTH
+MESSAGE_OCTET_LENGTH
+MESSAGE_TEXT
+METHOD
+method invocation
+method name
+method reference
+MIN
+MINUTE
+minutes value
+MOD
+MODIFIES
+MODIFY
+modifying SQL-data
+modifying SQL-data not permitted
+MODULE
+module authorization identifier
+MODULE_CATALOG
+module character set specification
+module contents
+MODULE_NAME
+module name clause
+module path specification
+MODULE_PRIVILEGES
+MODULE_SCHEMA
+module transform group specification
+modulus expression
+MONTH
+months value
+MORE
+MUMPS
+mutator function
+mutually assignable
+
+- N -
+
+NAME
+named columns join
+named row type
+NAMES
+NATIONAL
+national character string literal
+national character string type
+NATURAL
+NCHAR
+NCLOB
+NEW
+new values correlation name
+new values table alias
+newline
+NEXT
+NO
+No collating sequence
+non-deterministic
+non-join query expression
+non-reserved word
+non-second primary datetime field
+nondelimiter token
+NONE
+NOT
+not deferrable
+not equals operator
+NULL
+null-call clause
+null specification
+null value
+null value eliminated in set function
+null value not allowed
+nullability characteristic
+NULLABLE
+NULLIF
+NUMBER
+NUMBER_OF_CHARACTERS
+number of conditions
+NUMERIC
+numeric data type descriptor
+NUMERIC_PRECISION
+NUMERIC_PRECISION_RADIX
+NUMERIC_SCALE
+numeric type
+numeric value expression
+numeric value expression dividend
+numeric value expression divisor
+numeric value function
+
+- O -
+
+OBJECT
+OBJECT_CATALOG
+OBJECT_NAME
+object privileges
+OBJECT_SCHEMA
+OBJECT_TYPE
+observer function
+octet
+OCTET_LENGTH
+octet length expression
+octet like predicate
+octet match value
+octet pattern
+OF
+OFF
+OLD
+old or new values alias
+old or new values alias list
+old values correlation name
+old values table alias
+ON
+ONLY
+OPEN
+OPERATION
+operator
+OPTION
+OPTIONS
+OR
+ORDER
+order by clause
+order of execution
+ordering category
+ORDINAL_POSITION
+ORDINALITY
+OUT
+OUTER
+outer join type
+OUTPUT
+output parameter
+output SQL parameter
+OVERLAPS
+OVERLAY
+OVERRIDING
+overriding method signature
+owned by
+
+- P -
+
+PAD
+pad characteristic
+PARAMETER
+PARAMETER_MODE
+PARAMETER_NAME
+PARAMETER_ORDINAL_POSITION
+parameter passing style
+PARAMETER_SPECIFIC_CATALOG
+PARAMETER_SPECIFIC_NAME
+PARAMETER_SPECIFIC_SCHEMA
+parameter style
+parameter type
+PARAMETERS
+Part 1
+Part 2
+Part 3
+Part 4
+Part 5
+PARTIAL
+PASCAL
+PATH
+path specification
+persistent
+persistent base table
+PLACING
+PLI
+POSITION
+position expression
+possible qualifiers
+possibly contains SQL
+possibly modifies SQL-data
+possibly non-deterministic
+possibly nullable
+possibly read SQL-data
+PRECISION
+predefined type
+predicate
+PREFIX
+PREORDER
+preparable statement
+PREPARE
+PRESERVE
+PRIMARY
+primary datetime field
+primary key
+primary key constraint
+PRIOR
+privilege
+privilege column list
+privilege descriptor
+PRIVILEGE_DESCRIPTORS
+PRIVILEGE_TYPE
+PRIVILEGES
+PROCEDURE
+procedure name
+PUBLIC
+
+- Q -
+
+qualified identifier
+quantified comparison predicate
+quantified predicate
+quantifier
+query
+query expression
+query expression body
+query name
+query specification
+
+- R -
+
+READ
+READ ONLY
+READ WRITE
+reading SQL-data
+reading SQL-data not permitted
+READS
+REAL
+RECURSIVE
+redundant duplicate
+REF
+reference column list
+reference resolution
+reference scope check
+reference type
+reference value expression
+referenced columns
+referenced table
+referenced table and columns
+referenced type
+REFERENCES
+references specification
+REFERENCING
+referencing columns
+referencing table
+referential action
+referential constraint
+REFERENTIAL_CONSTRAINTS
+regular expression
+regular expression substring function
+regular identifier
+RELATIVE
+relative category
+release savepoint statement
+REPEATABLE
+repertoire
+representation
+reserved word
+RESTRICT
+RESULT
+result cast
+result parameter
+RESULT SETS
+retrieval assignment
+RETURN
+return value
+RETURNED_LENGTH
+RETURNED_OCTET_LENGTH
+RETURNED_SQLSTATE
+RETURNS
+returns clause
+returns data type
+REVOKE
+REVOKE ROLE
+RIGHT
+right bracket trigraph
+ROLE
+role authorization
+ROLE_AUTHORIZATION_DESCRIPTORS
+ROLE_COLUMN_GRANTS
+role definition
+role granted
+ROLE_NAME
+role specification
+ROLE_TABLE_GRANTS
+ROLES
+ROLLBACK
+ROLLUP
+ROUTINE
+routine authorization identifier
+ROUTINE_BODY
+ROUTINE_CATALOG
+routine characteristics
+ROUTINE_DEFINITION
+routine invocation
+ROUTINE_NAME
+ROUTINE_SCHEMA
+routine SQL-path
+ROUTINE_TYPE
+ROUTINES
+ROW
+ROW_COUNT
+row reference
+row subquery
+row type
+row value constructor
+row value expression
+ROWS
+
+- S -
+
+SAVEPOINT
+savepoint clause
+savepoint name
+scalar subquery
+SCALE
+SCHEMA
+schema authorization identifier
+schema character set specification
+schema definition
+schema element
+schema-level routine
+SCHEMA_NAME
+schema name clause
+schema name list
+SCHEMA_OWNER
+schema path specification
+schema procedure
+schema qualified name
+schema routine
+SCHEMATA
+scope
+scope clause
+scope table name list
+SCROLL
+SEARCH
+search condition
+search or cycle clause
+searched case
+searched when clause
+SECOND
+seconds fraction
+seconds integer value
+seconds value
+SECTION
+SELECT
+select list
+select statement: single row
+SELF
+SENSITIVE
+sensitivity
+separator
+SEQUENCE
+SERIALIZABLE
+SERVER_NAME
+SESSION
+session characteristic
+SESSION_USER
+SET
+set clause
+set column default clause
+set connection statement
+set constraints mode statement
+set domain default clause
+set function
+set local time zone statement
+set of affected rows
+set quantifier
+set role statement
+set session characteristics statement
+set session user identifier statement
+set time zone value
+set transaction statement
+SETS
+signature
+significant
+SIMILAR
+similar pattern
+SIMPLE
+simple case
+simple comment
+simple Latin letter
+simple Latin lower case letter
+simple Latin upper case letter
+simple target specification
+simple value specification
+single datetime field
+site
+site scope
+SIZE
+SMALLINT
+SOME
+sort key
+sort specification
+SOURCE
+SOURCE_CHARACTER_SET_ CATALOG
+SOURCE_CHARACTER_SET_NAME
+SOURCE_CHARACTER_SET_SCHEMA
+source character set specification
+source data type
+source type
+SPACE
+SPECIFIC
+SPECIFIC_CATALOG
+SPECIFIC_NAME
+specific routine designator
+SPECIFIC_SCHEMA
+specific type function
+SPECIFICTYPE
+SQL
+SQL-agent
+SQL_CHAR
+SQL-client
+SQL-client module
+SQL-client module name
+SQL-connection
+SQL connection statement
+SQL control statement
+SQL-data
+SQL-data access indication
+SQL data change statement
+SQL data statement
+SQL diagnostics information
+SQL diagnostics statement
+SQL-environment
+SQL executable statement
+SQL_IDENTIFIER
+SQL-implementation
+SQL-invoked function
+SQL-invoked procedure
+SQL-invoked routine
+SQL language character
+SQL_LANGUAGE_CONFORMANCE
+SQL language identifier
+SQL_LANGUAGE_IMPLEMENTATION
+SQL_LANGUAGE_INTEGRITY
+SQL_LANGUAGE_SOURCE
+SQL_LANGUAGE_YEAR
+SQL_LANGUAGES
+SQL parameter
+SQL parameter name
+SQL parameter reference
+SQL-path
+SQL procedure statement
+SQL routine
+SQL-schema
+SQL schema definition statement
+SQL schema statement
+SQL-server
+SQL-server module
+SQL-server name
+SQL-session
+SQL-session module
+SQL session statement
+SQL special character
+SQL_TEXT
+SQL-transaction
+SQL transaction statement
+SQLEXCEPTION
+SQLSTATE
+SQLWARNING
+standard character set name
+START
+start field
+start position
+start transaction statement
+STATE
+state category
+state change
+status parameter
+store assignment
+string length
+string position expression
+string value expression
+STRUCTURE
+STYLE
+SUBCLASS_ORIGIN
+SUBLIST
+subquery
+SUBSTRING
+subtable
+subtable family
+subtype
+subtype family
+SUM
+supertable
+supertype
+SYMMETRIC
+synchronous
+SYSTEM
+system-generated specification
+SYSTEM_USER
+
+- T -
+
+TABLE
+TABLE_CATALOG
+table constraint
+table constraint descriptor
+TABLE_CONSTRAINTS
+table contents source
+table definition
+table descriptor
+table element
+table element list
+table expression
+TABLE_NAME
+table or query name
+TABLE_PRIVILEGES
+table reference
+TABLE_SCHEMA
+table scope
+table subquery
+TABLE_TYPE
+table value constructor
+TABLES
+target
+TARGET_CHARACTER_SET_CATALOG
+TARGET_CHARACTER_SET_NAME
+TARGET_CHARACTER_SET_SCHEMA
+target character set specification
+target data type
+target specification
+TEMPORARY
+temporary table
+temporary table declaration
+TERMINATE
+THAN
+THE
+THEN
+TIME
+time fractional seconds precision
+time interval
+time literal
+time precision
+time value
+time zone
+time zone field
+time zone interval
+time zone specifier
+TIMESTAMP
+timestamp literal
+timestamp precision
+timestamp string
+TIMEZONE_HOUR
+TIMEZONE_MINUTE
+TO
+to sql function
+token
+TRAILING
+TRANSACTION
+transaction access mode
+TRANSACTION_ACTIVE
+transaction characteristics
+transaction-initiating
+transaction mode
+transaction rollback
+TRANSACTIONS_COMMITTED
+TRANSACTIONS_ROLLED_BACK
+TRANSFORM
+transform definition
+transform group
+transforms to be dropped
+transient
+TRANSLATE
+TRANSLATION
+TRANSLATION_CATALOG
+TRANSLATION_DEFINITION
+translation descriptor
+TRANSLATION_NAME
+translation routine
+TRANSLATION_SCHEMA
+translation source
+TRANSLATIONS
+TREAT
+TRIGGER
+trigger action time
+TRIGGER_CATALOG
+trigger column list
+trigger definition
+trigger descriptor
+trigger event
+TRIGGER_NAME
+TRIGGER_SCHEMA
+triggered action
+triggered SQL statement
+TRIM
+trim character
+trim function
+trim octet
+trim source
+TRUE
+TYPE
+
+- U -
+
+UDT
+UDT specification
+UNCOMMITTED
+UNDER
+underlying
+UNION
+union-compatible
+UNIQUE
+unique column list
+unique constraint
+UNIQUE_CONSTRAINT_NAME
+unique matching rows
+unique specification
+UNKNOWN
+UNNAMED
+unqualified schema name
+updatability clause
+updatable
+updatable table
+UPDATE
+update operation
+UPDATE_RULE
+update statement: positioned
+update statement: searched
+update target
+UPPER
+USAGE
+USAGE_PRIVILEGES
+USER
+user-defined cast definition
+user-defined character set name
+user-defined ordering definion
+user-defined type
+USER_DEFINED_TYPE_CATALOG
+user-defined type definition
+USER_DEFINED_TYPE_EQUALS
+USER_DEFINED_TYPE_NAME
+USER_DEFINED_TYPE_PRIVILEGES
+USER_DEFINED_TYPE_SCHEMA
+USER_DEFINED_TYPES
+user identifier
+USER_NAME
+USERS
+USING
+UTC
+
+- V -
+
+VALUE
+value expression
+value specification
+VALUES
+VARCHAR
+VARIABLE
+variable-length coding
+VARYING
+VIEW
+VIEW_CATALOG
+view column list
+VIEW_COLUMN_USAGE
+VIEW_DEFINITION
+view descriptor
+VIEW_NAME
+VIEW_SCHEMA
+VIEW_TABLE_USAGE
+viewed table
+VIEWS
+
+- W -
+
+warning
+WHEN
+when operand
+WHENEVER
+WHERE
+where clause
+white space
+WITH
+WITH CHECK OPTION
+with check option violation
+with clause
+with column list
+WITH GRANT OPTION
+with or without time zone
+WITHOUT
+WORK
+WRITE
+
+- Y -
+
+YEAR
+year-month interval
+year-month literal
+years value
+YES
+
+- Z -
+
+ZONE
