@@ -1,5 +1,5 @@
 ====================================
-APPENDIX A -- Remote Database Access
+Appendix A -- Remote Database Access
 ====================================
 
 ::

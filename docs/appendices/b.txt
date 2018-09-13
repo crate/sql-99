@@ -1,5 +1,5 @@
 ==========================
-APPENDIX B -- SQL Taxonomy
+Appendix B -- SQL Taxonomy
 ==========================
 
 ::

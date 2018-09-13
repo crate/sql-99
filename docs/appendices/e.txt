@@ -1,5 +1,5 @@
 ===========================
-APPENDIX E -- SQL Web Sites
+Appendix E -- SQL Web Sites
 ===========================
 
 ::

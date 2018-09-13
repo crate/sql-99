@@ -1,5 +1,5 @@
 ===========================================
-APPENDIX D -- Incompatibilities with SQL-92
+Appendix D -- Incompatibilities with SQL-92
 ===========================================
 
 ::

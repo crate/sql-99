@@ -1,5 +1,5 @@
 =======================================
-APPENDIX C -- Non-portable SQL Features
+Appendix C -- Non-portable SQL Features
 =======================================
 
 ::
