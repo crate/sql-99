@@ -1,552 +1,556 @@
+=========================================
 Chapter 37 -- SQL Transaction Concurrency
-
-Although there is never more than one current SQL transaction between your
-DBMS and your application program at any point in time, the operational
-problem -- although perhaps we should call it a "challenge" or an
-"opportunity" -- is that many DBMSs run in multi-tasking or multi-user
-scenarios. These may range from the fairly simple (for example, an MS-Windows
-background task running in conjunction with a foreground task) to the fairly
-complex (for example a heterogeneous mix of computers connected over a network
-via TCP/IP). The problem/challenge/opportunity has grown larger in recent
-years, with the demand for "24x7" (twenty-four hour by seven-day)
-accessibility, and with the demand for DBMS servers that can operate on
-Internet hosts (especially with WindowsNT and Linux operating systems).
-
-In SQL, the primary unit of work is the "transaction", as we saw in the previous chapter. The interesting difficulties lie with transaction concurrency, which we define as:
-
-   Concurrency.
-      The running together of two transactions, which may access the same database rows during overlapping time periods. Such simultaneous accesses, called "collisions", may result in errors or inconsistencies if not handled
-      properly. The more overlapping that is possible, the greater the concurrency.
-
-The proper handling of collisions requires some work on the part of the
-application programmer. It is possible to leave the whole matter in the hands
-of the DBMS, but that would almost certainly lead to performance which
-everyone would call unacceptable. Therefore your requirement for this part of
-the job is to understand how errors or inconsistencies can arise during
-collisions, to use the somewhat paucous SQL options which can increase
-concurrency, and to help the DBMS along with a variety of settings or
-application plans. ** Footnote -- Though we use the singular word "DBMS", we
-note once again that there may in fact be several co-operating agencies responsible for transaction management.
-
-Isolation Phenomena
-
-What sort of errors and inconsistencies can creep in during concurrent
-operations? Database groupies generally use four categories, which they call
--- in order by seriousness -- Lost Update, Dirty Read, Non-Repeatable Read and Phantom.
-
-In the descriptions that follow, the conventions are that "Txn#1" and "Txn#2"
-are two concurrent transactions, that "change" has its usual sense of "an
-INSERT or UPDATE or DELETE", and "read" means "FETCH" or some close
-equivalent. The charts are time lines with time points, so that events shown
-lower down in the chart are taking place later in time.
-
-LOST UPDATE
-      Txn#1                   Txn#2
-      ...                     Read
-      Read                    ...
-      Change                  ...
-      ...                     Change
-      Commit                  ...
-      ...                     Commit
-
-The "lost update" is the change made by Txn#1. Since Txn#2 makes a later change, it supersedes Txn#1's change. The result is as if Txn#1's change never happened.
-
-DIRTY READ
-      Txn#1                   Txn#2
-      Read                    ...
-      Change                  ...
-      ...                     Read
-      Rollback                ...
-      ...                     Rollback
-
-Here the key is that Txn#2 "reads" after Txn#1 "changes", and so Txn#2 "sees"
-the new data that Txn#1 changed to. That change was ephemeral though: Txn#1
-rolled back the change. So Txn#1's change really never happened, but Txn#2
-based its work on that change anyway. The old name for the Dirty Read phenomenon is "uncommitted dependency".
-
-NON-REPEATABLE READ
-      Txn#1                   Txn#2
-      ...                     read
-      read                    ...
-      ...                     change
-      read                    ...
-      ...                     Commit
-      Commit                  ...
-
-The supposition here is that Txn#1 will "read" the same row twice. The second
-time, though, the values in the row will be different. This is by no means as
-serious an inconsistency (usually) as LOST UPDATE or DIRTY READ, but it does
-certainly break the requirements of an ACID transaction.
-
-PHANTOM
-      Txn#1                             Txn#2
-      SELECT FROM t WHERE col=5;         ...
-      ...                               INSERT INTO t(col) VALUES(5);
-      ...                               UPDATE t SET col=5 WHERE col=6;
-      SELECT FROM t WHERE col=5;         ...
-
-This now-you-don't-see-it-now-you-do phenomenon is one that often slips
-through, especially with older or dBASE-like DBMSs. The reason is that DBMSs
-might notice concurrent access to rows, but fail to notice concurrent access
-to the paths to those rows. Phantoms can affect transactions which contain at
-least two <search condition>s which in some way overlap or depend on one
-another. Phantoms are rare and are usually tolerable, but can cause surprise
-errors because even some good DBMSs let them through, unless you take explicit
-measures to signal "no phantoms please".
-
-Pessimistic Concurrency: LOCKING
-
-The most common and best-known way to eliminate some or all of the transaction concurrency phenomena is locking. Typically, a lock works like this:
-
-      Txn#1                               Txn#2
-      "LOCK" the desired object           ...
-      ...                                 Wait: desired object is locked
-      read and/or change                  ...
-      read and/or change                  ...
-      Commit (which releases locks)       ...
-      ...                                 "LOCK" the desired object
-
-Here, the Object being locked might be a Column, a row, a page, a Table or the
-entire database. Incidentally, when a lock is on a Column, locks are said to
-be "finely granular"; when a lock is on a page or Table or database, locks are
-said to be "coarsely granular". DBMSs with coarse-granularity locking have
-less concurrency (because a lock on row#1 causes an unnecessary lock on other
-rows as well), but are efficient despite that because: the coarser the
-granularity, the fewer locks exist, and therefore searching the list of locks
-is quicker. At this moment, it appears that the majority of important DBMSs
-support locking by row, with some (non-standard) optional syntax that allows
-locking by Table.
-
-A lock is much like a reservation in a restaurant. If you find that your desired seat has already been taken by someone who came before you, you must either wait or go elsewhere.
-
-Usually an SQL DBMS supports at least two kinds of locks: "shared locks" and
-"exclusive locks". A shared lock exists because there is nothing wrong with
-letting two transactions read the same row; concurrency can only cause trouble
-if one transaction or the other is updating. Therefore, at retrieval time, a
-shared lock is made, and this shared lock does not block other transactions
-from accessing the same row (with another retrieval). At change time, the
-shared lock is upgraded to an exclusive lock, which blocks both reads and
-writes by other transactions. The use of different kinds of locks is something
-that distinguishes an SQL DBMS from a DBMS that depends on the operating
-system (operating systems like MS-DOS support exclusive locks only).
-
-The famous irritant with a lock-based concurrency resolution mechanism is the "deadlock" (or deadly embrace), which goes like this:
-
-      Txn#1                               Txn#2
-      Lock Row #1                         ...
-      ...                                 Lock Row #2
-      Attempt to Lock Row #2 --           ...
-      WAIT, because it's locked
-      ...                                 Attempt to Lock Row #1 --
-                                          WAIT, because it's locked
-      WAIT                                WAIT
-
-Since Txn#1 is waiting for Txn#2 to release its lock, but Txn#2 is waiting for Txn#1 to release its lock, there can be no progress. The DBMS must detect situations like this and force one transaction or the other to "rollback" with an error.
-
-Locking is reliable and popular. However, it is sometimes criticized for being
-based on an excessively pessimistic assumption: that something which you read
-could be something that you will change. The result is a profusion of "shared
-locks", the great majority of which turn out to be unnecessary because only a relatively small number of rows are actually updated.
-
-Optimistic Concurrency: TIMESTAMPING
-
-There are several ways to control concurrency without locking. The most common
-ones can be grouped together as the "optimistic assumption" ways, and the most
-common of those ways is timestamping. With timestamping, there are no locks
-but there are two situations which cause transaction failure:
-      ## If a younger transaction has "read" the row, then an attempt by an older transaction to "change" that row will fail.
-      ## If a younger transaction has "changed" the row, then an attempt by an older transaction to "read" that row will fail.
-
-The general effect of these rules is that concurrency is high, but failure is
-frequent. Indeed, it is quite possible that a transaction will fail many
-times. But what the heck, one can put the transaction in a loop and keep retrying until it goes through.
-
-Some DBMSs enhance the concurrency further by actually "reading" a row which
-has been changed by another transaction, and deciding whether the change is
-significant. For example, it often happens that the same Column is being
-updated so that it has the same value for both transactions. In that case, there may be no need to abort.
-
-Most optimistic concurrency mechanisms are not particularly good for detecting Non-Repeatable Reads or Phantoms.
-
-SET TRANSACTION statement
-
-By now, we've come to expect that SQL statements aren't used to specify
-methods. Instead, they state what the requirements are. That's the idea behind
-the SET TRANSACTION statement. It tells the DBMS -- somewhat indirectly --
-what sort of concurrency phenomena are intolerable for the next transaction,
-but it does not say how they are to be prevented. That detail is left up to
-the DBMS itself -- that is, the choice of concurrency protocol (locking,
-timestamping or some other method) is implementation-defined. The required syntax for the SET TRANSACTION statement is:
-
-SET [ LOCAL ] TRANSACTION <transaction mode> [ {,<transaction mode>}... ]
-
-   <transaction mode> ::=
-   <transaction access mode> |
-   <isolation level> |
-   <diagnostics size>
-
-      <transaction access mode> ::=
-      READ ONLY | READ WRITE
-
-      <isolation level> ::=
-      ISOLATION LEVEL
-        {READ UNCOMMITTED | READ COMMITTED | REPEATABLE READ | SERIALIZABLE}
-
-      <diagnostics size> ::=
-      DIAGNOSTICS SIZE <number of conditions>
-
-         <number of conditions> ::= <simple value specification>
-
-The SET TRANSACTION statement sets certain characteristics for the next transaction. There are three options, any or all of which can be set by a single SET TRANSACTION statement.
-
-The first transaction characteristic is its access mode: a transaction can
-either be a READ ONLY transaction or a READ WRITE transaction. The second
-transaction characteristic is its isolation level: a transaction can either
-allow READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ or SERIALIZABLE
-operations. The final transaction characteristic is the size of its
-diagnostics area: you set this to the number of conditions you want your DBMS
-to be able to provide you with information on (it must be at least one). The
-<diagnostics size> is a transaction characteristic which has nothing to do
-with concurrency, so we won't discuss it further here -- look for it in our
-chapters on binding styles. That leaves us with the choice of specifying "READ
-ONLY" versus "READ WRITE", and the choice of specifying one of: "READ
-UNCOMMITTED", "READ COMMITTED", "REPEATABLE READ" or "SERIALIZABLE" for a
-transaction. Here's some example SQL statements:
-
-   SET TRANSACTION
-      READ WRITE
-      ISOLATION LEVEL REPEATABLE READ;
-
-   SET TRANSACTION
-      READ ONLY
-      ISOLATION LEVEL READ UNCOMMITTED;
-
-As the name suggests, SET TRANSACTION is only good for setting the
-characteristics of one transaction (though there are a few exceptions to this
-rule when we add the optional <keyword> LOCAL, a SQL3 feature). Unless you're
-using the SQL3 START TRANSACTION statement (which we'll discuss later in this
-chapter), the SET TRANSACTION statement should precede all other statements in
-a transaction. If you don't specify it, the default situation is:
-
-   SET TRANSACTION
-      READ WRITE
-      ISOLATION LEVEL SERIALIZABLE;
-
-Access mode:
-If the transaction's isolation level is READ UNCOMMITTED, then READ ONLY is
-the default (and only legal) access mode option. For all other isolation
-levels, either READ ONLY or READ WRITE are legal options, and the default is READ WRITE.
-
-The declaration READ ONLY tells the DBMS that all statements in the upcoming
-transactions will be "read" statements: they only read SQL data, they don't
-make any changes. The declaration READ WRITE tells the DBMS that there may be
-either "read" or "change" statements in the upcoming transaction. (Note:
-Changes to TEMPORARY Tables don't count as "changes", since TEMPORARY Tables
-aren't shared between different transactions anyway. So regardless of what you
-do with TEMPORARY Tables, as long as you make no changes to SQL-data or
-persistent SQL Objects (e.g.: Schemas, Tables, Domains and so on), you can
-declare a transaction's access mode to be READ ONLY.
-
-There are no guarantees that specifying READ ONLY will do any good at all, but
-it certainly won't hurt -- and it might result in performance gains. Here's
-why: If your DBMS sees that all transactions are READ ONLY, then it doesn't
-have to set any locks at all -- no isolation phenomena can arise when all jobs
-are doing nothing but reading. If only one transaction is READ ONLY, there is
-still a good strategy available: the DBMS can make a temporary copy of the
-Tables that you SELECT from (or at least of the rows in the result sets).
-Following that, all FETCH statements are operating on the temporary copy,
-instead of on the original Table, and therefore collisions are impossible.
-Typical application situations where READ ONLY is called for include: report
-writers, screen displayers, file dumps. The option might have a particularly
-good effect if the transaction contains statements which contain set functions.
-
-Isolation level:
-The <isolation level> characteristic you specify in a SET TRANSACTION
-statement determines the degree of "isolation" of the upcoming transaction.
-This effectively means that the value you choose will tell your DBMS which
-concurrency phenomena are tolerable or intolerable for the transaction. It's
-up to the DBMS to decide how precisely it will follow your instruction -- the
-Standard allows it to upgrade the specification (but never to downgrade it,
-you're always guaranteed at least the isolation level you've asked for). For
-example, your DBMS could take a READ UNCOMMITTED specification and set the
-next transaction's isolation level to SERIALIZABLE (a higher level of
-isolation) instead. But since your DBMS cannot downgrade the specification,
-there is no harm in setting the <isolation level> as precisely as possible.
-
-## READ UNCOMMITTED
-READ UNCOMMITTED is the lowest level of transaction isolation. If you specify
-READ UNCOMMITTED, you are risking that the transaction -- no matter what it is
-doing -- might deliver a "wrong" answer. Because it is always unacceptable for
-the database itself to contain wrong data, it is illegal to execute any
-"change" statements during a READ UNCOMMITTED transaction. That is, READ UNCOMMITTED implies READ ONLY.
-
-READ UNCOMMITTED means "allow reading of rows which have been written by other
-transactions, but not committed" -- so Dirty Reads, Non-Repeatable Reads and
-Phantoms are all possible with this type of transaction. However, Lost Update
-is not possible for the simple reason that, as already stated, changes of any
-kind are illegal. Lost Updates are, in fact, prevented in all the standard SQL
-isolation levels. The concurrency level is as high as it can be -- in a
-locking situation, no locks would be issued and no locks would be checked for.
-We could say that, for this transaction, concurrency checking is turned off.
-
-The READ UNCOMMITTED level is a good choice if (a) the transaction is usually
-slow, (b) errors are likely to be small and (c) errors are likely to cancel
-each other out. The most certain example of such a situation is a single
-SELECT statement containing a set function such as COUNT(*). Any "report"
-where the user isn't likely to care about details, is also a good candidate.
-You tolerate a huge degree of error every time they use a search engine on the World Wide Web.
-
-## READ COMMITTED
-READ COMMITTED is the next level of transaction isolation. READ COMMITTED
-means "allow reading of rows written by other transactions only after they
-have been committed" --  so Non-Repeatable Reads or Phantoms are both possible
-with this type of transaction, but Update and Dirty Read are not. The READ
-COMMITTED level allows for a reasonably high level of concurrency -- in a
-locking situation, shared locks must be made, but they can be released again
-before the transaction ends. For any "optimistic" concurrency resolution
-mechanism, READ COMMITTED is the favored level. Conventional wisdom says that
-concurrency based on optimistic assumptions gets very slow if the isolation level is high.
-
-The READ COMMITTED level is always safe if there is only one SQL statement in
-the transaction. Logic tells us that there will be no Repeatable Read errors if there is only one "read".
-
-## REPEATABLE READ
-REPEATABLE READ is the next level of transaction isolation. By specifying
-REPEATABLE READ, you are saying to your DBMS: don't  tolerate Non-Repeatable
-Reads (or, for that matter, Dirty Reads or Lost Updates) for the next
-transaction. Phantoms continue to be tolerated. With REPEATABLE READ, the
-concurrency drops sharply. In a locking situation, the DBMS will be obliged
-to put a "shared lock" on every row it fetches, and keep the lock throughout
-the transaction. From the DBMS's point of view, the difference between this
-level and the previous one is: with READ COMMITTED the locks can be released
-before the transaction ends, with REPEATABLE READ they can't be.
-
-The REPEATABLE READ level is what most programmers prefer for multi-statement
-transactions that involve "changes". Examples would be bank transfers or library book checkouts.
-
-## SERIALIZABLE
-SERIALIZABLE is the highest level of transaction isolation. At the
-SERIALIZABLE isolation level, no concurrency phenomena -- even Phantoms -- can
-arise to plague the programmer. This is the lowest level for concurrency.
-Often the DBMS must respond by coarsening the granularity, and locking whole
-Tables at once. Because the result is likely to be poor performance, this is
-usually not the isolation level that the DBMS vendor manuals suggest --
-they'll steer you to REPEATABLE READ. But SERIALIZABLE is the default
-isolation level in standard SQL and it's the only level that all
-standards-compliant vendors are guaranteed to support (theoretically a vendor
-could ignore the lower levels and just "upgrade" all <isolation level> specifications to SERIALIZABLE).
-
-Since the SERIALIZABLE level won't tolerate Phantoms, it's especially
-indicated for transactions which contain multiple SELECT statements, or for
-when you don't know what the statements will be, as in dynamic SQL. It is the
-only level which assures safe, error-free transactions every time. If your
-application consists wholly of short (i.e. fast-executing) statements which
-affect only a few records at a time, don't get fancy -- leave everything at
-the default SERIALIZABLE level. Nevertheless, we suspect that SERIALIZABLE is
-used somewhat more often than appropriate. The choice of isolation level is
-something you should at least give a moment's thought to, on a case-by-case basis.
-
-The word SERIALIZABLE reflects the idea that, given two overlapping
-transactions -- Txn#1 and Txn#2 -- we can get the same results as we would get
-if the transactions were "serial" rather than "overlapping" -- that is, if
-Txn#1 followed Txn#2, or Txn#2 followed Txn#1, in time the end result would be
-the same. This does not mean that the transactions are replayable, though. The
-DBMS can only take responsibility for data stored in the database. It can not
-guarantee that a transaction's statements are replayable if the parameter
-values from the host (application) program change or if the SQL statements
-contain niladic functions such as CURRENT_DATE, CURRENT_TIME, CURRENT_TIMESTAMP or CURRENT_USER.
-
-SET LOCAL TRANSACTION:
-If your DBMS supports transaction that may affect more than one SQL-server,
-you can use the <keyword> LOCAL (new to SQL with SQL3) to set the transaction
-characteristics for the next local transaction. If you omit LOCAL, you're
-instructing your DBMS to set the transaction characteristics for the next
-transaction executed by the program, regardless of location. If LOCAL is
-specified, then you may not also specify the size of the transaction's diagnostics area.
-
-Certain errors can arise when you try to use the SET TRANSACTION statement:
-      ## If you try to issue it when a transaction has already begun, SET TRANSACTION will fail: your DBMS will return the SQLSTATE error 25001 "invalid transaction state-active SQL-transaction".
-      ## If you issue it when there are holdable-cursors still open from the
-previous transaction and the isolation level of that transaction is not the
-same as the isolation level you're specifying for the next transaction, SET
-TRANSACTION will fail: your DBMS will return the SQLSTATE error 25008 "invalid
-transaction state-held cursor requires same isolation level".
-      ## If you issue SET LOCAL TRANSACTION and your DBMS doesn't support transactions that affect multiple SQL-servers, SET LOCAL TRANSACTION will fail: your DBMS will return the SQLSTATE error 0A001
-"feature not supported-multiple server transactions".
-
-If you want to restrict your code to Core SQL, don't use SET LOCAL TRANSACTION and don't set any transaction's isolation level to anything but SERIALIZABLE.
-
-START TRANSACTION statement
-
-In SQL3, you don't need the SET TRANSACTION statement, except for setting the
-characteristics of local transactions. Instead, you can use the START
-TRANSACTION statement to both initiate the start of a new transaction and to
-set that transaction's characteristics. The required syntax for the START TRANSACTION statement is:
-
-START TRANSACTION <transaction mode> [ {,<transaction mode>}...]
-
-   <transaction mode> ::=
-   <isolation level> |
-   <transaction access mode> |
-   <diagnostics size>
-
-Each of the transaction characteristics -- <isolation level>, <transaction
-access mode> and <diagnostics size> -- works the same, and has the same
-options as those we discussed for the SET TRANSACTION statement. The only real
-difference between the two statements is that SET TRANSACTION is considered to
-be outside of a transaction -- it defines the characteristics for the next
-transaction coming up -- while START TRANSACTION is considered as the
-beginning of a transaction -- it defines the characteristics of the transaction it begins.
-
-One other thing of note: The characteristics of a transaction that you start
-with a START TRANSACTION statement are as specified in that statement -- even
-if the specification is implicit because you leave out one or more of the
-transaction mode options. That is, even if one or more characteristics are
-omitted from START TRANSACTION, they will default to the appropriate values --
-they will not take on any non-default characteristics even if you issue a SET
-TRANSACTION statement that includes other specifications for those characteristics just before you begin the transaction.
-
-If you want to restrict your code to Core SQL, don't use the START TRANSACTION statement.
-
-Special problems
-
-The SQL-Schema change statements (CREATE, ALTER, DROP, GRANT, REVOKE) require
-drastic solutions to ensure concurrency. Typically, a DBMS must lock all the
-INFORMATION_CATALOG descriptors. That means that SQL-Schema statements cannot run concurrently with anything else.
-
-The INSERT statement is more concurrent than the UPDATE or DELETE statements.
-By definition, any "new" row is a not-yet-committed row and therefore is
-invisible to all other transactions (except transactions which are running at
-the READ UNCOMMITTED isolation level). Where INSERT will have problems is in
-cases where the target Table includes a Column with a serial data type (which
-is non-standard) -- in such cases, the DBMS cannot guarantee that the value
-will truly be serial unless the isolation level of all transactions is SERIALIZABLE.
-
-It is fairly easy to lock a "row" in a Base table, since there is usually some
-fixed physical file address which corresponds to the row. However, an "index
-key" in an index file is a slipperier thing. Index keys can move, as anyone
-who has studied B+trees can tell you. So, when you update a row, remember that
-you may be locking not only the row, but an entire page of an index.
-
-Regardless of isolation level, none of the isolation phenomena should occur during:
-      (a) implied reading of Schema definitions (that is, while finding
-Objects during the "prepare" phase ... as opposed to "explicit" reading, which
-is what happens if you SELECT ... FROM INFORMATION_SCHEMA.<Table name>);
-      (b) processing of integrity Constraints (but not Triggers).
-The implication is that standard SQL DBMSs have to lock the whole database when preparing a statement, and at the end of a statement's execution phase. This is a difficult requirement.
-
-Transactions and Constraint Checking
-
-There is one other SQL transaction management statement: SET CONSTRAINTS. We
-talked about SET CONSTRAINTS a bit in our chapter on constraints and
-assertions; basically, it allows you to tell the DBMS when you want it to
-check any deferrable Constraints that were affected during a transaction. A
-transaction always begins with an initial default constraint mode for every
-Constraint that is used during the course of the transaction. A Constraint's
-initial constraint mode, specified when the Constraint was created, determines
-when the Constraint will be checked for violation of its rule: immediately at
-the end of each SQL statement executed, or later on in the transaction. The
-SET CONSTRAINTS statement is used to specify a different constraint mode for
-one or more DEFERRABLE Constraints during the course of a transaction.
-
-SET CONSTRAINTS statement
-
-The required syntax for the SET CONSTRAINTS statement is:
-
-SET CONSTRAINTS <Constraint name list> {DEFERRED | IMMEDIATE}
-
-   <Constraint name list> ::=
-   ALL |
-   <Constraint name> [ {,<Constraint name>}... ]
-
-Remember that all Constraints and Assertions are defined with a deferral mode
-of either NOT DEFERRABLE or DEFERRABLE. A deferral mode of NOT DEFERRABLE
-means that the Constraint must be checked for violation as soon as the SQL
-statement that affects it is executed -- this type of Constraint can't be
-affected by the SET CONSTRAINTS statement and we'll ignore it here. A deferral
-mode of DEFERRABLE, on the other hand, allows you to specify when you want
-your DBMS to check the Constraint for violation -- the choices are at
-statement end or at transaction end -- and such Constraints may be affected by the SET CONSTRAINTS statement.
-
-Every transaction has a constraint mode for each integrity Constraint affected
-by that transaction. If the Constraint is a NOT DEFERRABLE Constraint, the
-constraint mode is always IMMEDIATE. But if the Constraint is a DEFERRABLE
-Constraint, then its constraint mode at the beginning of a transaction will
-either be IMMEDIATE or DEFERRED, depending on the way you defined the
-Constraint -- if you defined it as DEFERRABLE INITIALLY IMMEDIATE, the
-Constraint's constraint mode at transaction start will be IMMEDIATE and if you
-defined it as DEFERRABLE INITIALLY DEFERRED, the Constraint's constraint mode
-at transaction start will be DEFERRED. You can use the SET CONSTRAINTS
-statement to change these default constraint mode settings for one or more
-Constraints -- but only for the duration of the transaction that you use it
-in. (You can actually issue SET CONSTRAINTS at two different times. If you
-issue it during a transaction, you're changing the constraint mode of only
-those Constraints that are affected during that same transaction. If you issue
-it when there is no current transaction, you're changing the constraint mode
-of only those Constraints that are affected during the very next transaction.)
-
-The SQL statement:
-
-   SET CONSTRAINTS ALL IMMEDIATE;
-
-has the effect of setting the constraint mode of every DEFERRABLE Constraint
-to IMMEDIATE. IMMEDIATE means that the Constraints must be checked for
-violation after the execution of every SQL statement -- including after SET CONSTRAINTS.
-
-The SQL statement:
-
-   SET CONSTRAINTS ALL DEFERRED;
-
-has the effect of setting the constraint mode of every DEFERRABLE Constraint
-to DEFERRED. DEFERRED means that the Constraints should not be checked for
-violation after the execution of every SQL statement, but should instead be
-checked at some later time, but no later than the end of the current
-transaction. (COMMIT includes an implied "SET CONSTRAINTS ALL IMMEDIATE"
-statement, so that all Constraints are checked at transaction end.)
-
-If you provide a list of <Constraint name>s instead of using the <keyword>
-ALL, the constraint mode of only those Constraints is affected. For example, if you have these Constraints:
-
-   Constraint_1 DEFERRABLE INITIALLY IMMEDIATE
-   Constraint_2 DEFERRABLE INITIALLY IMMEDIATE
-   Constraint_3 DEFERRABLE INITIALLY IMMEDIATE
-   Constraint_4 DEFERRABLE INITIALLY DEFERRED
-   Constraint_5 DEFERRABLE INITIALLY DEFERRED
-   Constraint_6 DEFERRABLE INITIALLY DEFERRED
-
-and you issue this SQL statement:
-
-   SET CONSTRAINTS Constraint_1,Constraint_3,Constraint_4 DEFERRED;
-
-the result is that Constraint_1, Constraint_3, Constraint_4, Constraint_5 and
-Constraint_6 will all have a constraint mode of DEFERRED and Constraint_2 will
-continue to have a constraint mode of IMMEDIATE.
-
-All Constraints with a constraint mode of IMMEDIATE are checked for violation
-at SQL statement. Constraints with a constraint mode of deferred, on the other
-hand, are not checked until transaction end. This let's you do operations
-which temporarily puts your data into an unsound state and can thus be very useful.
-
-Dialects
-
-Some DBMSs support locking, some support timestamping, some support both. Beyond that fundamental point of difference, there are many implementation-dependent features.
-For example: the granularity (by Column or row or page or Table or database), the number of distinct isolation levels that are actually supported (remember
-that pseudo-support is possible by simply upgrading to  the next level), and whether to support SQL-92 or SQL3 syntax. Regrettably, most DBMSs are still idiosyncratic with respect to support for the SET TRANSACTION statement.
-
-IBM's DB2 and its imitators have explicit statements for locking Tables: "LOCK TABLE <name> IN {EXCLUSIVE|SHARED} MODE;". This reduces the total number of locks, and actually enhances concurrency
-if your intention is to access every row in the Table.
-
-ODBC specifies a variety of options which essentially are options for row
-identifiers used in scrolling. There are also CLI-specific commands for
-setting transaction isolation or other concurrency-related characteristics.
-
-Oracle has Locks Display and other utilities that help administrators to monitor concurrency.
-
-Goodies
-
-The OCELOT DBMS that comes with this book supports concurrency. These are the specifications:
-   Concurrency Resolution Mechanism:          Locking
-   Maximum number of concurrent connections:  2
-   Isolation Levels Actually Supported:       SERIALIZABLE
-   Granularity:                               database
-   Additional Features:                       none
+=========================================
+
+::
+
+    Although there is never more than one current SQL transaction between your
+    DBMS and your application program at any point in time, the operational
+    problem -- although perhaps we should call it a "challenge" or an
+    "opportunity" -- is that many DBMSs run in multi-tasking or multi-user
+    scenarios. These may range from the fairly simple (for example, an MS-Windows
+    background task running in conjunction with a foreground task) to the fairly
+    complex (for example a heterogeneous mix of computers connected over a network
+    via TCP/IP). The problem/challenge/opportunity has grown larger in recent
+    years, with the demand for "24x7" (twenty-four hour by seven-day)
+    accessibility, and with the demand for DBMS servers that can operate on
+    Internet hosts (especially with WindowsNT and Linux operating systems).
+
+    In SQL, the primary unit of work is the "transaction", as we saw in the previous chapter. The interesting difficulties lie with transaction concurrency, which we define as:
+
+       Concurrency.
+          The running together of two transactions, which may access the same database rows during overlapping time periods. Such simultaneous accesses, called "collisions", may result in errors or inconsistencies if not handled
+          properly. The more overlapping that is possible, the greater the concurrency.
+
+    The proper handling of collisions requires some work on the part of the
+    application programmer. It is possible to leave the whole matter in the hands
+    of the DBMS, but that would almost certainly lead to performance which
+    everyone would call unacceptable. Therefore your requirement for this part of
+    the job is to understand how errors or inconsistencies can arise during
+    collisions, to use the somewhat paucous SQL options which can increase
+    concurrency, and to help the DBMS along with a variety of settings or
+    application plans. ** Footnote -- Though we use the singular word "DBMS", we
+    note once again that there may in fact be several co-operating agencies responsible for transaction management.
+
+    Isolation Phenomena
+
+    What sort of errors and inconsistencies can creep in during concurrent
+    operations? Database groupies generally use four categories, which they call
+    -- in order by seriousness -- Lost Update, Dirty Read, Non-Repeatable Read and Phantom.
+
+    In the descriptions that follow, the conventions are that "Txn#1" and "Txn#2"
+    are two concurrent transactions, that "change" has its usual sense of "an
+    INSERT or UPDATE or DELETE", and "read" means "FETCH" or some close
+    equivalent. The charts are time lines with time points, so that events shown
+    lower down in the chart are taking place later in time.
+
+    LOST UPDATE
+          Txn#1                   Txn#2
+          ...                     Read
+          Read                    ...
+          Change                  ...
+          ...                     Change
+          Commit                  ...
+          ...                     Commit
+
+    The "lost update" is the change made by Txn#1. Since Txn#2 makes a later change, it supersedes Txn#1's change. The result is as if Txn#1's change never happened.
+
+    DIRTY READ
+          Txn#1                   Txn#2
+          Read                    ...
+          Change                  ...
+          ...                     Read
+          Rollback                ...
+          ...                     Rollback
+
+    Here the key is that Txn#2 "reads" after Txn#1 "changes", and so Txn#2 "sees"
+    the new data that Txn#1 changed to. That change was ephemeral though: Txn#1
+    rolled back the change. So Txn#1's change really never happened, but Txn#2
+    based its work on that change anyway. The old name for the Dirty Read phenomenon is "uncommitted dependency".
+
+    NON-REPEATABLE READ
+          Txn#1                   Txn#2
+          ...                     read
+          read                    ...
+          ...                     change
+          read                    ...
+          ...                     Commit
+          Commit                  ...
+
+    The supposition here is that Txn#1 will "read" the same row twice. The second
+    time, though, the values in the row will be different. This is by no means as
+    serious an inconsistency (usually) as LOST UPDATE or DIRTY READ, but it does
+    certainly break the requirements of an ACID transaction.
+
+    PHANTOM
+          Txn#1                             Txn#2
+          SELECT FROM t WHERE col=5;         ...
+          ...                               INSERT INTO t(col) VALUES(5);
+          ...                               UPDATE t SET col=5 WHERE col=6;
+          SELECT FROM t WHERE col=5;         ...
+
+    This now-you-don't-see-it-now-you-do phenomenon is one that often slips
+    through, especially with older or dBASE-like DBMSs. The reason is that DBMSs
+    might notice concurrent access to rows, but fail to notice concurrent access
+    to the paths to those rows. Phantoms can affect transactions which contain at
+    least two <search condition>s which in some way overlap or depend on one
+    another. Phantoms are rare and are usually tolerable, but can cause surprise
+    errors because even some good DBMSs let them through, unless you take explicit
+    measures to signal "no phantoms please".
+
+    Pessimistic Concurrency: LOCKING
+
+    The most common and best-known way to eliminate some or all of the transaction concurrency phenomena is locking. Typically, a lock works like this:
+
+          Txn#1                               Txn#2
+          "LOCK" the desired object           ...
+          ...                                 Wait: desired object is locked
+          read and/or change                  ...
+          read and/or change                  ...
+          Commit (which releases locks)       ...
+          ...                                 "LOCK" the desired object
+
+    Here, the Object being locked might be a Column, a row, a page, a Table or the
+    entire database. Incidentally, when a lock is on a Column, locks are said to
+    be "finely granular"; when a lock is on a page or Table or database, locks are
+    said to be "coarsely granular". DBMSs with coarse-granularity locking have
+    less concurrency (because a lock on row#1 causes an unnecessary lock on other
+    rows as well), but are efficient despite that because: the coarser the
+    granularity, the fewer locks exist, and therefore searching the list of locks
+    is quicker. At this moment, it appears that the majority of important DBMSs
+    support locking by row, with some (non-standard) optional syntax that allows
+    locking by Table.
+
+    A lock is much like a reservation in a restaurant. If you find that your desired seat has already been taken by someone who came before you, you must either wait or go elsewhere.
+
+    Usually an SQL DBMS supports at least two kinds of locks: "shared locks" and
+    "exclusive locks". A shared lock exists because there is nothing wrong with
+    letting two transactions read the same row; concurrency can only cause trouble
+    if one transaction or the other is updating. Therefore, at retrieval time, a
+    shared lock is made, and this shared lock does not block other transactions
+    from accessing the same row (with another retrieval). At change time, the
+    shared lock is upgraded to an exclusive lock, which blocks both reads and
+    writes by other transactions. The use of different kinds of locks is something
+    that distinguishes an SQL DBMS from a DBMS that depends on the operating
+    system (operating systems like MS-DOS support exclusive locks only).
+
+    The famous irritant with a lock-based concurrency resolution mechanism is the "deadlock" (or deadly embrace), which goes like this:
+
+          Txn#1                               Txn#2
+          Lock Row #1                         ...
+          ...                                 Lock Row #2
+          Attempt to Lock Row #2 --           ...
+          WAIT, because it's locked
+          ...                                 Attempt to Lock Row #1 --
+                                              WAIT, because it's locked
+          WAIT                                WAIT
+
+    Since Txn#1 is waiting for Txn#2 to release its lock, but Txn#2 is waiting for Txn#1 to release its lock, there can be no progress. The DBMS must detect situations like this and force one transaction or the other to "rollback" with an error.
+
+    Locking is reliable and popular. However, it is sometimes criticized for being
+    based on an excessively pessimistic assumption: that something which you read
+    could be something that you will change. The result is a profusion of "shared
+    locks", the great majority of which turn out to be unnecessary because only a relatively small number of rows are actually updated.
+
+    Optimistic Concurrency: TIMESTAMPING
+
+    There are several ways to control concurrency without locking. The most common
+    ones can be grouped together as the "optimistic assumption" ways, and the most
+    common of those ways is timestamping. With timestamping, there are no locks
+    but there are two situations which cause transaction failure:
+          ## If a younger transaction has "read" the row, then an attempt by an older transaction to "change" that row will fail.
+          ## If a younger transaction has "changed" the row, then an attempt by an older transaction to "read" that row will fail.
+
+    The general effect of these rules is that concurrency is high, but failure is
+    frequent. Indeed, it is quite possible that a transaction will fail many
+    times. But what the heck, one can put the transaction in a loop and keep retrying until it goes through.
+
+    Some DBMSs enhance the concurrency further by actually "reading" a row which
+    has been changed by another transaction, and deciding whether the change is
+    significant. For example, it often happens that the same Column is being
+    updated so that it has the same value for both transactions. In that case, there may be no need to abort.
+
+    Most optimistic concurrency mechanisms are not particularly good for detecting Non-Repeatable Reads or Phantoms.
+
+    SET TRANSACTION statement
+
+    By now, we've come to expect that SQL statements aren't used to specify
+    methods. Instead, they state what the requirements are. That's the idea behind
+    the SET TRANSACTION statement. It tells the DBMS -- somewhat indirectly --
+    what sort of concurrency phenomena are intolerable for the next transaction,
+    but it does not say how they are to be prevented. That detail is left up to
+    the DBMS itself -- that is, the choice of concurrency protocol (locking,
+    timestamping or some other method) is implementation-defined. The required syntax for the SET TRANSACTION statement is:
+
+    SET [ LOCAL ] TRANSACTION <transaction mode> [ {,<transaction mode>}... ]
+
+       <transaction mode> ::=
+       <transaction access mode> |
+       <isolation level> |
+       <diagnostics size>
+
+          <transaction access mode> ::=
+          READ ONLY | READ WRITE
+
+          <isolation level> ::=
+          ISOLATION LEVEL
+            {READ UNCOMMITTED | READ COMMITTED | REPEATABLE READ | SERIALIZABLE}
+
+          <diagnostics size> ::=
+          DIAGNOSTICS SIZE <number of conditions>
+
+             <number of conditions> ::= <simple value specification>
+
+    The SET TRANSACTION statement sets certain characteristics for the next transaction. There are three options, any or all of which can be set by a single SET TRANSACTION statement.
+
+    The first transaction characteristic is its access mode: a transaction can
+    either be a READ ONLY transaction or a READ WRITE transaction. The second
+    transaction characteristic is its isolation level: a transaction can either
+    allow READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ or SERIALIZABLE
+    operations. The final transaction characteristic is the size of its
+    diagnostics area: you set this to the number of conditions you want your DBMS
+    to be able to provide you with information on (it must be at least one). The
+    <diagnostics size> is a transaction characteristic which has nothing to do
+    with concurrency, so we won't discuss it further here -- look for it in our
+    chapters on binding styles. That leaves us with the choice of specifying "READ
+    ONLY" versus "READ WRITE", and the choice of specifying one of: "READ
+    UNCOMMITTED", "READ COMMITTED", "REPEATABLE READ" or "SERIALIZABLE" for a
+    transaction. Here's some example SQL statements:
+
+       SET TRANSACTION
+          READ WRITE
+          ISOLATION LEVEL REPEATABLE READ;
+
+       SET TRANSACTION
+          READ ONLY
+          ISOLATION LEVEL READ UNCOMMITTED;
+
+    As the name suggests, SET TRANSACTION is only good for setting the
+    characteristics of one transaction (though there are a few exceptions to this
+    rule when we add the optional <keyword> LOCAL, a SQL3 feature). Unless you're
+    using the SQL3 START TRANSACTION statement (which we'll discuss later in this
+    chapter), the SET TRANSACTION statement should precede all other statements in
+    a transaction. If you don't specify it, the default situation is:
+
+       SET TRANSACTION
+          READ WRITE
+          ISOLATION LEVEL SERIALIZABLE;
+
+    Access mode:
+    If the transaction's isolation level is READ UNCOMMITTED, then READ ONLY is
+    the default (and only legal) access mode option. For all other isolation
+    levels, either READ ONLY or READ WRITE are legal options, and the default is READ WRITE.
+
+    The declaration READ ONLY tells the DBMS that all statements in the upcoming
+    transactions will be "read" statements: they only read SQL data, they don't
+    make any changes. The declaration READ WRITE tells the DBMS that there may be
+    either "read" or "change" statements in the upcoming transaction. (Note:
+    Changes to TEMPORARY Tables don't count as "changes", since TEMPORARY Tables
+    aren't shared between different transactions anyway. So regardless of what you
+    do with TEMPORARY Tables, as long as you make no changes to SQL-data or
+    persistent SQL Objects (e.g.: Schemas, Tables, Domains and so on), you can
+    declare a transaction's access mode to be READ ONLY.
+
+    There are no guarantees that specifying READ ONLY will do any good at all, but
+    it certainly won't hurt -- and it might result in performance gains. Here's
+    why: If your DBMS sees that all transactions are READ ONLY, then it doesn't
+    have to set any locks at all -- no isolation phenomena can arise when all jobs
+    are doing nothing but reading. If only one transaction is READ ONLY, there is
+    still a good strategy available: the DBMS can make a temporary copy of the
+    Tables that you SELECT from (or at least of the rows in the result sets).
+    Following that, all FETCH statements are operating on the temporary copy,
+    instead of on the original Table, and therefore collisions are impossible.
+    Typical application situations where READ ONLY is called for include: report
+    writers, screen displayers, file dumps. The option might have a particularly
+    good effect if the transaction contains statements which contain set functions.
+
+    Isolation level:
+    The <isolation level> characteristic you specify in a SET TRANSACTION
+    statement determines the degree of "isolation" of the upcoming transaction.
+    This effectively means that the value you choose will tell your DBMS which
+    concurrency phenomena are tolerable or intolerable for the transaction. It's
+    up to the DBMS to decide how precisely it will follow your instruction -- the
+    Standard allows it to upgrade the specification (but never to downgrade it,
+    you're always guaranteed at least the isolation level you've asked for). For
+    example, your DBMS could take a READ UNCOMMITTED specification and set the
+    next transaction's isolation level to SERIALIZABLE (a higher level of
+    isolation) instead. But since your DBMS cannot downgrade the specification,
+    there is no harm in setting the <isolation level> as precisely as possible.
+
+    ## READ UNCOMMITTED
+    READ UNCOMMITTED is the lowest level of transaction isolation. If you specify
+    READ UNCOMMITTED, you are risking that the transaction -- no matter what it is
+    doing -- might deliver a "wrong" answer. Because it is always unacceptable for
+    the database itself to contain wrong data, it is illegal to execute any
+    "change" statements during a READ UNCOMMITTED transaction. That is, READ UNCOMMITTED implies READ ONLY.
+
+    READ UNCOMMITTED means "allow reading of rows which have been written by other
+    transactions, but not committed" -- so Dirty Reads, Non-Repeatable Reads and
+    Phantoms are all possible with this type of transaction. However, Lost Update
+    is not possible for the simple reason that, as already stated, changes of any
+    kind are illegal. Lost Updates are, in fact, prevented in all the standard SQL
+    isolation levels. The concurrency level is as high as it can be -- in a
+    locking situation, no locks would be issued and no locks would be checked for.
+    We could say that, for this transaction, concurrency checking is turned off.
+
+    The READ UNCOMMITTED level is a good choice if (a) the transaction is usually
+    slow, (b) errors are likely to be small and (c) errors are likely to cancel
+    each other out. The most certain example of such a situation is a single
+    SELECT statement containing a set function such as COUNT(*). Any "report"
+    where the user isn't likely to care about details, is also a good candidate.
+    You tolerate a huge degree of error every time they use a search engine on the World Wide Web.
+
+    ## READ COMMITTED
+    READ COMMITTED is the next level of transaction isolation. READ COMMITTED
+    means "allow reading of rows written by other transactions only after they
+    have been committed" --  so Non-Repeatable Reads or Phantoms are both possible
+    with this type of transaction, but Update and Dirty Read are not. The READ
+    COMMITTED level allows for a reasonably high level of concurrency -- in a
+    locking situation, shared locks must be made, but they can be released again
+    before the transaction ends. For any "optimistic" concurrency resolution
+    mechanism, READ COMMITTED is the favored level. Conventional wisdom says that
+    concurrency based on optimistic assumptions gets very slow if the isolation level is high.
+
+    The READ COMMITTED level is always safe if there is only one SQL statement in
+    the transaction. Logic tells us that there will be no Repeatable Read errors if there is only one "read".
+
+    ## REPEATABLE READ
+    REPEATABLE READ is the next level of transaction isolation. By specifying
+    REPEATABLE READ, you are saying to your DBMS: don't  tolerate Non-Repeatable
+    Reads (or, for that matter, Dirty Reads or Lost Updates) for the next
+    transaction. Phantoms continue to be tolerated. With REPEATABLE READ, the
+    concurrency drops sharply. In a locking situation, the DBMS will be obliged
+    to put a "shared lock" on every row it fetches, and keep the lock throughout
+    the transaction. From the DBMS's point of view, the difference between this
+    level and the previous one is: with READ COMMITTED the locks can be released
+    before the transaction ends, with REPEATABLE READ they can't be.
+
+    The REPEATABLE READ level is what most programmers prefer for multi-statement
+    transactions that involve "changes". Examples would be bank transfers or library book checkouts.
+
+    ## SERIALIZABLE
+    SERIALIZABLE is the highest level of transaction isolation. At the
+    SERIALIZABLE isolation level, no concurrency phenomena -- even Phantoms -- can
+    arise to plague the programmer. This is the lowest level for concurrency.
+    Often the DBMS must respond by coarsening the granularity, and locking whole
+    Tables at once. Because the result is likely to be poor performance, this is
+    usually not the isolation level that the DBMS vendor manuals suggest --
+    they'll steer you to REPEATABLE READ. But SERIALIZABLE is the default
+    isolation level in standard SQL and it's the only level that all
+    standards-compliant vendors are guaranteed to support (theoretically a vendor
+    could ignore the lower levels and just "upgrade" all <isolation level> specifications to SERIALIZABLE).
+
+    Since the SERIALIZABLE level won't tolerate Phantoms, it's especially
+    indicated for transactions which contain multiple SELECT statements, or for
+    when you don't know what the statements will be, as in dynamic SQL. It is the
+    only level which assures safe, error-free transactions every time. If your
+    application consists wholly of short (i.e. fast-executing) statements which
+    affect only a few records at a time, don't get fancy -- leave everything at
+    the default SERIALIZABLE level. Nevertheless, we suspect that SERIALIZABLE is
+    used somewhat more often than appropriate. The choice of isolation level is
+    something you should at least give a moment's thought to, on a case-by-case basis.
+
+    The word SERIALIZABLE reflects the idea that, given two overlapping
+    transactions -- Txn#1 and Txn#2 -- we can get the same results as we would get
+    if the transactions were "serial" rather than "overlapping" -- that is, if
+    Txn#1 followed Txn#2, or Txn#2 followed Txn#1, in time the end result would be
+    the same. This does not mean that the transactions are replayable, though. The
+    DBMS can only take responsibility for data stored in the database. It can not
+    guarantee that a transaction's statements are replayable if the parameter
+    values from the host (application) program change or if the SQL statements
+    contain niladic functions such as CURRENT_DATE, CURRENT_TIME, CURRENT_TIMESTAMP or CURRENT_USER.
+
+    SET LOCAL TRANSACTION:
+    If your DBMS supports transaction that may affect more than one SQL-server,
+    you can use the <keyword> LOCAL (new to SQL with SQL3) to set the transaction
+    characteristics for the next local transaction. If you omit LOCAL, you're
+    instructing your DBMS to set the transaction characteristics for the next
+    transaction executed by the program, regardless of location. If LOCAL is
+    specified, then you may not also specify the size of the transaction's diagnostics area.
+
+    Certain errors can arise when you try to use the SET TRANSACTION statement:
+          ## If you try to issue it when a transaction has already begun, SET TRANSACTION will fail: your DBMS will return the SQLSTATE error 25001 "invalid transaction state-active SQL-transaction".
+          ## If you issue it when there are holdable-cursors still open from the
+    previous transaction and the isolation level of that transaction is not the
+    same as the isolation level you're specifying for the next transaction, SET
+    TRANSACTION will fail: your DBMS will return the SQLSTATE error 25008 "invalid
+    transaction state-held cursor requires same isolation level".
+          ## If you issue SET LOCAL TRANSACTION and your DBMS doesn't support transactions that affect multiple SQL-servers, SET LOCAL TRANSACTION will fail: your DBMS will return the SQLSTATE error 0A001
+    "feature not supported-multiple server transactions".
+
+    If you want to restrict your code to Core SQL, don't use SET LOCAL TRANSACTION and don't set any transaction's isolation level to anything but SERIALIZABLE.
+
+    START TRANSACTION statement
+
+    In SQL3, you don't need the SET TRANSACTION statement, except for setting the
+    characteristics of local transactions. Instead, you can use the START
+    TRANSACTION statement to both initiate the start of a new transaction and to
+    set that transaction's characteristics. The required syntax for the START TRANSACTION statement is:
+
+    START TRANSACTION <transaction mode> [ {,<transaction mode>}...]
+
+       <transaction mode> ::=
+       <isolation level> |
+       <transaction access mode> |
+       <diagnostics size>
+
+    Each of the transaction characteristics -- <isolation level>, <transaction
+    access mode> and <diagnostics size> -- works the same, and has the same
+    options as those we discussed for the SET TRANSACTION statement. The only real
+    difference between the two statements is that SET TRANSACTION is considered to
+    be outside of a transaction -- it defines the characteristics for the next
+    transaction coming up -- while START TRANSACTION is considered as the
+    beginning of a transaction -- it defines the characteristics of the transaction it begins.
+
+    One other thing of note: The characteristics of a transaction that you start
+    with a START TRANSACTION statement are as specified in that statement -- even
+    if the specification is implicit because you leave out one or more of the
+    transaction mode options. That is, even if one or more characteristics are
+    omitted from START TRANSACTION, they will default to the appropriate values --
+    they will not take on any non-default characteristics even if you issue a SET
+    TRANSACTION statement that includes other specifications for those characteristics just before you begin the transaction.
+
+    If you want to restrict your code to Core SQL, don't use the START TRANSACTION statement.
+
+    Special problems
+
+    The SQL-Schema change statements (CREATE, ALTER, DROP, GRANT, REVOKE) require
+    drastic solutions to ensure concurrency. Typically, a DBMS must lock all the
+    INFORMATION_CATALOG descriptors. That means that SQL-Schema statements cannot run concurrently with anything else.
+
+    The INSERT statement is more concurrent than the UPDATE or DELETE statements.
+    By definition, any "new" row is a not-yet-committed row and therefore is
+    invisible to all other transactions (except transactions which are running at
+    the READ UNCOMMITTED isolation level). Where INSERT will have problems is in
+    cases where the target Table includes a Column with a serial data type (which
+    is non-standard) -- in such cases, the DBMS cannot guarantee that the value
+    will truly be serial unless the isolation level of all transactions is SERIALIZABLE.
+
+    It is fairly easy to lock a "row" in a Base table, since there is usually some
+    fixed physical file address which corresponds to the row. However, an "index
+    key" in an index file is a slipperier thing. Index keys can move, as anyone
+    who has studied B+trees can tell you. So, when you update a row, remember that
+    you may be locking not only the row, but an entire page of an index.
+
+    Regardless of isolation level, none of the isolation phenomena should occur during:
+          (a) implied reading of Schema definitions (that is, while finding
+    Objects during the "prepare" phase ... as opposed to "explicit" reading, which
+    is what happens if you SELECT ... FROM INFORMATION_SCHEMA.<Table name>);
+          (b) processing of integrity Constraints (but not Triggers).
+    The implication is that standard SQL DBMSs have to lock the whole database when preparing a statement, and at the end of a statement's execution phase. This is a difficult requirement.
+
+    Transactions and Constraint Checking
+
+    There is one other SQL transaction management statement: SET CONSTRAINTS. We
+    talked about SET CONSTRAINTS a bit in our chapter on constraints and
+    assertions; basically, it allows you to tell the DBMS when you want it to
+    check any deferrable Constraints that were affected during a transaction. A
+    transaction always begins with an initial default constraint mode for every
+    Constraint that is used during the course of the transaction. A Constraint's
+    initial constraint mode, specified when the Constraint was created, determines
+    when the Constraint will be checked for violation of its rule: immediately at
+    the end of each SQL statement executed, or later on in the transaction. The
+    SET CONSTRAINTS statement is used to specify a different constraint mode for
+    one or more DEFERRABLE Constraints during the course of a transaction.
+
+    SET CONSTRAINTS statement
+
+    The required syntax for the SET CONSTRAINTS statement is:
+
+    SET CONSTRAINTS <Constraint name list> {DEFERRED | IMMEDIATE}
+
+       <Constraint name list> ::=
+       ALL |
+       <Constraint name> [ {,<Constraint name>}... ]
+
+    Remember that all Constraints and Assertions are defined with a deferral mode
+    of either NOT DEFERRABLE or DEFERRABLE. A deferral mode of NOT DEFERRABLE
+    means that the Constraint must be checked for violation as soon as the SQL
+    statement that affects it is executed -- this type of Constraint can't be
+    affected by the SET CONSTRAINTS statement and we'll ignore it here. A deferral
+    mode of DEFERRABLE, on the other hand, allows you to specify when you want
+    your DBMS to check the Constraint for violation -- the choices are at
+    statement end or at transaction end -- and such Constraints may be affected by the SET CONSTRAINTS statement.
+
+    Every transaction has a constraint mode for each integrity Constraint affected
+    by that transaction. If the Constraint is a NOT DEFERRABLE Constraint, the
+    constraint mode is always IMMEDIATE. But if the Constraint is a DEFERRABLE
+    Constraint, then its constraint mode at the beginning of a transaction will
+    either be IMMEDIATE or DEFERRED, depending on the way you defined the
+    Constraint -- if you defined it as DEFERRABLE INITIALLY IMMEDIATE, the
+    Constraint's constraint mode at transaction start will be IMMEDIATE and if you
+    defined it as DEFERRABLE INITIALLY DEFERRED, the Constraint's constraint mode
+    at transaction start will be DEFERRED. You can use the SET CONSTRAINTS
+    statement to change these default constraint mode settings for one or more
+    Constraints -- but only for the duration of the transaction that you use it
+    in. (You can actually issue SET CONSTRAINTS at two different times. If you
+    issue it during a transaction, you're changing the constraint mode of only
+    those Constraints that are affected during that same transaction. If you issue
+    it when there is no current transaction, you're changing the constraint mode
+    of only those Constraints that are affected during the very next transaction.)
+
+    The SQL statement:
+
+       SET CONSTRAINTS ALL IMMEDIATE;
+
+    has the effect of setting the constraint mode of every DEFERRABLE Constraint
+    to IMMEDIATE. IMMEDIATE means that the Constraints must be checked for
+    violation after the execution of every SQL statement -- including after SET CONSTRAINTS.
+
+    The SQL statement:
+
+       SET CONSTRAINTS ALL DEFERRED;
+
+    has the effect of setting the constraint mode of every DEFERRABLE Constraint
+    to DEFERRED. DEFERRED means that the Constraints should not be checked for
+    violation after the execution of every SQL statement, but should instead be
+    checked at some later time, but no later than the end of the current
+    transaction. (COMMIT includes an implied "SET CONSTRAINTS ALL IMMEDIATE"
+    statement, so that all Constraints are checked at transaction end.)
+
+    If you provide a list of <Constraint name>s instead of using the <keyword>
+    ALL, the constraint mode of only those Constraints is affected. For example, if you have these Constraints:
+
+       Constraint_1 DEFERRABLE INITIALLY IMMEDIATE
+       Constraint_2 DEFERRABLE INITIALLY IMMEDIATE
+       Constraint_3 DEFERRABLE INITIALLY IMMEDIATE
+       Constraint_4 DEFERRABLE INITIALLY DEFERRED
+       Constraint_5 DEFERRABLE INITIALLY DEFERRED
+       Constraint_6 DEFERRABLE INITIALLY DEFERRED
+
+    and you issue this SQL statement:
+
+       SET CONSTRAINTS Constraint_1,Constraint_3,Constraint_4 DEFERRED;
+
+    the result is that Constraint_1, Constraint_3, Constraint_4, Constraint_5 and
+    Constraint_6 will all have a constraint mode of DEFERRED and Constraint_2 will
+    continue to have a constraint mode of IMMEDIATE.
+
+    All Constraints with a constraint mode of IMMEDIATE are checked for violation
+    at SQL statement. Constraints with a constraint mode of deferred, on the other
+    hand, are not checked until transaction end. This let's you do operations
+    which temporarily puts your data into an unsound state and can thus be very useful.
+
+    Dialects
+
+    Some DBMSs support locking, some support timestamping, some support both. Beyond that fundamental point of difference, there are many implementation-dependent features.
+    For example: the granularity (by Column or row or page or Table or database), the number of distinct isolation levels that are actually supported (remember
+    that pseudo-support is possible by simply upgrading to  the next level), and whether to support SQL-92 or SQL3 syntax. Regrettably, most DBMSs are still idiosyncratic with respect to support for the SET TRANSACTION statement.
+
+    IBM's DB2 and its imitators have explicit statements for locking Tables: "LOCK TABLE <name> IN {EXCLUSIVE|SHARED} MODE;". This reduces the total number of locks, and actually enhances concurrency
+    if your intention is to access every row in the Table.
+
+    ODBC specifies a variety of options which essentially are options for row
+    identifiers used in scrolling. There are also CLI-specific commands for
+    setting transaction isolation or other concurrency-related characteristics.
+
+    Oracle has Locks Display and other utilities that help administrators to monitor concurrency.
+
+    Goodies
+
+    The OCELOT DBMS that comes with this book supports concurrency. These are the specifications:
+       Concurrency Resolution Mechanism:          Locking
+       Maximum number of concurrent connections:  2
+       Isolation Levels Actually Supported:       SERIALIZABLE
+       Granularity:                               database
+       Additional Features:                       none

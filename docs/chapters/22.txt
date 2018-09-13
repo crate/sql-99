@@ -1,301 +1,305 @@
+===========================
 Chapter 22 -- SQL Collation
+===========================
+
+::
+
+    [Obscure Rule] applies to this entire chapter.
+
+    In this chapter, we'll describe SQL Collations in detail, and show you the syntax to use to create, alter and destroy them.
+
+    Collation
+
+    A Schema may contain zero or more Collations. An SQL Collation is a set of
+    rules that determines the result when characters from a Character set are
+    compared. Collations are dependent on some Schema -- the <Collation name> must
+    be unique within the Schema the Collation belongs to. User-defined Collations
+    are created and dropped using standard SQL statements.
+
+    In SQL, a Collation may be a Collation defined by a national or international standard, by your DBMS or by a user of SQL-data.
+
+    Standard-defined Collations are collating sequences predefined for a character
+    repertoire by some standards body. The SQL Standard requires a DBMS to provide
+    a default Collation (based on the character repertoire order) for each of the
+    standard-defined Character sets it supports. In each case, the default
+    Collation has the PAD SPACE characteristic.
+
+    Implementation-defined Collations are collating sequences predefined for a
+    character repertoire by your DBMS. These Collations may have either the PAD
+    SPACE characteristic or the NO PAD characteristic. The SQL Standard requires a
+    DBMS to provide a default Collation, called SQL_TEXT, for the SQL_TEXT Character set.
+
+    [NON-PORTABLE] The complete set of predefined Collations provided by a DBMS is
+    non-standard because the SQL Standard allows implementors to include support
+    for other Collations, in addition to the required ones. It also requires
+    implementors (a) to define the names for the standard-defined and (except for
+    SQL_TEXT) the implementation-defined Collations it provides and (b) to define
+    the PAD SPACE characteristic for each implementation-defined Collations it provides.
+          [OCELOT Implementation] The OCELOT DBMS that comes with this book
+    provides a SQL_TEXT Collation that follows the order of the Unicode
+    Form-of-use codes. The SQL_TEXT Collation has the PAD SPACE characteristic and
+    is the default Collation for both the SQL_TEXT Character set and the UNICODE
+    Character set. It also provides eleven other predefined Collations, all with
+    the PAD SPACE characteristic. They are:
+    SQL_CHARACTER -- default Collation for Character set SQL_CHARACTER
+    ASCII_GRAPHIC -- default Collation for Character set GRAPHIC_IRV
+    LATIN1 -- default Collation for Character set LATIN1
+    ASCII_FULL -- default Collation for Character set ISO8BIT
+    CODEPAGE_0437 -- default Collation for Character set CODEPAGE_0437
+    Collation CODEPAGE_0850 -- default Collation for Character set CODEPAGE_0850
+    Collation CODEPAGE_1250 -- default Collation for Character set CODEPAGE_1250
+    Collation CODEPAGE_1251 -- default Collation for Character set CODEPAGE_1251
+    Collation CODEPAGE_1253 -- default Collation for Character set CODEPAGE_1253
+    Collation CODEPAGE_1254 -- default Collation for Character set CODEPAGE_1254
+    Collation CODEPAGE_1257 -- default Collation for Character set CODEPAGE_1257
+
+    The pre-defined Collations provided by your DBMS belong to INFORMATION_SCHEMA.
+    The SQL special grantee, PUBLIC, always has a USAGE Privilege on every predefined Collation provided by your DBMS.
+
+    A Collation is defined by a descriptor that contains three pieces of information:
+          ## The <Collation name>, qualified by the <Schema name> of the Schema it belongs to.
+          ## The name of the Character set on which the Collation operates.
+          ## Whether the NO PAD or the PAD SPACE characteristic applies to the Collation.
+
+    User-defined Collations may belong to any Schema owned by the creator. To
+    create a Collation, use the CREATE COLLATION statement (either as a
+    stand-alone SQL statement or within a CREATE SCHEMA statement). CREATE
+    COLLATION specifies the enclosing Schema, names the Collation and defines the
+    Collation's Character set and PAD characteristic. To destroy a Collation, use
+    the DROP COLLATION statement. To change an existing Collation, drop and then redefine it.
+
+    There is a one-to-many association between Character sets and Collations: one
+    Character set can have many possible Collations defined for it, although only
+    one can be its default Collation.
+
+    The default Collation for a Character set is the Collation that will be used
+    to compare characters belonging to that Character set in the absence of an
+    explicit specification to the contrary and can either be a Collation defined
+    for the Character set or the Form-of-use encoding scheme for that Character
+    set's repertoire -- that is, the default Collation for a Character set can be
+    defined to be the order of the characters in the character repertoire. (For
+    example, in the 7-bit ASCII character set, the decimal code for the letter A
+    is 65 and the decimal code for the letter B is 66. This is a happy
+    coincidence; it allows your DBMS  to discover that 'A' is less than 'B' by
+    merely executing a CMP: a machine-code numeric comparison. And that's what is
+    meant by "the order of the characters in the repertoire". Note that, since the
+    decimal code for the letter a is 97, it follows that 'A' is less than 'a' --
+    that is, character repertoire order specifies a case-sensitive collating sequence.)
+
+    Collation names:
+    A <Collation name> identifies a Collation. The required syntax for a <Collation name> is:
+
+    <Collation name> ::=
+    [ <Schema name>. ] unqualified name
+
+    A <Collation name> is a <regular identifier> or a <delimited identifier> that
+    is unique (for all Collations) within the Schema it belongs to. The <Schema
+    name> which qualifies a <Collation name> names the Schema that the Collation
+    belongs to and can either be explicitly stated, or it will default to
+    INFORMATION_SCHEMA; that is, an unqualified <Collation name> is always assumed
+    to belong to INFORMATION_SCHEMA -- even if a CREATE COLLATION statement is
+    part of a CREATE SCHEMA statement. (User-defined Collations may not belong to
+    INFORMATION_SCHEMA. Therefore, when defining, using or dropping a user-defined
+    Collation, always provide an explicit <Schema name> qualifier for the <Collation name>.)
+
+    Here are some examples of possible <Collation name>s:
+
+       SQL_TEXT
+       -- a predefined <Collation name>
+
+       SCHEMA_1.COLLATION_1
+       -- a simple qualified user-defined <Collation name>
+
+       CATALOG_1.SCHEMA_1.COLLATION_1
+       -- a fully qualified user-defined <Collation name>
+
+    Form-of-use conversion names:
+    A <Form-of-Use conversion name> identifies a character repertoire's encoding
+    scheme -- the one-to-one mapping scheme between each character in the
+    repertoire and a set of internal codes (usually 8-bit values) that define how
+    the repertoire's characters are encoded as numbers. These codes are also used
+    to specify the order of the characters within the repertoire and so can be
+    used to specify the default Collation for a Character set. Supported Forms-of-
+    use are all predefined by your DBMS and thus belong to INFORMATION_SCHEMA. SQL
+    provides no ability to define your own Forms-of-use. The required syntax for a
+    <Form-of-use conversion name> is:
+
+    <Form-of-use conversion name> ::=
+    [ INFORMATION_SCHEMA. ] unqualified name
+
+    A <Form-of-use conversion name> is a <regular identifier> or a <delimited
+    identifier> that is unique (for all Forms-of-user) within INFORMATION_SCHEMA.
+    The <Schema name> which qualifies a <Form-of-use conversion name> names the
+    Schema that the Form-of-use belongs to and can either be explicitly stated, or
+    it will default to INFORMATION_SCHEMA: the only Schema that may own a Form-of-use.
+
+    Here are some examples of possible <Form-of-use conversion name>s:
+
+       FORM_1
+       -- a possible <Form-of-use conversion name>
+
+       INFORMATION_SCHEMA.FORM_1
+       -- a simple qualified possible <Form-of-use conversion name>
+
+       CATALOG_1.INFORMATION_SCHEMA.FORM_1
+       -- a fully qualified possible <Form-of-use conversion name>
+
+    [NON-PORTABLE] The Forms-of-use available for use is non-standard because the
+    SQL Standard requires implementors to define which (if any) Forms-of-use they
+    will explicitly provide.
+          [OCELOT Implementation] The OCELOT DBMS that comes with this book provides no explicit Forms-of use.
+
+    If you want to restrict your code to Core SQL, don't use any <Collation name>s or <Form-of-use conversion name>s.
+
+    CREATE COLLATION statement
+
+    The CREATE COLLATION statement names a new user-defined Collation and
+    specifies the Collation's PAD characteristic and the Character set that the
+    Collation is for. The required syntax for the CREATE COLLATION statement is:
+
+    CREATE COLLATION user-defined <Collation name>
+         FOR <Character set name>
+         FROM existing <Collation name> [ {NO PAD | PAD SPACE} ]
+
+    CREATE COLLATION defines a new user-defined Collation. A Collation is owned by the Schema it belongs to.
+
+    The user-defined <Collation name> identifies the new Collation and the Schema
+    that it belongs to. A <Collation name> that includes an explicit <Schema name>
+    qualifier belongs to the Schema named. A <Collation name> that does not
+    include an explicit <Schema name> qualifier belongs to INFORMATION_SCHEMA.
+    Since a user-defined Collation can't belong to INFORMATION_SCHEMA, always
+    provide an explicit <Schema name> qualifier when you're creating a Collation.
+
+    If CREATE COLLATION is part of a CREATE SCHEMA statement, the <Collation name>
+    must include the <Schema name> of the Schema being created; that is, it isn't
+    possible to create a Collation belonging to a different Schema from within
+    CREATE SCHEMA. For example, this SQL statement will not return an error
+    because the <Collation name> explicitly includes a qualifying <Schema name>
+    that matches the name of the Schema being created:
+
+       CREATE SCHEMA bob
+          CREATE COLLATION bob.collation_1 FOR bob.charset_1 FROM SQL_TEXT;
+       -- creates a Collation called BOB.COLLATION_1 in Schema BOB
 
-[Obscure Rule] applies to this entire chapter.
-
-In this chapter, we'll describe SQL Collations in detail, and show you the syntax to use to create, alter and destroy them.
-
-Collation
-
-A Schema may contain zero or more Collations. An SQL Collation is a set of
-rules that determines the result when characters from a Character set are
-compared. Collations are dependent on some Schema -- the <Collation name> must
-be unique within the Schema the Collation belongs to. User-defined Collations
-are created and dropped using standard SQL statements.
-
-In SQL, a Collation may be a Collation defined by a national or international standard, by your DBMS or by a user of SQL-data.
-
-Standard-defined Collations are collating sequences predefined for a character
-repertoire by some standards body. The SQL Standard requires a DBMS to provide
-a default Collation (based on the character repertoire order) for each of the
-standard-defined Character sets it supports. In each case, the default
-Collation has the PAD SPACE characteristic.
-
-Implementation-defined Collations are collating sequences predefined for a
-character repertoire by your DBMS. These Collations may have either the PAD
-SPACE characteristic or the NO PAD characteristic. The SQL Standard requires a
-DBMS to provide a default Collation, called SQL_TEXT, for the SQL_TEXT Character set.
-
-[NON-PORTABLE] The complete set of predefined Collations provided by a DBMS is
-non-standard because the SQL Standard allows implementors to include support
-for other Collations, in addition to the required ones. It also requires
-implementors (a) to define the names for the standard-defined and (except for
-SQL_TEXT) the implementation-defined Collations it provides and (b) to define
-the PAD SPACE characteristic for each implementation-defined Collations it provides.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book
-provides a SQL_TEXT Collation that follows the order of the Unicode
-Form-of-use codes. The SQL_TEXT Collation has the PAD SPACE characteristic and
-is the default Collation for both the SQL_TEXT Character set and the UNICODE
-Character set. It also provides eleven other predefined Collations, all with
-the PAD SPACE characteristic. They are:
-SQL_CHARACTER -- default Collation for Character set SQL_CHARACTER
-ASCII_GRAPHIC -- default Collation for Character set GRAPHIC_IRV
-LATIN1 -- default Collation for Character set LATIN1
-ASCII_FULL -- default Collation for Character set ISO8BIT
-CODEPAGE_0437 -- default Collation for Character set CODEPAGE_0437
-Collation CODEPAGE_0850 -- default Collation for Character set CODEPAGE_0850
-Collation CODEPAGE_1250 -- default Collation for Character set CODEPAGE_1250
-Collation CODEPAGE_1251 -- default Collation for Character set CODEPAGE_1251
-Collation CODEPAGE_1253 -- default Collation for Character set CODEPAGE_1253
-Collation CODEPAGE_1254 -- default Collation for Character set CODEPAGE_1254
-Collation CODEPAGE_1257 -- default Collation for Character set CODEPAGE_1257
-
-The pre-defined Collations provided by your DBMS belong to INFORMATION_SCHEMA.
-The SQL special grantee, PUBLIC, always has a USAGE Privilege on every predefined Collation provided by your DBMS.
-
-A Collation is defined by a descriptor that contains three pieces of information:
-      ## The <Collation name>, qualified by the <Schema name> of the Schema it belongs to.
-      ## The name of the Character set on which the Collation operates.
-      ## Whether the NO PAD or the PAD SPACE characteristic applies to the Collation.
-
-User-defined Collations may belong to any Schema owned by the creator. To
-create a Collation, use the CREATE COLLATION statement (either as a
-stand-alone SQL statement or within a CREATE SCHEMA statement). CREATE
-COLLATION specifies the enclosing Schema, names the Collation and defines the
-Collation's Character set and PAD characteristic. To destroy a Collation, use
-the DROP COLLATION statement. To change an existing Collation, drop and then redefine it.
-
-There is a one-to-many association between Character sets and Collations: one
-Character set can have many possible Collations defined for it, although only
-one can be its default Collation.
-
-The default Collation for a Character set is the Collation that will be used
-to compare characters belonging to that Character set in the absence of an
-explicit specification to the contrary and can either be a Collation defined
-for the Character set or the Form-of-use encoding scheme for that Character
-set's repertoire -- that is, the default Collation for a Character set can be
-defined to be the order of the characters in the character repertoire. (For
-example, in the 7-bit ASCII character set, the decimal code for the letter A
-is 65 and the decimal code for the letter B is 66. This is a happy
-coincidence; it allows your DBMS  to discover that 'A' is less than 'B' by
-merely executing a CMP: a machine-code numeric comparison. And that's what is
-meant by "the order of the characters in the repertoire". Note that, since the
-decimal code for the letter a is 97, it follows that 'A' is less than 'a' --
-that is, character repertoire order specifies a case-sensitive collating sequence.)
-
-Collation names:
-A <Collation name> identifies a Collation. The required syntax for a <Collation name> is:
-
-<Collation name> ::=
-[ <Schema name>. ] unqualified name
-
-A <Collation name> is a <regular identifier> or a <delimited identifier> that
-is unique (for all Collations) within the Schema it belongs to. The <Schema
-name> which qualifies a <Collation name> names the Schema that the Collation
-belongs to and can either be explicitly stated, or it will default to
-INFORMATION_SCHEMA; that is, an unqualified <Collation name> is always assumed
-to belong to INFORMATION_SCHEMA -- even if a CREATE COLLATION statement is
-part of a CREATE SCHEMA statement. (User-defined Collations may not belong to
-INFORMATION_SCHEMA. Therefore, when defining, using or dropping a user-defined
-Collation, always provide an explicit <Schema name> qualifier for the <Collation name>.)
-
-Here are some examples of possible <Collation name>s:
-
-   SQL_TEXT
-   -- a predefined <Collation name>
-
-   SCHEMA_1.COLLATION_1
-   -- a simple qualified user-defined <Collation name>
-
-   CATALOG_1.SCHEMA_1.COLLATION_1
-   -- a fully qualified user-defined <Collation name>
-
-Form-of-use conversion names:
-A <Form-of-Use conversion name> identifies a character repertoire's encoding
-scheme -- the one-to-one mapping scheme between each character in the
-repertoire and a set of internal codes (usually 8-bit values) that define how
-the repertoire's characters are encoded as numbers. These codes are also used
-to specify the order of the characters within the repertoire and so can be
-used to specify the default Collation for a Character set. Supported Forms-of-
-use are all predefined by your DBMS and thus belong to INFORMATION_SCHEMA. SQL
-provides no ability to define your own Forms-of-use. The required syntax for a
-<Form-of-use conversion name> is:
-
-<Form-of-use conversion name> ::=
-[ INFORMATION_SCHEMA. ] unqualified name
-
-A <Form-of-use conversion name> is a <regular identifier> or a <delimited
-identifier> that is unique (for all Forms-of-user) within INFORMATION_SCHEMA.
-The <Schema name> which qualifies a <Form-of-use conversion name> names the
-Schema that the Form-of-use belongs to and can either be explicitly stated, or
-it will default to INFORMATION_SCHEMA: the only Schema that may own a Form-of-use.
-
-Here are some examples of possible <Form-of-use conversion name>s:
-
-   FORM_1
-   -- a possible <Form-of-use conversion name>
-
-   INFORMATION_SCHEMA.FORM_1
-   -- a simple qualified possible <Form-of-use conversion name>
-
-   CATALOG_1.INFORMATION_SCHEMA.FORM_1
-   -- a fully qualified possible <Form-of-use conversion name>
-
-[NON-PORTABLE] The Forms-of-use available for use is non-standard because the
-SQL Standard requires implementors to define which (if any) Forms-of-use they
-will explicitly provide.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book provides no explicit Forms-of use.
-
-If you want to restrict your code to Core SQL, don't use any <Collation name>s or <Form-of-use conversion name>s.
-
-CREATE COLLATION statement
-
-The CREATE COLLATION statement names a new user-defined Collation and
-specifies the Collation's PAD characteristic and the Character set that the
-Collation is for. The required syntax for the CREATE COLLATION statement is:
-
-CREATE COLLATION user-defined <Collation name>
-     FOR <Character set name>
-     FROM existing <Collation name> [ {NO PAD | PAD SPACE} ]
-
-CREATE COLLATION defines a new user-defined Collation. A Collation is owned by the Schema it belongs to.
-
-The user-defined <Collation name> identifies the new Collation and the Schema
-that it belongs to. A <Collation name> that includes an explicit <Schema name>
-qualifier belongs to the Schema named. A <Collation name> that does not
-include an explicit <Schema name> qualifier belongs to INFORMATION_SCHEMA.
-Since a user-defined Collation can't belong to INFORMATION_SCHEMA, always
-provide an explicit <Schema name> qualifier when you're creating a Collation.
-
-If CREATE COLLATION is part of a CREATE SCHEMA statement, the <Collation name>
-must include the <Schema name> of the Schema being created; that is, it isn't
-possible to create a Collation belonging to a different Schema from within
-CREATE SCHEMA. For example, this SQL statement will not return an error
-because the <Collation name> explicitly includes a qualifying <Schema name>
-that matches the name of the Schema being created:
-
-   CREATE SCHEMA bob
-      CREATE COLLATION bob.collation_1 FOR bob.charset_1 FROM SQL_TEXT;
-   -- creates a Collation called BOB.COLLATION_1 in Schema BOB
-
-But this SQL statement will return an error because the <Collation name>
-explicitly includes a qualifying <Schema name> that is different from the name
-of the Schema being created:
+    But this SQL statement will return an error because the <Collation name>
+    explicitly includes a qualifying <Schema name> that is different from the name
+    of the Schema being created:
 
-   CREATE SCHEMA bob
-      CREATE COLLATION sam.collation_1 FOR bob.charset_1 FROM SQL_TEXT;
-   -- tries to create a Collation belonging to Schema SAM inside Schema BOB; illegal syntax
-
-If CREATE COLLATION is executed as a stand-alone SQL statement, the current
-<AuthorizationID> must either be the owner of the Schema that this new View
-belongs to, or the Schema's owner must be a Role that the current
-<AuthorizationID> may use. That is, only the owner of a Schema can create
-Collations for that Schema. In addition to creating a Collation, CREATE
-COLLATION also causes the SQL special grantor, "_SYSTEM", to grant the USAGE
-Privilege on the new Collation to the Schema owner <AuthorizationID> (that is,
-the <AuthorizationID creating the Collation). The Privilege is grantable if
-the <AuthorizationID> also has a grantable USAGE Privilege on the Collation
-named in the FROM clause of the CREATE COLLATION statement.
-
-A user-defined Collation must be defined to operate on a Character set. The
-FOR clause of the CREATE COLLATION statement names that Character set.
-<Character set name> must be the name of an existing Character set for which
-the current <AuthorizationID> has the USAGE Privilege.
-
-A user-defined Collation must also be defined as using the collating sequence
-of an existing Collation that is already defined for the Character set named
-in the FOR clause of the CREATE COLLATION statement. The FROM clause of the
-CREATE COLLATION statement names this Collation source. The existing
-<Collation name> must be the name of an existing Collation for which the
-current <AuthorizationID> has the USAGE Privilege. For example, this SQL statement:
-
-   CREATE COLLATION bob.collation_1 FOR bob.charset_1 FROM SQL_TEXT;
-
-defines a new user-defined Collation, called BOB.COLLATION_1, in the Schema
-named BOB. Except for its name, the Collation BOB. COLLATION_1 will be exactly
-the same as the SQL_TEXT Collation -- that is, it is not truly possible to
-"create" new Collations, merely to rename (and possibly assign a new PAD
-characteristic to) them. To define a new Collation, the CREATE COLLATION
-statement must use some pre-existing Collation as a Collation source -- and,
-ultimately, all Collations can only be based on some pre-defined Collation
-provided by your DBMS.
-
-The optional PAD characteristic clause of the CREATE COLLATION statement
-allows you to define a PAD characteristic for your user-defined Collation that
-is different from the PAD characteristic of its source Collation. If you omit
-the PAD clause, your new Collation will have the same PAD characteristic as
-its source Collation does. For example, this SQL statement:
-
-   CREATE COLLATION bob.collation_1 FOR bob.charset_1 FROM SQL_TEXT;
-
-defines a new user-defined Collation that will have the same PAD
-characteristic as Collation SQL_TEXT does; that is, except for its name,
-BOB.COLLATION_1 is exactly like SQL_TEXT. This SQL statement:
-
-   CREATE COLLATION bob.collation_1 FOR bob.charset_1 FROM SQL_TEXT PAD SPACE;
-
-defines a new user-defined Collation that will have the PAD SPACE characteristic. And this SQL statement:
-
-   CREATE COLLATION bob.collation_1 FOR bob.charset_1 FROM SQL_TEXT NO PAD;
-
-defines a new user-defined Collation that will have the NO PAD characteristic.
-
-A Collation's PAD characteristic affects the result when two strings of
-unequal size are compared. If the Collation in effect for a comparison has the
-PAD SPACE characteristic, the shorter string is padded with spaces (on the
-right) until it's the same length as the larger string; then the comparison is
-done. If the Collation in effect for a comparison has the NO PAD
-characteristic, the shorter string is padded with some other character before
-the comparison is done. In this case, the result is that the shorter comparand
-will evaluate as less than the longer comparand if they contain the same
-characters for their common length -- see our chapter on character strings.
-
-If you want to restrict your code to Core SQL, don't use the CREATE COLLATION statement.
-
-DROP COLLATION statement
-
-The DROP COLLATION statement destroys a user-defined Collation. The required syntax for the DROP COLLATION statement is:
-
-DROP COLLATION <Collation name> {RESTRICT | CASCADE}
-
-The <Collation name> must identify an existing Collation whose owner is either
-the current <AuthorizationID> or a Role that the current <AuthorizationID> may
-use. That is, only the <AuthorizationID> that owns the Collation may drop it,
-and so it isn't possible to drop any of the predefined Collations provided by your DBMS.
-
-The effect of DROP COLLATION <Collation name> RESTRICT, e.g.:
-
-   DROP COLLATION bob.collation_1 RESTRICT;
-
-is that the user-defined Collation named BOB.COLLATION_1 is destroyed,
-provided that the Collation is not referred to in any View definition,
-Constraint or Assertion definition or SQL routine. That is, DROP COLLATION
-ensures that only a Collation with no dependent Views, Constraints, Assertions
-or SQL routines can be destroyed. If the Collation is used by any of these
-Objects, DROP COLLATION ... RESTRICT will fail.
-
-The effect of DROP COLLATION <Collation name> CASCADE, e.g.:
-
-   DROP COLLATION bob.collation_1 CASCADE;
-
-is that the user-defined Collation named BOB.COLLATION_1 is destroyed.
-
-If successful, DROP COLLATION has a six-fold effect.
-      ## The Collation named is destroyed.
-      ## The USAGE Privilege held on the Collation by the <AuthorizationID>
-that owns it is revoked (by the SQL special grantor, "_SYSTEM") with a CASCADE
-revoke behaviour, so that the USAGE Privilege held on the Collation by any other <AuthorizationID> is also revoked.
-      ## The definition of any other Collation that named this Collation is
-amended, so that it no longer refers to it. The effect is that each Collation
-that was based on the dropped Collation will subsequently use the Form-of-use
-encoding scheme for the repertoire of its Character set as a collating sequence.
-      ## The definition of any Character set that named this Collation is
-amended, so that it no longer refers to it. The effect is that each Character
-set that used the dropped Collation as its default Collation will subsequently
-use the Form-of-use encoding scheme for its repertoire as a default Collation.
-      ## The definition of any Column, Domain, View, Constraint or Assertion
-that named this Collation is amended, so that it no longer refers to it. The
-effect is that each Column or Domain that used the dropped Collation as its
-default Collation will subsequently use the default Collation of its Character set as a default Collation.
-      ## Every SQL routine that names this Collation is dropped with a CASCADE drop behaviour.
-
-If you want to restrict your code to Core SQL, don't use the DROP COLLATION statement.
+       CREATE SCHEMA bob
+          CREATE COLLATION sam.collation_1 FOR bob.charset_1 FROM SQL_TEXT;
+       -- tries to create a Collation belonging to Schema SAM inside Schema BOB; illegal syntax
+
+    If CREATE COLLATION is executed as a stand-alone SQL statement, the current
+    <AuthorizationID> must either be the owner of the Schema that this new View
+    belongs to, or the Schema's owner must be a Role that the current
+    <AuthorizationID> may use. That is, only the owner of a Schema can create
+    Collations for that Schema. In addition to creating a Collation, CREATE
+    COLLATION also causes the SQL special grantor, "_SYSTEM", to grant the USAGE
+    Privilege on the new Collation to the Schema owner <AuthorizationID> (that is,
+    the <AuthorizationID creating the Collation). The Privilege is grantable if
+    the <AuthorizationID> also has a grantable USAGE Privilege on the Collation
+    named in the FROM clause of the CREATE COLLATION statement.
+
+    A user-defined Collation must be defined to operate on a Character set. The
+    FOR clause of the CREATE COLLATION statement names that Character set.
+    <Character set name> must be the name of an existing Character set for which
+    the current <AuthorizationID> has the USAGE Privilege.
+
+    A user-defined Collation must also be defined as using the collating sequence
+    of an existing Collation that is already defined for the Character set named
+    in the FOR clause of the CREATE COLLATION statement. The FROM clause of the
+    CREATE COLLATION statement names this Collation source. The existing
+    <Collation name> must be the name of an existing Collation for which the
+    current <AuthorizationID> has the USAGE Privilege. For example, this SQL statement:
+
+       CREATE COLLATION bob.collation_1 FOR bob.charset_1 FROM SQL_TEXT;
+
+    defines a new user-defined Collation, called BOB.COLLATION_1, in the Schema
+    named BOB. Except for its name, the Collation BOB. COLLATION_1 will be exactly
+    the same as the SQL_TEXT Collation -- that is, it is not truly possible to
+    "create" new Collations, merely to rename (and possibly assign a new PAD
+    characteristic to) them. To define a new Collation, the CREATE COLLATION
+    statement must use some pre-existing Collation as a Collation source -- and,
+    ultimately, all Collations can only be based on some pre-defined Collation
+    provided by your DBMS.
+
+    The optional PAD characteristic clause of the CREATE COLLATION statement
+    allows you to define a PAD characteristic for your user-defined Collation that
+    is different from the PAD characteristic of its source Collation. If you omit
+    the PAD clause, your new Collation will have the same PAD characteristic as
+    its source Collation does. For example, this SQL statement:
+
+       CREATE COLLATION bob.collation_1 FOR bob.charset_1 FROM SQL_TEXT;
+
+    defines a new user-defined Collation that will have the same PAD
+    characteristic as Collation SQL_TEXT does; that is, except for its name,
+    BOB.COLLATION_1 is exactly like SQL_TEXT. This SQL statement:
+
+       CREATE COLLATION bob.collation_1 FOR bob.charset_1 FROM SQL_TEXT PAD SPACE;
+
+    defines a new user-defined Collation that will have the PAD SPACE characteristic. And this SQL statement:
+
+       CREATE COLLATION bob.collation_1 FOR bob.charset_1 FROM SQL_TEXT NO PAD;
+
+    defines a new user-defined Collation that will have the NO PAD characteristic.
+
+    A Collation's PAD characteristic affects the result when two strings of
+    unequal size are compared. If the Collation in effect for a comparison has the
+    PAD SPACE characteristic, the shorter string is padded with spaces (on the
+    right) until it's the same length as the larger string; then the comparison is
+    done. If the Collation in effect for a comparison has the NO PAD
+    characteristic, the shorter string is padded with some other character before
+    the comparison is done. In this case, the result is that the shorter comparand
+    will evaluate as less than the longer comparand if they contain the same
+    characters for their common length -- see our chapter on character strings.
+
+    If you want to restrict your code to Core SQL, don't use the CREATE COLLATION statement.
+
+    DROP COLLATION statement
+
+    The DROP COLLATION statement destroys a user-defined Collation. The required syntax for the DROP COLLATION statement is:
+
+    DROP COLLATION <Collation name> {RESTRICT | CASCADE}
+
+    The <Collation name> must identify an existing Collation whose owner is either
+    the current <AuthorizationID> or a Role that the current <AuthorizationID> may
+    use. That is, only the <AuthorizationID> that owns the Collation may drop it,
+    and so it isn't possible to drop any of the predefined Collations provided by your DBMS.
+
+    The effect of DROP COLLATION <Collation name> RESTRICT, e.g.:
+
+       DROP COLLATION bob.collation_1 RESTRICT;
+
+    is that the user-defined Collation named BOB.COLLATION_1 is destroyed,
+    provided that the Collation is not referred to in any View definition,
+    Constraint or Assertion definition or SQL routine. That is, DROP COLLATION
+    ensures that only a Collation with no dependent Views, Constraints, Assertions
+    or SQL routines can be destroyed. If the Collation is used by any of these
+    Objects, DROP COLLATION ... RESTRICT will fail.
+
+    The effect of DROP COLLATION <Collation name> CASCADE, e.g.:
+
+       DROP COLLATION bob.collation_1 CASCADE;
+
+    is that the user-defined Collation named BOB.COLLATION_1 is destroyed.
+
+    If successful, DROP COLLATION has a six-fold effect.
+          ## The Collation named is destroyed.
+          ## The USAGE Privilege held on the Collation by the <AuthorizationID>
+    that owns it is revoked (by the SQL special grantor, "_SYSTEM") with a CASCADE
+    revoke behaviour, so that the USAGE Privilege held on the Collation by any other <AuthorizationID> is also revoked.
+          ## The definition of any other Collation that named this Collation is
+    amended, so that it no longer refers to it. The effect is that each Collation
+    that was based on the dropped Collation will subsequently use the Form-of-use
+    encoding scheme for the repertoire of its Character set as a collating sequence.
+          ## The definition of any Character set that named this Collation is
+    amended, so that it no longer refers to it. The effect is that each Character
+    set that used the dropped Collation as its default Collation will subsequently
+    use the Form-of-use encoding scheme for its repertoire as a default Collation.
+          ## The definition of any Column, Domain, View, Constraint or Assertion
+    that named this Collation is amended, so that it no longer refers to it. The
+    effect is that each Column or Domain that used the dropped Collation as its
+    default Collation will subsequently use the default Collation of its Character set as a default Collation.
+          ## Every SQL routine that names this Collation is dropped with a CASCADE drop behaviour.
+
+    If you want to restrict your code to Core SQL, don't use the DROP COLLATION statement.

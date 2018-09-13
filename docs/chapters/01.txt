@@ -1,538 +1,542 @@
+=========================
 Chapter 1 -- Introduction
+=========================
+
+::
+
+    SQL-99 (more commonly still called, "SQL3", the term we'll use
+    throughout this book) will soon be the current internationally accepted standard
+    for the database programming language called SQL. The SQL
+    Standard -- a complicated monster consisting of over 2,100 pages of
+    definitions, syntax and usage rules -- describes the required
+    syntax and the rules that must be followed to generate the
+    required result when the syntax is executed by a Standard-conforming
+    DBMS. (This compares to less than 150 pages required to describe
+    the Standard's earlier version, SQL-89.)
+
+    This book was written to describe Standard-conforming SQL.
+
+    How To Read This Book
+
+    In this book, we've used the same descriptive terminology you'd
+    find in the SQL Standard. You can check the meaning of unfamiliar
+    terms in the glossary on the CD-ROM. To make it easier for you to
+    follow our discussion, we use these notation conventions throughout:
+         ## Words with special meaning in SQL are shown capitalized, e.g., Table.
+         ## Words within angle brackets have specific definitions in
+    SQL. See the appropriate syntax diagram for that definition.
+         ## Direct SQL requires all SQL statements to be terminated
+    with a semicolon. This book does not include the terminator in
+    SQL syntax diagrams, but does include it in SQL statement examples.
+
+    Everything we describe is as mandated by the SQL
+    Standard explicitly, unless the discussion starts with the notation: [OCELOT
+    Implementation]. We use this notation to describe the
+    conventions followed by THE OCELOT DBMS; the DBMS you'll
+    find on the CD-ROM that comes with the book. Despite this,
+    everything described as an [OCELOT Implementation] is legitimate
+    SQL; it does not contradict the SQL mandate. Rather, it describes
+    OCELOT's SQL implementation for the many areas where the SQL
+    Standard specifies the matter is "implementation-defined" or
+    "implementation-dependent". These are areas to note: because there is
+    no Standard-specified definition; requirements and responses will
+    vary from one DBMS to another. Discussion of these areas starts
+    with the notation: [NON-PORTABLE].
+
+    You may initially skip over paragraphs which begin with the
+    notation: [Obscure Rule]. They describe details which will
+    probably be unclear on first reading and which are normally not
+    utilized in typical installations.
+
+    How to Read SQL Syntax
+
+    We have used the following common variant of BNF notation
+    for the SQL syntax diagrams in this book:
+         ## < >
+    Angle brackets surround the names of syntactic elements. The
+    brackets are not part of the syntax; do not include them in your
+    SQL statement.
+         ## ::=
+    The definition operator separates the syntactic element being
+    defined from its definition. Read the definition from left to right.
+         ## [ ]
+    Square brackets surround optional syntax. You may choose whether
+    or not to omit such syntax when forming an SQL
+    statement. The brackets are not part of the syntax; do not include
+    them in your SQL statement.
+         ## { }
+    Braces surround mandatory syntax groupings. You must include the
+    entire grouping when forming an SQL statement. The braces are not
+    part of the syntax; do not include them in your SQL statement.
+         ## |
+    The vertical bar separates groups of syntactic elements.
+    You must choose one of the elements when forming an SQL
+    statement. The vertical bar is not part of the syntax; do not
+    include it in your SQL statement.
+         ## ...
+    An ellipsis following a syntactic element indicates that the
+    syntax is repeatable. You may include the element as often as you
+    wish when forming an SQL statement. The ellipsis is not part of
+    the syntax; do not include it in your SQL statement.
+         ##
+    Blank spaces (whether single or multiple spaces and/or line breaks)
+    separate syntactic elements.
+
+    All other characters in a definition stand for themselves.
+
+    We also follow these notation conventions:
+         ## Words written in uppercase letters are SQL <keyword>s.
+    You must write them exactly as shown when forming an SQL
+    statement, except that you have the choice of writing them in
+    either uppercase or lowercase letters.
+         ## Words written in lowercase letters represent syntactic
+    categories. You must replace them with actual <identifier>s or
+    <literal>s when forming an SQL statement.
+         ## Parentheses that appear in a syntax diagram are
+    part of the syntax. You must include them when forming an SQL statement.
+
+    Thus, as in the following simplified example of an SQL syntax diagram:
+
+       CREATE TABLE <Table name> (
+         <Column name> {INTEGER | CHARACTER(5)} )
+
+         ## The words CREATE and TABLE are SQL <keyword>s and
+    must be included, without changes, in a CREATE TABLE statement.
+         ## The words <Table name> and <Column name> are
+    syntactic categories and must be replaced with an actual <Table
+    name> and <Column name>, respectively, in a CREATE TABLE
+    statement. The angle brackets around "Table name" and "Column
+    name" indicate that these terms are defined with a syntax diagram
+    somewhere in this book.
+         ## The parentheses are part of the syntax and must be
+    included, exactly where shown, in a CREATE TABLE statement.
+         ## The braces and vertical bar after the <Column
+    name> indicate that either one of the SQL <keyword>s "INTEGER" or
+    "CHARACTER(5)" must be included, without changes, in a CREATE TABLE statement.
+
+    Based on this example, the following two SQL statements are the only
+    valid uses of the syntax:
+
+       CREATE TABLE A_Table_Name (
+         a_column_name INTEGER);
+
+       CREATE TABLE A_Table_Name (
+         a_column_name CHARACTER(5));
+
+    What is SQL?
+
+    SQL (originally: Structured Query Language) is an internationally-
+    recognized programming language for defining and maintaining
+    relational databases.
+
+    Initially developed by IBM in the late 1970's, SQL caught on in
+    the database world as vendors, realizing the many advantages of
+    the relational approach to database management, began to develop
+    commercial products based on those principles. Because SQL was the
+    language most commonly supported by the new products, it soon
+    became the de facto standard for relational database products.
+
+    The popularity of SQL further increased when the language
+    became an official standard in October of 1986, with ANSI's
+    (the American National Standards Institute) release of ANSI
+    document X3.135-1986 "Database Language - SQL". This first SQL
+    Standard, SQL-86, became internationally accepted in 1987, when
+    the International Organization for Standardization (ISO) -- a
+    worldwide federation of national standards bodies -- adopted the
+    ANSI document as well.
+
+    SQL-86 was updated and enhanced in 1989. ANSI X3.168-1989
+    "Database Language - Embedded SQL" became official in April of
+    1989. ANSI X3.135-1989 "Database Language - SQL with Integrity
+    Enhancement" followed in October of 1989 and SQL-89 became the
+    new standard for DBMSs to follow. Then, in August of 1992,
+    another update, SQL-92, was released jointly by ISO and ANSI as
+    ISO/IEC 9075:1992 "Database Language SQL". (Soon after, SQL-92
+    was adopted as a [United States] Federal Information Processing
+    Standard. FIPS PUB 127-2, Database Language SQL also helpfully
+    specified what the US government required for some of the
+    features the SQL-92 Standard said were to be
+    "implementation-defined".) This will be followed by the next
+    version of the Standard, SQL3, expected to be released in early
+    1999 as ISO/IEC 9075:1999 "Information Technology - Database
+    Languages - SQL".
+
+    This brings us to current times and the writing of this book.
+
+    SQL Conformance
+
+    The complete SQL Standard consists of five interrelated
+    documents. Additional parts, five in number so far,
+    describing related features will be added sometime in the future.
+    This book describes only the first five parts, Standard SQL3,
+    which consists of these documents.
+
+    Part 1: SQL/Framework (ISO/IEC 9075-1, approximately 100
+    pages) defines the fundamental concepts on which SQL is
+    based, as well as specifying the general requirements for SQL
+    conformance. All parts of the Standard are dependent on
+    SQL/Framework.
+
+    Part 2: SQL/Foundation (ISO/IEC 9075-2, approximately
+    1,050 pages) defines the fundamental syntax and operations of
+    SQL. All parts of the Standard, except for SQL/Framework, are
+    dependent on SQL/Foundation.
+
+    Part 3: SQL/Call-Level Interface, or CLI (ISO/IEC 9075-3,
+    approximately 514 pages), defines an application programming
+    interface to SQL. No part of the Standard is dependent on
+    SQL/CLI.
 
-SQL-99 (more commonly still called, "SQL3", the term we'll use
-throughout this book) will soon be the current internationally accepted standard
-for the database programming language called SQL. The SQL
-Standard -- a complicated monster consisting of over 2,100 pages of
-definitions, syntax and usage rules -- describes the required
-syntax and the rules that must be followed to generate the
-required result when the syntax is executed by a Standard-conforming
-DBMS. (This compares to less than 150 pages required to describe
-the Standard's earlier version, SQL-89.)
-
-This book was written to describe Standard-conforming SQL.
-
-How To Read This Book
-
-In this book, we've used the same descriptive terminology you'd
-find in the SQL Standard. You can check the meaning of unfamiliar
-terms in the glossary on the CD-ROM. To make it easier for you to
-follow our discussion, we use these notation conventions throughout:
-     ## Words with special meaning in SQL are shown capitalized, e.g., Table.
-     ## Words within angle brackets have specific definitions in
-SQL. See the appropriate syntax diagram for that definition.
-     ## Direct SQL requires all SQL statements to be terminated
-with a semicolon. This book does not include the terminator in
-SQL syntax diagrams, but does include it in SQL statement examples.
-
-Everything we describe is as mandated by the SQL
-Standard explicitly, unless the discussion starts with the notation: [OCELOT
-Implementation]. We use this notation to describe the
-conventions followed by THE OCELOT DBMS; the DBMS you'll
-find on the CD-ROM that comes with the book. Despite this,
-everything described as an [OCELOT Implementation] is legitimate
-SQL; it does not contradict the SQL mandate. Rather, it describes
-OCELOT's SQL implementation for the many areas where the SQL
-Standard specifies the matter is "implementation-defined" or
-"implementation-dependent". These are areas to note: because there is
-no Standard-specified definition; requirements and responses will
-vary from one DBMS to another. Discussion of these areas starts
-with the notation: [NON-PORTABLE].
-
-You may initially skip over paragraphs which begin with the
-notation: [Obscure Rule]. They describe details which will
-probably be unclear on first reading and which are normally not
-utilized in typical installations.
-
-How to Read SQL Syntax
-
-We have used the following common variant of BNF notation
-for the SQL syntax diagrams in this book:
-     ## < >
-Angle brackets surround the names of syntactic elements. The
-brackets are not part of the syntax; do not include them in your
-SQL statement.
-     ## ::=
-The definition operator separates the syntactic element being
-defined from its definition. Read the definition from left to right.
-     ## [ ]
-Square brackets surround optional syntax. You may choose whether
-or not to omit such syntax when forming an SQL
-statement. The brackets are not part of the syntax; do not include
-them in your SQL statement.
-     ## { }
-Braces surround mandatory syntax groupings. You must include the
-entire grouping when forming an SQL statement. The braces are not
-part of the syntax; do not include them in your SQL statement.
-     ## |
-The vertical bar separates groups of syntactic elements.
-You must choose one of the elements when forming an SQL
-statement. The vertical bar is not part of the syntax; do not
-include it in your SQL statement.
-     ## ...
-An ellipsis following a syntactic element indicates that the
-syntax is repeatable. You may include the element as often as you
-wish when forming an SQL statement. The ellipsis is not part of
-the syntax; do not include it in your SQL statement.
-     ##
-Blank spaces (whether single or multiple spaces and/or line breaks)
-separate syntactic elements.
-
-All other characters in a definition stand for themselves.
-
-We also follow these notation conventions:
-     ## Words written in uppercase letters are SQL <keyword>s.
-You must write them exactly as shown when forming an SQL
-statement, except that you have the choice of writing them in
-either uppercase or lowercase letters.
-     ## Words written in lowercase letters represent syntactic
-categories. You must replace them with actual <identifier>s or
-<literal>s when forming an SQL statement.
-     ## Parentheses that appear in a syntax diagram are
-part of the syntax. You must include them when forming an SQL statement.
-
-Thus, as in the following simplified example of an SQL syntax diagram:
-
-   CREATE TABLE <Table name> (
-     <Column name> {INTEGER | CHARACTER(5)} )
-
-     ## The words CREATE and TABLE are SQL <keyword>s and
-must be included, without changes, in a CREATE TABLE statement.
-     ## The words <Table name> and <Column name> are
-syntactic categories and must be replaced with an actual <Table
-name> and <Column name>, respectively, in a CREATE TABLE
-statement. The angle brackets around "Table name" and "Column
-name" indicate that these terms are defined with a syntax diagram
-somewhere in this book.
-     ## The parentheses are part of the syntax and must be
-included, exactly where shown, in a CREATE TABLE statement.
-     ## The braces and vertical bar after the <Column
-name> indicate that either one of the SQL <keyword>s "INTEGER" or
-"CHARACTER(5)" must be included, without changes, in a CREATE TABLE statement.
-
-Based on this example, the following two SQL statements are the only
-valid uses of the syntax:
-
-   CREATE TABLE A_Table_Name (
-     a_column_name INTEGER);
-
-   CREATE TABLE A_Table_Name (
-     a_column_name CHARACTER(5));
-
-What is SQL?
-
-SQL (originally: Structured Query Language) is an internationally-
-recognized programming language for defining and maintaining
-relational databases.
-
-Initially developed by IBM in the late 1970's, SQL caught on in
-the database world as vendors, realizing the many advantages of
-the relational approach to database management, began to develop
-commercial products based on those principles. Because SQL was the
-language most commonly supported by the new products, it soon
-became the de facto standard for relational database products.
-
-The popularity of SQL further increased when the language
-became an official standard in October of 1986, with ANSI's
-(the American National Standards Institute) release of ANSI
-document X3.135-1986 "Database Language - SQL". This first SQL
-Standard, SQL-86, became internationally accepted in 1987, when
-the International Organization for Standardization (ISO) -- a
-worldwide federation of national standards bodies -- adopted the
-ANSI document as well.
-
-SQL-86 was updated and enhanced in 1989. ANSI X3.168-1989
-"Database Language - Embedded SQL" became official in April of
-1989. ANSI X3.135-1989 "Database Language - SQL with Integrity
-Enhancement" followed in October of 1989 and SQL-89 became the
-new standard for DBMSs to follow. Then, in August of 1992,
-another update, SQL-92, was released jointly by ISO and ANSI as
-ISO/IEC 9075:1992 "Database Language SQL". (Soon after, SQL-92
-was adopted as a [United States] Federal Information Processing
-Standard. FIPS PUB 127-2, Database Language SQL also helpfully
-specified what the US government required for some of the
-features the SQL-92 Standard said were to be
-"implementation-defined".) This will be followed by the next
-version of the Standard, SQL3, expected to be released in early
-1999 as ISO/IEC 9075:1999 "Information Technology - Database
-Languages - SQL".
-
-This brings us to current times and the writing of this book.
-
-SQL Conformance
-
-The complete SQL Standard consists of five interrelated
-documents. Additional parts, five in number so far,
-describing related features will be added sometime in the future.
-This book describes only the first five parts, Standard SQL3,
-which consists of these documents.
-
-Part 1: SQL/Framework (ISO/IEC 9075-1, approximately 100
-pages) defines the fundamental concepts on which SQL is
-based, as well as specifying the general requirements for SQL
-conformance. All parts of the Standard are dependent on
-SQL/Framework.
-
-Part 2: SQL/Foundation (ISO/IEC 9075-2, approximately
-1,050 pages) defines the fundamental syntax and operations of
-SQL. All parts of the Standard, except for SQL/Framework, are
-dependent on SQL/Foundation.
+    Part 4: SQL/Persistent Stored Modules, or PSM (ISO/IEC
+    9075-4, approximately 193 pages) defines both the control
+    structures that define SQL Routines and the Modules that may
+    contain SQL Routines. No part of the Standard is dependent on
+    SQL/PSM.
 
-Part 3: SQL/Call-Level Interface, or CLI (ISO/IEC 9075-3,
-approximately 514 pages), defines an application programming
-interface to SQL. No part of the Standard is dependent on
-SQL/CLI.
-
-Part 4: SQL/Persistent Stored Modules, or PSM (ISO/IEC
-9075-4, approximately 193 pages) defines both the control
-structures that define SQL Routines and the Modules that may
-contain SQL Routines. No part of the Standard is dependent on
-SQL/PSM.
-
-Part 5: SQL/Host Language Bindings (ISO/IEC 9075-5,
-approximately 270 pages) defines methods for embedding SQL
-statements in application programs written in a standard
-programming language. No part of the Standard is dependent on
-SQL/Bindings.
-
-Minimal Conformance
-The SQL3 Standard identifies two levels of SQL conformance which
-a DBMS may claim: Core SQL support and enhanced SQL support.
-(Conformance levels for SQL applications are also given; we
-ignore these in this book.) In order to claim conformance with
-the SQL Standard, a DBMS must support all of the following:
-
-     1. All features defined in SQL/Framework, including an SQL
-Object Identifier that states the level of conformance being
-claimed as well as all Core SQL features defined in
-SQL/Foundation -- see Appendix B "SQL Taxonomy" for these
-requirements. A Core SQL DBMS does not have to support any of
-the features defined in the other parts of the Standard.
-
-     2. At least one of the following two binding styles:
-          ## The SQL-client Module binding style (defined in
-SQL/Foundation) for at least one host language.
-          ## The Embedded SQL binding style (defined in
-SQL/Bindings) for at least one host language.
-
-In order to claim conformance, a DBMS must state whether or not
-the SQL-client Module binding style is supported and, if so,
-which of the host languages (Ada, C, COBOL, Fortran, MUMPS,
-Pascal, and PL/I) are supported. If applicable, the DBMS must also
-state which of these <keyword>s (ADA, C, COBOL, FORTRAN, MUMPS,
-PASCAL, PLI and SQL) may be specified for the LANGUAGE clause
-in an <external body reference>. A DBMS which supports MUMPS goes
-beyond Core SQL conformance.
-
-<SQL Object Identifier>
-[Obscure Rule] applies for this section.
-
-The SQL Object Identifier identifies the characteristics of an
-SQL DBMS to other entities in an open systems environment. (The
-same information is available to SQL-data users in the
-INFORMATION_SCHEMA.SQL_LANGUAGES View.) Listing 1.1 shows
-the required syntax for the SQL Object Identifier.
-
-Listing 1.1 Required Syntax for the SQL Object Identifier
-
-<SQL Object Identifier> ::= <SQL provenance> <SQL variant>
-
-     <SQL provenance> ::= <arc1> <arc2> <arc3>
-
-          <arc1> ::= iso | 1 | iso(1)
-
-          <arc2> ::= standard | 0 | standard(0)
-
-          <arc3> ::= 9075
-
-     <SQL variant> ::= <SQL edition> <SQL conformance>
-
-          <SQL edition> ::= <1987> | <1989> | <1992> | <199x>
-
-               <1987> ::= 0 | edition1987(0)
-
-               <1989> ::= <1989 base> <1989 package>
-
-                    <1989 base> ::= 1 | edition1989(1)
-
-                    <1989 package> ::= <integrity no> | <integrity yes>
-
-                         <integrity no> ::= 0 | IntegrityNo(0)
-
-                         <integrity yes> ::= 1 | IntegrityYes(1)
-
-                    <1992> ::= 2 | edition1992(2)
-
-                    <199x> ::= 3 | edition199x(3)
-
-          <SQL conformance> ::= <level> | <parts>
-
-               <level> ::= <low> | <intermediate> | <high>
-
-                    <low> ::= 0 | Low(0)
-
-                    <intermediate> ::= 1 | Intermediate(1)
-
-                    <high> ::= 2 | High(2)
-
-               <parts> ::= <Part 3> <Part 4> <Part 5> <Part 6> <Part 7> <Part 8> <Part 9> <Part 10>
-
-                    <Part n> ::= <Part n no> | <Part n yes>
-
-                         <Part n no> ::= 0 | Part-nNo(0)
-
-                         <Part n yes> ::= !! per ISO/IEC 9075-n
-
-The SQL Object Identifier's <SQL provenance> identifies the
-Standards document that governs the DBMS's SQL conformance, i.e.,
-"iso standard 9075". The <SQL variant> identifies the version of
-the SQL Standard that is supported.
-
-The SQL Object Identifier's <SQL conformance> identifies the
-conformance level being claimed for that version of the Standard.
-There are four options.
-     1. If <SQL edition> is <1992>, the version of the Standard
-supported is SQL-92 and the Object Identifier must state which
-<level> of <SQL conformance> is claimed. A <level> of <low> means
-Entry SQL is supported, a <level> of <intermediate> means
-Intermediate SQL is supported, and a <level> of <high> means Full
-SQL is supported. A DBMS may claim a <high> <SQL conformance>
-only if SQL-92 is supported.
-     2. If <SQL edition> is <1987>, the version of the Standard
-supported is SQL-86. If <SQL edition> is <1989>, the version of
-the Standard supported is SQL-89. In both of these cases, the Object
-Identifier must state which <level> of <SQL conformance> is
-claimed. A <level> of <low> means Level 1 SQL is supported and a
-<level> of <intermediate> means Level 2 SQL is supported.
-     3. If <SQL edition> is <1989>, an additional conformance claim must be made.
-A <1989 package> value of <integrity yes> means that the features
-defined in ANSI X3.135-1989 "Database Language - SQL with
-Integrity Enhancement" are supported by the DBMS. A <1989
-package> value of <integrity no> means that the integrity
-enhancement features are not supported.
-    4. If <SQL edition> is <199x>, the version of the Standard
-supported is SQL3, with Core SQL conformance claimed. In this
-case, the Object Identifier must also state the DBMS's <SQL
-conformance> for each <part> of the Standard. A <Part n yes>
-value for any part means that the DBMS fully supports that part
-of the Standard. A <Part n no> value means that part of the
-Standard is not fully supported.
-
-Enhanced Conformance
-In order to claim enhanced conformance with the SQL Standard, a
-DBMS must also (a) fully support one or more of parts 3 and up of
-the Standard and/or one or more additional "packages" of SQL
-features (identified below by their "Feature ID" values from
-Appendix B, "SQL Taxonomy") and (b) provide an SQL Flagger.
-
-[Obscure Rule] applies for the rest of this section.
-
-SQL Packages
-The SQL Standard specifies seven SQL packages which may be
-supported by a DBMS claiming enhanced SQL conformance. They are
-as follows:
-
-     1. Enhanced datetime facilities package --
-To claim conformance with the "enhanced datetime facilities"
-SQL package, a DBMS must also support:
-          ## Feature ID F052 Interval data type.
-          ## Feature ID F411 Time zone specification.
-          ## Feature ID F551 Full datetime.
-          ## Feature ID T161 Optional interval qualifier.
-
-     2. Enhanced integrity management package --
-To claim conformance with the "enhanced integrity management" SQL
-package, a DBMS must also support:
-          ## Feature ID F521 Assertions.
-          ## Feature ID E142 Referential delete actions.
-          ## Feature ID F701 Referential update actions.
-          ## Feature ID F491 Constraint management.
-          ## Feature ID F671 Subqueries in CHECK constraints.
-          ## Feature ID T211 Triggers.
-          ## Feature ID T212 FOR EACH STATEMENT triggers.
-          ## Feature ID T191 Referential action RESTRICT.
-
-     3. OLAP facilities package --
-To claim conformance with the "OLAP facilities" SQL package, a
-DBMS must also support:
-          ## Feature ID T431 CUBE and ROLLUP.
-          ## Feature ID F302 INTERSECT table operator.
-          ## Feature ID F641 Row and table constructors.
-          ## Feature ID F401 FULL OUTER JOIN.
-          ## Feature ID F471 Scalar subquery values.
-
-     4. PSM package --
-To claim conformance with the "PSM" SQL package, a DBMS must also
-support:
-          ## Feature ID P01 Stored Modules (<SQL-server Module definition>).
-          ## Feature ID P02 Computational completeness.
-          ## Feature ID P03 INFORMATION_SCHEMA views.
-
-     5. CLI package --
-To claim conformance with the "CLI" SQL package, a DBMS must also
-support:
-          ## Feature ID C01 SQL/CLI.
-
-     6. Basic object support package --
-To claim conformance with the "basic object support" SQL package,
-a DBMS must also support:
-          ## Feature ID T322 Overloading of SQL-invoked functions and SQL-invoked procedures.
-          ## Feature ID O021 Basic user-defined types, including single inheritance.
-          ## Feature ID O041 Reference types.
-          ## Feature ID O051 CREATE TABLE of type.
-          ## Feature ID O091 Basic array support.
-          ## Feature ID O092 Arrays of UDTs.
-          ## Feature ID O094 Arrays of reference types.
-          ## Feature ID O121 Dereference operation.
-          ## Feature ID O131 Reference operation.
-          ## Feature ID O141 Attribute and field reference.
-          ## Feature ID O171 Array expressions.
-          ## Feature ID O191 Basic SQL routines on user-defined types, including dynamic dispatch.
-          ## Feature ID O201 SQL routine on arrays.
-          ## Feature ID O232 Array locators.
-
-     7. Enhanced object support package --
-To claim conformance with the "enhanced object support" SQL
-package, a DBMS must also support:
-          ## Feature ID O022 Enhanced user-defined types, including constructor option, attribute defaults, multiple inheritance and ordering clause.
-          ## Feature ID O061 ALTER TABLE, ADD named row type.
-          ## Feature ID O071 SQL-paths in function and type name resolution.
-          ## Feature ID O081 Subtables.
-          ## Feature ID O111 ONLY in query expressions (to restrict subtable search).
-          ## Feature ID O151 Type predicate.
-          ## Feature ID O161 <subtype treatment>.
-          ## Feature ID O192 SQL routines on user-defined types, including identity functions and generalized expressions.
-          ## Feature ID O211 User-defined cast functions.
-          ## Feature ID O231 UDT locators.
-
-SQL Flagger
-An SQL Flagger is a facility that identifies SQL language
-extensions or processing alternatives. It must be provided by a
-DBMS claiming enhanced SQL conformance. The Flagger's purpose is
-to help you produce portable SQL code. This is necessary
-because the SQL Standard allows conforming DBMSs to provide
-options for processing operations that the Standard doesn't
-address (e.g., a CREATE INDEX statement). It also allows DBMSs to
-provide options for processing Standard-defined SQL in a
-non-conforming manner, provided that the non-conforming results
-are returned only when you explicitly request them. Your DBMS's
-Flagger must identify all the non-standard syntax, features and
-options supported, but it only has to do a static check of SQL
-syntax; the Standard doesn't require a Flagger to detect
-extensions that cannot be determined until runtime.
-
-An SQL Flagger has to provide one or more of these "level of
-flagging" options to identify SQL language that violates a given subset of SQL:
-     ## Core SQL Flagging -- flags non-conforming Core SQL features.
-     ## Part SQL Flagging -- flags non-conforming enhanced SQL features.
-     ## Package SQL Flagging -- flags non-conforming package SQL features.
-
-A flagger also has to provide one or more of these "extent of checking" options:
-     ## Syntax Only -- only the SQL language presented is
-analyzed; the Flagger checks for syntax violations without
-accessing INFORMATION_SCHEMA so it doesn't necessarily detect
-violations that depend on the <data type> of syntactic elements.
-     ## Catalog Lookup -- the SQL language and the metadata is
-analyzed; the Flagger checks for both syntax and access violations (except
-for access violations that deal with Privileges).
-
-Summary
-In order to claim conformance with the SQL Standard, a DBMS must state four things:
-     1. Level of conformance supported for a given version of the Standard.
-     2. Binding style(s) supported.
-     3. Host language(s) supported.
-     4. The DBMS's definitions are for all "elements and
-actions" the Standard specifies are implementation-defined.
-(Decisions made for the Standard's implementation-dependent
-features don't have to be documented.)
-
-SQL Statement Classes
-
-The SQL Standard groups the Core SQL statements into seven classes,
-according to their function. These classes are as follows:
-     1. SQL-Schema statements -- create, alter, and drop
-Schemas and Schema Objects, so they may have a persistent effect
-on Schemas. The SQL-Schema statements are: CREATE SCHEMA, DROP
-SCHEMA, CREATE DOMAIN, ALTER DOMAIN, DROP DOMAIN, CREATE TABLE,
-ALTER TABLE, DROP TABLE, CREATE VIEW, DROP VIEW, CREATE
-ASSERTION, DROP ASSERTION, CREATE CHARACTER SET, DROP CHARACTER
-SET, CREATE COLLATION, DROP COLLATION, CREATE TRANSLATION, DROP
-TRANSLATION, CREATE TRIGGER, DROP TRIGGER, CREATE TYPE, DROP
-TYPE, CREATE ORDERING, DROP ORDERING, CREATE TRANSFORM, DROP
-TRANSFORM, CREATE PROCEDURE, CREATE FUNCTION, CREATE METHOD, DROP
-SPECIFIC ROUTINE, DROP SPECIFIC FUNCTION, DROP SPECIFIC
-PROCEDURE, CREATE ROLE, GRANT, REVOKE and DROP ROLE.
-     2. SQL-data statements -- perform queries, insert, update,
-and delete operations, so they may have a persistent effect on
-SQL-data. The SQL-data statements are: DECLARE TABLE, DECLARE
-CURSOR, OPEN, CLOSE, FETCH, SELECT, FREE LOCATOR, HOLD LOCATOR
-and the SQL-data change statements INSERT, UPDATE and DELETE.
-     3. SQL-transaction statements -- set parameters for
-transactions, as well as starting and ending transactions, so
-(except for the COMMIT statement) they have no effect that lasts
-after the SQL-session ends. The SQL-transaction statements are:
-START TRANSACTION, SET TRANSACTION, SET CONSTRAINTS, COMMIT,
-ROLLBACK, SAVEPOINT and RELEASE SAVEPOINT.
-     4. SQL-control statements -- control the execution of a
-set of SQL statements and have no effect that lasts after the
-SQL-session ends. The SQL-control statements are: CALL and RETURN.
-     5. SQL-Connection statements -- start and end
-Connections, and allow an SQL-client to switch from a session
-with one SQL-server to a session with another, so they have no
-effect that lasts after the SQL-session ends. The SQL-Connection
-statements are: CONNECT, SET CONNECTION and DISCONNECT.
-     6. SQL-session statements -- set certain default values
-and other parameters for an SQL-session, so they have no effect
-that lasts after the SQL-session ends. The SQL-session statements
-are: SET TIME ZONE, SET ROLE, SET SESSION AUTHORIZATION and SET
-SESSION CHARACTERISTICS.
-     7. SQL-diagnostics statements -- get diagnostics from the
-diagnostics area and signal exceptions in SQL routines, so they
-have no effect that lasts after the SQL-session ends. The
-SQL-diagnostics statement is: GET DIAGNOSTICS.
-
-Transaction-initiating SQL Statements
-If there is no current transaction, these SQL statements will
-begin one: (a) any SQL-Schema statement, (b) the SQL-transaction
-statements COMMIT and ROLLBACK (if they specify AND CHAIN), (c)
-the SQL-data statements OPEN, CLOSE, FETCH, SELECT, INSERT,
-UPDATE, DELETE, FREE LOCATOR and HOLD LOCATOR or (d) START
-TRANSACTION. The SQL-control statement RETURN will also begin a
-transaction if it causes the evaluation of a <subquery> when
-there is no current transaction. No other SQL statement will
-begin a transaction.
-
-Which SQL statements Can You Use?
-Even if it conforms to the SQL Standard, your DBMS may not
-support all of the SQL statements described in this book because
-different SQL statements may be prepared and executed in
-different ways. Thus, the set of SQL statements supported by a
-DBMS depends on the binding style it supports. The options are
-as follows.
-     ## SQL Module Language binding style -- where both static and
-dynamic SQL statements are prepared when the Module is created
-and executed when the procedure that contains them is called.
-     ## Embedded SQL Syntax binding style -- where both static and
-dynamic SQL statements are prepared when the host language
-program is precompiled and executed when the host language program is run.
-     ## Direct SQL Invocation binding style -- where static SQL
-statements are effectively prepared immediately prior to execution.
-
-SQL Rule Evaluation Order
-
-The precedence of operators in an SQL statement is sometimes
-specified explicitly by the SQL Standard. Where this is the case,
-you'll find a note to that effect in our description of the
-operator in question. It is also possible to force a specific
-expression evaluation order by using parentheses in your SQL
-statements. Where the precedence of an SQL statement's operators
-is pre-determined (either by the Standard or by parentheses),
-those operators are effectively performed in the order specified
-by that precedence.
-
-Often, the Standard is silent on the subject of
-precedence. In cases where
-the precedence of operators in an SQL statement is not
-specifically determined either by the rules stated in the
-Standard, or by parentheses within the SQL statement, evaluation
-of expressions is effectively performed from left to right.
+    Part 5: SQL/Host Language Bindings (ISO/IEC 9075-5,
+    approximately 270 pages) defines methods for embedding SQL
+    statements in application programs written in a standard
+    programming language. No part of the Standard is dependent on
+    SQL/Bindings.
+
+    Minimal Conformance
+    The SQL3 Standard identifies two levels of SQL conformance which
+    a DBMS may claim: Core SQL support and enhanced SQL support.
+    (Conformance levels for SQL applications are also given; we
+    ignore these in this book.) In order to claim conformance with
+    the SQL Standard, a DBMS must support all of the following:
+
+         1. All features defined in SQL/Framework, including an SQL
+    Object Identifier that states the level of conformance being
+    claimed as well as all Core SQL features defined in
+    SQL/Foundation -- see Appendix B "SQL Taxonomy" for these
+    requirements. A Core SQL DBMS does not have to support any of
+    the features defined in the other parts of the Standard.
+
+         2. At least one of the following two binding styles:
+              ## The SQL-client Module binding style (defined in
+    SQL/Foundation) for at least one host language.
+              ## The Embedded SQL binding style (defined in
+    SQL/Bindings) for at least one host language.
+
+    In order to claim conformance, a DBMS must state whether or not
+    the SQL-client Module binding style is supported and, if so,
+    which of the host languages (Ada, C, COBOL, Fortran, MUMPS,
+    Pascal, and PL/I) are supported. If applicable, the DBMS must also
+    state which of these <keyword>s (ADA, C, COBOL, FORTRAN, MUMPS,
+    PASCAL, PLI and SQL) may be specified for the LANGUAGE clause
+    in an <external body reference>. A DBMS which supports MUMPS goes
+    beyond Core SQL conformance.
+
+    <SQL Object Identifier>
+    [Obscure Rule] applies for this section.
+
+    The SQL Object Identifier identifies the characteristics of an
+    SQL DBMS to other entities in an open systems environment. (The
+    same information is available to SQL-data users in the
+    INFORMATION_SCHEMA.SQL_LANGUAGES View.) Listing 1.1 shows
+    the required syntax for the SQL Object Identifier.
+
+    Listing 1.1 Required Syntax for the SQL Object Identifier
+
+    <SQL Object Identifier> ::= <SQL provenance> <SQL variant>
+
+         <SQL provenance> ::= <arc1> <arc2> <arc3>
+
+              <arc1> ::= iso | 1 | iso(1)
+
+              <arc2> ::= standard | 0 | standard(0)
+
+              <arc3> ::= 9075
+
+         <SQL variant> ::= <SQL edition> <SQL conformance>
+
+              <SQL edition> ::= <1987> | <1989> | <1992> | <199x>
+
+                   <1987> ::= 0 | edition1987(0)
+
+                   <1989> ::= <1989 base> <1989 package>
+
+                        <1989 base> ::= 1 | edition1989(1)
+
+                        <1989 package> ::= <integrity no> | <integrity yes>
+
+                             <integrity no> ::= 0 | IntegrityNo(0)
+
+                             <integrity yes> ::= 1 | IntegrityYes(1)
+
+                        <1992> ::= 2 | edition1992(2)
+
+                        <199x> ::= 3 | edition199x(3)
+
+              <SQL conformance> ::= <level> | <parts>
+
+                   <level> ::= <low> | <intermediate> | <high>
+
+                        <low> ::= 0 | Low(0)
+
+                        <intermediate> ::= 1 | Intermediate(1)
+
+                        <high> ::= 2 | High(2)
+
+                   <parts> ::= <Part 3> <Part 4> <Part 5> <Part 6> <Part 7> <Part 8> <Part 9> <Part 10>
+
+                        <Part n> ::= <Part n no> | <Part n yes>
+
+                             <Part n no> ::= 0 | Part-nNo(0)
+
+                             <Part n yes> ::= !! per ISO/IEC 9075-n
+
+    The SQL Object Identifier's <SQL provenance> identifies the
+    Standards document that governs the DBMS's SQL conformance, i.e.,
+    "iso standard 9075". The <SQL variant> identifies the version of
+    the SQL Standard that is supported.
+
+    The SQL Object Identifier's <SQL conformance> identifies the
+    conformance level being claimed for that version of the Standard.
+    There are four options.
+         1. If <SQL edition> is <1992>, the version of the Standard
+    supported is SQL-92 and the Object Identifier must state which
+    <level> of <SQL conformance> is claimed. A <level> of <low> means
+    Entry SQL is supported, a <level> of <intermediate> means
+    Intermediate SQL is supported, and a <level> of <high> means Full
+    SQL is supported. A DBMS may claim a <high> <SQL conformance>
+    only if SQL-92 is supported.
+         2. If <SQL edition> is <1987>, the version of the Standard
+    supported is SQL-86. If <SQL edition> is <1989>, the version of
+    the Standard supported is SQL-89. In both of these cases, the Object
+    Identifier must state which <level> of <SQL conformance> is
+    claimed. A <level> of <low> means Level 1 SQL is supported and a
+    <level> of <intermediate> means Level 2 SQL is supported.
+         3. If <SQL edition> is <1989>, an additional conformance claim must be made.
+    A <1989 package> value of <integrity yes> means that the features
+    defined in ANSI X3.135-1989 "Database Language - SQL with
+    Integrity Enhancement" are supported by the DBMS. A <1989
+    package> value of <integrity no> means that the integrity
+    enhancement features are not supported.
+        4. If <SQL edition> is <199x>, the version of the Standard
+    supported is SQL3, with Core SQL conformance claimed. In this
+    case, the Object Identifier must also state the DBMS's <SQL
+    conformance> for each <part> of the Standard. A <Part n yes>
+    value for any part means that the DBMS fully supports that part
+    of the Standard. A <Part n no> value means that part of the
+    Standard is not fully supported.
+
+    Enhanced Conformance
+    In order to claim enhanced conformance with the SQL Standard, a
+    DBMS must also (a) fully support one or more of parts 3 and up of
+    the Standard and/or one or more additional "packages" of SQL
+    features (identified below by their "Feature ID" values from
+    Appendix B, "SQL Taxonomy") and (b) provide an SQL Flagger.
+
+    [Obscure Rule] applies for the rest of this section.
+
+    SQL Packages
+    The SQL Standard specifies seven SQL packages which may be
+    supported by a DBMS claiming enhanced SQL conformance. They are
+    as follows:
+
+         1. Enhanced datetime facilities package --
+    To claim conformance with the "enhanced datetime facilities"
+    SQL package, a DBMS must also support:
+              ## Feature ID F052 Interval data type.
+              ## Feature ID F411 Time zone specification.
+              ## Feature ID F551 Full datetime.
+              ## Feature ID T161 Optional interval qualifier.
+
+         2. Enhanced integrity management package --
+    To claim conformance with the "enhanced integrity management" SQL
+    package, a DBMS must also support:
+              ## Feature ID F521 Assertions.
+              ## Feature ID E142 Referential delete actions.
+              ## Feature ID F701 Referential update actions.
+              ## Feature ID F491 Constraint management.
+              ## Feature ID F671 Subqueries in CHECK constraints.
+              ## Feature ID T211 Triggers.
+              ## Feature ID T212 FOR EACH STATEMENT triggers.
+              ## Feature ID T191 Referential action RESTRICT.
+
+         3. OLAP facilities package --
+    To claim conformance with the "OLAP facilities" SQL package, a
+    DBMS must also support:
+              ## Feature ID T431 CUBE and ROLLUP.
+              ## Feature ID F302 INTERSECT table operator.
+              ## Feature ID F641 Row and table constructors.
+              ## Feature ID F401 FULL OUTER JOIN.
+              ## Feature ID F471 Scalar subquery values.
+
+         4. PSM package --
+    To claim conformance with the "PSM" SQL package, a DBMS must also
+    support:
+              ## Feature ID P01 Stored Modules (<SQL-server Module definition>).
+              ## Feature ID P02 Computational completeness.
+              ## Feature ID P03 INFORMATION_SCHEMA views.
+
+         5. CLI package --
+    To claim conformance with the "CLI" SQL package, a DBMS must also
+    support:
+              ## Feature ID C01 SQL/CLI.
+
+         6. Basic object support package --
+    To claim conformance with the "basic object support" SQL package,
+    a DBMS must also support:
+              ## Feature ID T322 Overloading of SQL-invoked functions and SQL-invoked procedures.
+              ## Feature ID O021 Basic user-defined types, including single inheritance.
+              ## Feature ID O041 Reference types.
+              ## Feature ID O051 CREATE TABLE of type.
+              ## Feature ID O091 Basic array support.
+              ## Feature ID O092 Arrays of UDTs.
+              ## Feature ID O094 Arrays of reference types.
+              ## Feature ID O121 Dereference operation.
+              ## Feature ID O131 Reference operation.
+              ## Feature ID O141 Attribute and field reference.
+              ## Feature ID O171 Array expressions.
+              ## Feature ID O191 Basic SQL routines on user-defined types, including dynamic dispatch.
+              ## Feature ID O201 SQL routine on arrays.
+              ## Feature ID O232 Array locators.
+
+         7. Enhanced object support package --
+    To claim conformance with the "enhanced object support" SQL
+    package, a DBMS must also support:
+              ## Feature ID O022 Enhanced user-defined types, including constructor option, attribute defaults, multiple inheritance and ordering clause.
+              ## Feature ID O061 ALTER TABLE, ADD named row type.
+              ## Feature ID O071 SQL-paths in function and type name resolution.
+              ## Feature ID O081 Subtables.
+              ## Feature ID O111 ONLY in query expressions (to restrict subtable search).
+              ## Feature ID O151 Type predicate.
+              ## Feature ID O161 <subtype treatment>.
+              ## Feature ID O192 SQL routines on user-defined types, including identity functions and generalized expressions.
+              ## Feature ID O211 User-defined cast functions.
+              ## Feature ID O231 UDT locators.
+
+    SQL Flagger
+    An SQL Flagger is a facility that identifies SQL language
+    extensions or processing alternatives. It must be provided by a
+    DBMS claiming enhanced SQL conformance. The Flagger's purpose is
+    to help you produce portable SQL code. This is necessary
+    because the SQL Standard allows conforming DBMSs to provide
+    options for processing operations that the Standard doesn't
+    address (e.g., a CREATE INDEX statement). It also allows DBMSs to
+    provide options for processing Standard-defined SQL in a
+    non-conforming manner, provided that the non-conforming results
+    are returned only when you explicitly request them. Your DBMS's
+    Flagger must identify all the non-standard syntax, features and
+    options supported, but it only has to do a static check of SQL
+    syntax; the Standard doesn't require a Flagger to detect
+    extensions that cannot be determined until runtime.
+
+    An SQL Flagger has to provide one or more of these "level of
+    flagging" options to identify SQL language that violates a given subset of SQL:
+         ## Core SQL Flagging -- flags non-conforming Core SQL features.
+         ## Part SQL Flagging -- flags non-conforming enhanced SQL features.
+         ## Package SQL Flagging -- flags non-conforming package SQL features.
+
+    A flagger also has to provide one or more of these "extent of checking" options:
+         ## Syntax Only -- only the SQL language presented is
+    analyzed; the Flagger checks for syntax violations without
+    accessing INFORMATION_SCHEMA so it doesn't necessarily detect
+    violations that depend on the <data type> of syntactic elements.
+         ## Catalog Lookup -- the SQL language and the metadata is
+    analyzed; the Flagger checks for both syntax and access violations (except
+    for access violations that deal with Privileges).
+
+    Summary
+    In order to claim conformance with the SQL Standard, a DBMS must state four things:
+         1. Level of conformance supported for a given version of the Standard.
+         2. Binding style(s) supported.
+         3. Host language(s) supported.
+         4. The DBMS's definitions are for all "elements and
+    actions" the Standard specifies are implementation-defined.
+    (Decisions made for the Standard's implementation-dependent
+    features don't have to be documented.)
+
+    SQL Statement Classes
+
+    The SQL Standard groups the Core SQL statements into seven classes,
+    according to their function. These classes are as follows:
+         1. SQL-Schema statements -- create, alter, and drop
+    Schemas and Schema Objects, so they may have a persistent effect
+    on Schemas. The SQL-Schema statements are: CREATE SCHEMA, DROP
+    SCHEMA, CREATE DOMAIN, ALTER DOMAIN, DROP DOMAIN, CREATE TABLE,
+    ALTER TABLE, DROP TABLE, CREATE VIEW, DROP VIEW, CREATE
+    ASSERTION, DROP ASSERTION, CREATE CHARACTER SET, DROP CHARACTER
+    SET, CREATE COLLATION, DROP COLLATION, CREATE TRANSLATION, DROP
+    TRANSLATION, CREATE TRIGGER, DROP TRIGGER, CREATE TYPE, DROP
+    TYPE, CREATE ORDERING, DROP ORDERING, CREATE TRANSFORM, DROP
+    TRANSFORM, CREATE PROCEDURE, CREATE FUNCTION, CREATE METHOD, DROP
+    SPECIFIC ROUTINE, DROP SPECIFIC FUNCTION, DROP SPECIFIC
+    PROCEDURE, CREATE ROLE, GRANT, REVOKE and DROP ROLE.
+         2. SQL-data statements -- perform queries, insert, update,
+    and delete operations, so they may have a persistent effect on
+    SQL-data. The SQL-data statements are: DECLARE TABLE, DECLARE
+    CURSOR, OPEN, CLOSE, FETCH, SELECT, FREE LOCATOR, HOLD LOCATOR
+    and the SQL-data change statements INSERT, UPDATE and DELETE.
+         3. SQL-transaction statements -- set parameters for
+    transactions, as well as starting and ending transactions, so
+    (except for the COMMIT statement) they have no effect that lasts
+    after the SQL-session ends. The SQL-transaction statements are:
+    START TRANSACTION, SET TRANSACTION, SET CONSTRAINTS, COMMIT,
+    ROLLBACK, SAVEPOINT and RELEASE SAVEPOINT.
+         4. SQL-control statements -- control the execution of a
+    set of SQL statements and have no effect that lasts after the
+    SQL-session ends. The SQL-control statements are: CALL and RETURN.
+         5. SQL-Connection statements -- start and end
+    Connections, and allow an SQL-client to switch from a session
+    with one SQL-server to a session with another, so they have no
+    effect that lasts after the SQL-session ends. The SQL-Connection
+    statements are: CONNECT, SET CONNECTION and DISCONNECT.
+         6. SQL-session statements -- set certain default values
+    and other parameters for an SQL-session, so they have no effect
+    that lasts after the SQL-session ends. The SQL-session statements
+    are: SET TIME ZONE, SET ROLE, SET SESSION AUTHORIZATION and SET
+    SESSION CHARACTERISTICS.
+         7. SQL-diagnostics statements -- get diagnostics from the
+    diagnostics area and signal exceptions in SQL routines, so they
+    have no effect that lasts after the SQL-session ends. The
+    SQL-diagnostics statement is: GET DIAGNOSTICS.
+
+    Transaction-initiating SQL Statements
+    If there is no current transaction, these SQL statements will
+    begin one: (a) any SQL-Schema statement, (b) the SQL-transaction
+    statements COMMIT and ROLLBACK (if they specify AND CHAIN), (c)
+    the SQL-data statements OPEN, CLOSE, FETCH, SELECT, INSERT,
+    UPDATE, DELETE, FREE LOCATOR and HOLD LOCATOR or (d) START
+    TRANSACTION. The SQL-control statement RETURN will also begin a
+    transaction if it causes the evaluation of a <subquery> when
+    there is no current transaction. No other SQL statement will
+    begin a transaction.
+
+    Which SQL statements Can You Use?
+    Even if it conforms to the SQL Standard, your DBMS may not
+    support all of the SQL statements described in this book because
+    different SQL statements may be prepared and executed in
+    different ways. Thus, the set of SQL statements supported by a
+    DBMS depends on the binding style it supports. The options are
+    as follows.
+         ## SQL Module Language binding style -- where both static and
+    dynamic SQL statements are prepared when the Module is created
+    and executed when the procedure that contains them is called.
+         ## Embedded SQL Syntax binding style -- where both static and
+    dynamic SQL statements are prepared when the host language
+    program is precompiled and executed when the host language program is run.
+         ## Direct SQL Invocation binding style -- where static SQL
+    statements are effectively prepared immediately prior to execution.
+
+    SQL Rule Evaluation Order
+
+    The precedence of operators in an SQL statement is sometimes
+    specified explicitly by the SQL Standard. Where this is the case,
+    you'll find a note to that effect in our description of the
+    operator in question. It is also possible to force a specific
+    expression evaluation order by using parentheses in your SQL
+    statements. Where the precedence of an SQL statement's operators
+    is pre-determined (either by the Standard or by parentheses),
+    those operators are effectively performed in the order specified
+    by that precedence.
+
+    Often, the Standard is silent on the subject of
+    precedence. In cases where
+    the precedence of operators in an SQL statement is not
+    specifically determined either by the rules stated in the
+    Standard, or by parentheses within the SQL statement, evaluation
+    of expressions is effectively performed from left to right.

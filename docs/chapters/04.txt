@@ -1,612 +1,616 @@
+========================
 Chapter 4 -- Bit strings
+========================
 
-In SQL, a bit string is either a binary bit string or a hexadecimal bit
-string. Binary bit strings are arbitrary sequences of zero or more binary
-digits (bits), each having a value of 0 or 1 and a length of 1 bit.
-Hexadecimal bit strings are arbitrary sequences of zero or more hexadecimal
-digits (hexits). A hexit is either (a) any of the digits 0 through 9 or (b)
-any of the letters A through F (upper case or lower case allowed) and is four
-bits long (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E and F are interpreted
-as 0000, 0001, 0010, 0011, 0100, 0101, 0110, 0111, 1000, 1001, 1010, 1011,
-1100, 1101, 1110 and 1111, respectively). A bit string value may be a
-<literal>, the value of a parameter or a host language variable or the result
-of any expression or argument (including a possibly qualified <Column name>)
-that evaluates to a bit string.
+::
 
-A bit string has a length: a non-negative integer equal to the number of bits
-in the string. Bits in a bit string are numbered (from left to right),
-beginning with 1 (the most significant bit). Bit strings are stored in either
-of the two bit string <data type>s: BIT or BIT VARYING.
+    In SQL, a bit string is either a binary bit string or a hexadecimal bit
+    string. Binary bit strings are arbitrary sequences of zero or more binary
+    digits (bits), each having a value of 0 or 1 and a length of 1 bit.
+    Hexadecimal bit strings are arbitrary sequences of zero or more hexadecimal
+    digits (hexits). A hexit is either (a) any of the digits 0 through 9 or (b)
+    any of the letters A through F (upper case or lower case allowed) and is four
+    bits long (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E and F are interpreted
+    as 0000, 0001, 0010, 0011, 0100, 0101, 0110, 0111, 1000, 1001, 1010, 1011,
+    1100, 1101, 1110 and 1111, respectively). A bit string value may be a
+    <literal>, the value of a parameter or a host language variable or the result
+    of any expression or argument (including a possibly qualified <Column name>)
+    that evaluates to a bit string.
 
-<bit string literal>s
+    A bit string has a length: a non-negative integer equal to the number of bits
+    in the string. Bits in a bit string are numbered (from left to right),
+    beginning with 1 (the most significant bit). Bit strings are stored in either
+    of the two bit string <data type>s: BIT or BIT VARYING.
 
-A <bit string literal> is either a binary <bit string literal> or a
-hexadecimal <bit string literal>.
+    <bit string literal>s
 
-binary <bit string literal>:
-A binary <bit string literal> is the letter "B" (upper case mandatory)
-followed by a string of zero or more bits inside a pair of single quote marks.
-Its <data type> is fixed length BIT, though it is compatible with both the BIT
-and the BIT VARYING <data type>s. The <literal>'s length is the number of bits
-inside the quote marks; the delimiting single quotes aren't part of the
-<literal>, so they're not included in the calculation of the <bit string
-literal>'s size. Here are some examples of binary <bit string literal>s:
+    A <bit string literal> is either a binary <bit string literal> or a
+    hexadecimal <bit string literal>.
 
-   B'00010110'
+    binary <bit string literal>:
+    A binary <bit string literal> is the letter "B" (upper case mandatory)
+    followed by a string of zero or more bits inside a pair of single quote marks.
+    Its <data type> is fixed length BIT, though it is compatible with both the BIT
+    and the BIT VARYING <data type>s. The <literal>'s length is the number of bits
+    inside the quote marks; the delimiting single quotes aren't part of the
+    <literal>, so they're not included in the calculation of the <bit string
+    literal>'s size. Here are some examples of binary <bit string literal>s:
 
-   B'1101'
+       B'00010110'
 
-hexadecimal <bit string literal>:
-A hexadecimal <bit string literal> is the letter "X" (upper case mandatory)
-followed by a string of zero or more hexits inside a pair of single quote
-marks. Its <data type> is fixed length BIT, though it is compatible with both
-the BIT and the BIT VARYING <data type>s. The <literal>'s length is four times
-the number of hexits inside the quote marks; the delimiting single quotes are
-not part of the <literal>, therefore they are not included in the calculation
-of the <bit string literal>'s size. Here are some examples of hexadecimal <bit
-string literal>s:
+       B'1101'
 
-   X'49FE'
+    hexadecimal <bit string literal>:
+    A hexadecimal <bit string literal> is the letter "X" (upper case mandatory)
+    followed by a string of zero or more hexits inside a pair of single quote
+    marks. Its <data type> is fixed length BIT, though it is compatible with both
+    the BIT and the BIT VARYING <data type>s. The <literal>'s length is four times
+    the number of hexits inside the quote marks; the delimiting single quotes are
+    not part of the <literal>, therefore they are not included in the calculation
+    of the <bit string literal>'s size. Here are some examples of hexadecimal <bit
+    string literal>s:
 
-   X'a31d'
+       X'49FE'
 
-[Obscure Rule] SQL allows you to break a long <bit string literal> up into two
-or more smaller <bit string literal>s, split by a <separator> that includes a
-newline character. When it sees such a <literal>, your DBMS will ignore the
-<separator> and treat the multiple strings as a single <literal>. For example,
-these two <bit string literal>s are equivalent:
+       X'a31d'
 
-   B'00001111'
-'01101100'
+    [Obscure Rule] SQL allows you to break a long <bit string literal> up into two
+    or more smaller <bit string literal>s, split by a <separator> that includes a
+    newline character. When it sees such a <literal>, your DBMS will ignore the
+    <separator> and treat the multiple strings as a single <literal>. For example,
+    these two <bit string literal>s are equivalent:
 
-   B'0000111101101100'
+       B'00001111'
+    '01101100'
 
-(In the first example, there is a carriage return newline <separator> between
-"1111'" and "'0110".)
+       B'0000111101101100'
 
-These two <bit string literal>s are also equivalent:
+    (In the first example, there is a carriage return newline <separator> between
+    "1111'" and "'0110".)
 
-   X'09AF'
-'ab42'
+    These two <bit string literal>s are also equivalent:
 
-   X'09afAB42'
+       X'09AF'
+    'ab42'
 
-If you want to restrict your code to Core SQL, do not use either binary or
-hexadecimal <bit string literal>s.
+       X'09afAB42'
 
-Bit string <data type>s
+    If you want to restrict your code to Core SQL, do not use either binary or
+    hexadecimal <bit string literal>s.
 
-A bit string <data type> is defined by a descriptor that contains two pieces of information:
-      ## The <data type>'s name: either BIT or BIT VARYING.
-      ## The <data type>'s length in bits.
+    Bit string <data type>s
 
-BIT:
-The required syntax for a BIT <data type> specification is:
+    A bit string <data type> is defined by a descriptor that contains two pieces of information:
+          ## The <data type>'s name: either BIT or BIT VARYING.
+          ## The <data type>'s length in bits.
 
-BIT <data type> ::=
-BIT [ (length) ]
+    BIT:
+    The required syntax for a BIT <data type> specification is:
 
-BIT is a fixed length bit string, exactly "length" bits long; it defines a set
-of bit string values that are any correctly sized string of bits, e.g.:
-   10110001
+    BIT <data type> ::=
+    BIT [ (length) ]
 
-The optional length, if specified, is an unsigned integer that defines the
-fixed length of acceptable values. The minimum length and the default length
-are both 1. For example, these two <data type> specifications are equivalent:
-both define a set of bit string values that must be exactly 1 bit long:
+    BIT is a fixed length bit string, exactly "length" bits long; it defines a set
+    of bit string values that are any correctly sized string of bits, e.g.:
+       10110001
 
-   BIT
+    The optional length, if specified, is an unsigned integer that defines the
+    fixed length of acceptable values. The minimum length and the default length
+    are both 1. For example, these two <data type> specifications are equivalent:
+    both define a set of bit string values that must be exactly 1 bit long:
 
-   BIT(1)
+       BIT
 
-[NON-PORTABLE] The maximum length for BIT is non-standard because the SQL
-Standard requires implementors to define BIT's maximum length.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book allows
-the length of BIT to range from 1 to 32768 (i.e.: 4096*8 bits).
+       BIT(1)
 
-** TIP: Always specify a bit length which is divisible by 8.
+    [NON-PORTABLE] The maximum length for BIT is non-standard because the SQL
+    Standard requires implementors to define BIT's maximum length.
+          [OCELOT Implementation] The OCELOT DBMS that comes with this book allows
+    the length of BIT to range from 1 to 32768 (i.e.: 4096*8 bits).
 
-When operating on a BIT <data type>, you can use either binary <bit string
-literal>s or hexadecimal <bit string literal>s. For example, these two
-<literal>s represent the same bit value:
+    ** TIP: Always specify a bit length which is divisible by 8.
 
-   X'44'
+    When operating on a BIT <data type>, you can use either binary <bit string
+    literal>s or hexadecimal <bit string literal>s. For example, these two
+    <literal>s represent the same bit value:
 
-   B'01000100'
+       X'44'
 
-** TIP: Use hexadecimal <bit string literal>s rather than binary <bit string
-literal>s whenever bit length is divisible by 4.
+       B'01000100'
 
-If you want to restrict your code to Core SQL, don't define any BIT <data type>s.
+    ** TIP: Use hexadecimal <bit string literal>s rather than binary <bit string
+    literal>s whenever bit length is divisible by 4.
 
-BIT VARYING:
-The required syntax for a BIT VARYING <data type> specification is:
+    If you want to restrict your code to Core SQL, don't define any BIT <data type>s.
 
-BIT VARYING <data type> ::=
-BIT VARYING (length)
+    BIT VARYING:
+    The required syntax for a BIT VARYING <data type> specification is:
 
-BIT VARYING is a variable length bit string, up to "length" bits long; it
-defines a set of bit string values that are any correctly sized string of bits, e.g.:
-   10110001
+    BIT VARYING <data type> ::=
+    BIT VARYING (length)
 
-The mandatory length is an unsigned integer that defines the maximum length of
-acceptable values. The minimum length is 1. For example, this <data type>
-specification defines a set of bit string values that may be anywhere from 0 to 16 bits long:
+    BIT VARYING is a variable length bit string, up to "length" bits long; it
+    defines a set of bit string values that are any correctly sized string of bits, e.g.:
+       10110001
 
-   BIT VARYING(16)
+    The mandatory length is an unsigned integer that defines the maximum length of
+    acceptable values. The minimum length is 1. For example, this <data type>
+    specification defines a set of bit string values that may be anywhere from 0 to 16 bits long:
 
-(Zero length bit strings can be stored in a BIT VARYING field.)
+       BIT VARYING(16)
 
-NON-PORTABLE] The maximum length for BIT VARYING is non-standard because the
-SQL Standard requires implementors to define BIT VARYING's maximum length.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book allows
-the length of BIT VARYING to range from 1 to 32768 (i.e.: 4096*8 bits).
-
-When operating on a BIT VARYING <data type>, you can use either binary <bit
-string literal>s or hexadecimal <bit string literal>s. For example, these two
-<literal>s represent the same bit value:
-
-   X'44'
-
-   B'01000100'
-
-** TIP: Use hexadecimal <bit string literal>s rather than binary <bit string
-literal>s whenever bit length is divisible by 4.
-
-If you want to restrict your code to Core SQL, don't define any BIT VARYING <data type>s.
-
-Now that we've described SQL's bit <data type>s, let's look at some example
-SQL statements that put them to use.
-
-These SQL statements make a Table with two bit Columns, insert two rows, then
-search for any bit string equal to 01000100.
-
-CREATE TABLE Bit_Examples (
-      occurrence_bit BIT(8),
-      occurrence_bitvarying BIT VARYING(8));
-
-INSERT INTO Bit_Examples (
-      occurrence_bit,
-      occurrence_bitvarying)
-      VALUES (B'11110000',X'4D');
-
-INSERT INTO Bit_Examples (
-      occurrence_bit,
-      occurrence_bitvarying)
-      VALUES (X'a9',B'01011010');
-
-SELECT occurrence_bit,
-       occurrence_bitvarying
-FROM   Bit_Examples
-WHERE  occurrence_bitvarying = X'44';
-
-SELECT occurrence_bit,
-       occurrence_bitvarying
-FROM   Bit_Examples
-WHERE  occurrence_bit = B'01000100';
-
-Bit Operations
-
-A bit string is compatible with, and comparable to, all other bit strings --
-that is, all bit strings are mutually comparable and mutually assignable. Bit
-strings may not be directly compared with, or directly assigned to, any other
-<data type> class, though implicit type conversions can occur in expressions,
-SELECTs, INSERTs, DELETEs and UPDATEs. Explicit bit string type conversions
-can be forced with the CAST operator.
-
-CAST:
-In SQL, CAST is a scalar operator that converts a given scalar value to a
-given scalar <data type>. The required syntax for the CAST operator is:
-
-CAST (<cast operand> AS <cast target>)
-
-   <cast operand> ::= scalar_expression
-
-   <cast target> ::= <Domain name> | <data type>
-
-The CAST operator converts values of a source <data type> into values of a
-target <data type>, where each <data type> is an SQL pre-defined <data type>
-(data conversions between UDTs are done with a user-defined cast). The source
-<data type>, or <cast operand>, can be any expression that evaluates to a
-single value. The target <data type>, or <cast target>, is either an SQL
-predefined <data type> specification or the name of a Domain whose defined
-<data type> is the SQL predefined <data type> that you want to convert the
-value of "scalar_expression" into. (If you use CAST (... AS <Domain name>),
-your current <AuthorizationID> must have the USAGE Privilege on that Domain.)
-
-It isn't, of course, possible to convert the values of every <data type> into
-the values of every other <data type>. For bit strings, the rules are:
-      ## CAST (NULL AS <data type>) and CAST (bit_string_source_is_a_null_value AS <data type>)
-both result in a CAST of NULL.
-      ## You can CAST a fixed length or variable length bit string source to
-these targets: fixed length character string, variable length character
-string, CLOB, NCLOB, fixed length bit string and variable length bit string.
-You can also CAST a fixed length or variable length bit string source to a UDT
-target or a <reference type> target if a user-defined cast exists for this
-purpose and your current <AuthorizationID> has the EXECUTE Privilege on that
-user-defined cast.
-
-When you CAST a bit string to a UDT or a <reference type> target, your DBMS
-invokes the user defined cast routine, with the source value as the routine's
-argument. The CAST result is the value returned by the user defined cast.
-
-When you CAST a fixed length bit string or a variable length bit string to a
-fixed length bit string target and the bit length of the source value equals
-the fixed bit length of the target, the CAST result is the source bit string.
-When you CAST a fixed length bit string or a variable length bit string to a
-fixed length bit string target and the bit length of the source value is less
-than the fixed bit length of the target, the CAST result is the source bit
-string, padded on the least significant end with as many zero-bits as required
-to make the lengths match. When you CAST a fixed length bit string or a
-variable length bit string to a fixed length bit string target and the bit
-length of the source value is greater than the fixed bit length of the target,
-the CAST result is as much of the source bit string as will fit into the
-target -- in this case, your DBMS will return the SQLSTATE warning 01004
-"warning-string data, right truncation".
-
-When you CAST a fixed length bit string or a variable length bit string to a
-variable length bit string target and the bit length of the source value is
-less than or equals the maximum bit length of the target, the CAST result is
-the source bit string. When you CAST a fixed length bit string or a variable
-length bit string to a variable length bit string target and the bit length of
-the source value is greater than the maximum bit length of the target, the
-CAST result is as much of the source bit string as will fit into the target --
-in this case, your DBMS will return the SQLSTATE warning 01004 "warning-string
-data, right truncation".
-
-When you CAST a fixed length or a variable length bit string to a fixed length
-character string target, a variable length character string target, a CLOB
-target or an NCLOB target, your DBMS first determines whether the source value
-needs to be padded: if the remainder from the result of the source's bit
-length divided by the smallest bit length of any character in the target's
-character set is not zero, then your DBMS will append a number of zero-bits to
-the least significant end of the source value -- the number of zero-bits to
-append is determined by calculating the difference between the bit length of
-the smallest character and the remainder -- and then return the SQLSTATE
-warning 01008 "warning-implicit zero-bit padding". The result of the CAST is
-the string of characters that results from the conversion of the bit string's
-bits into characters that belong to the target's Character set. (Note: if the
-length of the CAST result is less than the length of the (possibly padded)
-source string, your DBMS will return the SQLSTATE warning 01004
-"warning-string data, right truncation" and if the length of the CAST result
-is greater than the length of the source string, your DBMS will return the
-SQLSTATE warning 01008 "warning-implicit zero-bit padding".)
-
-Let's look more closely at what happens when you CAST a bit string to a
-character string. First of all, it's important to remember that character
-strings have a "form-of-use encoding": it comes from the string's Character
-set. As an example, assume that the Character set for a CAST target <data
-type> is UNICODE, where every character is 16 bits long. According to the
-Unicode standard, the code for the letter 'C' is 0043 hexadecimal (that is,
-the binary number 0000000001000011) and the code for the letter 'D' is 0044
-hexadecimal (that is, the binary number 0000000001000100). Now, when you CAST
-from a bit string to a UNICODE character string, you're instructing your DBMS
-to take the binary numbers that make up your bit string and convert them into
-the UNICODE coded character values -- so "CAST(X'00430044' AS CHAR(2)
-CHARACTER SET UNICODE)" will result in 'CD' and "CAST(B'0000000001000011' AS
-CHAR(1) CHARACTER SET UNICODE)" will result in 'C'. If your CAST is of a short
-bit string to a longer fixed length character string, zero bits are padded on
-the right of the source to bring it to the proper length -- so
-"CAST(B'00000000010001' AS CHAR(2) CHARACTER SET UNICODE)" will result in
-'D\0' (we use the symbol \0 here to represent a 16-bit character with all bits zero).
-
-[Obscure Rule] The result of a CAST to a character string target has the
-COERCIBLE coercibility attribute; its Collation is the default Collation for
-the target's Character set.
-
-If you want to restrict your code to Core SQL, don't use <Domain name> as a
-CAST target: CAST only to a <data type>.
-
-Assignment:
-In SQL, when a bit string is assigned to a bit string target, the assignment
-is done one bit at a time, from left to right -- that is, the source value's
-most significant bit is assigned to the target's most significant bit, then
-the source's next bit is assigned to the target's next bit, and so on.
-
-When a bit string is taken from SQL-data to be assigned to a fixed length bit
-string target and the source is shorter than the target, the source is padded
-(on the right) with 0-bits until it matches the target's size. In this case,
-your DBMS will return the SQLSTATE warning 01008 "warning-implicit zero-bit
-padding". If the source is longer than the target, the source is truncated to
-fit the target. In this case, your DBMS will return the SQLSTATE warning 01004
-"warning-string data, right truncation". When a bit string is taken from
-SQL-data to be assigned to a variable length bit string target, the size of
-the target is first set either to the size of the source or to its own maximum
-length, whichever is less. The source may then be truncated, if necessary, to
-match the size of the target. In this case, your DBMS will return the SQLSTATE
-warning 01004 "warning-string data, right truncation".
-
-[Obscure Rule] Since only SQL accepts null values, if your source is NULL,
-then your target's value is not changed. Instead, your DBMS will set its
-indicator parameter to -1, to indicate that an assignment of the null value
-was attempted. If your target doesn't have an indicator parameter, the
-assignment will fail: your DBMS will return the SQLSTATE error 22002 "data
-exception-null value, no indicator parameter". If your source is a non-null
-value that fits into your target, your DBMS will set the target's indicator
-parameter (if any) to zero. If your source is longer than your target, your
-DBMS will set your target's indicator parameter to the length of the source;
-that is, if your source is 12 bits long and your target can accept only 10
-bits, your DBMS will set the target's indicator parameter to 12, to indicate
-that 2 bits were lost on assignment. If the source's length is too big to be
-assigned to the indicator, the assignment will fail: your DBMS will return the
-SQLSTATE error 22022 "data exception-indicator overflow". We'll talk more
-about indicator parameters in our chapters on SQL binding styles.
-
-When a bit string is assigned to a fixed length SQL-data bit string target and
-the source is shorter than the target, the assignment will fail: your DBMS
-will return the SQLSTATE error 22026 "data exception-string data, length
-mismatch". If the source is larger than the target, the assignment will also
-fail: your DBMS will return the SQLSTATE error 22001 "data exception-string
-data, right truncation". When a bit string is assigned to a variable length
-SQL-data bit string target, the size of the target is first set either to the
-size of the source or to its own maximum length, whichever is less. If the
-source is larger than the target, the assignment will fail: your DBMS will
-return the SQLSTATE error 22001 "data exception-string data, right truncation".
-
-[Obscure Rule] There are two ways to assign a null value to an SQL-data
-target. Within SQL, you can use the <keyword> NULL in an INSERT or an UPDATE
-statement to indicate that the target should be set to NULL; that is, if your
-source is NULL, your DBMS will set your target to NULL. Outside of SQL, if
-your source has an indicator parameter that is set to -1, your DBMS will set
-your target to NULL (regardless of the value of the source). (An indicator
-parameter with a value less than -1 will cause an error: your DBMS will return
-the SQLSTATE error 22010 "data exception-invalid indicator parameter value".)
-
-Comparison:
-SQL provides the usual scalar comparison operators -- = and <> and < and <=
-and > and >= -- to perform operations on bit strings. All of them will be
-familiar; there are equivalent operators in other computer languages. If any
-of the comparands are NULL, the result of the operation is UNKNOWN. For example:
-
-   B'0011' = B'0011'
-
-returns TRUE.
-
-   B'0011' = {result is NULL}
-
-returns UNKNOWN.
-
-SQL also provides three quantifiers -- ALL, SOME, ANY -- which you can use
-along with a comparison operator to compare a value with the collection of
-values returned by a <table subquery>. Place the quantifier after the
-comparison operator, immediately before the <table subquery>. For example:
-
-   SELECT bit_column
-   FROM   Table_1
-   WHERE  bit_column < ALL (
-      SELECT bit_column
-      FROM   Table_2);
-
-ALL returns TRUE either (a) if the collection is an empty set (i.e.: if it
-contains zero rows) or (b) if the comparison operator returns TRUE for every
-value in the collection. ALL returns FALSE if the comparison operator returns
-FALSE for at least one value in the collection.
-
-SOME and ANY are synonyms. They return TRUE if the comparison operator returns
-TRUE for at least one value in the collection. They return FALSE either (a) if
-the collection is an empty set or (b) if the comparison operator returns FALSE
-for every value in the collection. (The search condition "= ANY (collection)"
-is equivalent to "IN (collection)".)
-
-When a bit string is compared to another bit string, the comparison is done
-one bit at a time, from left to right -- that is, the first comparand's most
-significant bit is compared to the second comparand's most significant bit,
-then the next two bits are compared, and so on. A 0-bit is considered to be
-less than a 1-bit.
-
-Bit strings of equal length are compared, bit by bit, until equality is either
-determined or not. Two bit strings, BIT_ARGUMENT_1 and BIT_ARGUMENT_2, are
-equal if (a) they have the same length and (b) each bit within BIT_ARGUMENT_1
-compares as equal to the corresponding bit in BIT_ARGUMENT_2.
-
-Bit strings of unequal length are compared, bit by bit, only after the longer
-comparand has been truncated to the length of the shorter comparand.
-Equivalence is determined as usual except that if the shorter comparand
-compares as equal to the substring of the longer comparand that matches its
-size, then the shorter bit string is considered to be less than the longer bit
-string -- even if the remainder of the longer comparand consists only of
-0-bits. That is, BIT_ARGUMENT_1 is less than BIT_ARGUMENT_2 if (a) the length
-of BIT_ARGUMENT_1 is less than the length of BIT_ARGUMENT_2 and (b) each bit
-within BIT_ARGUMENT_1 compares as equal to the corresponding bit in
-BIT_ARGUMENT_2. For example, the result of a comparison of these two bit strings:
-
-   B'101'
-
-   B'1010'
-
-is that the first (shorter) bit string is less than the second (longer) bit string.
-
-Other Operations:
-With SQL, you have several other operations that you can perform on bit
-strings, or on other values to get a bit string result.
-
-## Concatenation
-The required syntax for a bit string concatenation is:
-
-bit concatenation ::=
-bit_string_operand_1 || bit_string_operand_2
-
-The concatenation operator operates on two operands, both of which must
-evaluate to a bit string. It joins the strings together in the order given and
-returns a bit string with a length equal to the sum of the lengths of its
-operands. If either of the operands is NULL, the result of the operation is
-also NULL. Here are two examples of bit string concatenations:
-
-   B'0000' || B'0011'    -- returns 00000011
-
-   bit_column || B'0011' -- returns bit_column's value followed by 0011
-
-[Obscure Rule] If both operands are fixed length bit strings, the
-concatenation result is a fixed length bit string with a length equal to the
-sum of the lengths of the operands -- this length may not exceed the maximum
-allowed for a fixed length bit string. If either operand is a variable length
-bit string and the sum of their lengths is not greater than the maximum
-allowed length for a variable length bit string, the concatenation result is a
-variable length bit string with a length equal to the sum of the lengths of
-the operands. If the sum of the operands' lengths is greater than the maximum
-allowed, but the extra bits are all 0- bits, the concatenation result is a
-variable length bit string with a length equal to the maximum allowed length.
-If the sum of the operands' lengths is greater than the maximum allowed, and
-the extra bits are not all 0-bits, the concatenation will fail: your DBMS will
-return the SQLSTATE error 22001 "data exception-string data, right truncation".
-
-If you want to restrict your code to Core SQL, don't use the concatenation
-operator with bit strings.
-
-## Scalar functions
-SQL provides three scalar functions that return a bit string: the <case
-expression>, the <cast specification> and the <bit substring function>. It
-also provides four scalar functions that operate on bit strings, returning a
-number: the <bit position expression>, the <bit length expression>, the <char
-length expression> and the <octet length expression>. All but the first two
-are described below. We'll discuss the rest in other chapters; for now, just
-remember that they evaluate to a bit string and can therefore be used anywhere
-in an SQL statement that a bit string could be used.
-
-<bit substring function> --
-The required syntax for a <bit substring function> is:
-
-<bit substring function> ::=
-SUBSTRING (
-      bit_argument
-      FROM start_argument
-      [ FOR length_argument ])
-
-SUBSTRING operates on three arguments: the first must evaluate to a bit
-string, the other two must evaluate to exact numeric integers. It extracts a
-substring from "bit_argument" and returns a variable length bit string with a
-maximum length that equals the fixed length, or maximum variable length, of
-the bit argument (as applicable). If any of the arguments are NULL, SUBSTRING
-returns NULL.
-
-The "start_argument" is a number that marks the first bit you want to extract
-from "bit_argument". If SUBSTRING includes the (optional) FOR clause,
-"length_argument" is the total number of bits you want to extract. If you omit
-the FOR clause, SUBSTRING will begin at "start_argument" and extract all the
-rest of the bits in "bit_argument". Here are some examples of SUBSTRING:
-
-   SUBSTRING(B'10001100' FROM 5)        -- returns 1100
-
-   SUBSTRING(B'10001100' FROM 5 FOR 3)  -- returns 110
-
-   SUBSTRING(bit_column FROM 1 FOR 4)   -- returns the first four bits of the value in BIT_COLUMN
-
-If "start_argument" is larger than the length of "bit_argument", or if the
-length of the required substring is less than one, SUBSTRING returns a zero-
-length bit string. If the length of the required substring is less than
-"start_argument", SUBSTRING will fail: your DBMS will return the SQLSTATE
-error 22011 "data exception-substring error".
-
-[Obscure Rule] SUBSTRING can also operate on a character string and a BLOB.
-We've ignored these options for now -- look for them in our chapters on
-character strings and BLOBs.
-
-If you want to restrict your code to Core SQL, don't use SUBSTRING with bit strings.
-
-<bit position expression> --
-The required syntax for a <bit position expression> is:
-
-<bit position expression> ::=
-POSITION (
-      bit_argument_1
-      IN bit_argument_2)
-
-POSITION operates on two arguments, both of which must evaluate to a bit
-string. It determines the first bit position (if any) at which
-"bit_argument_1" is found in "bit_argument_2" and returns this as an exact
-numeric integer. If either of the arguments are NULL, POSITION returns NULL.
-If "bit_argument_1" is a zero-length bit string, POSITION returns one. If
-"bit_argument_1" is not found in "bit_argument_2", POSITION returns zero. Here
-is an example:
-
-   POSITION(B'1011' IN B'001101011011')
-   -- returns 9
-
-[NON-PORTABLE] The precision of POSITION's result is non-standard because the
-SQL Standard requires implementors to define the result's precision.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book gives
-the result of POSITION an INTEGER <data type>.
-
-[Obscure Rule] POSITION can also operate on a character string and a BLOB.
-We've ignored these options for now -- look for them in our chapters on
-character strings and BLOBs.
-
-If you want to restrict your code to Core SQL, don't use POSITION with bit strings.
-
-<bit length expression> --
-The required syntax for a <bit length expression> is:
-
-<bit length expression> ::=
-BIT_LENGTH (bit_argument)
-
-BIT_LENGTH operates on an argument that evaluates to a bit string. It
-determines the length of the argument, in bits, and returns this as an exact
-numeric integer, e.g.: BIT_LENGTH(B'10110011') returns 8 and
-BIT_LENGTH(X'4AD9') returns 16. If the argument is NULL, BIT_LENGTH returns NULL.
-
-[NON-PORTABLE] The precision of BIT_LENGTH's result is non-standard because
-the SQL Standard requires implementors to define the result's precision.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book gives
-the result of BIT_LENGTH an INTEGER <data type>.
-
-[Obscure Rule] BIT_LENGTH can also operate on a character string and a BLOB.
-We've ignored these options for now -- look for them in our chapters on
-character strings and BLOBs.
-
-<char length expression> --
-The required syntax for a <char length expression> is:
-
-<char length expression> ::=
-{CHAR_LENGTH | CHARACTER_LENGTH} (bit_argument)
-
-CHAR_LENGTH (or CHARACTER_LENGTH) operates on an argument that evaluates to a
-bit string. It determines the length of the argument, in octets, and returns
-this as an exact numeric integer, e.g.: CHAR_LENGTH(B'10110011') returns 1 and
-CHAR_LENGTH(X'4AD9') returns 2. (The octet length of a string is the bit
-length divided by 8, ignoring any remainder.) If the argument is NULL,
-CHAR_LENGTH returns NULL.
-
-[NON-PORTABLE] The precision of CHAR_LENGTH's result is non-standard because
-the SQL Standard requires implementors to define the result's precision.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book gives
-the result of CHAR_LENGTH an INTEGER <data type>.
-
-[Obscure Rule] CHAR_LENGTH can also operate on a character string and a BLOB.
-We've ignored these options for now -- look for them in our chapters on
-character strings and BLOBs.
-
-<octet length expression> --
-The required syntax for a <octet length expression> is:
-
-<octet length expression> ::=
-OCTET_LENGTH (bit_argument)
-
-OCTET_LENGTH operates on an argument that evaluates to a bit string. It
-determines the length of the argument, in octets, and returns this as an exact
-numeric integer, e.g.: OCTET_LENGTH(B'10110011') returns 1 and
-OCTET_LENGTH(X'4AD9') returns 2. (The octet length of a string is the bit
-length divided by 8, ignoring any remainder.) If the argument is NULL,
-OCTET_LENGTH returns NULL.
-
-[NON-PORTABLE] The precision of OCTET_LENGTH's result is non-standard because
-the SQL Standard requires implementors to define the result's precision.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book gives
-the result of OCTET_LENGTH an INTEGER <data type>.
-
-[Obscure Rule] OCTET_LENGTH can also operate on a character string and a BLOB.
-We've ignored these options for now -- look for them in our chapters on
-character strings and BLOBs.
-
-## Set functions
-SQL provides five set functions that operate on bit strings: COUNT(*), COUNT,
-MAX, MIN and GROUPING. Since none of these operate exclusively with bit string
-arguments, we won't discuss them here; look for them in our chapter on set functions.
-
-## Predicates
-In addition to the comparison operators, SQL provides eight other predicates
-that operate on bit strings: the <between predicate>, the <in predicate>, the
-<null predicate>, the <exists predicate>, the <unique predicate>, the <match
-predicate>, the <quantified predicate> and the <distinct predicate>. Each will
-return a boolean value: either TRUE, FALSE or UNKNOWN. None of these operate
-strictly on bit strings, so we won't discuss them here. Look for them in our
-chapter on search conditions.
+    (Zero length bit strings can be stored in a BIT VARYING field.)
+
+    NON-PORTABLE] The maximum length for BIT VARYING is non-standard because the
+    SQL Standard requires implementors to define BIT VARYING's maximum length.
+          [OCELOT Implementation] The OCELOT DBMS that comes with this book allows
+    the length of BIT VARYING to range from 1 to 32768 (i.e.: 4096*8 bits).
+
+    When operating on a BIT VARYING <data type>, you can use either binary <bit
+    string literal>s or hexadecimal <bit string literal>s. For example, these two
+    <literal>s represent the same bit value:
+
+       X'44'
+
+       B'01000100'
+
+    ** TIP: Use hexadecimal <bit string literal>s rather than binary <bit string
+    literal>s whenever bit length is divisible by 4.
+
+    If you want to restrict your code to Core SQL, don't define any BIT VARYING <data type>s.
+
+    Now that we've described SQL's bit <data type>s, let's look at some example
+    SQL statements that put them to use.
+
+    These SQL statements make a Table with two bit Columns, insert two rows, then
+    search for any bit string equal to 01000100.
+
+    CREATE TABLE Bit_Examples (
+          occurrence_bit BIT(8),
+          occurrence_bitvarying BIT VARYING(8));
+
+    INSERT INTO Bit_Examples (
+          occurrence_bit,
+          occurrence_bitvarying)
+          VALUES (B'11110000',X'4D');
+
+    INSERT INTO Bit_Examples (
+          occurrence_bit,
+          occurrence_bitvarying)
+          VALUES (X'a9',B'01011010');
+
+    SELECT occurrence_bit,
+           occurrence_bitvarying
+    FROM   Bit_Examples
+    WHERE  occurrence_bitvarying = X'44';
+
+    SELECT occurrence_bit,
+           occurrence_bitvarying
+    FROM   Bit_Examples
+    WHERE  occurrence_bit = B'01000100';
+
+    Bit Operations
+
+    A bit string is compatible with, and comparable to, all other bit strings --
+    that is, all bit strings are mutually comparable and mutually assignable. Bit
+    strings may not be directly compared with, or directly assigned to, any other
+    <data type> class, though implicit type conversions can occur in expressions,
+    SELECTs, INSERTs, DELETEs and UPDATEs. Explicit bit string type conversions
+    can be forced with the CAST operator.
+
+    CAST:
+    In SQL, CAST is a scalar operator that converts a given scalar value to a
+    given scalar <data type>. The required syntax for the CAST operator is:
+
+    CAST (<cast operand> AS <cast target>)
+
+       <cast operand> ::= scalar_expression
+
+       <cast target> ::= <Domain name> | <data type>
+
+    The CAST operator converts values of a source <data type> into values of a
+    target <data type>, where each <data type> is an SQL pre-defined <data type>
+    (data conversions between UDTs are done with a user-defined cast). The source
+    <data type>, or <cast operand>, can be any expression that evaluates to a
+    single value. The target <data type>, or <cast target>, is either an SQL
+    predefined <data type> specification or the name of a Domain whose defined
+    <data type> is the SQL predefined <data type> that you want to convert the
+    value of "scalar_expression" into. (If you use CAST (... AS <Domain name>),
+    your current <AuthorizationID> must have the USAGE Privilege on that Domain.)
+
+    It isn't, of course, possible to convert the values of every <data type> into
+    the values of every other <data type>. For bit strings, the rules are:
+          ## CAST (NULL AS <data type>) and CAST (bit_string_source_is_a_null_value AS <data type>)
+    both result in a CAST of NULL.
+          ## You can CAST a fixed length or variable length bit string source to
+    these targets: fixed length character string, variable length character
+    string, CLOB, NCLOB, fixed length bit string and variable length bit string.
+    You can also CAST a fixed length or variable length bit string source to a UDT
+    target or a <reference type> target if a user-defined cast exists for this
+    purpose and your current <AuthorizationID> has the EXECUTE Privilege on that
+    user-defined cast.
+
+    When you CAST a bit string to a UDT or a <reference type> target, your DBMS
+    invokes the user defined cast routine, with the source value as the routine's
+    argument. The CAST result is the value returned by the user defined cast.
+
+    When you CAST a fixed length bit string or a variable length bit string to a
+    fixed length bit string target and the bit length of the source value equals
+    the fixed bit length of the target, the CAST result is the source bit string.
+    When you CAST a fixed length bit string or a variable length bit string to a
+    fixed length bit string target and the bit length of the source value is less
+    than the fixed bit length of the target, the CAST result is the source bit
+    string, padded on the least significant end with as many zero-bits as required
+    to make the lengths match. When you CAST a fixed length bit string or a
+    variable length bit string to a fixed length bit string target and the bit
+    length of the source value is greater than the fixed bit length of the target,
+    the CAST result is as much of the source bit string as will fit into the
+    target -- in this case, your DBMS will return the SQLSTATE warning 01004
+    "warning-string data, right truncation".
+
+    When you CAST a fixed length bit string or a variable length bit string to a
+    variable length bit string target and the bit length of the source value is
+    less than or equals the maximum bit length of the target, the CAST result is
+    the source bit string. When you CAST a fixed length bit string or a variable
+    length bit string to a variable length bit string target and the bit length of
+    the source value is greater than the maximum bit length of the target, the
+    CAST result is as much of the source bit string as will fit into the target --
+    in this case, your DBMS will return the SQLSTATE warning 01004 "warning-string
+    data, right truncation".
+
+    When you CAST a fixed length or a variable length bit string to a fixed length
+    character string target, a variable length character string target, a CLOB
+    target or an NCLOB target, your DBMS first determines whether the source value
+    needs to be padded: if the remainder from the result of the source's bit
+    length divided by the smallest bit length of any character in the target's
+    character set is not zero, then your DBMS will append a number of zero-bits to
+    the least significant end of the source value -- the number of zero-bits to
+    append is determined by calculating the difference between the bit length of
+    the smallest character and the remainder -- and then return the SQLSTATE
+    warning 01008 "warning-implicit zero-bit padding". The result of the CAST is
+    the string of characters that results from the conversion of the bit string's
+    bits into characters that belong to the target's Character set. (Note: if the
+    length of the CAST result is less than the length of the (possibly padded)
+    source string, your DBMS will return the SQLSTATE warning 01004
+    "warning-string data, right truncation" and if the length of the CAST result
+    is greater than the length of the source string, your DBMS will return the
+    SQLSTATE warning 01008 "warning-implicit zero-bit padding".)
+
+    Let's look more closely at what happens when you CAST a bit string to a
+    character string. First of all, it's important to remember that character
+    strings have a "form-of-use encoding": it comes from the string's Character
+    set. As an example, assume that the Character set for a CAST target <data
+    type> is UNICODE, where every character is 16 bits long. According to the
+    Unicode standard, the code for the letter 'C' is 0043 hexadecimal (that is,
+    the binary number 0000000001000011) and the code for the letter 'D' is 0044
+    hexadecimal (that is, the binary number 0000000001000100). Now, when you CAST
+    from a bit string to a UNICODE character string, you're instructing your DBMS
+    to take the binary numbers that make up your bit string and convert them into
+    the UNICODE coded character values -- so "CAST(X'00430044' AS CHAR(2)
+    CHARACTER SET UNICODE)" will result in 'CD' and "CAST(B'0000000001000011' AS
+    CHAR(1) CHARACTER SET UNICODE)" will result in 'C'. If your CAST is of a short
+    bit string to a longer fixed length character string, zero bits are padded on
+    the right of the source to bring it to the proper length -- so
+    "CAST(B'00000000010001' AS CHAR(2) CHARACTER SET UNICODE)" will result in
+    'D\0' (we use the symbol \0 here to represent a 16-bit character with all bits zero).
+
+    [Obscure Rule] The result of a CAST to a character string target has the
+    COERCIBLE coercibility attribute; its Collation is the default Collation for
+    the target's Character set.
+
+    If you want to restrict your code to Core SQL, don't use <Domain name> as a
+    CAST target: CAST only to a <data type>.
+
+    Assignment:
+    In SQL, when a bit string is assigned to a bit string target, the assignment
+    is done one bit at a time, from left to right -- that is, the source value's
+    most significant bit is assigned to the target's most significant bit, then
+    the source's next bit is assigned to the target's next bit, and so on.
+
+    When a bit string is taken from SQL-data to be assigned to a fixed length bit
+    string target and the source is shorter than the target, the source is padded
+    (on the right) with 0-bits until it matches the target's size. In this case,
+    your DBMS will return the SQLSTATE warning 01008 "warning-implicit zero-bit
+    padding". If the source is longer than the target, the source is truncated to
+    fit the target. In this case, your DBMS will return the SQLSTATE warning 01004
+    "warning-string data, right truncation". When a bit string is taken from
+    SQL-data to be assigned to a variable length bit string target, the size of
+    the target is first set either to the size of the source or to its own maximum
+    length, whichever is less. The source may then be truncated, if necessary, to
+    match the size of the target. In this case, your DBMS will return the SQLSTATE
+    warning 01004 "warning-string data, right truncation".
+
+    [Obscure Rule] Since only SQL accepts null values, if your source is NULL,
+    then your target's value is not changed. Instead, your DBMS will set its
+    indicator parameter to -1, to indicate that an assignment of the null value
+    was attempted. If your target doesn't have an indicator parameter, the
+    assignment will fail: your DBMS will return the SQLSTATE error 22002 "data
+    exception-null value, no indicator parameter". If your source is a non-null
+    value that fits into your target, your DBMS will set the target's indicator
+    parameter (if any) to zero. If your source is longer than your target, your
+    DBMS will set your target's indicator parameter to the length of the source;
+    that is, if your source is 12 bits long and your target can accept only 10
+    bits, your DBMS will set the target's indicator parameter to 12, to indicate
+    that 2 bits were lost on assignment. If the source's length is too big to be
+    assigned to the indicator, the assignment will fail: your DBMS will return the
+    SQLSTATE error 22022 "data exception-indicator overflow". We'll talk more
+    about indicator parameters in our chapters on SQL binding styles.
+
+    When a bit string is assigned to a fixed length SQL-data bit string target and
+    the source is shorter than the target, the assignment will fail: your DBMS
+    will return the SQLSTATE error 22026 "data exception-string data, length
+    mismatch". If the source is larger than the target, the assignment will also
+    fail: your DBMS will return the SQLSTATE error 22001 "data exception-string
+    data, right truncation". When a bit string is assigned to a variable length
+    SQL-data bit string target, the size of the target is first set either to the
+    size of the source or to its own maximum length, whichever is less. If the
+    source is larger than the target, the assignment will fail: your DBMS will
+    return the SQLSTATE error 22001 "data exception-string data, right truncation".
+
+    [Obscure Rule] There are two ways to assign a null value to an SQL-data
+    target. Within SQL, you can use the <keyword> NULL in an INSERT or an UPDATE
+    statement to indicate that the target should be set to NULL; that is, if your
+    source is NULL, your DBMS will set your target to NULL. Outside of SQL, if
+    your source has an indicator parameter that is set to -1, your DBMS will set
+    your target to NULL (regardless of the value of the source). (An indicator
+    parameter with a value less than -1 will cause an error: your DBMS will return
+    the SQLSTATE error 22010 "data exception-invalid indicator parameter value".)
+
+    Comparison:
+    SQL provides the usual scalar comparison operators -- = and <> and < and <=
+    and > and >= -- to perform operations on bit strings. All of them will be
+    familiar; there are equivalent operators in other computer languages. If any
+    of the comparands are NULL, the result of the operation is UNKNOWN. For example:
+
+       B'0011' = B'0011'
+
+    returns TRUE.
+
+       B'0011' = {result is NULL}
+
+    returns UNKNOWN.
+
+    SQL also provides three quantifiers -- ALL, SOME, ANY -- which you can use
+    along with a comparison operator to compare a value with the collection of
+    values returned by a <table subquery>. Place the quantifier after the
+    comparison operator, immediately before the <table subquery>. For example:
+
+       SELECT bit_column
+       FROM   Table_1
+       WHERE  bit_column < ALL (
+          SELECT bit_column
+          FROM   Table_2);
+
+    ALL returns TRUE either (a) if the collection is an empty set (i.e.: if it
+    contains zero rows) or (b) if the comparison operator returns TRUE for every
+    value in the collection. ALL returns FALSE if the comparison operator returns
+    FALSE for at least one value in the collection.
+
+    SOME and ANY are synonyms. They return TRUE if the comparison operator returns
+    TRUE for at least one value in the collection. They return FALSE either (a) if
+    the collection is an empty set or (b) if the comparison operator returns FALSE
+    for every value in the collection. (The search condition "= ANY (collection)"
+    is equivalent to "IN (collection)".)
+
+    When a bit string is compared to another bit string, the comparison is done
+    one bit at a time, from left to right -- that is, the first comparand's most
+    significant bit is compared to the second comparand's most significant bit,
+    then the next two bits are compared, and so on. A 0-bit is considered to be
+    less than a 1-bit.
+
+    Bit strings of equal length are compared, bit by bit, until equality is either
+    determined or not. Two bit strings, BIT_ARGUMENT_1 and BIT_ARGUMENT_2, are
+    equal if (a) they have the same length and (b) each bit within BIT_ARGUMENT_1
+    compares as equal to the corresponding bit in BIT_ARGUMENT_2.
+
+    Bit strings of unequal length are compared, bit by bit, only after the longer
+    comparand has been truncated to the length of the shorter comparand.
+    Equivalence is determined as usual except that if the shorter comparand
+    compares as equal to the substring of the longer comparand that matches its
+    size, then the shorter bit string is considered to be less than the longer bit
+    string -- even if the remainder of the longer comparand consists only of
+    0-bits. That is, BIT_ARGUMENT_1 is less than BIT_ARGUMENT_2 if (a) the length
+    of BIT_ARGUMENT_1 is less than the length of BIT_ARGUMENT_2 and (b) each bit
+    within BIT_ARGUMENT_1 compares as equal to the corresponding bit in
+    BIT_ARGUMENT_2. For example, the result of a comparison of these two bit strings:
+
+       B'101'
+
+       B'1010'
+
+    is that the first (shorter) bit string is less than the second (longer) bit string.
+
+    Other Operations:
+    With SQL, you have several other operations that you can perform on bit
+    strings, or on other values to get a bit string result.
+
+    ## Concatenation
+    The required syntax for a bit string concatenation is:
+
+    bit concatenation ::=
+    bit_string_operand_1 || bit_string_operand_2
+
+    The concatenation operator operates on two operands, both of which must
+    evaluate to a bit string. It joins the strings together in the order given and
+    returns a bit string with a length equal to the sum of the lengths of its
+    operands. If either of the operands is NULL, the result of the operation is
+    also NULL. Here are two examples of bit string concatenations:
+
+       B'0000' || B'0011'    -- returns 00000011
+
+       bit_column || B'0011' -- returns bit_column's value followed by 0011
+
+    [Obscure Rule] If both operands are fixed length bit strings, the
+    concatenation result is a fixed length bit string with a length equal to the
+    sum of the lengths of the operands -- this length may not exceed the maximum
+    allowed for a fixed length bit string. If either operand is a variable length
+    bit string and the sum of their lengths is not greater than the maximum
+    allowed length for a variable length bit string, the concatenation result is a
+    variable length bit string with a length equal to the sum of the lengths of
+    the operands. If the sum of the operands' lengths is greater than the maximum
+    allowed, but the extra bits are all 0- bits, the concatenation result is a
+    variable length bit string with a length equal to the maximum allowed length.
+    If the sum of the operands' lengths is greater than the maximum allowed, and
+    the extra bits are not all 0-bits, the concatenation will fail: your DBMS will
+    return the SQLSTATE error 22001 "data exception-string data, right truncation".
+
+    If you want to restrict your code to Core SQL, don't use the concatenation
+    operator with bit strings.
+
+    ## Scalar functions
+    SQL provides three scalar functions that return a bit string: the <case
+    expression>, the <cast specification> and the <bit substring function>. It
+    also provides four scalar functions that operate on bit strings, returning a
+    number: the <bit position expression>, the <bit length expression>, the <char
+    length expression> and the <octet length expression>. All but the first two
+    are described below. We'll discuss the rest in other chapters; for now, just
+    remember that they evaluate to a bit string and can therefore be used anywhere
+    in an SQL statement that a bit string could be used.
+
+    <bit substring function> --
+    The required syntax for a <bit substring function> is:
+
+    <bit substring function> ::=
+    SUBSTRING (
+          bit_argument
+          FROM start_argument
+          [ FOR length_argument ])
+
+    SUBSTRING operates on three arguments: the first must evaluate to a bit
+    string, the other two must evaluate to exact numeric integers. It extracts a
+    substring from "bit_argument" and returns a variable length bit string with a
+    maximum length that equals the fixed length, or maximum variable length, of
+    the bit argument (as applicable). If any of the arguments are NULL, SUBSTRING
+    returns NULL.
+
+    The "start_argument" is a number that marks the first bit you want to extract
+    from "bit_argument". If SUBSTRING includes the (optional) FOR clause,
+    "length_argument" is the total number of bits you want to extract. If you omit
+    the FOR clause, SUBSTRING will begin at "start_argument" and extract all the
+    rest of the bits in "bit_argument". Here are some examples of SUBSTRING:
+
+       SUBSTRING(B'10001100' FROM 5)        -- returns 1100
+
+       SUBSTRING(B'10001100' FROM 5 FOR 3)  -- returns 110
+
+       SUBSTRING(bit_column FROM 1 FOR 4)   -- returns the first four bits of the value in BIT_COLUMN
+
+    If "start_argument" is larger than the length of "bit_argument", or if the
+    length of the required substring is less than one, SUBSTRING returns a zero-
+    length bit string. If the length of the required substring is less than
+    "start_argument", SUBSTRING will fail: your DBMS will return the SQLSTATE
+    error 22011 "data exception-substring error".
+
+    [Obscure Rule] SUBSTRING can also operate on a character string and a BLOB.
+    We've ignored these options for now -- look for them in our chapters on
+    character strings and BLOBs.
+
+    If you want to restrict your code to Core SQL, don't use SUBSTRING with bit strings.
+
+    <bit position expression> --
+    The required syntax for a <bit position expression> is:
+
+    <bit position expression> ::=
+    POSITION (
+          bit_argument_1
+          IN bit_argument_2)
+
+    POSITION operates on two arguments, both of which must evaluate to a bit
+    string. It determines the first bit position (if any) at which
+    "bit_argument_1" is found in "bit_argument_2" and returns this as an exact
+    numeric integer. If either of the arguments are NULL, POSITION returns NULL.
+    If "bit_argument_1" is a zero-length bit string, POSITION returns one. If
+    "bit_argument_1" is not found in "bit_argument_2", POSITION returns zero. Here
+    is an example:
+
+       POSITION(B'1011' IN B'001101011011')
+       -- returns 9
+
+    [NON-PORTABLE] The precision of POSITION's result is non-standard because the
+    SQL Standard requires implementors to define the result's precision.
+          [OCELOT Implementation] The OCELOT DBMS that comes with this book gives
+    the result of POSITION an INTEGER <data type>.
+
+    [Obscure Rule] POSITION can also operate on a character string and a BLOB.
+    We've ignored these options for now -- look for them in our chapters on
+    character strings and BLOBs.
+
+    If you want to restrict your code to Core SQL, don't use POSITION with bit strings.
+
+    <bit length expression> --
+    The required syntax for a <bit length expression> is:
+
+    <bit length expression> ::=
+    BIT_LENGTH (bit_argument)
+
+    BIT_LENGTH operates on an argument that evaluates to a bit string. It
+    determines the length of the argument, in bits, and returns this as an exact
+    numeric integer, e.g.: BIT_LENGTH(B'10110011') returns 8 and
+    BIT_LENGTH(X'4AD9') returns 16. If the argument is NULL, BIT_LENGTH returns NULL.
+
+    [NON-PORTABLE] The precision of BIT_LENGTH's result is non-standard because
+    the SQL Standard requires implementors to define the result's precision.
+          [OCELOT Implementation] The OCELOT DBMS that comes with this book gives
+    the result of BIT_LENGTH an INTEGER <data type>.
+
+    [Obscure Rule] BIT_LENGTH can also operate on a character string and a BLOB.
+    We've ignored these options for now -- look for them in our chapters on
+    character strings and BLOBs.
+
+    <char length expression> --
+    The required syntax for a <char length expression> is:
+
+    <char length expression> ::=
+    {CHAR_LENGTH | CHARACTER_LENGTH} (bit_argument)
+
+    CHAR_LENGTH (or CHARACTER_LENGTH) operates on an argument that evaluates to a
+    bit string. It determines the length of the argument, in octets, and returns
+    this as an exact numeric integer, e.g.: CHAR_LENGTH(B'10110011') returns 1 and
+    CHAR_LENGTH(X'4AD9') returns 2. (The octet length of a string is the bit
+    length divided by 8, ignoring any remainder.) If the argument is NULL,
+    CHAR_LENGTH returns NULL.
+
+    [NON-PORTABLE] The precision of CHAR_LENGTH's result is non-standard because
+    the SQL Standard requires implementors to define the result's precision.
+          [OCELOT Implementation] The OCELOT DBMS that comes with this book gives
+    the result of CHAR_LENGTH an INTEGER <data type>.
+
+    [Obscure Rule] CHAR_LENGTH can also operate on a character string and a BLOB.
+    We've ignored these options for now -- look for them in our chapters on
+    character strings and BLOBs.
+
+    <octet length expression> --
+    The required syntax for a <octet length expression> is:
+
+    <octet length expression> ::=
+    OCTET_LENGTH (bit_argument)
+
+    OCTET_LENGTH operates on an argument that evaluates to a bit string. It
+    determines the length of the argument, in octets, and returns this as an exact
+    numeric integer, e.g.: OCTET_LENGTH(B'10110011') returns 1 and
+    OCTET_LENGTH(X'4AD9') returns 2. (The octet length of a string is the bit
+    length divided by 8, ignoring any remainder.) If the argument is NULL,
+    OCTET_LENGTH returns NULL.
+
+    [NON-PORTABLE] The precision of OCTET_LENGTH's result is non-standard because
+    the SQL Standard requires implementors to define the result's precision.
+          [OCELOT Implementation] The OCELOT DBMS that comes with this book gives
+    the result of OCTET_LENGTH an INTEGER <data type>.
+
+    [Obscure Rule] OCTET_LENGTH can also operate on a character string and a BLOB.
+    We've ignored these options for now -- look for them in our chapters on
+    character strings and BLOBs.
+
+    ## Set functions
+    SQL provides five set functions that operate on bit strings: COUNT(*), COUNT,
+    MAX, MIN and GROUPING. Since none of these operate exclusively with bit string
+    arguments, we won't discuss them here; look for them in our chapter on set functions.
+
+    ## Predicates
+    In addition to the comparison operators, SQL provides eight other predicates
+    that operate on bit strings: the <between predicate>, the <in predicate>, the
+    <null predicate>, the <exists predicate>, the <unique predicate>, the <match
+    predicate>, the <quantified predicate> and the <distinct predicate>. Each will
+    return a boolean value: either TRUE, FALSE or UNKNOWN. None of these operate
+    strictly on bit strings, so we won't discuss them here. Look for them in our
+    chapter on search conditions.
