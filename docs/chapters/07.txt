@@ -1,3 +1,5 @@
+.. highlight:: text
+
 ==============================
 Chapter 7 -- Character strings
 ==============================
@@ -29,7 +31,10 @@ Chapter 7 -- Character strings
     CHARACTER VARYING, CHARACTER LARGE OBJECT, NATIONAL CHARACTER, NATIONAL
     CHARACTER VARYING or NATIONAL CHARACTER LARGE OBJECT.
 
-    Character string <literal>s
+Character string <literal>s
+===========================
+
+::
 
     An SQL <character string literal> has five parts:
           ## Its value: the sequence of characters that make up the <literal>.
@@ -163,7 +168,10 @@ Chapter 7 -- Character strings
     If you want to restrict your code to Core SQL, don't use <national character
     string literal>s.
 
-    Character string <data type>s
+Character string <data type>s
+=============================
+
+::
 
     A character string <data type> is defined by a descriptor that contains five
     pieces of information:
@@ -646,7 +654,10 @@ Chapter 7 -- Character strings
     FROM   Large_Char_Examples
     WHERE  occurrence_nclob_2 = N'hi';
 
-    Character string Operations
+Character string Operations
+===========================
+
+::
 
     A character string is compatible with, and comparable to, all other character
     strings from the same Character set -- that is, character strings are mutually
@@ -2160,7 +2171,10 @@ Chapter 7 -- Character strings
     which characters are regarded as "equal" and whether there are pad spaces at
     the end of a string).
 
-    Character strings and Character Sets
+Character strings and Character Sets
+====================================
+
+::
 
     [Obscure Rule] applies for this entire section.
 
@@ -2218,7 +2232,10 @@ Chapter 7 -- Character strings
     Character set that any character string belongs to -- always allow it to
     belong to the default Character set.
 
-    Character strings and Collations
+Character strings and Collations
+================================
+
+::
 
     [Obscure Rule] applies for this entire section.
 
@@ -2284,7 +2301,10 @@ Chapter 7 -- Character strings
 
     <<<INSERT CHAP7_T3.DOC HERE>>>
 
-    Dialects
+Dialects
+========
+
+::
 
     The "typical" SQL DBMS supports most of the standard character data types, but
     often uses preferred local names. For example, Oracle has a 2000-byte maximum

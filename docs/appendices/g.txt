@@ -1,3 +1,5 @@
+.. highlight:: text
+
 ====================
 Appendix G -- Errata
 ====================

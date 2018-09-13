@@ -1,3 +1,5 @@
+.. highlight:: text
+
 ========================================
 Chapter 51 -- SQL/CLI: Catalog Functions
 ========================================
@@ -34,7 +36,10 @@ Chapter 51 -- SQL/CLI: Catalog Functions
     Catalogs and use the simple mechanisms you already know. It's cleaner to
     SELECT from a View in INFORMATION_SCHEMA.
 
-    Some necessary preliminaries
+Some necessary preliminaries
+============================
+
+::
 
     Calling a Catalog function is equivalent to calling SQLExecDirect with an
     argument containing a SELECT statement. That means that data is returned in a
@@ -110,7 +115,10 @@ Chapter 51 -- SQL/CLI: Catalog Functions
     and ODBC here, but they won't matter if you follow two policies. One: avoid
     <delimited identifier>s. Two: pass all string values in upper case.
 
-    SQLColumnPrivileges
+SQLColumnPrivileges
+===================
+
+::
 
     Function Prototype:
       SQLRETURN SQLColumnPrivileges(
@@ -167,7 +175,10 @@ Chapter 51 -- SQL/CLI: Catalog Functions
     is significantly different: see the earlier section titled "Some Necessary
     Preliminaries".
 
-    SQLColumns
+SQLColumns
+==========
+
+::
 
     Function Prototype:
       SQLRETURN SQLColumns(
@@ -417,7 +428,10 @@ Chapter 51 -- SQL/CLI: Catalog Functions
     ODBC: SQLColumns has been around since ODBC 1.0. The final three
     Columns (UDT_CAT, UDT_SCHEM, UDT_NAME) do not appear in ODBC.
 
-    SQLForeignKeys
+SQLForeignKeys
+==============
+
+::
 
     Function Prototype:
       SQLRETURN SQLForeignKeys(
@@ -595,7 +609,10 @@ Chapter 51 -- SQL/CLI: Catalog Functions
     recognizes references to primary keys, it doesn't expect that foreign keys
     could reference unique keys.
 
-    SQLGetTypeInfo
+SQLGetTypeInfo
+==============
+
+::
 
     Function Prototype:
       SQLRETURN SQLGetTypeInfo(
@@ -658,7 +675,10 @@ Chapter 51 -- SQL/CLI: Catalog Functions
     are new in ODBC 3.0. The implicit SELECT statements contain the clause "ORDER
     BY DATA_TYPE".
 
-    SQLParameters
+SQLParameters
+=============
+
+::
 
     Function Prototype:
       SQLRETURN SQLParameters (
@@ -740,7 +760,10 @@ Chapter 51 -- SQL/CLI: Catalog Functions
 
     ODBC: There is no ODBC equivalent of SQLParameters.
 
-    SQLPrimaryKeys
+SQLPrimaryKeys
+==============
+
+::
 
     Function Prototype:
       SQLRETURN SQLPrimaryKeys(
@@ -800,7 +823,10 @@ Chapter 51 -- SQL/CLI: Catalog Functions
     ODBC: The SQLPrimaryKeys function has been around since ODBC 1.0. The name of
     the fifth returned Column is KEY_SEQ instead of ORDINAL_POSITION.
 
-    SQLRoutinePrivileges
+SQLRoutinePrivileges
+====================
+
+::
 
     Function Prototype:
       SQLRETURN SQLRoutinePrivileges(
@@ -862,7 +888,10 @@ Chapter 51 -- SQL/CLI: Catalog Functions
 
     ODBC: SQLRoutinePrivileges is not in ODBC 3.0.
 
-    SQLRoutines
+SQLRoutines
+===========
+
+::
 
     Function Prototype:
       SQLRETURN SQLRoutines(
@@ -982,7 +1011,10 @@ Chapter 51 -- SQL/CLI: Catalog Functions
 
     ODBC: SQLRoutines is not in ODBC 3.0.
 
-    SQLSpecialColumns
+SQLSpecialColumns
+=================
+
+::
 
     Function Prototype:
       SQLRETURN SQLSpecialColumns(
@@ -1109,7 +1141,10 @@ Chapter 51 -- SQL/CLI: Catalog Functions
     can ask about Columns which are automatically changed whenever there is an
     update (e.g.: Sybase's TIMESTAMP Column).
 
-    SQLTablePrivileges
+SQLTablePrivileges
+==================
+
+::
 
     Function Prototype:
       SQLRETURN SQLTablePrivileges(
@@ -1183,7 +1218,10 @@ Chapter 51 -- SQL/CLI: Catalog Functions
 
     ODBC: The SQLTablePrivileges function has been around since ODBC version 1.0.
 
-    SQLTables
+SQLTables
+=========
+
+::
 
     Function Prototype:                  /* not in SQL-92, but in SQL3 */
       SQLRETURN SQLTables(
@@ -1339,7 +1377,10 @@ Chapter 51 -- SQL/CLI: Catalog Functions
     TABLE_NAME ... -- this order is not specified in the Standard but it will
     probably be the case.
 
-    THE END
+THE END
+=======
+
+::
 
     The description of SQL/CLI is -- at long last -- finished. Here's a summary of
     some of the good and the bad and the ugly points that we've talked about in

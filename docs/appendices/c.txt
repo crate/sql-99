@@ -1,3 +1,5 @@
+.. highlight:: text
+
 =======================================
 Appendix C -- Non-portable SQL Features
 =======================================
