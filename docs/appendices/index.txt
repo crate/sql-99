@@ -1,0 +1,19 @@
+.. _appendices:
+
+==========
+Appendices
+==========
+
+.. rubric:: Table of Contents
+
+.. toctree::
+   :maxdepth: 3
+   :titlesonly:
+
+   a
+   b
+   c
+   d
+   e
+   f
+   g
