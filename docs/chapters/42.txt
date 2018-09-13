@@ -26,7 +26,10 @@ Chapter 42 -- SQL/CLI: dbc Functions
 
     There are eight CLI functions for creating dbcs, dropping dbcs, getting dbc attributes, setting dbc attributes, connecting and  disconnecting. Their descriptions follow.
 
-    SQLAllocHandle(SQL_HANDLE_DBC,...)
+SQLAllocHandle(SQL_HANDLE_DBC,...)
+==================================
+
+::
 
     Function Prototype:
       SQLRETURN SQLAllocHandle (
@@ -63,7 +66,10 @@ Chapter 42 -- SQL/CLI: dbc Functions
     ODBC: The SQLAllocHandle function is new in ODBC 3.0. Error information will
     not be available until you call the "connect" function.
 
-    SQLAllocConnect
+SQLAllocConnect
+===============
+
+::
 
     Function Prototype:
       SQLRETURN SQLAllocConnect (
@@ -94,7 +100,10 @@ Chapter 42 -- SQL/CLI: dbc Functions
 
     ODBC: The SQLAllocConnect routine has been in ODBC since version 1.0. The ODBC 3.0 manual deprecates it, suggesting that users should switch to using SQLAllocHandle(SQL_HANDLE_DBC,...).
 
-    SQLConnect
+SQLConnect
+==========
+
+::
 
     Function Prototype:
       SQLRETURN  SQLConnect(
@@ -214,7 +223,10 @@ Chapter 42 -- SQL/CLI: dbc Functions
     ROLLBACK. For each of these statements there is an approximate CLI-function
     analogue: SQLDisconnect, SQLEndTran(...SQL_COMMIT) and SQLEndTran(...SQL_ROLLBACK).
 
-    SQLDisconnect
+SQLDisconnect
+=============
+
+::
 
     Function Prototype:
       SQLRETURN SQLDisconnect(
@@ -278,7 +290,10 @@ Chapter 42 -- SQL/CLI: dbc Functions
     causes automatic dropping of all statements and descriptors open on the
     connection.
 
-    SQLGetConnectAttr
+SQLGetConnectAttr
+=================
+
+::
 
     Function Prototype:
       SQLRETURN  SQLGetConnectAttr(
@@ -358,7 +373,10 @@ Chapter 42 -- SQL/CLI: dbc Functions
     possible Attributes. One is SQL_ATTR_AUTO_IPD. Most of the others are related
     to ODBC's optional features (timeout, trace file, network packet size, etc.).
 
-    SQLSetConnectAttr
+SQLSetConnectAttr
+=================
+
+::
 
     Function Prototype:
       SQLRETURN SQLSetConnectAttr(
@@ -397,7 +415,10 @@ Chapter 42 -- SQL/CLI: dbc Functions
     ODBC: The SQLSetConnectAttr function is new in ODBC 3.0, but ODBC 2.0 had a
     broadly similar function (SQLSetConnectOption). ODBC allows for 16 dbc attributes, of various types.
 
-    SQLFreeHandle(SQL_HANDLE_DBC,...)
+SQLFreeHandle(SQL_HANDLE_DBC,...)
+=================================
+
+::
 
     Function Prototype:
       SQLRETURN SQLFreeHandle(    /* function returns SMALLINT */
@@ -435,7 +456,10 @@ Chapter 42 -- SQL/CLI: dbc Functions
 
     ODBC: The SQLFreeHandle function is new in ODBC 3.0. There will be some differences in behaviour if you use ODBC-specific features, such as tracing or environment sharing.
 
-    SQLFreeConnect
+SQLFreeConnect
+==============
+
+::
 
     Function Prototype:
       SQLRETURN SQLFreeConnect(

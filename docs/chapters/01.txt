@@ -16,7 +16,10 @@ Chapter 1 -- Introduction
 
     This book was written to describe Standard-conforming SQL.
 
-    How To Read This Book
+How To Read This Book
+=====================
+
+::
 
     In this book, we've used the same descriptive terminology you'd
     find in the SQL Standard. You can check the meaning of unfamiliar
@@ -48,7 +51,10 @@ Chapter 1 -- Introduction
     probably be unclear on first reading and which are normally not
     utilized in typical installations.
 
-    How to Read SQL Syntax
+How to Read SQL Syntax
+======================
+
+::
 
     We have used the following common variant of BNF notation
     for the SQL syntax diagrams in this book:
@@ -123,7 +129,10 @@ Chapter 1 -- Introduction
        CREATE TABLE A_Table_Name (
          a_column_name CHARACTER(5));
 
-    What is SQL?
+What is SQL?
+============
+
+::
 
     SQL (originally: Structured Query Language) is an internationally-
     recognized programming language for defining and maintaining
@@ -163,7 +172,10 @@ Chapter 1 -- Introduction
 
     This brings us to current times and the writing of this book.
 
-    SQL Conformance
+SQL Conformance
+===============
+
+::
 
     The complete SQL Standard consists of five interrelated
     documents. Additional parts, five in number so far,
@@ -450,7 +462,10 @@ Chapter 1 -- Introduction
     (Decisions made for the Standard's implementation-dependent
     features don't have to be documented.)
 
-    SQL Statement Classes
+SQL Statement Classes
+=====================
+
+::
 
     The SQL Standard groups the Core SQL statements into seven classes,
     according to their function. These classes are as follows:
@@ -522,7 +537,10 @@ Chapter 1 -- Introduction
          ## Direct SQL Invocation binding style -- where static SQL
     statements are effectively prepared immediately prior to execution.
 
-    SQL Rule Evaluation Order
+SQL Rule Evaluation Order
+=========================
+
+::
 
     The precedence of operators in an SQL statement is sometimes
     specified explicitly by the SQL Standard. Where this is the case,

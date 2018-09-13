@@ -8,7 +8,10 @@ Chapter 22 -- SQL Collation
 
     In this chapter, we'll describe SQL Collations in detail, and show you the syntax to use to create, alter and destroy them.
 
-    Collation
+Collation
+=========
+
+::
 
     A Schema may contain zero or more Collations. An SQL Collation is a set of
     rules that determines the result when characters from a Character set are
@@ -151,7 +154,10 @@ Chapter 22 -- SQL Collation
 
     If you want to restrict your code to Core SQL, don't use any <Collation name>s or <Form-of-use conversion name>s.
 
-    CREATE COLLATION statement
+CREATE COLLATION statement
+==========================
+
+::
 
     The CREATE COLLATION statement names a new user-defined Collation and
     specifies the Collation's PAD characteristic and the Character set that the
@@ -255,7 +261,10 @@ Chapter 22 -- SQL Collation
 
     If you want to restrict your code to Core SQL, don't use the CREATE COLLATION statement.
 
-    DROP COLLATION statement
+DROP COLLATION statement
+========================
+
+::
 
     The DROP COLLATION statement destroys a user-defined Collation. The required syntax for the DROP COLLATION statement is:
 

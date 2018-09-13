@@ -34,7 +34,10 @@ Chapter 26 -- PSM: Not just Persistent Stored Modules
     be implemented independently. For example, some DBMSs allow "assignment"
     statements to be used within Triggers, even though they have no support for persistent stored modules.
 
-    Persistent Stored Modules
+Persistent Stored Modules
+=========================
+
+::
 
     In SQL, the word "persistent" is applied to Schema Objects that survive over
     SQL-sessions (as "persistent Base tables" do). And the sort of Modules we're
@@ -112,7 +115,10 @@ Chapter 26 -- PSM: Not just Persistent Stored Modules
        CATALOG_1.SCHEMA_1.MODULE_1
        -- a fully qualified <Module name>
 
-    CREATE MODULE statement
+CREATE MODULE statement
+=======================
+
+::
 
     The CREATE MODULE statement creates an SQL-server Module: a Module that belongs to a Schema. The required syntax for the CREATE MODULE statement is:
 
@@ -183,7 +189,10 @@ Chapter 26 -- PSM: Not just Persistent Stored Modules
     the main SQL-data change statements that can happen with the EMPLOYEES Table.
     Note: The DECLARE <keyword> before "PROCEDURE" is optional.
 
-    ALTER MODULE statement
+ALTER MODULE statement
+======================
+
+::
 
     The ALTER MODULE statement lets you change a Module's definition. The required syntax for the ALTER MODULE statement is:
 
@@ -201,7 +210,10 @@ Chapter 26 -- PSM: Not just Persistent Stored Modules
 
     After the execution of this ALTER MODULE statement, the EMPLOYEES_MODULE Module will have only two procedures left: Delete_Employees and Update_Employees.
 
-    DROP MODULE statement
+DROP MODULE statement
+=====================
+
+::
 
     The DROP MODULE statement destroys an SQL-server Module. The required syntax for the DROP MODULE statement is:
 
@@ -236,7 +248,10 @@ Chapter 26 -- PSM: Not just Persistent Stored Modules
     <AuthorizationID> are also revoked.
           ## All SQL routines, Triggers, Views and Constraints that depend on the Module are dropped with a CASCADE drop behaviour.
 
-    BEGIN ... END: compound statement
+BEGIN ... END: compound statement
+=================================
+
+::
 
     Advance warning: BEGIN ... END has several optional clauses. We are going to
     start with the simplest form, and examine the options in following sections.
@@ -519,7 +534,10 @@ Chapter 26 -- PSM: Not just Persistent Stored Modules
     because MOST SYNTACTIC ITEMS ARE LOCAL TO THE COMPOUND STATEMENT. Therefore
     everything is within the compound statement and, by contrast, the Module definition is trivial.
 
-    SIGNAL statement
+SIGNAL statement
+================
+
+::
 
     The SIGNAL statement is used to clear the diagnostics area. The required syntax for the SIGNAL statement is:
 
@@ -540,7 +558,10 @@ Chapter 26 -- PSM: Not just Persistent Stored Modules
 
     Note: You'll find the list of <condition information item name>s in our chapter on embedded SQL -- see the GET DIAGNOSTICS statement.
 
-    RESIGNAL statement
+RESIGNAL statement
+==================
+
+::
 
     The RESIGNAL statement is used to pass conditions on to another handler. The required syntax for the RESIGNAL statement is:
 
@@ -556,7 +577,10 @@ Chapter 26 -- PSM: Not just Persistent Stored Modules
     the optional SET clause, the <condition information item name> field in the
     first condition area in the diagnostics area is changed to the value indicated.
 
-    Program Control
+Program Control
+===============
+
+::
 
     Essential SQL has almost nothing that can control the program flow (except for
     the CALL and RETURN statements which are associated with SQL routines). By
@@ -772,7 +796,10 @@ Chapter 26 -- PSM: Not just Persistent Stored Modules
           SET checkout_status = 0;
        END WHILE
 
-    Should everything be in SQL?
+Should everything be in SQL?
+============================
+
+::
 
     PSM is an extension package which makes SQL3 a reasonably complete language.
     There are still some things you can't do (such as disk or screen I/O), but
@@ -799,7 +826,10 @@ Chapter 26 -- PSM: Not just Persistent Stored Modules
     In the end, the world's SQL developers will decide which arguments are the
     most convincing. At the moment, PSM is not (yet) the popular way to go.
 
-    Dialects
+Dialects
+========
+
+::
 
     PSM's features are vaguely similar to Oracle's PL/SQL, which also has: BEGIN
     ... END, LOOP, WHILE, and (using different keywords) assignment statements and

@@ -63,7 +63,10 @@ Chapter 36 -- SQL Transactions
 
     It's your job to figure out what operations fit together as a logical unit of work. It's the DBMS's job to ensure that the operations will all fail, or all succeed, together.
 
-    Initiating Transactions
+Initiating Transactions
+=======================
+
+::
 
     A transaction begins, if it hasn't already begun, when one of these SQL statements is executed:
           ## Any SQL-Schema statement: ALTER, CREATE, DROP, GRANT, REVOKE.
@@ -100,7 +103,10 @@ Chapter 36 -- SQL Transactions
           -- second transaction ends
        DISCONNECT ALL;
 
-    Terminating Transactions
+Terminating Transactions
+========================
+
+::
 
     There are two transaction-terminating statements: COMMIT and ROLLBACK. The
     first saves all changes, while the second destroys all changes. Although they
@@ -448,7 +454,10 @@ Chapter 36 -- SQL Transactions
 
     If you want to restrict your code to Core SQL, don't use the RELEASE SAVEPOINT statement.
 
-    Using savepoints
+Using savepoints
+================
+
+::
 
     A savepoint may be thought of as a label of a moment between operations. For illustration, suppose a transaction that consists of these SQL statements:
 
@@ -483,7 +492,10 @@ Chapter 36 -- SQL Transactions
     incidental effects (such as closing of Cursors) happen regardless of whether
     ROLLBACK alone or ROLLBACK TO SAVEPOINT is used.
 
-    Transaction Tips
+Transaction Tips
+================
+
+::
 
     The following tips are viable only if the DBMS is alone, is following the SQL
     Standard's specifications and uses logs as we have described them. But if not,
@@ -510,7 +522,10 @@ Chapter 36 -- SQL Transactions
     too. Departures from that rule are not the stuff of everyday programming work.
     Security (consistency) first, performance second.
 
-    See Also
+See Also
+========
+
+::
 
     All SQL operations have something to do with transactions. This chapter has
     singled out only the major points, with particular attention to the COMMIT and
@@ -518,7 +533,10 @@ Chapter 36 -- SQL Transactions
     constraints and assertions (where we talk about deferred Constraints), in our
     chapter on concurrency (particularly with regard to the SET TRANSACTION statement) and throughout our chapters on binding styles.
 
-    Dialects
+Dialects
+========
+
+::
 
     SQL has supported transaction work since the early days (SQL-86). There are
     some packages which graft SQL-like statements onto non-SQL environments (dBASE

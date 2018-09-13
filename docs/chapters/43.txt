@@ -27,7 +27,10 @@ Chapter 43 -- SQL/CLI: stmt Functions
 
     There are six CLI functions for creating stmts, dropping stmts, getting stmt attributes and setting stmt attributes. Their descriptions follow.
 
-    SQLAllocHandle(SQL_HANDLE_STMT,...)
+SQLAllocHandle(SQL_HANDLE_STMT,...)
+===================================
+
+::
 
     Function Prototype:
       SQLRETURN SQLAllocHandle (
@@ -80,7 +83,10 @@ Chapter 43 -- SQL/CLI: stmt Functions
 
     ODBC: The SQLAllocHandle function is new in ODBC 3.0.
 
-    SQLAllocStmt
+SQLAllocStmt
+============
+
+::
 
     Function Prototype:
       SQLRETURN SQLAllocStmt(
@@ -112,7 +118,10 @@ Chapter 43 -- SQL/CLI: stmt Functions
     3.0 manual deprecates it, suggesting that users should switch to using
     SQLAllocHandle(SQL_HANDLE_STMT...).
 
-    SQLGetStmtAttr
+SQLGetStmtAttr
+==============
+
+::
 
     Function Prototype:
       SQLRETURN SQLGetStmtAttr(
@@ -222,7 +231,10 @@ Chapter 43 -- SQL/CLI: stmt Functions
     ODBC: The SQLGetStmtAttr function is new in ODBC 3.0 (in ODBC 2.0 there was a
     nearly-equivalent function, SQLGetStmtOption).
 
-    SQLSetStmtAttr
+SQLSetStmtAttr
+==============
+
+::
 
     Function Prototype:
       SQLRETURN SQLSetStmtAttr(
@@ -324,7 +336,10 @@ Chapter 43 -- SQL/CLI: stmt Functions
 
     ODBC: The SQLSetStmtAttr function is new in ODBC 3.0 but there was a similar function in ODBC 2.0 (SQLSetStmtOption).
 
-    SQLFreeHandle(SQL_HANDLE_STMT,...)
+SQLFreeHandle(SQL_HANDLE_STMT,...)
+==================================
+
+::
 
     Function Prototype:
       SQLRETURN SQLFreeHandle(    /* function returns SMALLINT */
@@ -371,7 +386,10 @@ Chapter 43 -- SQL/CLI: stmt Functions
 
     ODBC: The SQLFreeHandle function is new in ODBC 3.0.
 
-    SQLFreeStmt
+SQLFreeStmt
+===========
+
+::
 
     Function Prototype:
       SQLRETURN SQLFreeStmt(

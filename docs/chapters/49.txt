@@ -50,7 +50,10 @@ Chapter 49 -- SQL/CLI: Deferred Parameter Functions
     (for example, packet transfers). You will not see deferred parameters in
     embedded SQL or PSM applications.
 
-    How to pass deferred parameters
+How to pass deferred parameters
+===============================
+
+::
 
     The mechanism for passing deferred parameters involves a package of signals
     and functions:
@@ -82,7 +85,10 @@ Chapter 49 -- SQL/CLI: Deferred Parameter Functions
     deferred parameters (hence its inclusion here), but might have unrelated uses
     as well.
 
-    SQLParamData
+SQLParamData
+============
+
+::
 
     Function Prototype:
       SQLRETURN SQLParamData(
@@ -141,7 +147,10 @@ Chapter 49 -- SQL/CLI: Deferred Parameter Functions
 
     ODBC: SQLParamData has been around since ODBC 1.0.
 
-    SQLPutData
+SQLPutData
+==========
+
+::
 
     Function Prototype:
      SQLRETURN SQLPutData (
@@ -262,7 +271,10 @@ Chapter 49 -- SQL/CLI: Deferred Parameter Functions
 
     ODBC: SQLPutData has been around since ODBC 1.0.
 
-    SQLCancel
+SQLCancel
+=========
+
+::
 
     Function Prototype:
       SQLRETURN SQLCancel(

@@ -24,7 +24,10 @@ Chapter 6 -- Characters
     chapter gets into what the database solutions are. After you've read this
     chapter, you'll see why the "solutions" are varied, random and wrong.
 
-    What is a Character?
+What is a Character?
+====================
+
+::
 
     Consider two vertical bars with a horizontal bar between them: H. This H is a
     glyph. To us, this glyph is a symbol -- it's the letter "Aitch" and it appears
@@ -336,7 +339,10 @@ Chapter 6 -- Characters
     it impossible to determine a text's length or find its nth letter without
     starting at the front and working through the text.
 
-    What's in it for Me?
+What's in it for Me?
+====================
+
+::
 
     Now that you've read this far, you know everything you'll need to write your
     own Serbian Sort or make party chat about the relative utility of 8-bit-code
@@ -357,7 +363,10 @@ Chapter 6 -- Characters
     it, but first we'll look at the Character sets that you can expect your DBMS
     to provide.
 
-    Predefined Character sets
+Predefined Character sets
+=========================
+
+::
 
     In SQL, a Character set may be a Character set defined by a national or
     international standard, by your DBMS or by a user of SQL-data.

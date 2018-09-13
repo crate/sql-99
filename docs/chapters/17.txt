@@ -9,7 +9,10 @@ Chapter 17 -- SQL Schema
     they depend on some Schema. In this chapter, we'll describe SQL Schemas in
     detail, and show you the syntax to use to create, alter and destroy them.
 
-    Schema
+Schema
+======
+
+::
 
     A Catalog may contain one or more Schemas. An SQL Schema is a named group of
     SQL-data that is owned by a particular <AuthorizationID>. Schemas are
@@ -83,7 +86,10 @@ Chapter 17 -- SQL Schema
 
     Note that the <regular identifier> -- DEFINITION_SCHEMA -- may not be used as a <Schema name>.
 
-    CREATE SCHEMA statement
+CREATE SCHEMA statement
+=======================
+
+::
 
     The CREATE SCHEMA statement names a new Schema, defines the Schema's default
     Character set, default path and zero or more Schema Objects, and identifies
@@ -218,7 +224,10 @@ Chapter 17 -- SQL Schema
     CREATE DOMAIN statements, CREATE TRANSLATION statements, CREATE TYPE
     statements, CREATE ROLE statements or GRANT statements to Roles.
 
-    DROP SCHEMA statement
+DROP SCHEMA statement
+=====================
+
+::
 
     The DROP SCHEMA statement destroys an entire Schema. The required syntax for the DROP SCHEMA statement is:
 

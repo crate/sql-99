@@ -15,7 +15,10 @@ Chapter 5 -- Binary strings
     Octets in a BLOB are numbered (from left to right) beginning with 1 (the most
     significant octet). BLOBs are stored in the binary string <data type>: BLOB.
 
-    <BLOB literal>s
+<BLOB literal>s
+===============
+
+::
 
     A <BLOB literal> is the letter "X" (upper case mandatory) followed by a string
     of zero or more hexits inside a pair of single quote marks. (A hexit is either
@@ -45,7 +48,10 @@ Chapter 5 -- Binary strings
 
     (In the first example, there is a carriage return newline <separator> between "FE'" and "'A3".)
 
-    BLOB <data type>s
+BLOB <data type>s
+=================
+
+::
 
     A BLOB <data type> is defined by a descriptor that contains two pieces of information:
           ## The <data type>'s name: BINARY LARGE OBJECT.
@@ -128,7 +134,10 @@ Chapter 5 -- Binary strings
     FROM   Binary_Examples
     WHERE  occurrence_binary = X'44';
 
-    BLOB Operations
+BLOB Operations
+===============
+
+::
 
     A BLOB is compatible with, and comparable to, all other BLOBs -- that is, all
     BLOBs are mutually assignable and mutually comparable. BLOBs may not be

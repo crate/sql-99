@@ -13,7 +13,10 @@ Preface
     and example-filled description of the entire SQL Standard. This book was
     written to fill that void.
 
-    Who Should Read this Book?
+Who Should Read this Book?
+==========================
+
+::
 
     This book will be valuable to anyone who works with a DBMS that supports SQL.
     While our emphasis is on programming with SQL, you do not need to be a
@@ -35,7 +38,10 @@ Preface
     language" -- and C seemed the convenient choice. All example programs shown
     provided are short.
 
-    What's In It?
+What's In It?
+=============
+
+::
 
     World's Longest SQL Poem (for obvious reasons)
 

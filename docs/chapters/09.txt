@@ -11,7 +11,10 @@ Chapter 9 -- Boolean values
     condition) that evaluates to a truth value. Boolean values are stored in the
     Boolean <data type>: BOOLEAN.
 
-    <Boolean literal>s
+<Boolean literal>s
+==================
+
+::
 
     A <Boolean literal> is one of these three words:
           ## TRUE
@@ -23,7 +26,10 @@ Chapter 9 -- Boolean values
 
     If you want to restrict your code to Core SQL, don't use <Boolean literal>s.
 
-    Boolean <data type>s
+Boolean <data type>s
+====================
+
+::
 
     A Boolean <data type> is defined by a descriptor that contains one piece of information:
           ## The <data type>'s name: BOOLEAN.
@@ -68,7 +74,10 @@ Chapter 9 -- Boolean values
        FROM   Logicals
        WHERE  boolean_1 = boolean_3;
 
-    Boolean Operations
+Boolean Operations
+==================
+
+::
 
     A Boolean value is compatible with, and comparable to, all other Boolean
     values and all SQL truth values (for example, the truth values returned by an

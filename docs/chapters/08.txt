@@ -26,7 +26,10 @@ Chapter 8 -- Temporal values
     represented in the interval. All interval values are signed. Intervals are
     stored in the INTERVAL <data type>.
 
-    Some Preliminaries
+Some Preliminaries
+==================
+
+::
 
     Before we talk about datetimes and intervals, there is some necessary
     background to go through. We provide most of this information mainly for
@@ -321,7 +324,10 @@ Chapter 8 -- Temporal values
     the 4 hours, you're subtracting a negative) and a local time of '20:00+04:00'
     evaluates to UTC 16:00 (subtract the 4 hours).
 
-    Temporal <literal>s
+Temporal <literal>s
+===================
+
+::
 
     A temporal <literal> is any temporal value in one of two categories: datetimes
     and intervals.
@@ -787,7 +793,10 @@ Chapter 8 -- Temporal values
 
     If you want to restrict your code to Core SQL, don't use <interval literal>s.
 
-    Temporal <data type>s
+Temporal <data type>s
+=====================
+
+::
 
     A temporal <data type> is either a datetime <data type> or an interval <data type>.
 
@@ -1555,7 +1564,10 @@ Chapter 8 -- Temporal values
        FROM   DInterval_Examples
        WHERE  occurrence_interval_1 <> INTERVAL '30' SECOND;
 
-    Temporal Operations
+Temporal Operations
+===================
+
+::
 
     A temporal value is only compatible with, and comparable to, a matching
     temporal value; that is, only temporal values of the same type, that also
@@ -2521,7 +2533,10 @@ Chapter 8 -- Temporal values
 
     If you want to restrict your code to Core SQL, don't use the OVERLAPS predicate.
 
-    Dialects
+Dialects
+========
+
+::
 
     The "typical" SQL DBMS supports date, time and timestamp data types but
     interval (as a separate data type) is not common yet. The majority of SQL
@@ -2549,7 +2564,10 @@ Chapter 8 -- Temporal values
     EXTRACT(MINUTE ...            MINUTE
     EXTRACT(SECOND ...            SECOND
 
-    The SQL Library
+The SQL Library
+===============
+
+::
 
     Before we finish discussing temporal values, it's time to add something to our
     SQL library. To be worthy of addition to the SQL library, a routine must (a)

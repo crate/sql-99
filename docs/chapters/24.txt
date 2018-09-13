@@ -9,7 +9,10 @@ Chapter 24 -- SQL Trigger
 
     In this chapter, we'll describe SQL Triggers in detail, and show you the syntax to use to create, alter and destroy them.
 
-    Trigger
+Trigger
+=======
+
+::
 
     A Schema may contain zero or more Triggers. An SQL Trigger is a named chain
     reaction that you set off with an SQL data change statement: it specifies a
@@ -76,7 +79,10 @@ Chapter 24 -- SQL Trigger
       CATALOG_1.SCHEMA_1.TRIGGER_1
        -- a fully qualified <Trigger name>
 
-    CREATE TRIGGER statement
+CREATE TRIGGER statement
+========================
+
+::
 
     The CREATE TRIGGER statement names a new Trigger and defines the Trigger's Table, action time, event and body. The required syntax for the CREATE TRIGGER statement is:
 
@@ -358,7 +364,10 @@ Chapter 24 -- SQL Trigger
 
     If you want to restrict your code to Core SQL, don't use the CREATE TRIGGER statement.
 
-    Activation of Triggers
+Activation of Triggers
+======================
+
+::
 
     In our discussion of the CREATE TRIGGER statement, we made this true, but imprecise statement: "When the Trigger event occurs, the Trigger is activated." Let's get more precise about the meaning of "when" and "activated".
 
@@ -407,7 +416,10 @@ Chapter 24 -- SQL Trigger
     that no change is made to the Trigger's Table or to any other Object that the
     Trigger might have affected.
 
-    Trigger Examples
+Trigger Examples
+================
+
+::
 
     The following four scenarios show the use of a Trigger in a real-life situation.
 
@@ -542,7 +554,10 @@ Chapter 24 -- SQL Trigger
     Trigger action (and the SQL data-change statement that activated the Trigger)
     to fail: it will return the SQLSTATE error 27000 "triggered data change violation".
 
-    Triggers versus Constraints
+Triggers versus Constraints
+===========================
+
+::
 
     The essential idea of a Trigger is that if you change a Table, you cause a
     given set of SQL statements to be executed. This idea is good: it allows you
@@ -567,7 +582,10 @@ Chapter 24 -- SQL Trigger
     Most experts appear to agree that you should use Constraints instead of
     Triggers, if you can. Triggers are tricky.
 
-    DROP TRIGGER statement
+DROP TRIGGER statement
+======================
+
+::
 
     The DROP TRIGGER statement destroys a Trigger. The required syntax for the DROP TRIGGER statement is:
 
@@ -586,7 +604,10 @@ Chapter 24 -- SQL Trigger
 
     If you want to restrict your code to Core SQL, don't use the DROP TRIGGER statement.
 
-    Dialects
+Dialects
+========
+
+::
 
     Triggers are not part of SQL-92 or the SQL3 Core SQL specifications, but many
     DBMSs have had them for years -- particularly "client-server" DBMSs. Since

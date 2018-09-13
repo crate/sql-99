@@ -7,7 +7,10 @@ Chapter 20 -- SQL Constraint and Assertion
     In this chapter, we'll describe SQL Constraints and SQL Assertions in detail,
     and show you the syntax to use to create, alter and destroy them.
 
-    Constraint
+Constraint
+==========
+
+::
 
     A Schema may contain zero or more integrity Constraints (an Assertion is just
     a special type of integrity Constraint: it is not necessarily dependent on a
@@ -280,7 +283,10 @@ Chapter 20 -- SQL Constraint and Assertion
     Constraint with a Table, because a Table is a set of row values and a
     Constraint is a restriction (or description) of that set of values.
 
-    Constraint Descriptors
+Constraint Descriptors
+======================
+
+::
 
     A UNIQUE Constraint is defined by a descriptor that contains five pieces of
     information:
@@ -357,7 +363,10 @@ Chapter 20 -- SQL Constraint and Assertion
     parenthesized search condition that forces the set of valid values for one or
     more Base Tables to be TRUE or UNKNOWN for the condition.
 
-    Constraint Definition
+Constraint Definition
+=====================
+
+::
 
     A Constraint definition creates a <Table Constraint>, a <Column Constraint> or
     a <Domain Constraint>. Used in a CREATE TABLE, ALTER TABLE, CREATE DOMAIN or
@@ -555,7 +564,10 @@ Chapter 20 -- SQL Constraint and Assertion
     (This means you'll be defining all Constraints as NOT DEFERRABLE INITIALLY
     IMMEDIATE.)
 
-    Constraint_type -- UNIQUE Constraint
+Constraint_type -- UNIQUE Constraint
+====================================
+
+::
 
     A UNIQUE Constraint is either a <Table Constraint> or a <Column Constraint>
     and defines a rule that constrains a unique key to non-duplicate values only.
@@ -641,7 +653,10 @@ Chapter 20 -- SQL Constraint and Assertion
     form to define a UNIQUE Constraint and don't add a NOT NULL Constraint to any
     Column that is part of a unique key for a UNIQUE Constraint.
 
-    Constraint_type -- PRIMARY KEY Constraint
+Constraint_type -- PRIMARY KEY Constraint
+=========================================
+
+::
 
     A PRIMARY KEY Constraint is either a <Table Constraint> or a <Column
     Constraint> and defines a rule that constrains a unique key to non-duplicate,
@@ -756,7 +771,10 @@ Chapter 20 -- SQL Constraint and Assertion
     person as you want -- a repeating group is possible in SQL, it's just an
     avoidance of first-normal form if you try to put it into one Table.
 
-    Constraint_type -- FOREIGN KEY Constraint
+Constraint_type -- FOREIGN KEY Constraint
+=========================================
+
+::
 
     A FOREIGN KEY Constraint is either a <Table Constraint> or a <Column
     Constraint> and defines a rule that constrains a foreign key to values that
@@ -1380,7 +1398,10 @@ Chapter 20 -- SQL Constraint and Assertion
     If you want to restrict your code to Core SQL, don't define your FOREIGN KEY
     Constraints with a MATCH clause, an ON UPDATE clause or an ON DELETE clause.
 
-    Constraint_type -- NOT NULL Constraint
+Constraint_type -- NOT NULL Constraint
+======================================
+
+::
 
     A NOT NULL Constraint is a <Column Constraint>, defining a rule that
     constrains a key to non-null values only. The required syntax for a NOT NULL
@@ -1425,7 +1446,10 @@ Chapter 20 -- SQL Constraint and Assertion
     For this example, CONSTRAINT_1 would be violated if you tried to make COLUMN_1
     contain NULL.
 
-    Constraint_type -- CHECK Constraint
+Constraint_type -- CHECK Constraint
+===================================
+
+::
 
     A CHECK Constraint is either a <Table Constraint>, a <Column Constraint> or a
     <Domain Constraint> and defines a rule that constrains the set of valid values
@@ -1636,7 +1660,10 @@ Chapter 20 -- SQL Constraint and Assertion
     Constraint's search condition. Also, for Core SQL, the REFERENCES Privilege
     isn't needed to create a CHECK Constraint.
 
-    CREATE ASSERTION statement
+CREATE ASSERTION statement
+==========================
+
+::
 
     The CREATE ASSERTION statement names a new Constraint and defines the
     Constraint's deferral mode, initial constraint check time and its CHECK search
@@ -1791,7 +1818,10 @@ Chapter 20 -- SQL Constraint and Assertion
     If you want to restrict your code to Core SQL, don't use the CREATE ASSERTION
     statement.
 
-    Interlocking references
+Interlocking references
+=======================
+
+::
 
     An example of an interlocking reference is:
           ## Every Employee must be in a department.
@@ -1908,7 +1938,10 @@ Chapter 20 -- SQL Constraint and Assertion
     We like Solution #3 best because it lacks dependence on SQL3 only features or
     on tricks.
 
-    Dropping Constraints
+Dropping Constraints
+====================
+
+::
 
     Dropping a Constraint is straightforward, providing that you know the
     <Constraint name> -- that's why we recommend that you explicitly give every
@@ -1918,7 +1951,10 @@ Chapter 20 -- SQL Constraint and Assertion
     are dropped using the DROP CONSTRAINT <Constraint name> clause of the ALTER
     DOMAIN statement and Assertions are dropped with the DROP ASSERTION statement.
 
-    DROP ASSERTION statement
+DROP ASSERTION statement
+========================
+
+::
 
     The DROP ASSERTION statement destroys an Assertion. The required syntax for
     the DROP ASSERTION statement is:
@@ -1947,7 +1983,10 @@ Chapter 20 -- SQL Constraint and Assertion
     If you want to restrict your code to Core SQL, don't use the DROP ASSERTION
     statement.
 
-    Dialects
+Dialects
+========
+
+::
 
     In most DBMSs, it's common that the UNIQUE specification is not supported, but
     you'll often see a (non-SQL) CREATE UNIQUE INDEX statement that gives you the

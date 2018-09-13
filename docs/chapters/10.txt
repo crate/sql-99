@@ -8,7 +8,10 @@ Chapter 10 -- Collection types
 
     In SQL, a <collection type> is an array: a composite constructed SQL <data type>.
 
-    Collection <data type>s
+Collection <data type>s
+=======================
+
+::
 
     A <collection type> is defined by a descriptor that contains three pieces of information:
           ## The <data type>'s name: ARRAY.
@@ -134,7 +137,10 @@ Chapter 10 -- Collection types
 
     If you want to restrict your code to Core SQL, don't define any ARRAY <data type>s and don't use any of SQL's array syntax.
 
-    Collection Operations
+Collection Operations
+=====================
+
+::
 
     An array is compatible with, and comparable to, any array with a compatible
     element <data type> -- that is, arrays are mutually comparable and mutually
@@ -316,7 +322,10 @@ Chapter 10 -- Collection types
     boolean value: either TRUE, FALSE or UNKNOWN. None of these operate strictly
     on arrays, so we won't discuss them here. Look for them in our chapters on search conditions.
 
-    Comprehensive Example
+Comprehensive Example
+=====================
+
+::
 
     Now that we've described SQL's <collection type>, let's look at some example SQL statements that put it to use.
 

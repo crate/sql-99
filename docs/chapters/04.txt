@@ -22,7 +22,10 @@ Chapter 4 -- Bit strings
     beginning with 1 (the most significant bit). Bit strings are stored in either
     of the two bit string <data type>s: BIT or BIT VARYING.
 
-    <bit string literal>s
+<bit string literal>s
+=====================
+
+::
 
     A <bit string literal> is either a binary <bit string literal> or a
     hexadecimal <bit string literal>.
@@ -78,7 +81,10 @@ Chapter 4 -- Bit strings
     If you want to restrict your code to Core SQL, do not use either binary or
     hexadecimal <bit string literal>s.
 
-    Bit string <data type>s
+Bit string <data type>s
+=======================
+
+::
 
     A bit string <data type> is defined by a descriptor that contains two pieces of information:
           ## The <data type>'s name: either BIT or BIT VARYING.
@@ -189,7 +195,10 @@ Chapter 4 -- Bit strings
     FROM   Bit_Examples
     WHERE  occurrence_bit = B'01000100';
 
-    Bit Operations
+Bit Operations
+==============
+
+::
 
     A bit string is compatible with, and comparable to, all other bit strings --
     that is, all bit strings are mutually comparable and mutually assignable. Bit

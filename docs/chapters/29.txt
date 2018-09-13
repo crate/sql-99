@@ -6,7 +6,10 @@ Chapter 29 -- Simple Search Conditions
 
     We've come at last to the point where we can begin showing you the most important aspect of SQL -- how to query your "database". In this chapter, we'll begin by describing simple search conditions.
 
-    Truth Values
+Truth Values
+============
+
+::
 
     In our chapter on the Boolean <data type>, we noted what SQL's truth values are: TRUE, FALSE and UNKNOWN. But what are truth values for? There are four possible answers to that question:
           ## To support conditional branches and loops, as in traditional programming languages. There are optional SQL3 constructs like "IF (condition is TRUE) THEN (perform this operation)". However, that's advanced stuff.
@@ -38,7 +41,10 @@ Chapter 29 -- Simple Search Conditions
     Before we do that, though, we'll briefly discuss the SQL statement that you
     will use with search conditions most often: the SELECT statement.
 
-    SELECT statement
+SELECT statement
+================
+
+::
 
     The SELECT statement retrieves data from one or more Tables. Here is the required syntax for a simple SELECT statement (or, as the SQL Standard calls it, a <query specification>):
 
@@ -569,7 +575,10 @@ Chapter 29 -- Simple Search Conditions
     DEPT  MANAGER     LOCATION
     C     BROWN C     WAREHOUSE
 
-    Predicates
+Predicates
+==========
+
+::
 
     You'll have noticed by now that the fundamental SQL condition is the
     predicate. It states a condition whose result is either TRUE, FALSE or
@@ -817,7 +826,10 @@ Chapter 29 -- Simple Search Conditions
 
     If you want to restrict your code to Core SQL, don't use the <distinct predicate>.
 
-    Search Conditions
+Search Conditions
+=================
+
+::
 
     A search condition consists of one or more Boolean value expressions. A
     Boolean value is either TRUE or FALSE or UNKNOWN. In SQL-92, only a predicate
@@ -993,7 +1005,10 @@ Chapter 29 -- Simple Search Conditions
     GNAME    SURNAME
     JOHN     MARSH
 
-    SQL's <case expression>
+SQL's <case expression>
+=======================
+
+::
 
     The CASE expression is not a filtering operation, but it fits in this context
     because CASE specifies a conditional value: it takes a search condition as
@@ -1201,7 +1216,10 @@ Chapter 29 -- Simple Search Conditions
 
     If you want to restrict your code to Core SQL, don't use BLOBS, CLOBs or NCLOBs in a CASE expression.
 
-    Dialects
+Dialects
+========
+
+::
 
     The truth is, most vendors are just starting to get used to the SQL-92 search
     conditions, so don't depend heavily on these SQL3 features:

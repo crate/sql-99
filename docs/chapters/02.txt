@@ -18,7 +18,10 @@ Chapter 2 -- General Concepts
     statements are structured. Then, in subsequent chapters, we'll
     revisit each of these areas in greater detail.
 
-    Set Theory
+Set Theory
+==========
+
+::
 
        Georg Cantor was a German.
        He invented Set Theory.
@@ -434,7 +437,10 @@ Chapter 2 -- General Concepts
     and row values), so it will be several chapters before we reach
     the top, and begin to emphasize the sets once more.
 
-    Recap: the Relational Model
+Recap: the Relational Model
+===========================
+
+::
 
     A relational database is one which appears to be nothing more
     than a collection of tables. The model it is based on has three
@@ -672,7 +678,10 @@ Chapter 2 -- General Concepts
          ## Implement data integrity; define unique keys and foreign
     keys for your tables.
 
-    The SQL-environment
+The SQL-environment
+===================
+
+::
 
     The SQL Standard says that all SQL operations are executed within
     an SQL-environment. An SQL-environment has six components.
@@ -714,7 +723,10 @@ Chapter 2 -- General Concepts
     is, all persons and programs) that have authority to access the
     SQL-server during the time the DBMS is operating.
 
-    SQL Objects
+SQL Objects
+===========
+
+::
 
     The SQL Standard describes the concepts on which SQL is based in
     terms of Objects, such as Tables. Each SQL Object is defined in
@@ -902,7 +914,10 @@ Chapter 2 -- General Concepts
     DROP SPECIFIC ROUTINE, DROP SPECIFIC FUNCTION, and DROP SPECIFIC
     PROCEDURE statements.
 
-    SQL Data Types
+SQL Data Types
+==============
+
+::
 
     Every data value belongs to some SQL <data type>. The logical
     representation of a data value is known as a <literal>. SQL
@@ -1128,7 +1143,10 @@ Chapter 2 -- General Concepts
     given user-defined type. An array Locator identifies a value of a
     given array.
 
-    SQL Language Elements
+SQL Language Elements
+=====================
+
+::
 
     The SQL Standard has numerous rules for such basic issues as what
     makes a legal name and how to put together SQL syntax. The

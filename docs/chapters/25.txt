@@ -6,7 +6,10 @@ Chapter 25 -- SQL-invoked Routine
 
     In this chapter, we'll describe SQL-invoked routines in detail, and show you the syntax to use to create, alter and destroy them.
 
-    Routine
+Routine
+=======
+
+::
 
     A Schema may contain zero or more SQL-invoked routines. An SQL-invoked routine
     (or SQL routine), is the generic name for either a procedure (SQL-invoked
@@ -138,7 +141,10 @@ Chapter 25 -- SQL-invoked Routine
        "PARAMETER_1's helper"
        -- a <delimited identifier>
 
-    CREATE PROCEDURE/FUNCTION statement
+CREATE PROCEDURE/FUNCTION statement
+===================================
+
+::
 
     The CREATE PROCEDURE/FUNCTION statement names a new SQL-invoked procedure or
     function and defines the routine's SQL parameters, characteristics and routine
@@ -380,7 +386,10 @@ Chapter 25 -- SQL-invoked Routine
     an SQL-transaction statement). For an external routine, you'd put an external
     interface description here. Clearly, the body of the routine is what really matters.
 
-    Routine Parameters
+Routine Parameters
+==================
+
+::
 
     A routine's SQL parameter declaration list is a parenthesized, comma-delimited
     list of definitions for the routine's parameters. Here's the required syntax
@@ -435,7 +444,10 @@ Chapter 25 -- SQL-invoked Routine
        CREATE FUNCTION function_1 (Apple CHAR(6))
           ...
 
-    Invoking routines
+Invoking routines
+=================
+
+::
 
     Creating a routine is complex. Invoking a routine can be easy. The secret is: don't use the same <Routine name> twice in the same Schema.
 
@@ -500,7 +512,10 @@ Chapter 25 -- SQL-invoked Routine
 
     Your current <AuthorizationID> must have the EXECUTE Privilege on a function to invoke it.
 
-    Routine examples
+Routine examples
+================
+
+::
 
     Here are four examples of SQL-invoked routines that might be used in real-life situations.
 
@@ -629,7 +644,10 @@ Chapter 25 -- SQL-invoked Routine
     employees are involved, the applicable Privilege is not an "access Privilege
     on a Table" but an "EXECUTE Privilege on a routine".
 
-    RETURN statement
+RETURN statement
+================
+
+::
 
     The RETURN statement returns a value from an SQL-invoked function. The required syntax for the RETURN statement is:
 
@@ -639,7 +657,10 @@ Chapter 25 -- SQL-invoked Routine
     the function's result. The return can either be a <value expression> or, if
     the function's result is a null value, the <keyword> NULL.
 
-    External Routines
+External Routines
+=================
+
+::
 
     "Host calls DBMS: no story. DBMS calls host: story!"
        -- Journalist's man-bites-dog rule, slightly adapted
@@ -724,7 +745,10 @@ Chapter 25 -- SQL-invoked Routine
     DYNAMIC RESULT SETS clauses, TRANSFORM GROUP clauses or duplicate <Routine
     name>s when defining an SQL-invoked routine and don't define any SQL-invoked methods.
 
-    DROP ROUTINE/PROCEDURE/FUNCTION statement
+DROP ROUTINE/PROCEDURE/FUNCTION statement
+=========================================
+
+::
 
     The DROP ROUTINE/PROCEDURE/FUNCTION statement destroys an SQL-invoked procedure or function. The required syntax for the DROP ROUTINE/PROCEDURE/FUNCTION statement is:
 
@@ -789,7 +813,10 @@ Chapter 25 -- SQL-invoked Routine
 
     If you want to restrict your code to Core SQL, don't use the CASCADE drop behaviour for your DROP ROUTINE/FUNCTION/PROCEDURE statements.
 
-    Dialects
+Dialects
+========
+
+::
 
     One way or another, DBMSs have been calling routines for several years. The
     oldest example we can think of is ibm DB2's EDITPROC and VALIDPROC functions,

@@ -7,7 +7,10 @@ Chapter 16 -- SQL Catalog
     In this chapter, we'll describe SQL Catalogs in detail, and show you the
     syntax to use to create, alter and destroy them.
 
-    Catalog
+Catalog
+=======
+
+::
 
     A Cluster may contain zero or more Catalogs. An SQL Catalog is a named group
     of Schemas, one of which must be an Ur-Schema named INFORMATION_SCHEMA. (The
@@ -47,7 +50,11 @@ Chapter 16 -- SQL Catalog
           ## If the MODULE statement doesn't provide an explicit <Catalog name>,
     or if you're not running a Module, the DBMS will open a subdirectory or directory named OCELOT.
 
-    Catalog names:
+Catalog names:
+==============
+
+::
+
     A <Catalog name> identifies a Catalog and is never explicitly
     qualified with the name of the SQL-server (or Cluster) it belongs to. The
     required syntax for a <Catalog name> is:
@@ -74,7 +81,10 @@ Chapter 16 -- SQL Catalog
 
     If you want to restrict your code to Core SQL, don't use explicit <Catalog name>s.
 
-    The Information Schema
+The Information Schema
+======================
+
+::
 
     Every Catalog in your SQL-environment contains a Schema called
     INFORMATION_SCHEMA: it contains a series of Views, Assertions and Domains --

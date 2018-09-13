@@ -27,7 +27,10 @@ Chapter 18 -- SQL Table and View
 
     SQL supports two types of Tables: the physically existent, named Base table and the derived, named View. We use the word "Table" to mean both Base tables and Views throughout this book. (SQL also supports the concept of unnamed derived tables -- these are tables which are derived from a <query expression>, so we won't discuss them here.)
 
-    Base Table
+Base Table
+==========
+
+::
 
     A Base table is either a Schema Object (that is, its definition is part of a
     Schema definition) or a Module Object (that is, its definition is part of a
@@ -142,7 +145,10 @@ Chapter 18 -- SQL Table and View
     defines the Table's Columns and Constraints. To change an existing Base table,
     use the ALTER TABLE statement. To destroy a Base table, use the DROP TABLE statement. To declare a temporary Table for a Module, use the DECLARE TABLE statement.
 
-    View
+View
+====
+
+::
 
     A View is a named, derived (or "virtual") Table: it doesn't physically exist,
     although its definition is persistent. Instead, a View is logically derived
@@ -168,7 +174,10 @@ Chapter 18 -- SQL Table and View
     how the View is derived and updated. To change an existing View, destroy and
     then redefine it. To destroy a View, use the DROP VIEW statement.
 
-    Table names
+Table names
+===========
+
+::
 
     A <Table name> identifies a Base table or a View. During a transaction, you
     can represent a Table with a <Correlation name> -- usually to prevent
@@ -281,7 +290,10 @@ Chapter 18 -- SQL Table and View
     must specify a unique, unqualified name for every Column of the result Table,
     even if you're never going to refer to some of the Columns again.
 
-    Column
+Column
+======
+
+::
 
     A Table may contain one or more Columns. An SQL Column is a collection of
     similar data values that describe the same attribute of the entity that is
@@ -380,7 +392,10 @@ Chapter 18 -- SQL Table and View
        MODULE.TABLE_1.COLUMN_1
        -- a <Column reference> for a declared LOCAL TEMPORARY Table
 
-    CREATE TABLE statement
+CREATE TABLE statement
+======================
+
+::
 
     The CREATE TABLE statement names a new Base table and defines the Table's
     Columns and Constraints. The required syntax for the CREATE TABLE statement is:
@@ -665,7 +680,10 @@ Chapter 18 -- SQL Table and View
     as a <table element> and don't add a <column scope clause> to any CREATE TABLE
     statement.
 
-    <Column definition>
+<Column definition>
+===================
+
+::
 
     A <Column definition> is used to create or alter a Column of a Base table.
     Used in a CREATE TABLE or an ALTER TABLE statement, it names a Column and
@@ -905,7 +923,10 @@ Chapter 18 -- SQL Table and View
     your <Column definition>s, don't base your Columns on Domains, don't name your
     <Column Constraint>s and don't define a <Column Constraint> with a <referential triggered action>.
 
-    <default clause>
+<default clause>
+================
+
+::
 
     A <default clause> defines the default value for a Column, a Domain or an
     attribute of a UDT. The required syntax for a <default clause> is:
@@ -1030,7 +1051,10 @@ Chapter 18 -- SQL Table and View
 
     If you want to restrict your code to Core SQL, don't use "DEFAULT CURRENT_PATH" when defining a <default clause>.
 
-    ALTER TABLE statement
+ALTER TABLE statement
+=====================
+
+::
 
     The ALTER TABLE statement changes a Base table's definition. The required syntax for the ALTER TABLE statement is:
 
@@ -1290,7 +1314,10 @@ Chapter 18 -- SQL Table and View
     available options, to add a Constraint to a Table or to drop a Constraint from
     a Table.
 
-    DROP TABLE statement
+DROP TABLE statement
+====================
+
+::
 
     The DROP TABLE statement destroys a Base table. The required syntax for the
     DROP TABLE statement is:
@@ -1339,7 +1366,10 @@ Chapter 18 -- SQL Table and View
     If you want to restrict your code to Core SQL, don't use the CASCADE drop
     behaviour for your DROP TABLE statements.
 
-    CREATE VIEW statement
+CREATE VIEW statement
+=====================
+
+::
 
     The CREATE VIEW statement names a new View and defines the query which, when
     evaluated, determines the rows of data that are shown in the View. The
@@ -1885,7 +1915,10 @@ Chapter 18 -- SQL Table and View
     queries and don't use the optional CASCADED or LOCAL levels specification in
     your check clauses -- always define Views only with WITH CHECK OPTION alone.
 
-    Getting More Out Of Views
+Getting More Out Of Views
+=========================
+
+::
 
     A View's virtue is that it isn't the whole picture. Something is hidden.
     Hidden is good. In the following descriptions, which all show Views being put
@@ -1944,7 +1977,10 @@ Chapter 18 -- SQL Table and View
        CREATE VIEW View_name AS
           SELECT 1,2,3 FROM INFORMATION_SCHEMA.SQL_LANGUAGES;
 
-    DROP VIEW statement
+DROP VIEW statement
+===================
+
+::
 
     The DROP VIEW statement destroys a View. The required syntax for the DROP VIEW statement is:
 
@@ -1982,7 +2018,10 @@ Chapter 18 -- SQL Table and View
 
     If you want to restrict your code to Core SQL, don't use the CASCADE drop behaviour for your DROP VIEW statements.
 
-    DECLARE TABLE statement
+DECLARE TABLE statement
+=======================
+
+::
 
     The DECLARE TABLE statement names a new declared local temporary Base table
     and defines the Table's Columns and Constraints. The required syntax for the
@@ -2090,7 +2129,10 @@ Chapter 18 -- SQL Table and View
 
     If you want to restrict your code to Core SQL, don't use the DECLARE LOCAL TEMPORARY TABLE statement.
 
-    Dialects
+Dialects
+========
+
+::
 
     Some vendors relax the rules on what may be an updatable View. For example,
     IBM's DB2 will let you DELETE from Views whose queries contain arithmetic

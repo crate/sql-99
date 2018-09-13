@@ -58,7 +58,10 @@ Chapter 45 -- SQL/CLI: Cursor Functions
     There are six CLI functions for creating Cursors, dropping Cursors, getting
     Cursor attributes and fetching from Cursors. Their descriptions follow.
 
-    SQLFetch
+SQLFetch
+========
+
+::
 
     Function Prototype:
     SQLRETURN SQLFetch (
@@ -193,7 +196,10 @@ Chapter 45 -- SQL/CLI: Cursor Functions
     not show that here. We will revisit fetch loops later, after looking at desc
     functions. Until then, remember: Rover is still holding the stick.
 
-    SQLFetchScroll
+SQLFetchScroll
+==============
+
+::
 
     Function Prototype:
       SQLRETURN SQLFetchScroll(
@@ -304,7 +310,10 @@ Chapter 45 -- SQL/CLI: Cursor Functions
     that ODBC allows many extensions, such as multi-row retrieval and retrieval
     using "bookmarks" (which are a special sort row address).
 
-    SQLCloseCursor
+SQLCloseCursor
+==============
+
+::
 
     Function Prototype:
       SQLRETURN SQLCloseCursor(
@@ -367,7 +376,10 @@ Chapter 45 -- SQL/CLI: Cursor Functions
     immediately after execution of the SELECT statement which causes the Cursor to
     be opened.)
 
-    SQLGetCursorName
+SQLGetCursorName
+================
+
+::
 
     Function Prototype:
       SQLRETURN SQLGetCursorName(
@@ -419,7 +431,10 @@ Chapter 45 -- SQL/CLI: Cursor Functions
     ODBC: The SQLGetCursorName function has been around since ODBC 1.0. In ODBC,
     implicit <Cursor name>s always begin with SQL_CUR (not SQLCUR).
 
-    SQLSetCursorName
+SQLSetCursorName
+================
+
+::
 
     Function Prototype:
       SQLRETURN SQLSetCursorName(
@@ -467,7 +482,10 @@ Chapter 45 -- SQL/CLI: Cursor Functions
     the <Cursor name> already exists, ODBC requires that the SQLSTATE should be
     3C000 "Duplicate <Cursor name>", instead of 34000.
 
-    Embedded SQL versus CLI
+Embedded SQL versus CLI
+=======================
+
+::
 
     Here is an embedded SQL example which uses a Cursor:
 
@@ -632,7 +650,10 @@ Chapter 45 -- SQL/CLI: Cursor Functions
     and concurrency if Cursors stay open over transaction boundaries. Holdable
     Cursors are not supported in SQL-92, in ISO SQL3 or in ODBC.
 
-    SQLMoreResults
+SQLMoreResults
+==============
+
+::
 
     Function Prototype:
       SQLRETURN SQLMoreResults(

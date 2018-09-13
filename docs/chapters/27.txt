@@ -35,7 +35,10 @@ Chapter 27 -- User-defined Types
     familiar (which they're supposed to be -- that's the point). However, you must
     start with a good recollection of the earlier chapters on <data type>s, procedures and SQL syntax.
 
-    UDTs
+UDTs
+====
+
+::
 
     Until now, all the SQL <data type>s we've described have predefined <data
     type>s, sometimes called "built-in" or "primitive" <data type>s -- although
@@ -99,7 +102,10 @@ Chapter 27 -- User-defined Types
     a Module, the default qualifier is the name of the Schema identified in the
     SCHEMA clause or AUTHORIZATION clause of the MODULE statement that defines that Module.
 
-    UDT example
+UDT example
+===========
+
+::
 
     Here's an example of a UDT definition:
 
@@ -126,7 +132,10 @@ Chapter 27 -- User-defined Types
     stage is that PROFIT has a name and a (predefined) data type>, just as regular
     Attributes do. Some people would call PROFIT a "derived Attribute".
 
-    Columns based on UDTs
+Columns based on UDTs
+=====================
+
+::
 
     Let us begin by making a Table, one of whose Columns is a UDT:
 
@@ -278,7 +287,10 @@ Chapter 27 -- User-defined Types
     routine category plus the parameter-data-type list, and it's what the DBMS
     uses when it needs to figure out what routine you're really trying to call.
 
-    Defining a Typed Table based on a UDT
+Defining a Typed Table based on a UDT
+=====================================
+
+::
 
     It's one thing to base Columns on UDTs. It's quite another thing to base
     Tables on UDTs. Tables based on UDTs are called "typed Tables" (or
@@ -435,7 +447,10 @@ Chapter 27 -- User-defined Types
 
     Here endeth the tutorial.
 
-    CREATE TYPE statement
+CREATE TYPE statement
+=====================
+
+::
 
     The CREATE TYPE statement defines a UDT. The required syntax for the CREATE TYPE statement is:
 
@@ -604,7 +619,10 @@ Chapter 27 -- User-defined Types
     limited in various ways. Usually, when we make generalized comments about
     object-orientation analogies -- such as "UDTs are classes" -- we have structured types in mind, not distinct types.
 
-    CREATE TABLE statement
+CREATE TABLE statement
+======================
+
+::
 
     We've already shown you the CREATE TABLE statement in our chapter on Tables.
     However, there are two options to add to that description now, for Object/Relational Tables.
@@ -650,7 +668,10 @@ Chapter 27 -- User-defined Types
     ta1 is a typed Table based on ty1, and ta2 is a typed Table based on ty2, then
     it is legal to create ta1 UNDER ta2 -- but it is not legal to create ta2 UNDER ta1.
 
-    CREATE CAST statement
+CREATE CAST statement
+=====================
+
+::
 
     With uDTS, you'll need some way of assigning UDT values to predefined <data
     type> targets, or vice versa. Further, if you have two distinct UDTs -- say
@@ -767,7 +788,10 @@ Chapter 27 -- User-defined Types
     should DROP the cast that the DBMS created and then explicitly make it again -
     - but without specifying "AS ASSIGNMENT" in the definition.
 
-    CREATE ORDERING statement
+CREATE ORDERING statement
+=========================
+
+::
 
     For UDT values, you'll need some way of knowing that "udt-value-1 is greater
     than udt-value-2" -- or less, or equal. Otherwise you'll be unable to use UDTs
@@ -837,7 +861,10 @@ Chapter 27 -- User-defined Types
     ORDERING statement for that type. When you create a subtype, the matter is
     less urgent because subtypes inherit from their supertypes.
 
-    Other processes for Object/Relational Users
+Other processes for Object/Relational Users
+===========================================
+
+::
 
     There are several other SQL statements and expression which are useful, but
     not vital, when working with Object/Relational SQL. All of these statements
@@ -949,7 +976,10 @@ Chapter 27 -- User-defined Types
     <deref function> ::=
     DEREF (<reference type> expression>)
 
-    Is Object/Relational really Object Oriented?
+Is Object/Relational really Object Oriented?
+============================================
+
+::
 
     Is O/R really OO? Lets go through the features that are considered to be
     standard parts of an object-oriented specification and see whether SQL3
@@ -996,7 +1026,10 @@ Chapter 27 -- User-defined Types
 
     Given these goals, Object/Relational SQL3 is a reasonable development. We now wait to see whether users will find that it truly meets these urgent needs.
 
-    Dialects
+Dialects
+========
+
+::
 
     Some SQL vendors have already introduced Object/Relational features. We give especial note to:
 

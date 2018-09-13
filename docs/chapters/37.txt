@@ -32,7 +32,10 @@ Chapter 37 -- SQL Transaction Concurrency
     application plans. ** Footnote -- Though we use the singular word "DBMS", we
     note once again that there may in fact be several co-operating agencies responsible for transaction management.
 
-    Isolation Phenomena
+Isolation Phenomena
+===================
+
+::
 
     What sort of errors and inconsistencies can creep in during concurrent
     operations? Database groupies generally use four categories, which they call
@@ -98,7 +101,10 @@ Chapter 37 -- SQL Transaction Concurrency
     errors because even some good DBMSs let them through, unless you take explicit
     measures to signal "no phantoms please".
 
-    Pessimistic Concurrency: LOCKING
+Pessimistic Concurrency: LOCKING
+================================
+
+::
 
     The most common and best-known way to eliminate some or all of the transaction concurrency phenomena is locking. Typically, a lock works like this:
 
@@ -152,7 +158,10 @@ Chapter 37 -- SQL Transaction Concurrency
     could be something that you will change. The result is a profusion of "shared
     locks", the great majority of which turn out to be unnecessary because only a relatively small number of rows are actually updated.
 
-    Optimistic Concurrency: TIMESTAMPING
+Optimistic Concurrency: TIMESTAMPING
+====================================
+
+::
 
     There are several ways to control concurrency without locking. The most common
     ones can be grouped together as the "optimistic assumption" ways, and the most
@@ -172,7 +181,10 @@ Chapter 37 -- SQL Transaction Concurrency
 
     Most optimistic concurrency mechanisms are not particularly good for detecting Non-Repeatable Reads or Phantoms.
 
-    SET TRANSACTION statement
+SET TRANSACTION statement
+=========================
+
+::
 
     By now, we've come to expect that SQL statements aren't used to specify
     methods. Instead, they state what the requirements are. That's the idea behind
@@ -380,7 +392,10 @@ Chapter 37 -- SQL Transaction Concurrency
 
     If you want to restrict your code to Core SQL, don't use SET LOCAL TRANSACTION and don't set any transaction's isolation level to anything but SERIALIZABLE.
 
-    START TRANSACTION statement
+START TRANSACTION statement
+===========================
+
+::
 
     In SQL3, you don't need the SET TRANSACTION statement, except for setting the
     characteristics of local transactions. Instead, you can use the START
@@ -412,7 +427,10 @@ Chapter 37 -- SQL Transaction Concurrency
 
     If you want to restrict your code to Core SQL, don't use the START TRANSACTION statement.
 
-    Special problems
+Special problems
+================
+
+::
 
     The SQL-Schema change statements (CREATE, ALTER, DROP, GRANT, REVOKE) require
     drastic solutions to ensure concurrency. Typically, a DBMS must lock all the
@@ -439,7 +457,10 @@ Chapter 37 -- SQL Transaction Concurrency
           (b) processing of integrity Constraints (but not Triggers).
     The implication is that standard SQL DBMSs have to lock the whole database when preparing a statement, and at the end of a statement's execution phase. This is a difficult requirement.
 
-    Transactions and Constraint Checking
+Transactions and Constraint Checking
+====================================
+
+::
 
     There is one other SQL transaction management statement: SET CONSTRAINTS. We
     talked about SET CONSTRAINTS a bit in our chapter on constraints and
@@ -531,7 +552,10 @@ Chapter 37 -- SQL Transaction Concurrency
     hand, are not checked until transaction end. This let's you do operations
     which temporarily puts your data into an unsound state and can thus be very useful.
 
-    Dialects
+Dialects
+========
+
+::
 
     Some DBMSs support locking, some support timestamping, some support both. Beyond that fundamental point of difference, there are many implementation-dependent features.
     For example: the granularity (by Column or row or page or Table or database), the number of distinct isolation levels that are actually supported (remember
@@ -546,7 +570,10 @@ Chapter 37 -- SQL Transaction Concurrency
 
     Oracle has Locks Display and other utilities that help administrators to monitor concurrency.
 
-    Goodies
+Goodies
+=======
+
+::
 
     The OCELOT DBMS that comes with this book supports concurrency. These are the specifications:
        Concurrency Resolution Mechanism:          Locking

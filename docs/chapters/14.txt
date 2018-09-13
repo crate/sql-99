@@ -44,7 +44,10 @@ Chapter 14 -- SQL Cluster
 
     In this chapter, we'll describe SQL Clusters in detail, and show you the syntax to use to create, alter and destroy them.
 
-    Cluster
+Cluster
+=======
+
+::
 
     An SQL Cluster is the group of Catalogs available to an SQL-session at any
     point in time; that is, it contains all the SQL-data you may access through a

@@ -9,7 +9,10 @@ Chapter 28 -- Introduction to SQL-data operations
     data work. [Obscure Rule] applies to everything we talk about here, but the
     definitions are a necessary evil for understanding some of what lies ahead.
 
-    <value specification>
+<value specification>
+=====================
+
+::
 
     A <value specification> is a scalar expression that specifies either a
     <literal>, a host language variable parameter or an SQL parameter as a source
@@ -94,7 +97,10 @@ Chapter 28 -- Introduction to SQL-data operations
 
     If you want to restrict your code to Core SQL, don't use an <element reference> or CURRENT_PATH to specify a value.
 
-    <value expression>
+<value expression>
+==================
+
+::
 
     A <value expression> is a scalar expression that specifies a data value. In
     this book, we most often use the term "scalar_expression" to show you where a
@@ -139,7 +145,10 @@ Chapter 28 -- Introduction to SQL-data operations
     use a <subtype treatment> to specify a value and don't use the COLLATE clause
     to force a collating sequence for any value.
 
-    <row value constructor>
+<row value constructor>
+=======================
+
+::
 
     A <row value constructor> defines an ordered set of values that make up one row of data. The required syntax for a <row value constructor> is:
 
@@ -171,7 +180,10 @@ Chapter 28 -- Introduction to SQL-data operations
     subquery>. If the number of rows returned  by the subquery is one, the result
     is that single row. (Note: a <row subquery> may not return more than one row.)
 
-    <target specification>
+<target specification>
+======================
+
+::
 
     A <target specification> is a scalar expression that specifies a host language
     variable parameter, an SQL parameter or a Column as the target for a data

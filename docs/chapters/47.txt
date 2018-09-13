@@ -64,7 +64,10 @@ Chapter 47 -- SQL/CLI: Diagnostic Functions
 
     The descriptions of these four functions follow.
 
-    SQLGetDiagField
+SQLGetDiagField
+===============
+
+::
 
     Function Prototype:
         SQLRETURN SQLGetDiagField(
@@ -670,7 +673,10 @@ Chapter 47 -- SQL/CLI: Diagnostic Functions
     Column number within the result set.) ODBC, unlike standard SQL, sorts status
     records by row number.
 
-    SQLGetDiagRec
+SQLGetDiagRec
+=============
+
+::
 
     Function Prototype:
        SQLRETURN  SQLGetDiagRec(
@@ -799,7 +805,10 @@ Chapter 47 -- SQL/CLI: Diagnostic Functions
     the names "SqlState", "Msg" and "rc" where we have tended to use "SQLSTATE",
     "sqlmessage" and "sqlreturn".
 
-    SQLError
+SQLError
+========
+
+::
 
     Function Prototype:
       SQLRETURN  SQLError(
@@ -893,7 +902,10 @@ Chapter 47 -- SQL/CLI: Diagnostic Functions
     ODBC: The SQLError function has been around since ODBC 1.0. In ODBC 3.0, it is
     labelled "deprecated" and ODBC's driver manager will map it to SQLGetDiagRec.
 
-    SQLRowCount
+SQLRowCount
+===========
+
+::
 
     Function Prototype:
       SQLRETURN SQLRowCount(
@@ -955,7 +967,10 @@ Chapter 47 -- SQL/CLI: Diagnostic Functions
     And that's it for the diagnostic functions. Now let's take a look at the
     Standard's SQLSTATE codes.
 
-    SQLSTATE Codes
+SQLSTATE Codes
+==============
+
+::
 
     The SQL status parameter SQLSTATE is a 5-character string value, with 2 parts:
     the first 2 characters represent a class value, the following 3 characters

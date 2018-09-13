@@ -28,7 +28,10 @@ Chapter 3 -- Numbers
     values are stored in one of the three approximate numeric <data
     type>s: FLOAT, REAL or DOUBLE PRECISION.
 
-    Numeric <literal>s
+Numeric <literal>s
+==================
+
+::
 
     A <numeric literal> is any number in one of two categories: the
     exact numeric integers and decimal numbers, and the approximate
@@ -84,7 +87,10 @@ Chapter 3 -- Numbers
     signs, as well as post-decimal zeros are all optional. The one
     thing that is not optional is the letter "E" -- always upper-case.
 
-    Numeric <data type>s
+Numeric <data type>s
+====================
+
+::
 
     A numeric <data type> is defined by a descriptor that contains four pieces of information:
          ## The <data type>'s name: either INTEGER, SMALLINT, NUMERIC, DECIMAL, FLOAT, REAL or DOUBLE PRECISION.
@@ -424,7 +430,10 @@ Chapter 3 -- Numbers
     FROM   Approximate_Examples
     WHERE  occurrence_float < 5E+4;
 
-    IEEE Binary Floats
+IEEE Binary Floats
+==================
+
+::
 
     According to the IEEE Standard for Binary Floating-Point
     Arithmetic, "single-" and "double-precision" numbers are defined as follows:
@@ -510,7 +519,10 @@ Chapter 3 -- Numbers
     is a mistake, justified only by the fact that, in C or Pascal,
     it's normal to define big or non-integer variables as floating-point.
 
-    Numeric Operations
+Numeric Operations
+==================
+
+::
 
     A number is compatible with, and comparable to, all other numbers
     -- that is, all numbers are mutually comparable and mutually
@@ -1115,7 +1127,10 @@ Chapter 3 -- Numbers
     operate strictly on numbers, so we won't discuss them here. Look
     for them in our chapter on search conditions.
 
-    Choosing the right <data type>
+Choosing the right <data type>
+==============================
+
+::
 
     When you're defining a <data type> specification, think about
     whether you really need a numeric <data type> for the expected
@@ -1164,7 +1179,10 @@ Chapter 3 -- Numbers
     Once you've gone through the decision tree, calculate the
     required precision and scale by looking at all expected values.
 
-    Dialects
+Dialects
+========
+
+::
 
     The "typical" SQL DBMS supports most of the standard numeric data
     types, but often uses preferred local names. Here are some lists
@@ -1184,7 +1202,10 @@ Chapter 3 -- Numbers
     Other commonly-seen numeric data types include TINYINT (8-bit signed integer),
     BIGINT (64-bit signed integer) and SERIAL (integer that goes up by 1 for each new inserted row).
 
-    The SQL Library
+The SQL Library
+===============
+
+::
 
     Before we finish discussing numbers, it's time to add something
     to our "SQL library". To be worthy of addition to the SQL

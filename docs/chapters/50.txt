@@ -9,7 +9,10 @@ Chapter 50 -- SQL/CLI: Locator Functions
     BLOBs and CLOBs. They are new in SQL3; as far as we know, no DBMS supports
     them. Our description is therefore fairly brief.
 
-    What is a Locator?
+What is a Locator?
+==================
+
+::
 
     When you assign the value of a BLOB, CLOB, NCLOB, UDT or ARRAY to an embedded
     host language variable or a host language parameter, your DBMS generates and
@@ -83,7 +86,10 @@ Chapter 50 -- SQL/CLI: Locator Functions
 
     The rest of this chapter describes the three CLI locator functions.
 
-    SQLGetLength
+SQLGetLength
+============
+
+::
 
     Function Prototype:
       SQLRETURN  SQLGetLength(
@@ -144,7 +150,10 @@ Chapter 50 -- SQL/CLI: Locator Functions
 
     ODBC: Since this is an SQL3 function, it is not in ODBC 3.0.
 
-    SQLGetPosition
+SQLGetPosition
+==============
+
+::
 
     Function Prototype:
       SQLRETURN SQLGetPosition(
@@ -188,7 +197,10 @@ Chapter 50 -- SQL/CLI: Locator Functions
 
     ODBC: Since this is an SQL3 function, it is not in ODBC 3.0.
 
-    SQLGetSubstring
+SQLGetSubstring
+===============
+
+::
 
     Function Prototype
       SQLRETURN  SQLGetSubString(

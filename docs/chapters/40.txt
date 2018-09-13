@@ -33,7 +33,10 @@ Chapter 40 -- SQL/CLI Binding Style
     functions which can be called from a host language. Each function has a name,
     a parameter list and a required algorithm (what the DBMS must do when you call it using this function).
 
-    EXAMPLE1.C
+EXAMPLE1.C
+==========
+
+::
 
     Here's a short C program that uses the CLI (the prototypes and short code
     examples that follow throughout our description of the CLI are all in C):
@@ -95,7 +98,10 @@ Chapter 40 -- SQL/CLI Binding Style
     of memory for each of our "allocated things", but we can't access the fields
     directly. Instead, we use a henv or a hdbc or a hstmt.
 
-    SQLCHAR, SQLINTEGER and other typedefs
+SQLCHAR, SQLINTEGER and other typedefs
+======================================
+
+::
 
     Here are the type definitions in the sqlcli.h header file. We use these names for declarations of C variables in all our examples.
 
@@ -114,7 +120,10 @@ Chapter 40 -- SQL/CLI Binding Style
     SQLHDESC are all "typedef void*" instead of "typedef long int". In older
     versions of the ODBC header file, the names were HENV, HDBC, HSTMT, etc.
 
-    SQLRETURN
+SQLRETURN
+=========
+
+::
 
     All CLI functions return a 16-bit value. We refer to this value as the SQLRETURN value because sqlcli.h contains this line:
 
@@ -130,7 +139,10 @@ Chapter 40 -- SQL/CLI Binding Style
 
     Programs should check these values, but for space reasons we leave SQLRETURN out of many of our examples.
 
-    Handle relationships
+Handle relationships
+====================
+
+::
 
     A handle is a 32-bit integer which can be used as a unique identifier of a
     "resource". The following chart shows all the resources which have handles.
@@ -151,7 +163,10 @@ Chapter 40 -- SQL/CLI Binding Style
     ARD     APD     IRD     IPD
     (desc)  (desc)  (desc)  (desc)
 
-    How to run example programs
+How to run example programs
+===========================
+
+::
 
     This book contains several example programs that we use to illustrate the
     SQL/CLI. Each example program is also included on the CD that came with this
@@ -179,7 +194,10 @@ Chapter 40 -- SQL/CLI Binding Style
     practice, this will help you learn what is NOT standard SQL, since we
     deliberately kept out "implementation-defined" features when we wrote this DBMS.
 
-    "Standard SQL CLI" equals "Core ODBC API"
+"Standard SQL CLI" equals "Core ODBC API"
+=========================================
+
+::
 
     History: Microsoft published the ODBC 1.0 specification in 1992. It became
     popular. Soon there were supporting interfaces for all the major DBMSs that
@@ -224,7 +242,10 @@ Chapter 40 -- SQL/CLI Binding Style
     you the various extra features that appear in ODBC but not in the standard
     CLI. And we note only once -- now -- that any feature which is marked "SQL3" is a feature of the standard CLI but not necessarily of ODBC.
 
-    How Each CLI Function Will Be Described
+How Each CLI Function Will Be Described
+=======================================
+
+::
 
     In these chapters, we will describe each CLI function separately. We've put
     them in order according to this rule: if we can't describe A without knowing
@@ -326,7 +347,10 @@ Chapter 40 -- SQL/CLI Binding Style
     describing each of the functions in this list in detail, though, we'll show
     you a sample function description, using a common CLI function subroutine -- CharacterStringRetrieval.
 
-    CharacterStringRetrieval
+CharacterStringRetrieval
+========================
+
+::
 
     Function Prototype:
       void CharacterStringRetrieval (

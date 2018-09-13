@@ -26,7 +26,10 @@ Chapter 30 -- Searching with Joins
 
     The first insight is the basis of relational-database theory. The second is a warning that we want to minimize the undesirable consequences of joined Tables.
 
-    Joined Tables
+Joined Tables
+=============
+
+::
 
     The SQL definition for a joined Table is: a Table derived from a Cartesian
     product, an inner join, an outer join or a union join. The required syntax for a joined Table is:
@@ -524,7 +527,10 @@ Chapter 30 -- Searching with Joins
     the UPDATE operation will fail: your DBMS will return the SQLSTATE error 22014
     "data exception-invalid update value".
 
-    Syntax rules
+Syntax rules
+============
+
+::
 
     Now that we've shown you an example of each type of join, here's a list of the
     formal syntax rules you'll have to follow when forming a join expression.
@@ -722,7 +728,10 @@ Chapter 30 -- Searching with Joins
 
     The values in either Table that have no match are matched with a NULL (or default) value.
 
-    Dialects
+Dialects
+========
+
+::
 
     Since "modern" syntax is relatively new to SQL, various products support different syntax for the types of joins we've illustrated here. For example:
           ## Oracle uses "WHERE Table_1.column (+) = Table_2.column" for a LEFT OUTER JOIN.

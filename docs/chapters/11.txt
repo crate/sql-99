@@ -12,7 +12,10 @@ Chapter 11 -- Row types
     can represent the rows of a Table, so that complete rows can be stored in
     variables, passed as arguments to routines and returned by functions.
 
-    Row <data type>s
+Row <data type>s
+================
+
+::
 
     A <row type> is defined by a descriptor that contains three pieces of information:
           ## The <data type>'s name: ROW.
@@ -253,7 +256,10 @@ Chapter 11 -- Row types
     don't construct a row with more than one Field, don't use the ROW <keyword> in
     front of your element_expression and don't use a subquery to construct your row.
 
-    Row Operations
+Row Operations
+==============
+
+::
 
     A row is compatible with, and comparable to, any row with compatible Fields --
     that is, rows are mutually comparable and mutually assignable only if they
@@ -357,7 +363,10 @@ Chapter 11 -- Row types
     the <type predicate> in our chapter on UDTs and the rest in our chapters on
     search conditions.
 
-    Comprehensive Example
+Comprehensive Example
+=====================
+
+::
 
     Now that we've described SQL's <row type>, let's look at some example SQL statements that put it to use.
 

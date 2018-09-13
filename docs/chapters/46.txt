@@ -16,7 +16,10 @@ Chapter 46 -- SQL/CLI: desc Functions
     SQLGetDescField, SQLSetDescField, SQLGetDescRec, SQLSetDescRec, SQLCopyDesc and others.
           ## Functions which attack descs indirectly: SQLBindParameter, SQLBindCol, SQLColAttribute, SQLDescribeCol and others.
 
-    Descriptor Areas
+Descriptor Areas
+================
+
+::
 
     Here is a piece of CLI code:
 
@@ -111,7 +114,10 @@ Chapter 46 -- SQL/CLI: desc Functions
     use such statements as convenient conventions, without implying that all DBMSs
     store desc information with this structure.
 
-    The desc Fields
+The desc Fields
+===============
+
+::
 
     On first reading, we suggest that you skip quickly through this section. But
     bookmark this page -- you'll have to refer to the desc field descriptions many times.
@@ -759,7 +765,10 @@ Chapter 46 -- SQL/CLI: desc Functions
     APD  user                          user
     IPD  user                          SQLPrepare[I], user
 
-    The desc Functions
+The desc Functions
+==================
+
+::
 
     We are now ready to describe the individual desc functions. There is a good
     deal of redundancy here, because several functions are available which do the

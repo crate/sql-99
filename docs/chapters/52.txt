@@ -20,7 +20,10 @@ Chapter 52 -- Module Binding Style
     procedures, an SQL-session Module contains only SQL statements prepared in
     that SQL-session and an SQL-server Module -- the SQL/PSM type -- is a Schema Object that contains only SQL-invoked routines.
 
-    SQL-client Modules
+SQL-client Modules
+==================
+
+::
 
     SQL-client Modules are programming modules that contain externally-invoked
     procedures -- that is, SQL procedures that are invoked by a host language.
@@ -38,7 +41,10 @@ Chapter 52 -- Module Binding Style
     code in one or more of the Standard's host languages. The database routines
     are called externally-invoked procedures because they are invoked by the host language program to which you link the Module they belong to.
 
-    MODULE statement
+MODULE statement
+================
+
+::
 
     The MODULE statement defines an SQL-client Module. The required syntax for the MODULE statement is:
 
@@ -106,7 +112,10 @@ Chapter 52 -- Module Binding Style
 
     If you want to restrict your code to Core SQL, don't use the NAMES ARE clause, the PATH clause, the TRANSFORM GROUP clause or any DECLARE TABLE statements in a MODULE statement.
 
-    PROCEDURE statement
+PROCEDURE statement
+===================
+
+::
 
     The PROCEDURE statement defines an externally-invoked procedure. The required syntax for the PROCEDURE statement is:
 

@@ -20,7 +20,10 @@ Chapter 41 -- SQL/CLI: env Functions
           v v
           ... to dbcs
 
-    Null Termination
+Null Termination
+================
+
+::
 
     Traditionally, there have been three ways to define character strings:
           ## They are fixed length. Example: a COBOL PIC X(5) variable.
@@ -54,7 +57,10 @@ Chapter 41 -- SQL/CLI: env Functions
     There are six CLI functions for creating envs, dropping envs, getting env
     attributes and setting env attributes. Their descriptions follow.
 
-    SQLAllocHandle(SQL_HANDLE_ENV,...)
+SQLAllocHandle(SQL_HANDLE_ENV,...)
+==================================
+
+::
 
     Function Prototype:
       SQLRETURN SQLAllocHandle(
@@ -136,7 +142,10 @@ Chapter 41 -- SQL/CLI: env Functions
     ODBC: The SQLAllocHandle function is new in ODBC 3.0. Error information will
     not be available until you call the "connect" function.
 
-    SQLAllocEnv
+SQLAllocEnv
+===========
+
+::
 
     Function prototype:
       SQLRETURN SQLAllocEnv(
@@ -182,7 +191,10 @@ Chapter 41 -- SQL/CLI: env Functions
     ODBC: The SQLAllocEnv routine has been in ODBC since version 1.0. The ODBC 3.0
     manual deprecates it, suggesting that users should switch to using SQLAllocHandle(SQL_HANDLE_ENV,...).
 
-    SQLGetEnvAttr
+SQLGetEnvAttr
+=============
+
+::
 
     Function Prototype:
       SQLRETURN  SQLGetEnvAttr(
@@ -223,7 +235,10 @@ Chapter 41 -- SQL/CLI: env Functions
     ODBC: The SQLGetEnvAttr function is new in ODBC 3.0. There are also a few
     other env options which are specific to ODBC.
 
-    SQLSetEnvAttr
+SQLSetEnvAttr
+=============
+
+::
 
     Function Prototype:
       SQLRETURN  SQLSetEnvAttr(
@@ -280,7 +295,10 @@ Chapter 41 -- SQL/CLI: env Functions
     3.0, say:  version = SQL_OV_ODBC3;        /* 00000003L */
                SQLSetEnvAttr(henv,SQL_ATTR_ODBC_VERSION,&version,NULL);
 
-    SQLFreeHandle(SQL_HANDLE_ENV,...)
+SQLFreeHandle(SQL_HANDLE_ENV,...)
+=================================
+
+::
 
     Function Prototype:
       SQLRETURN SQLFreeHandle(
@@ -311,7 +329,10 @@ Chapter 41 -- SQL/CLI: env Functions
 
     ODBC: The SQLFreeHandle function is new in ODBC 3.0.
 
-    SQLFreeEnv
+SQLFreeEnv
+==========
+
+::
 
     Function Prototype:
       SQLRETURN SQLFreeEnv(

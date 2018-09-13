@@ -71,7 +71,10 @@ Chapter 39 -- Embedded SQL Binding Style
     the "Weltanschauung" problem (handling one-row-at-a-time rather than
     whole-set-at-a-time) and the "control" problem (adjusting host program flow based on SQL execution information).
 
-    What is embedded SQL?
+What is embedded SQL?
+=====================
+
+::
 
     Embedded SQL was once the predominant standard way to mix SQL statements with
     host languages. It lets you mix SQL statements directly into an application
@@ -116,7 +119,10 @@ Chapter 39 -- Embedded SQL Binding Style
           ## Declare all host-language program variables which will be shared with SQL in a special DECLARE section.
           ## Declare additional program variables for error handling.
 
-    Precompilers
+Precompilers
+============
+
+::
 
     Most precompilers are standalone utility programs. A few are integrated with
     the compiler itself. Regardless of their startup method, all precompilers must
@@ -155,7 +161,10 @@ Chapter 39 -- Embedded SQL Binding Style
 
     In theory, a precompiler could act differently provided it met the functional specification. We have described what we know best: this book's sample Precompiler.
 
-    SQL Prefixes and Terminators
+SQL Prefixes and Terminators
+============================
+
+::
 
     The precompiler lacks the smarts to figure out the syntax of the host language
     program. After all, host language code can get pretty complex. All the
@@ -189,7 +198,10 @@ Chapter 39 -- Embedded SQL Binding Style
        }
        ...
 
-    Host Variables
+Host Variables
+==============
+
+::
 
     Embedded SQL statements can contain host language variables in the same places
     that any other scalar expression can be placed. The host variables allow you
@@ -510,7 +522,10 @@ Chapter 39 -- Embedded SQL Binding Style
     "singleton SELECT". A more flexible approach exists for getting output SELECT
     results, as output host variables, from SQL to the host language: the SQL Cursor.
 
-    Cursors
+Cursors
+=======
+
+::
 
     The most famous of the impedance-mismatch problems is that SQL operates on
     sets, while host languages operate on set members. Therefore an SQL query --
@@ -879,7 +894,10 @@ Chapter 39 -- Embedded SQL Binding Style
 
     A Cursor is also closed by ROLLBACK and (unless it's a holdable Cursor) by COMMIT.
 
-    Embedded SQL Examples
+Embedded SQL Examples
+=====================
+
+::
 
     Here is an example program which selects and fetches ten rows in Table T, and
     displays the contents. This program watches for NULL values, which it
@@ -904,7 +922,10 @@ Chapter 39 -- Embedded SQL Binding Style
          EXEC SQL CLOSE example_cursor;
          EXEC SQL DISCONNECT database_or_server; }
 
-    Diagnostics
+Diagnostics
+===========
+
+::
 
     "I beseech you in the bowels of Christ, consider that you may be wrong."
        -- Cromwell
@@ -1094,7 +1115,10 @@ Chapter 39 -- Embedded SQL Binding Style
     diagnostics area's fields till a later time -- when we talk about the
     SQL/CLI's SQLGetDiagRec and SQLGetDiagField functions.
 
-    Dynamic SQL
+Dynamic SQL
+===========
+
+::
 
     In the examples so far, we've assumed that we know some things in advance
     about the database and the SQL statements we're going to execute. For example,
@@ -1180,7 +1204,10 @@ Chapter 39 -- Embedded SQL Binding Style
 
     As with GET DIAGNOSTICS, we'll defer the detailed discussion of the descriptor area's fields till a later time -- when we talk about the SQL/CLI's desc functions.
 
-    Summary
+Summary
+=======
+
+::
 
     An embedded SQL host language program is an application program that contains
     both host language programming statements and SQL statements. Embedded SQL
@@ -1228,7 +1255,10 @@ Chapter 39 -- Embedded SQL Binding Style
     one or more statements in the host language, some of which invoke an SQL
     externally-invoked procedure that, when executed, has an effect equivalent [to] executing the SQL-statement."
 
-    Dialects
+Dialects
+========
+
+::
 
     Embedded SQL is well specified by part five of the SQL Standard: ISO/IEC
     9075-2 Part 5: SQL/Bindings. The differences between SQL-92 and SQL3 in this

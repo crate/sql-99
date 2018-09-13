@@ -43,7 +43,10 @@ Chapter 13 -- NULLs
     This example teaches us three things: (a) that Ronald Reagan was a sage, (b) that some data can be "unknown" (a data collection failure) or "not applicable" (a database definition anomaly), and (c) that it's better to admit
     the deficiencies in a way that the DBMS can account for. This is unpleasant and mathematically unsound, but it's what we've got.
 
-    Representing Missing Data with NULL
+Representing Missing Data with NULL
+===================================
+
+::
 
     Those missing values that we represented with question marks in our list are what SQL calls NULLs. The NULL value is an amorphous thing, but it does have certain properties which we now enumerate.
           ## NULL is a value. Oh, it's true that it represents missing data, but that doesn't mean that it is missing data -- you can put NULL into Columns and you can take it out again. Those operations are only possible with values,
@@ -72,7 +75,10 @@ Chapter 13 -- NULLs
 
     because your DBMS wouldn't be able to guess what the <data type> is.
 
-    The Meaning of NULL
+The Meaning of NULL
+===================
+
+::
 
     "The cat is neither alive nor dead."
        -- Erwin Schr”dinger
@@ -131,7 +137,10 @@ Chapter 13 -- NULLs
     past for "unknown"s -- but we can't let that confuse us, since we know that
     NULL is not the same as any value in the Domain of character strings.
 
-    Three-Valued Logic
+Three-Valued Logic
+==================
+
+::
 
     Most logical systems rest on two values: is/isn't, yes/no, 0/1, TRUE/FALSE.
     SQL's system is more like: true/false/unknown, is/isn't/could-be,
@@ -175,7 +184,10 @@ Chapter 13 -- NULLs
 
     If you want to restrict your code to Core SQL, don't use this expression: "NULL IS NULL" or this expression: "NULL IS NOT NULL".
 
-    Nullability
+Nullability
+===========
+
+::
 
     There are times when you'll want to ensure that a null value can't be put in a
     Column. The obvious case is when it's a primary key: in our example at the
@@ -205,7 +217,10 @@ Chapter 13 -- NULLs
           ## A Column's nullability characteristic is "known not
     nullable" if a non-deferrable Constraint on the Column is a PRIMARY KEY Constraint.
 
-    The Duplicate Loophole
+The Duplicate Loophole
+======================
+
+::
 
     "Identification for duplicate removal is at a lower level of detail than equality testing in the evaluation of retrieval conditions. Hence it is possible to adopt a different rule."
        -- E.F. Codd
@@ -226,7 +241,10 @@ Chapter 13 -- NULLs
           ## EXCEPT -- As with DISTINCT, if the values before an EXCEPT operation are the set {7,33,NULL,15,7,NULL}, then the values afterwards are the set {7,33,NULL,15}.
           ## INTERSECT -- As with DISTINCT, if the values before an INTERSECT operation are the set {7,33,NULL,15,7,NULL}, then the values afterwards are the set {7,33,NULL,15}.
 
-    Fun with NULLs
+Fun with NULLs
+==============
+
+::
 
     There are many operations which are affected by the presence of NULLs. Our choice has been to describe the exceptional situation when we describe the operation.
     So this is just a quick summary; for full effects read the appropriate section in another chapter.
@@ -273,7 +291,10 @@ Chapter 13 -- NULLs
     SQL/CLI:
     In our chapters on the Call Level Interface, you'll notice that many functions return blank (or zero) when the situation screams for a NULL return. You'll just have to get used to inconsistencies.
 
-    Problems For Optimizers
+Problems For Optimizers
+=======================
+
+::
 
     If you were to write a DBMS optimizer, you'd want to take advantage of certain
     "transformation rules". Usually these rules depend on two-valued logic, for
@@ -306,7 +327,10 @@ Chapter 13 -- NULLs
     filtered out the same way that FALSEs are. But occasionally you'll help your
     optimizer by ensuring that Columns which will be used in complex queries are always not nullable.
 
-    Nulloclasts vs. Nullodules
+Nulloclasts vs. Nullodules
+==========================
+
+::
 
     If you know any Byzantine history at all, you know about the hundred-year
     struggle between the Iconoclasts ("smashers of icons") and the Iconodules

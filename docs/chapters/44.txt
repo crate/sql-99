@@ -67,7 +67,10 @@ Chapter 44 -- SQL/CLI Statement Functions
           - done -
           --------
 
-    Preparable SQL statements
+Preparable SQL statements
+=========================
+
+::
 
     Some SQL statements are not preparable. Here's the list of all possibilities, showing whether the SQL statement can be prepared.
 
@@ -116,7 +119,10 @@ Chapter 44 -- SQL/CLI Statement Functions
     there are SQLGetDiag... functions; COMMIT and ROLLBACK are not preparable but
     there is an SQLEndTran ("end transaction") function.
 
-    SQLPrepare
+SQLPrepare
+==========
+
+::
 
     Function Prototype:
       SQLRETURN SQLPrepare(
@@ -221,7 +227,10 @@ Chapter 44 -- SQL/CLI Statement Functions
 
     ODBC: The SQLPrepare function has been part of ODBC since ODBC version 1.0.
 
-    SQLExecute
+SQLExecute
+==========
+
+::
 
     Function Prototype:
       SQLRETURN SQLExecute(
@@ -274,7 +283,10 @@ Chapter 44 -- SQL/CLI Statement Functions
 
     ODBC: The SQLExecute function has been around since ODBC 1.0.
 
-    SQLExecDirect
+SQLExecDirect
+=============
+
+::
 
     Function Prototype:
       SQLRETURN  SQLExecDirect(
@@ -353,7 +365,10 @@ Chapter 44 -- SQL/CLI Statement Functions
 
     ODBC: The SQLExecDirect function has been around since ODBC 1.0.
 
-    SQLEndTran
+SQLEndTran
+==========
+
+::
 
     Function Prototype:
       SQLRETURN SQLEndTran(

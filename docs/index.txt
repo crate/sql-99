@@ -8,10 +8,9 @@ SQL-99 Complete, Really
 
 .. toctree::
    :maxdepth: 3
-   :titlesonly:
 
-   preface
    toc
+   preface
    chapters/index
    appendices/index
    index-orig
