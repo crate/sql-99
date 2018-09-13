@@ -1,4 +1,4 @@
-from crate.theme.rtd.conf.crate_guide import *
+from crate.theme.rtd.conf.sql_99 import *
 
 exclude_patterns = ["out/**"]
 
