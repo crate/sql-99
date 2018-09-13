@@ -1,0 +1,12 @@
+language: python
+cache: pip
+python:
+  - 3.6
+sudo:
+  false
+install:
+  - sh bootstrap.sh
+script:
+  - bin/sphinx
+notifications:
+  email: false
