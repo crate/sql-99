@@ -1,4 +1,4 @@
-.. highlight:: txt
+.. highlight:: text
 
 ========================
 Chapter 4 -- Bit strings
