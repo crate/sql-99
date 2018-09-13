@@ -1,18 +1,3 @@
-SQL-99 Complete, Really
-Copyright (c) 2005-2016 Trudy Pelzer & Peter Gulutzan.
-All rights reserved.
-
-Redistribution and use in source and 'compiled' forms (PDF, PostScript, HTML, RTF, etc), with or without modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer as the first lines of this file unmodified.
-
-2. Redistributions in compiled form (transformed to other DTDs, converted to PDF, PostScript, HTML, RTF, and other formats) must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-
-3. The name of the author may not be used to endorse or promote products derived from this documentation without specific prior written permission.
-
-THIS DOCUMENTATION IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS DOCUMENTATION, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-
 APPENDIX A -- Remote Database Access
 
 Remote Database Access (RDA) is a standard for interfacing to databases via
@@ -347,7 +332,7 @@ same database.
 same query.
       ## Inevitably, one of the servers will respond more quickly than the
 other. Perhaps it's less busy, or perhaps its message packets are just moving
-by a shorter route. 
+by a shorter route.
       ## Once the client receives the response from the fast server, it sends
 an RDAStatementCancel message to the slow one, meaning "oh forget it -- I
 already have the data".
@@ -421,9 +406,9 @@ RDADisconnect message
 
                                   <-- Server sends response, diagnostic="OK"
 
-The network session is over, but      Server is idle again ...  
+The network session is over, but      Server is idle again ...
 the client can continue: "FETCH"
-the first row, "FETCH" the second 
+the first row, "FETCH" the second
 row (from local buffers)...
 
 Making it hard
@@ -992,11 +977,11 @@ E011-1   The INTEGER and SMALLINT data types, integer literals, integer  (yes)
          expressions, integer comparison and integer assignment.
 E011-2   The REAL, DOUBLE PRECISION and FLOAT data types,                (yes)
          approximate numeric literals, approximate numeric expressions,
-         approximate numeric comparison and approximate numeric 
+         approximate numeric comparison and approximate numeric
          assignment.
 E011-3   The DECIMAL and NUMERIC data types, decimal & numeric literals, (yes)
          decimal & numeric expressions, decimal & numeric comparison
-         and decimal & numeric assignment.          
+         and decimal & numeric assignment.
 E011-4   The +, -, * and / arithmetic operators.                         (yes)
 E011-5   The =, <>, >, >=, < and <= operators.                           (yes)
 E011-6   Implicit casting among the numeric data types.                  (yes)
@@ -1043,7 +1028,7 @@ E051-8   <correlation names> can be specified in the FROM clause and can (yes)
          be used elsewhere in the <query specification> to distinguish
          among columns.
 E051-9   Support for the ability to rename the columns in the FROM       (yes)
-         clause (that is "FROM <table name> [ [AS] <correlation name> ] 
+         clause (that is "FROM <table name> [ [AS] <correlation name> ]
          [ <column name> {, <column name>}... ]").
 E051-10  Derived tables supported in the FROM clause.                    (yes)
 E051-11  Allow the optional keyword AS before a <correlation name>.      (yes)
@@ -1459,10 +1444,10 @@ B014     Embedded Fortran                                           (maybe)[1]
 B015     Embedded MUMPS                                             (maybe)[1]
 B016     Embedded Pascal                                            (maybe)[1]
 B017     Embedded PL/I                                              (maybe)[1]
-B021     Direct SQL                                                 No       
-B031     Basic dynamic SQL                                          No     
-B032     Extended dynamic SQL                                       No  
-B032-1   <describe input> statement                                 No     
+B021     Direct SQL                                                 No
+B031     Basic dynamic SQL                                          No
+B032     Extended dynamic SQL                                       No
+B032-1   <describe input> statement                                 No
 B041     Extensions to embedded SQL exception                       No
 B051     Enhanced execution rights                                  No
 
@@ -1476,40 +1461,40 @@ the SQL Standard provides no standardized solution for a DBMS, i.e.: the
 following areas are all labeled either "implementor-defined" or "implementor-
 dependent" in the Standard. Thus, valid syntax and/or the expected response
 will vary from one DBMS to another -- keep this in mind when writing your
-applications. 
+applications.
 
 Implementation-defined features
 
 The SQL Standard requires a SQL DBMS to define and document how it will handle
 each of these features.
 
-Overall method of SQL support: 
+Overall method of SQL support:
 
 The exact SQL syntax and method for accessing SQL-data supported by a DBMS is
-non-standard for four reasons: 
+non-standard for four reasons:
       1. The SQL Standard allows implementors to choose to support either one
-of the following options for SQL conformance: Core SQL or Enhanced SQL. 
+of the following options for SQL conformance: Core SQL or Enhanced SQL.
       2. The SQL Standard allows implementors to choose to support either one
 or more of the following options for binding style: Module Language, Embedded
 Syntax or Direct SQL Invocation.
       3. The SQL Standard contains numerous non-standardized areas where
 implementors are required to decide upon appropriate responses on their own:
 the "implementor-defined" and "implementor-dependent" areas contained in the
-Standard. 
+Standard.
       4. The SQL Standard allows implementors to provide options for
 processing database operations that the Standard does not address (e.g.: a
 CREATE INDEX statement), as well as allowing implementors to provide options
 for processing Standard-defined SQL in a non-conforming manner. To quote the
 Standard: "An [SQL-]implementation remains conforming even if it provides user
 options to process nonconforming SQL language or to process conforming SQL
-language in a nonconforming manner." 
+language in a nonconforming manner."
 
-Connection and session results: 
+Connection and session results:
 
 The result of executing CONNECT TO is non-standard because the SQL Standard
-allows implementors to choose to support either one of the following options: 
+allows implementors to choose to support either one of the following options:
       1. a DBMS may allow the establishment of only one SQL-session at a time,
-or 
+or
       2. a DBMS may support multiple concurrent SQL-sessions.
 
 A DBMS's default SQL-session and initial default SQL-Connection are non-
@@ -1539,37 +1524,37 @@ Whether the <user name> in a CONNECT statement must be identical to the Module
 implementors to define whether the two must match.
 
 A DBMS's initial default Catalog is non-standard because the SQL Standard
-requires implementors to choose their own initial default <Catalog name>. 
+requires implementors to choose their own initial default <Catalog name>.
 
 A DBMS's initial default Schema is non-standard because the SQL Standard
-requires implementors to choose their own initial default <Schema name>. 
+requires implementors to choose their own initial default <Schema name>.
 
-A DBMS's initial default Character set is non-standard for two reasons: 
+A DBMS's initial default Character set is non-standard for two reasons:
       1. The SQL Standard requires implementors to choose their own initial
-default <Character set name>. 
+default <Character set name>.
       2. The SQL Standard requires implementors to define the character
-repertoire for their initial default Character set. 
+repertoire for their initial default Character set.
 
 A DBMS's initial default time zone offset is non-standard because the SQL
 Standard requires implementors to define their own initial default time zone
 offset.
 
 The result of executing SET SESSION AUTHORIZATION is non-standard for two
-reasons: 
+reasons:
       1. Although it is mandatory to support the use of SET SESSION
 AUTHORIZATION at the start of a SQL-session, the SQL Standard allows
 implementors to decide whether to allow the SQL-session default
-<AuthorizationID> to be changed at any other time. 
+<AuthorizationID> to be changed at any other time.
       2. For DBMSs that allow the use of SET SESSION AUTHORIZATION at other
 times, the SQL Standard allows implementors to define when exactly when the
-SQL-session default <AuthorizationID> may also be changed. 
+SQL-session default <AuthorizationID> may also be changed.
 
 SQL does not include any CREATE CLUSTER, OPEN CLUSTER, ADD TO CLUSTER or DROP
 CLUSTER statements. The method you'll use to access a Cluster with your DBMS
 is thus non-standard because the SQL Standard requires implementors to define
 what the physical aspects of a Cluster are, whether any Catalog can be part of
 more than one Cluster at a time, how a Cluster comes into being, how it may be
-accessed and how it may be destroyed. 
+accessed and how it may be destroyed.
 
 SQL does not include any CREATE CATALOG, OPEN CATALOG or DROP CATALOG
 statements. The method you'll use to access a Catalog with your DBMS is thus
@@ -1581,11 +1566,11 @@ is non-standard because the SQL Standard allows implementors to add additional
 Views, as well as to add additional Columns to the Standard-defined Views, to
 describe additional, implementation-defined features.
 
-Parsing/display: 
+Parsing/display:
 
 A newline character, or end-of-line marker, is non-standard because the SQL
 Standard requires implementors to define which white space characters their
-parsers will recognize as newline characters. 
+parsers will recognize as newline characters.
 
 The logical representation of the null value is non-standard because the SQL
 Standard requires implementors to define the character used to display the
@@ -1595,74 +1580,74 @@ Either a NULL is greater than all non-null values or a NULL is less than all
 non-null values -- it's non-standard because the SQL Standard requires
 implementors to define whether NULLs sort high or low.
 
-Names: 
+Names:
 
 An <SQL-server name> must be unique (for all Clusters) within an SQL-
-environment, but is non-standard for two reasons: 
+environment, but is non-standard for two reasons:
       1. The SQL Standard requires implementors to define what constitutes a
-valid <SQL-server name>. 
+valid <SQL-server name>.
       2. The SQL Standard requires implementors to define the Character set
-that the characters of a <SQL-server name> belong to. 
+that the characters of a <SQL-server name> belong to.
 
-An <AuthorizationID> is non-standard for four reasons: 
+An <AuthorizationID> is non-standard for four reasons:
       1. The SQL Standard requires implementors to define what constitutes a
-valid <AuthorizationID>. 
+valid <AuthorizationID>.
       2. The SQL Standard requires implementors to define their own method for
-mapping <AuthorizationID>s to users. 
+mapping <AuthorizationID>s to users.
       3. The SQL Standard requires implementors to define their own method for
 creating an <AuthorizationID>. SQL does not include a CREATE AUTHORIZATIONID
-statement. 
+statement.
       4. The SQL Standard requires implementors to define their own method for
 dropping an <AuthorizationID>. SQL does not include a DROP AUTHORIZATIONID
-statement. 
+statement.
 
-<Connection name>s are non-standard for two reasons: 
+<Connection name>s are non-standard for two reasons:
       1. The SQL Standard requires implementors to define what constitutes a
-valid <Connection name>. 
+valid <Connection name>.
       2. The SQL Standard requires implementors to define the Character set
-that the characters of a <Connection name> belong to. 
+that the characters of a <Connection name> belong to.
 
 A <Catalog name> is a <regular identifier> or <delimited identifier> that is
 unique (for all Catalogs) within the Cluster it belongs to, but is non-
 standard because the SQL Standard requires implementors to define all valid
-<Catalog name>s. 
+<Catalog name>s.
 
-Defining <literal>s: 
+Defining <literal>s:
 
 A national <character string literal> belongs to a Character set which is the
 same Character set used for NCHAR and NCHAR VARYING <data type>s but is non-
-standard for two reasons: 
+standard for two reasons:
       1. The SQL Standard requires implementors to define the Character set
-that the characters of a national <character string literal> belong to. 
+that the characters of a national <character string literal> belong to.
       2. The SQL Standard requires implementors to define the character
-repertoire for their national <character string literal> Character set. 
- 
+repertoire for their national <character string literal> Character set.
+
 The maximum size of a <time value>'s fractional seconds may not be less than 6
 digits but is non-standard because the SQL Standard requires implementors to
-define the maximum fractional seconds precision. 
+define the maximum fractional seconds precision.
 
 The maximum length of a <time literal> may not be less than 15 characters but
 is non-standard because the SQL Standard requires implementors to define the
-maximum size of a <time value>'s fractional seconds precision. 
+maximum size of a <time value>'s fractional seconds precision.
 
 The allowable range for a <time value> must include, at a minimum, all times
 from: TIME '00:00:00.0' to: TIME '23:59:61.999999' but the exact range of
 valid values is non-standard because the SQL Standard requires implementors to
-define the maximum size of a <time value>'s fractional seconds precision. 
+define the maximum size of a <time value>'s fractional seconds precision.
 
 The maximum length of a <timestamp literal> may not be less than 26 characters
 but is non-standard because the SQL Standard requires implementors to define
-the maximum size of a <time value>'s fractional seconds precision. 
+the maximum size of a <time value>'s fractional seconds precision.
 
 The allowable range for a <timestamp value> must include, at a minimum, all
 timestamps from: TIMESTAMP '0001-01-01 00:00:00.0' to: TIMESTAMP '9999-12-31
 23:59:61.999999' but the exact range of valid values is non-standard because
 the SQL Standard requires implementors to define the maximum size of a <time
-value>'s fractional seconds precision. 
+value>'s fractional seconds precision.
 
 The maximum "start datetime" precision for an <interval qualifier> may not be
 less tha~ 2 digits but is noomstandaru because the SQL Standaru requires
-implementors to uefine tqe maximum leading precision. 
+implementors to uefine tqe maximum leading precision.
 
 The maximum fractional seconds precision for an <interval qualifier>'s "start
 datetimeR value or "end datetime"Dvalue of SECWND may not be less than 6
@@ -2472,7 +2457,7 @@ standards.
 
 Our selection is primarily of English-speaking sites. As URLs change, and as
 new sites match our criteria, we will update a copy of this list at our own
-web site: 
+web site:
    http://ourworld.compuserve.com/homepages/OCELOTSQL/sites.htm
 
 So probably your best way to keep up-to-date is to add our web site to your
@@ -2549,7 +2534,7 @@ vocabularies are used in different circles.
 
 Glossary Entries
 
-  
+
 SQL special character; used as a delimiter. Standard name: "space".
 
 !
@@ -4024,7 +4009,7 @@ See: DATA DEFINITION LANGUAGE.
 DEADLOCK
 A concurrency problem. When Job #1 is waiting for Job #2 to release a lock on
 record X, but Job #2 is waiting for Job #1 to release a lock on record Y, each
-job must in theory wait forever. 
+job must in theory wait forever.
 DEALLOCATE
 [1] An embedded-SQL keyword. DEALLOCATE DESCRIPTOR is the reverse of ALLOCATE
 DESCRIPTOR.
@@ -4449,7 +4434,7 @@ E
 
 EBCDIC
 Abbreviation for Extended Binary Coded Decimal Interchange Code.An 8-bit
-Character set used on larger IBM computers. 
+Character set used on larger IBM computers.
 
 ELEMENT
 An SQL Standard term. An occurrence in an array, addressed with
@@ -5580,7 +5565,7 @@ is one leading zero.
 
 LEAF
 (Of a Table) Having no proper subtables.
-(Of a type) Having no proper subtypes. 
+(Of a type) Having no proper subtypes.
 The opposite is: maximal. See also: FINAL.
 
 LEAVE
@@ -5762,7 +5747,7 @@ then by definition they are in the same "family".
 
 MOD
 An SQL keyword. Short for modulus; however, in SQL MOD is used to get a
-remainder for two exact numeric arguments. Example: MOD(70,20) returns 10. 
+remainder for two exact numeric arguments. Example: MOD(70,20) returns 10.
 
 MODIFY
 Change either database or structure. Thus this term encompasses both "data
@@ -7664,7 +7649,7 @@ See: SUBTYPE.
 
 SUBCLASS
 The last three characters of the 5-character status code (the first two
-letters are the Class). 
+letters are the Class).
 
 SUBJECT DATA TYPE
 The data type in effect for a Column definition, which affects what can be in
@@ -8110,7 +8095,7 @@ when they say "Unicode" is: a 16-bit "wide char" encoding which matches
 official standard ISO 10646. Text: The Unicode Consortium, The Unicode
 Standard, Version 2.0, 1996. ISBN 0-201-48345-9. Web site: www.unicode.org.
 [2] In SQL3, a predefined Character set. It may also be called ISO10646. This
-set includes all Unicode characters. It may be the same set as SQL_TEXT. 
+set includes all Unicode characters. It may be the same set as SQL_TEXT.
 
 UNION
 One of the SQL set operators (the others are EXCEPT and INTERSECT). The union
@@ -8182,7 +8167,7 @@ UPDATE
 specified Column values in existing rows. Example: "UPDATE Employees SET
 salary = salary / 2;".
 [2] (When set in lower case to indicate it is not a keyword) Change database
-contents with any or all of: DELETE, INSERT, UPDATE. 
+contents with any or all of: DELETE, INSERT, UPDATE.
 But see: DATA CHANGE STATEMENT. Note that some other SQL statements, such as
 DROP and ALTER, may have an implicit updating effect.
 
