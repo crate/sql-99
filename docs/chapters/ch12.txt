@@ -1,0 +1,217 @@
+Chapter 12 -- Reference types
+
+[Obscure Rule] applies for this entire chapter.
+
+In SQL, a <reference type> is a pointer: a scalar constructed SQL <data type>.
+
+Reference <data type>s
+
+A <reference type> is defined by a descriptor that contains three pieces of information:
+      ## The <data type>'s name: REF.
+      ## The name of the UDT that the <reference type> is based on. (The UDT is known as the referenced type.)
+      ## The scope of the <reference type>: a (possibly empty) list of the names of the Base tables that make up the <reference type>'s scope.
+
+REF:
+The required syntax for a <reference type> specification is:
+
+<reference type> ::=
+REF (<UDT name>) [ VALUES ARE SYSTEM GENERATED ] [ SCOPE <Table name list> ]
+
+   <Table name list> ::=
+   (<Table name> [ {,<Table name>}... ]) |
+   <Table name>
+
+A <reference type> specification defines a pointer: its value is a value that
+references some site. (A site either does or does not have a REF value.) For
+example, this REF specification defines a <reference type> based on a UDT (the
+"referenced type") called MY_UDT:
+
+   REF(my_udt)
+
+If you're putting a REF specification in an SQL-Schema statement, the
+<AuthorizationID> that owns the containing Schema must have the USAGE
+Privilege on "<UDT name>". If you're putting a REF specification in any other
+SQL statement, then your current <AuthorizationID> must have the USAGE Privilege on "<UDT name>".
+
+For each site that has a REF value and is defined to hold a value of the
+referenced UDT, there is exactly one REF value -- at any time, it is distinct
+from the REF value of any other site in your SQL-environment. The <data type>
+of the REF value is REF(UDT).
+      ## [NON-PORTABLE] The data type and size of a REF value in an
+application program must be some number of octets but is non-standard because
+the SQL Standard requires implementors to define the octet-length of a REF value.
+
+A REF value might have a scope: it determines the effect of a dereference
+operator on that value. A REF value's scope is a list of Base table names and
+consists of every row in every one of those Base tables. The optional SCOPE
+clause of a <reference type> specification identifies REF's scope. Each Table
+named in the SCOPE clause must be a referenceable Base table with a structured
+type that is the same as the structured type of the UDT that REF is based on.
+The SCOPE clause can name either a single Table, or it may include a
+parenthesized list of <Table name>s. Here are two examples:
+
+   CREATE TABLE Table_1 (
+      column_1 SMALLINT,
+      column_2 REF(my_udt) SCOPE Table_1);
+
+   CREATE TABLE Table_1 (
+      column_1 SMALLINT,
+      column_2 REF(my_udt) SCOPE (Table_1, Table_2));
+
+If you omit the SCOPE clause, the scope defaults to the Table that owns the
+Column you're defining. For example, these two SQL statements are equivalent:
+
+   CREATE TABLE Table_1 (
+      column_1 SMALLINT,
+      column_2 REF(my_udt));
+
+   CREATE TABLE Table_1 (
+     column_1 SMALLINT,
+     column_2 REF(my_udt) SCOPE Table_1);
+
+If your REF specification includes the optional VALUES ARE SYSTEM GENERATED
+clause, then REF must be the <data type> specified in a <Column definition> of
+a persistent Base table, as in this SQL statement:
+
+   CREATE TABLE Table_1 (
+      column_1 SMALLINT,
+      column_2 REF(my_udt) VALUES ARE SYSTEM GENERATED);
+
+The <Column definition> must be for the only system-generated Column of its
+Table and will be constrained to accept only unique, non-null values. Further,
+the Column's Table may not have a proper subtable that is a referenceable Base table.
+
+If your REF specification includes the optional VALUES ARE SYSTEM GENERATED
+clause, it may also include the optional SCOPE clause, to specify the scope of
+the <reference type>, as in:
+
+   CREATE TABLE Table_1 (
+      column_1 SMALLINT,
+      column_2 REF(my_udt) VALUES ARE SYSTEM GENERATED SCOPE Table_1);
+
+A <reference type> is a subtype of a <data type> if (a) both are <reference
+type>s and (b) the UDT referenced by the first <reference type> is a subtype
+of the UDT referenced by the second <reference type>.
+
+If you want to restrict your code to Core SQL, don't use the REF <data type>.
+
+Reference Operations
+
+A <reference type> is compatible with, and comparable to, all other <reference
+type>s of the same referenced type -- that is, <reference type>s are mutually
+comparable and mutually assignable if they are based on the same UDT.
+
+CAST:
+In SQL, CAST is a scalar operator that converts a given scalar value to a
+given scalar <data type>. The required syntax for the CAST operator is:
+
+CAST (<cast operand> AS <cast target>)
+
+   <cast operand> ::= scalar_expression
+
+   <cast target> ::= <Domain name> | <data type>
+
+The CAST operator converts values of a source <data type> into values of a
+target <data type>, where each <data type> is an SQL pre-defined <data type>
+(data conversions between UDTs are done with a user-defined cast). The source
+<data type>, or <cast operand>, can be any expression that evaluates to a
+single value. The target <data type>, or <cast target>, is either an SQL
+predefined <data type> specification or the name of a Domain whose defined
+<data type> is the SQL predefined <data type> that you want to convert the
+value of "scalar_expression" into. (If you use CAST (... AS <Domain name>),
+your current <AuthorizationID> must have the USAGE Privilege on that Domain.)
+
+It isn't, of course, possible to convert the values of every <data type> into
+the values of every other <data type>. For <reference type>s, the rules are:
+      ## CAST (NULL AS <data type>) and CAST (ref_source_is_a_null_value AS
+<data type>) both result in a CAST result of NULL.
+      ## You can CAST a <reference type> source to a UDT target and to any SQL
+predefined <data type> target, except for <collection type>s and <row type>s,
+provided that a user-defined cast exists for this purpose and your current
+<AuthorizationID> has the EXECUTE Privilege on that user-defined cast.
+
+When you CAST a <reference type> to any legal target, your DBMS invokes the
+user defined cast routine, with the source value as the routine's argument.
+The CAST result is the value returned by the user defined cast.
+
+Assignment:
+In SQL, when a <reference type> is assigned to a <reference type> target, the
+assignment is straightforward -- however, assignment is possible only if your
+source's UDT is a subtype of the UDT of your target.
+
+[Obscure Rule] Since only SQL accepts null values, if your source is NULL,
+then your target's value is not changed. Instead, your DBMS will set its
+indicator parameter to -1, to indicate that an assignment of the null value
+was attempted. If your target doesn't have an indicator parameter, the
+assignment will fail: your DBMS will return the SQLSTATE error 22002 "data
+exception-null value, no indicator parameter". Going the other way, there are
+two ways to assign a null value to an SQL-data target. Within SQL, you can use
+the <keyword> NULL in an INSERT or an UPDATE statement to indicate that the
+target should be set to NULL; that is, if your source is NULL, your DBMS will
+set your target to NULL. Outside of SQL, if your source has an indicator
+parameter that is set to -1, your DBMS will set your target to NULL
+(regardless of the value of the source). (An indicator parameter with a value
+less than -1 will cause an error: your DBMS will return the SQLSTATE error
+22010 "data exception-invalid indicator parameter value".) We'll talk more
+about indicator parameters in our chapters on SQL binding styles.
+
+Comparison:
+SQL provides only two scalar comparison operators -- = and <> -- to perform
+operations on <reference type>s. Both will be familiar; there are equivalent
+operators in other computer languages. Two REF values are comparable if
+they're both based on the same UDT. If either of the comparands are NULL, the
+result of the operation is UNKNOWN.
+
+Other Operations:
+With SQL, you have several other operations that you can perform on <reference type>s.
+
+## Scalar functions
+SQL provides two scalar functions that operate on or return a <reference
+type>: the <dereference operation> and the <reference resolution>.
+
+<dereference operation> --
+The required syntax for a <dereference operation> is:
+
+<dereference operation> ::=
+reference_argument -> <Attribute name>
+
+The <dereference operation> operates on two operands: the first must evaluate
+to a <reference type> that has at least one Table in its scope and the second
+must be the name of an Attribute of the <reference type>'s UDT. The
+<dereference operation> allows you to access a Column of the row identified by
+a REF value: it returns a result whose <data type> is the <data type> of
+"<Attribute name>" and whose value is the union of the values of the system-
+generated Columns of each Table in the <reference type>'s scope, where the
+system-generated Column is equal to "reference_argument" -- that is, given a
+REF value, the <dereference operation> returns the value at the site
+referenced by that REF value. If the REF value doesn't identify a site
+(perhaps because the site it once identified has been destroyed), the <dereference operation> returns NULL.
+
+If you want to restrict your code to Core SQL, don't use the <dereference operation>.
+
+<reference resolution> --
+The required syntax for a <reference resolution> is:
+
+<reference resolution> ::=
+DEREF (reference_argument)
+
+DEREF operates on any expression that evaluates to a <reference type> that has
+at least one Table in its scope. It returns the value referenced by a REF
+value. Your current <AuthorizationID> must have the SELECT Privilege on every
+Table in "reference_argument"'s scope, as well as on every subtable of those Tables.
+
+If you want to restrict your code to Core SQL, don't use DEREF.
+
+## Set functions
+SQL provides three set functions that operate on a <reference type>: COUNT(*),
+COUNT and GROUPING. Since none of these operate exclusively with REF
+arguments, we won't discuss them here; look for them in our chapter on set functions.
+
+## Predicates
+In addition to the comparison operators, SQL provides eight other predicates
+that operate on <reference type>s: the <between predicate>, the <in
+predicate>, the <null predicate>, the <exists predicate>, the <unique
+predicate>, the <match predicate>, the <quantified predicate> and the
+<distinct predicate>. Each will return a boolean value: either TRUE, FALSE or
+UNKNOWN. Since none of them operates strictly on <reference type>s, we won't
+discuss them here. Look for them in our chapters on search conditions.

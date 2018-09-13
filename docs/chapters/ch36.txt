@@ -1,0 +1,543 @@
+Chapter 36 -- SQL Transactions
+
+"An SQL-transaction (transaction) is a sequence of executions of
+SQL-statements that is atomic with respect to recovery. That is to say: either
+the execution result is completely successful, or it has no effect on any SQL-schemas or SQL-data."
+   -- The SQL Standard
+
+A transaction is an ordered set of operations (of SQL statements). The effects
+of a transaction -- the data changes and Catalog changes -- are considered as
+an indivisible group. Either all the effects happen, or none of them do. This
+all-or-nothing requirement is called atomicity. Atomicity is actually one of
+four requirements of an ideal transaction:
+   ## Atomic -- the group of operations can't be broken up.
+   ## Consistent -- at transaction beginning and end, the database is consistent.
+   ## Isolated -- other transactions have no affect on this transaction.
+   ## Durable -- once a change happens it's persistent (i.e.: permanent).
+From the initial letters of these requirements, these are called the ACID requirements.
+
+There are one to many operations in a transaction. There are one to many
+transactions in an SQL-session. Transactions within an SQL-session do not
+overlap each other. The initiation of a transaction happens (generally
+speaking) with the first SQL data-access statement. The end of a transaction
+happens with one of the two -- vitally important! -- "transaction terminator" statements: COMMIT or ROLLBACK.
+
+A logical grouping of operations --
+Maybe dBASE and Paradox programmers (who haven't encountered transactions
+before) will ask: why is Atomicity a transaction requirement? We could answer:
+it is analogous to the way that SQL deals with sets rather than individual
+rows and that we prefer to deal with groups, it's policy. More cogently, we
+could answer: if a set of operations are a logical unity, then they should
+also be a physical unity. Let us prove that with a much-used conventional example, the bank transfer:
+
+   [[ logical start of transaction ]]
+   Withdraw $1000 from Joe's savings account.
+   Deposit $1000 to Joe's chequing account.
+   [[ logical end of transaction ]]
+
+Now, suppose that some external event separated Joe's withdrawal from his
+deposit -- a system crash, or a tick of the clock so that the operations take
+place on two different days, or a separate overlapping transaction on the same
+accounts. Any of these would cause us to end up with a bad "database state",
+because the data will show a withdrawal that shouldn't happen according to
+company rules or accounting principles -- to say nothing of what Joe will think!
+
+In SQL, such a state of affairs is theoretically impossible. First of all, if
+the system crashes and we bring it up again, we will not see any record of the
+withdrawal -- that's what "atomic with respect to recovery" guarantees.
+Second, the clock does not tick -- CURRENT_TIME and all other niladic datetime
+function values are frozen throughout the life of a transaction. And third,
+there can be no overlapping transaction -- due to the principle of Isolation,
+which we'll examine in greater detail as part of multi-user and multi-tasking considerations in our chapter on concurrency.
+
+The point of the example is to show that the withdrawal and the deposit must
+succeed together, or fail together. The transaction criterion is that all SQL
+statements within it must constitute a logical unit of work -- that is, a
+sequence (ordered set) of operations (executions of SQL statements) that take
+the DBMS from a consistent state to a consistent state (possibly by changing
+nothing -- a transaction can consist of a series of SELECT statements).
+
+It's your job to figure out what operations fit together as a logical unit of work. It's the DBMS's job to ensure that the operations will all fail, or all succeed, together.
+
+Initiating Transactions
+
+A transaction begins, if it hasn't already begun, when one of these SQL statements is executed:
+      ## Any SQL-Schema statement: ALTER, CREATE, DROP, GRANT, REVOKE.
+      ## The SQL-data statements OPEN, CLOSE, FETCH, SELECT, INSERT, UPDATE, DELETE, FREE LOCATOR, HOLD LOCATOR.
+      ## One of the new SQL3 statements START TRANSACTION, COMMIT AND CHAIN, ROLLBACK AND CHAIN.
+      ## The SQL-control statement RETURN, if it causes the evaluation of a subquery when there is no current transaction.
+
+It's usually a bad idea to start a transaction with an SQL-Schema statement,
+and usually you'll find that the new SQL3 statements aren't implemented yet,
+so in practice: your DBMS initiates a transaction when you issue INSERT,
+UPDATE, DELETE or any variant of SELECT. Once a transaction is initiated, all
+subsequent SQL operations will be part of the same transaction until an SQL
+termination (COMMIT or ROLLBACK) happens.
+
+Here's an example of an SQL-session, showing transaction boundaries. It
+contains two transactions, illustrated by a series of SQL statements
+(technically, the SQL-session and transactions are executions of these
+statements, not the statements themselves.) Not every SQL statement shown is
+within a transaction -- CONNECT, SET SESSION AUTHORIZATION and DISCONNECT are
+not transaction-initiating statements. (Look for explanations of these
+statements in our chapter on SQL-sessions.)
+
+   CONNECT TO 'TEST' USER 'TEST';
+   SET SESSION AUTHORIZATION 'TRANSFEROR';
+      -- first transaction begins
+     UPDATE chequing SET balance = balance - 1000.00 WHERE client = 'Joe';
+     UPDATE saving SET balance = balance + 1000.00 WHERE client = 'Joe';
+     COMMIT;
+     -- first transaction ends
+   SET SESSION AUTHORIZATION 'REPORTER';
+      -- second transaction begins
+      SELECT balance FROM chequing WHERE client = 'Joe';
+      COMMIT;
+      -- second transaction ends
+   DISCONNECT ALL;
+
+Terminating Transactions
+
+There are two transaction-terminating statements: COMMIT and ROLLBACK. The
+first saves all changes, while the second destroys all changes. Although they
+don't do exactly the same thing, they both have several similar effects on
+your SQL-data. We'll talk about these similarities first.
+
+When COMMIT or ROLLBACK are executed, the transaction ends. There is no
+Privilege for COMMIT or ROLLBACK: any <AuthorizationID> can issue a COMMIT
+statement or a ROLLBACK statement; they are always legal.
+
+[Obscure Rule -- we'll talk about Cursors in our chapters on binding styles,
+prepared statements in our chapter on SQL/CLI statements and locks in our
+chapter on concurrency.]
+      ## The effect of a COMMIT statement or a ROLLBACK statement on any
+Cursors that are open at the time is that those Cursors are normally closed.
+This means that, if you've instructed your DBMS to retrieve some rows and are
+going through those rows with a FETCH statement, you'll have to instruct your
+DBMS to get those rows for you again -- the rule is that COMMIT and ROLLBACK
+cause destruction of result sets. The exception to this rule is that some
+advanced DBMSs have an option, called the holdable Cursor, which allows Cursor
+work to go on after COMMIT, at considerable cost in performance. Even holdable
+Cursors are destroyed by ROLLBACK.
+      ## The effect of a COMMIT statement or a ROLLBACK statement on prepared
+SQL statements is that they might become unprepared. This is one of the few
+"implementation-dependent" behaviour characteristics which has real
+significance to programmers. It simply means that if you have prepared SQL
+statements, you might have to prepare them again.
+      ## The effect of a COMMIT statement or a ROLLBACK statement on locks is that they are released.
+
+Any information that you gained in the last transaction might have become
+untrue for the next transaction -- transactions are supposed to be isolated
+from each other. So it's understandable that the transaction terminators cause
+Cursors to be closed, statements to be unprepared and locks to be released. If
+you want to be sure what the exact behaviour of a particular DBMS is, there's
+a CLI function -- SQLGetInfo -- that gives that information. But the easy way
+to write portable code is to assume the worst: always close all Cursors before
+COMMIT or ROLLBACK and  always re-prepare all SQL statements after COMMIT or ROLLBACK.
+
+COMMIT statement
+
+The COMMIT statement ends a transaction, saving any changes to SQL-data so
+that they become visible to subsequent transactions. The required syntax for the COMMIT statement is:
+
+COMMIT [ WORK ] [ AND [ NO ] CHAIN ]
+
+COMMIT is the more important transaction terminator, as well as the more
+interesting one. (Though some would use the word "troublesome" rather than
+"interesting" here.) The basic form of the COMMIT statement is its SQL-92
+syntax: simply the <keyword> COMMIT (the <keyword> WORK is simply noise and can be omitted without changing the effect).
+
+The optional AND CHAIN clause is a convenience for initiating a new
+transaction as soon as the old transaction terminates. If AND CHAIN is
+specified, then there is effectively nothing between the old and new
+transactions, although they remain separate. The characteristics of the new
+transaction will be the same as the characteristics of the old one -- that is,
+the new transaction will have the same access mode, isolation level and
+diagnostics area size (we'll discuss all of these shortly) as the transaction
+just terminated. The AND NO CHAIN option just tells your DBMS to end the
+transaction -- that is, these four SQL statements are equivalent:
+
+   COMMIT;
+
+   COMMIT WORK;
+
+   COMMIT AND NO CHAIN;
+
+   COMMIT WORK AND NO CHAIN;
+
+All of them end a transaction without saving any transaction characteristics. The only other options, the equivalent statements:
+
+   COMMIT AND CHAIN;
+
+   COMMIT WORK AND CHAIN;
+
+both tell your DBMS to end a transaction, but to save that transaction's
+characteristics for the next transaction. If you want to restrict your code to
+Core SQL, don't use AND CHAIN or AND NO CHAIN with COMMIT.
+
+What's supposed to happen with COMMIT is:
+      ## SQL Cursors are closed, SQL statements are unprepared and locks are released, as noted earlier. Any savepoints established in the current transaction are also destroyed.
+      ## Any temporary Table whose definition includes ON COMMIT DELETE ROWS gets its rows deleted.
+      ## All deferred Constraints are checked. Any Constraint that is found to be violated will cause a "failed COMMIT": your DBMS will implicitly and automatically do a ROLLBACK.
+      ## If all goes well, any changes to your SQL-data -- whether they are changes to Objects or to data values -- become "persistent", and thus visible to subsequent transactions.
+
+Once a change is committed, you've reached the point of no turning back (or no
+rolling back, to carry on with SQL terms). The most important effects are that
+committed changes are no longer isolated (other transactions can "see" them
+now), and they are durable -- if you turn all your computers off, then turn
+them back on again, then look at your data, you will still see the changes. If
+your computers are conventional, there's an easy explanation for that: the
+DBMS must write to disk files.
+
+For once the easy explanation is the true one, but the mechanics aren't as
+easy as you might think. For one thing, during a transaction, your DBMS can't
+simply overwrite the information in the current database files because if it
+did, the "before" state of the database (before the transaction started) would
+become unknown. In that case, how could ROLLBACK happen? So instead of writing
+changes as they happen, your DBMS has to keep information about the before and
+after states as long as the transaction is going on. There are two ways to do
+this: with a backup copy and with a log file.
+
+The backup copy solution is familiar to anyone who has ever made a .BAK file
+with a text editor. All the DBMS has to do is make a copy of the database
+files when the transaction starts, make changes to the copied files when SQL
+statements that change something are executed and then, at COMMIT time,
+destroy the original files and rename the copies. (And if ROLLBACK happens
+instead, it simply destroys the copies.) Though the plan is simple, the backup
+copy solution has always suffered from the problem that database files can be
+large, and therefore in practice a DBMS can only back up certain parts of
+certain files -- which makes tracking the changes complex. And the
+complexities grow in SQL3, because "savepoints" -- which we'll discuss shortly
+-- require the existence of an indefinite number of backup copies. So this
+solution will probably be abandoned soon.
+
+The log file solution is therefore what most serious DBMSs use today. Every
+change to the database is written to a log file, in the form of a copy of the
+new row contents. For example, suppose that there is a Table called SAVINGS,
+containing three rows (Sam, Joe, Mary) with balances of ($1000, $2000, $3000)
+respectively. If you issue this SQL statement:
+
+   UPDATE savings SET balance = balance + 1000.00 WHERE client = 'Joe';
+
+a DBMS that uses log files will write a new row in the log file to reflect the
+required change: it won't make any changes (yet) in the original database
+file. It then has a situation that looks something like this:
+
+SAVINGS Table           LOG
+CLIENT  BALANCE         ACTION  TABLE IDENTIFIER  CLIENT  BALANCE
+Sam     1000.00         update  savings           Joe     3000.00
+Joe     2000.00
+Mary    3000.00
+
+This is called a write-ahead log, because the write to the log file occurs
+before the write to the database. Specifically, it's a by-row write-ahead log,
+because the entries in the log are copies of rows. The plan now, for any later
+accesses during this transaction, is:
+      ## If a SELECT happens, then the search must include a search of the log
+file as well as the main file. Any entries in log will override the
+corresponding row in the SAVINGS Table.
+      ## If another UPDATE happens, or an INSERT happens, a new entry will be
+inserted into the log file.
+      ## If a DELETE happens, a new entry will be inserted in the log file
+too, this time with the action field set to delete.
+      ## Most conveniently, if the system crashes, then the log is cleared.
+
+There is a different log for each user and the file IO can get busy. One thing
+to emphasize about this system is that the log file is constantly growing:
+every data change operation requires additional disk space. And after each
+data change, the next selection will be a tiny bit slower, because there are
+more log-file records to look aside at. For efficiency reasons, some DBMSs
+offer options for batched operations: you can suppress log-file writing and
+write directly to the main database files, and/or you can clear the log at the
+end of every transaction. If log-file writing is suppressed, performance
+improves but safety declines and transaction management becomes impossible.
+
+Let us say that a COMMIT at last happens, and it's time to "terminate the
+transaction while making all data changes persistent". The DBMS now has to
+issue an "OS commit", then read all the rows from the log file and put them in
+the database, then issue another "OS commit". We're using the phrase "OS
+commit" (operating-system commit) for what Microsoft usually calls "flushing
+of write buffers". The DBMS must ensure that the log file is physically
+written to the disk before the changes start, and ensure that the database
+changes are physically written to the disk after the changes start. If it
+cannot ensure these things, then crash recovery may occasionally be
+impossible. Some operating systems will refuse to co-operate here because
+safety considerations get in the way of clever tricks like "write-ahead
+caching" and "elevator seeking". The DBMS won't detect OS chicanery, so you
+should run this experiment:
+      ## One: UPDATE a large number of rows (at least ten thousand).
+      ## Two: Issue a COMMIT.
+      ## Three: Run to the main fuse box and cut off power to all computers in the building. Make sure the cutoff happens before the COMMIT finishes.
+      ## Four: Restore power and bring your system back up. Look around for temporary files, inconsistent data or corrupt indexes.  If you find them, then your OS is not co-operating with your DBMS,
+so be sure to always give both your DBMS and your OS plenty of time to write all changes.
+Note: Since this test usually fails, you should backup your database first!
+
+Adding up all the operations, we can see that a secure DBMS data change plus
+COMMIT is quite a slow job. At a minimum -- ignoring the effect on SELECTs --
+there is one write to a log file, one read of a log file and one write to a
+DBMS file. If the OS co-operates, this is done with full flushing, so these
+are physical uncached file IO operations. The temptation is to skip some of
+the onerous activity, in order to make the DBMS run faster. Since most
+magazine reviews include benchmarks of speed but not of security, the DBMS
+vendor is subject to this temptation too.
+
+The Two-Phase COMMIT:
+In an ordinary situation, COMMIT is an instruction to the DBMS, and it's been
+convenient to say that the DBMS is handling all the necessary operations (with
+the dubious help of the operating system, of course). That convenient
+assumption becomes untrue if we consider very large systems. To be precise, we
+have to take into account these possibilities:
+      ## there are multiple DBMS servers;
+      ## there is a DBMS server, and some other program which also needs to "commit".
+
+In such environments, the COMMIT job must be handled by some higher authority
+-- call it a transaction manager -- whose job is to coordinate the various
+jobs which want the commit to happen. The transaction manager then becomes
+responsible for the guarantee that all transactions are atomic, since it alone
+can ensure that all programs commit together, or not at all.
+
+The coordination requires that all COMMITs take place in two phases -- first
+lining up the ducks, then shooting them. The transaction manager in Phase One
+will poll all the programs, asking: are you ready? If any of the responses is
+no, or any response is missing, the system-wide commit fails. Meanwhile, all
+the polled programs are gearing up, refusing other requests for attention, and
+standing ready for the final order to fire. In Phase Two, the transaction
+manager issues a final instruction, system-wide, and the synchronized commit
+actually happens. In this scenario, there is one global transaction which
+encompasses several subordinate transactions. It will always be possible that
+the encompassing transaction can fail even though any given DBMS server is
+ready to proceed. In such a case -- once again -- you might get a ROLLBACK when you ask for a COMMIT.
+
+And that is what two-phase commit is. It's strictly a problem for very large
+and secure environments, but it's reassuring to know there are mechanisms for
+coordinating different and heterogeneous servers.
+
+SAVEPOINT statement
+
+The SAVEPOINT statement establishes a savepoint at the current point in the current transaction. The required syntax for the SAVEPOINT statement is:
+
+SAVEPOINT <savepoint name> | <simple target specification>
+
+You can establish multiple savepoints for a single transaction (up to some
+maximum defined by your DBMS). You specify a savepoint either with a simple
+target specification that has an integer data type -- that is, with a <host
+parameter name> (e.g.: SAVEPOINT :savepoint_integer_variable), an <SQL
+parameter name> (e.g.: SAVEPOINT savepoint_integer) or a "known not nullable"
+<Column reference> (e.g.: SAVEPOINT Table_1.integer_column) -- or with a <savepoint name>.
+
+The modern convention is to label with names rather than numbers, so we
+suggest that you concentrate on <savepoint name>, which must be an unqualified
+<regular identifier> or <delimited identifier> and has a scope that includes
+the entire transaction that you define it in. An example of a savepoint
+specification using a savepoint name is:
+
+   SAVEPOINT point_we_may_wish_to_rollback_to;
+
+Savepoint names must be unique within their transaction. If there is already a SAVEPOINT statement with the same name in the transaction, it will be overwritten.
+
+If you want to restrict your code to Core SQL, don't use the SAVEPOINT statement.
+
+ROLLBACK statement
+
+The ROLLBACK statement rolls back ends a transaction, destroying any changes
+to SQL-data so that they never become visible to subsequent transactions. The
+required syntax for the ROLLBACK statement is:
+
+ROLLBACK [ WORK ] [ AND [ NO ] CHAIN ]
+[ TO SAVEPOINT {<savepoint name> | <simple target specification>} ]
+
+The ROLLBACK statement will either end a transaction, destroying all data
+changes that happened during any of the transaction, or it will just destroy
+any data changes that happened since you established a savepoint. The basic
+form of the ROLLBACK statement is its SQL-92 syntax: simply the <keyword>
+ROLLBACK (the <keyword> WORK is simply noise and can be omitted without changing the effect).
+
+The optional AND CHAIN clause is a convenience for initiating a new
+transaction as soon as the old transaction terminates. If AND CHAIN is
+specified, then there is effectively nothing between the old and new
+transactions, although they remain separate. The characteristics of the new
+transaction will be the same as the characteristics of the old one -- that is,
+the new transaction will have the same access mode, isolation level and
+diagnostics area size (we'll discuss all of these shortly) as the transaction
+just terminated. The AND NO CHAIN option just tells your DBMS to end the
+transaction -- that is, these four SQL statements are equivalent:
+
+   ROLLBACK;
+
+   ROLLBACK WORK;
+
+   ROLLBACK AND NO CHAIN;
+
+   ROLLBACK WORK AND NO CHAIN;
+
+All of them end a transaction without saving any transaction characteristics. The only other options, the equivalent statements:
+
+   ROLLBACK AND CHAIN;
+
+   ROLLBACK WORK AND CHAIN;
+
+both tell your DBMS to end a transaction, but to save that transaction's characteristics for the next transaction.
+
+ROLLBACK is much simpler than COMMIT: it may involve no more than a few
+deletions (of Cursors, locks, prepared SQL statements and log-file entries).
+It's usually assumed that ROLLBACK can't fail, although such a thing is
+conceivable (for example, an encompassing transaction might reject an attempt
+to ROLLBACK because it's lining up for a COMMIT).
+
+ROLLBACK cancels all effects of a transaction. It does not cancel effects on
+objects outside the DBMS's control (for example the values in host program
+variables or the settings made by some SQL/CLI function calls). But in
+general, it is a convenient statement for those situations when you say "oops,
+this isn't working" or when you simply don't care whether your temporary work becomes permanent or not.
+
+Here is a moot question. If all you've been doing is SELECTs, so that there
+have been no data changes, should you end the transaction with ROLLBACK or
+COMMIT? It shouldn't really matter because both ROLLBACK and COMMIT do the
+same transaction-terminating job. However, the popular conception is that
+ROLLBACK implies failure, so after a successful series of SELECT statements
+the convention is to end the transaction with COMMIT rather than ROLLBACK.
+
+Some DBMSs support rollback of SQL-data change statements, but not of SQL-
+Schema statements. This means that if you use any of (CREATE, ALTER, DROP,
+GRANT, REVOKE), you are implicitly committing at execution time. Therefore, this sequence of operations is ambiguous:
+
+   INSERT INTO Table_2 VALUES(5);
+   DROP TABLE Table_3 CASCADE;
+   ROLLBACK;
+
+With a few DBMSs, the result of this sequence is that nothing permanent
+happens because of the ROLLBACK. With other DBMSs -- the majority -- the
+result will be that both the INSERT and the DROP will go through as separate
+transactions so the ROLLBACK will have no effect. Both results are valid
+according to the SQL Standard -- this is just one of those implementation-defined things that you have to be alert for. The best policy is to assume that an SQL-Schema statement implies a new transaction, and so cannot be rolled back.
+
+ROLLBACK ... TO SAVEPOINT:
+The most beneficial new SQL3 feature, in transaction contexts, is the ability
+to limit how much will be rolled back by ROLLBACK. With savepoints, you can
+specify from what point the changes will be cancelled. In underlying terms,
+this means you can specify where to truncate the log file. First, though, you
+have to establish a savepoint somewhere in your transaction. You do it with the SAVEPOINT statement.
+
+If you've established a savepoint for a transaction, you can roll all
+operations that have happened in that transaction back to that point with the
+ROLLBACK statement's optional TO SAVEPOINT clause. For example, to ROLLBACK to
+the savepoint established in the previous example, you would issue this SQL statement:
+
+   ROLLBACK TO SAVEPOINT point_we_may_wish_to_rollback_to;
+
+This form of ROLLBACK is not a transaction terminator statement: it merely
+causes a restoration of state. A ROLLBACK statement that contains the AND CHAIN clause may not also contain a TO SAVEPOINT clause.
+
+If you want to restrict your code to Core SQL, don't use AND CHAIN, AND NO CHAIN or TO SAVEPOINT with ROLLBACK.
+
+RELEASE SAVEPOINT statement
+
+The RELEASE SAVEPOINT statement destroys one or more savepoints in the current transaction. The required syntax for the RELEASE SAVEPOINT statement is:
+
+RELEASE SAVEPOINT <savepoint name> | <simple target specification>
+
+The RELEASE SAVEPOINT statement removes the specified savepoint, as well as any subsequent savepoints you established for the current transaction. For example, this SQL statement:
+
+   RELEASE SAVEPOINT point_we_may_wish_to_rollback_to;
+
+removes the savepoint we established earlier. If we had established any other savepoints after "point_we_may_wish_to_rollback_to", those savepoints would also disappear.
+
+If you want to restrict your code to Core SQL, don't use the RELEASE SAVEPOINT statement.
+
+Using savepoints
+
+A savepoint may be thought of as a label of a moment between operations. For illustration, suppose a transaction that consists of these SQL statements:
+
+   INSERT INTO Table_1 (column_1) VALUES (5);
+
+   SAVEPOINT after_insert;
+
+   UPDATE Table_1 SET column_1 = 6;
+
+   SAVEPOINT after_update;
+
+   DELETE FROM Table_1;
+
+At this point in the transaction, the SQL statement:
+
+   ROLLBACK TO SAVEPOINT after_update;
+
+will cause the DBMS to cancel the effects of the DELETE  statement, the SQL statement:
+
+   ROLLBACK TO SAVEPOINT after_insert;
+
+will cause the DBMS to cancel the effects of both the DELETE statement and the UPDATE statement and the SQL statement:
+
+   ROLLBACK;
+
+will cause the DBMS to cancel the effects of the entire transaction, as well as to end the transaction. When a transaction ends, all savepoints are destroyed.
+
+The savepoint option is good for tentative branching. We can follow some line
+of DBMS activity, and if it doesn't work we can go back a few steps, then
+pursue a different course. The option's also good for separating ROLLBACK's
+two tasks, "transaction terminate" and "cancel", from each other. The
+incidental effects (such as closing of Cursors) happen regardless of whether
+ROLLBACK alone or ROLLBACK TO SAVEPOINT is used.
+
+Transaction Tips
+
+The following tips are viable only if the DBMS is alone, is following the SQL
+Standard's specifications and uses logs as we have described them. But if not,
+there shouldn't be much harm done by at least considering them.
+      ## COMMIT or ROLLBACK quickly after INSERT, UPDATE OR DELETE. A quick transaction end will flush the log, and thus speed up most accesses.
+      ## COMMIT or ROLLBACK slowly after SELECT. Transaction terminators tend to wipe out items that might be reusable (prepared statements, Cursors and locks). It's convenient to get maximum use from these items before releasing them.
+      ## Use temporary Tables. If you're making temporary data, no matter how
+much, the place to store temporary data is in temporary tables with ON COMMIT
+DELETE ROWS. Since there is no need to worry about recovering any data in such
+Tables, your DBMS might be able to optimize by doing direct writes to the
+database files without a log.
+      ## SELECT first. Since SELECT can be slower after an UPDATE than before an UPDATE, it might help to get selections out of the way before doing data changes.
+      ## Keep out non-database work. If there are lengthy calculations to do in your host program, they should happen outside the SQL transaction. Do them before the transaction initiator, and after the transaction terminator.
+The same applies for the SQL statements that don't access SQL data, such as the SQL-session SET statements.
+
+A final piece of advice, which is not a tip but a concession to reality, is
+that you will occasionally have to break up logical units of work because
+they're too big. For example, if you're going through every row in a huge
+Table, adding 1 to a particular Column, you might want to break up the
+transaction so that there's a COMMIT after every few changes. This, though, is
+only safe because you can keep track of where you left off, and you can write
+your own "rollback" (subtracting 1) if necessary. The primary rule should
+remain that the logical unit of work should be the physical unit (transaction)
+too. Departures from that rule are not the stuff of everyday programming work.
+Security (consistency) first, performance second.
+
+See Also
+
+All SQL operations have something to do with transactions. This chapter has
+singled out only the major points, with particular attention to the COMMIT and
+the ROLLBACK statements. There is more relevant information in our chapter on
+constraints and assertions (where we talk about deferred Constraints), in our
+chapter on concurrency (particularly with regard to the SET TRANSACTION statement) and throughout our chapters on binding styles.
+
+Dialects
+
+SQL has supported transaction work since the early days (SQL-86). There are
+some packages which graft SQL-like statements onto non-SQL environments (dBASE
+III contained an example), but if you are using a true SQL DBMS then you at
+least can depend on the essentials of "COMMIT [WORK];" or "ROLLBACK [WORK]".
+The main differences between DBMSs are in the areas of:
+      ## What incidental items are destroyed by transaction termination.
+      ## Whether SQL-Schema statements form transactions of their own.
+      ## Whether CHAIN and SAVEPOINT features are supported (both of these are SQL3, neither is a Core SQL requirement, so support should not be expected.
+
+Sybase has been refining "Log work" for several years. This was one of the
+first DBMSs to feature "savepoints". The log is visible as a table. There is
+an option for suspending logging.
+
+The ODBC specification is that auto-commit should happen. This requirement can
+be turned off (to what Microsoft calls "manual commit" mode), but auto-commit
+is the default so ODBC programmers should either turn it off (which looks like
+a good idea!) or get used to the quirks that auto-commit brings on. Namely, in
+auto-commit mode every statement gets committed, so ROLLBACK is meaningless.
+However, it appears that execution of a SELECT statement is not followed by an
+automatic commit -- ODBC's documentation is unclear about this, but it would
+make little sense to SELECT (which usually opens a cursor) and immediately
+COMMIT (which usually closes all cursors). Also -- apparently -- the ODBC
+function SQLCloseCursor implies a COMMIT. ODBC's "auto-commit" default mode is
+a departure from the SQL Standard, but we must understand that ODBC is
+designed to accommodate a wide variety of data sources. It is usually not prescriptive.

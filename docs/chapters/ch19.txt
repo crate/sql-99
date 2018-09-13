@@ -1,0 +1,416 @@
+Chapter 19 -- SQL Domain
+
+In this chapter, we'll describe SQL Domains in detail, and show you the syntax to use to create, alter and destroy them.
+
+Domain
+
+A Schema may contain zero or more Domains. An SQL Domain is a named, user-defined set of valid values. Domains are dependent on some Schema -- the
+<Domain name> must be unique within the Schema the Domain belongs to (it may
+not be the same as any <UDT name> in its Schema either) -- and are created,
+altered and dropped using standard SQL statements. The Objects that may belong
+to a Domain are known as Domain Constraints; they depend on some Domain.
+
+A Domain is defined by a descriptor that contains six pieces of information:
+      ## The <Domain name>, qualified by the <Schema name> of the Schema it belongs to.
+      ## The Domain's SQL <data type> specification, including its name, length, precision and scale, as applicable.
+      ## The name of the Character set that the Domain's set of values must belong to (for character string types).
+      ## The name of the Domain's default Collation. (This is the Collation that may be used to compare a character string Domain's values in the absence of an explicit COLLATE clause.)
+      ## Whether reference values must be checked and whether <reference scope check action> specifies RESTRICT or SET NULL (for REF types).
+      ## The Domain's default value (if any).
+      ## A descriptor for every Constraint that belongs to the Domain.
+
+To create a Domain, use the CREATE DOMAIN statement (either as a stand-alone
+SQL statement or within a CREATE SCHEMA statement). CREATE DOMAIN specifies
+the enclosing Schema, names the Domain and identifies the Domain's set of
+valid values. To change an existing Domain, use the ALTER DOMAIN statement. To
+destroy a Domain, use the DROP DOMAIN statement.
+
+There is a one-to-many association between Domains and Columns: one Domain can be used to identify the set of valid values for multiple Columns.
+
+Domain names:
+A <Domain name> identifies a Domain. The required syntax for a <Domain name> is:
+
+<Domain name> ::=
+[ <Schema name>. ] unqualified name
+
+A <Domain name> is a <regular identifier> or a <delimited identifier> that is
+unique (for all Domains and UDTs) within the Schema it belongs to. The <Schema
+name> which qualifies a <Domain name> names the Schema that the Domain belongs
+to and can either be explicitly stated, or a default will be supplied by your DBMS as follows:
+      ## If a <Domain name> in a CREATE SCHEMA statement isn't qualified, the default qualifier is the name of the Schema you're creating.
+      ## If the unqualified <Domain name> is found in any other SQL statement in a Module, the default qualifier is the name of the Schema identified in the SCHEMA clause or AUTHORIZATION clause of the MODULE statement that defines that Module.
+
+Here are some examples of <Domain name>s:
+
+   DOMAIN_1
+   -- a <Domain name>
+
+   SCHEMA_1.DOMAIN_1
+   -- a simple qualified <Domain name>
+
+   CATALOG_1.SCHEMA_1.DOMAIN_1
+   -- a fully qualified <Domain name>
+
+CREATE DOMAIN statement
+
+The CREATE DOMAIN statement names a new Domain and defines the Domain's set of valid values. The required syntax for the CREATE DOMAIN statement is:
+
+CREATE DOMAIN <Domain name> [ AS ] <data type>
+     [ DEFAULT default value ]
+     [ <Domain Constraint> list ]
+     [ COLLATE <Collation name> ]
+
+   <Domain constraint> list::=
+   <Domain Constraint> [ <Domain Constraint>... ]
+
+      <Domain constraint> ::=
+      [ CONSTRAINT <Constraint name> ]
+      Constraint_type
+      [ <constraint attributes> ]
+
+CREATE DOMAIN defines a new Domain: a named set of valid data values that can
+be used -- somewhat like a macro -- to replace the <data type> specification
+in subsequent <Column definition>s. A Domain is owned by the Schema it belongs to.
+      ## The <Domain name> identifies the Domain and the Schema that it
+belongs to. A <Domain name> that includes an explicit <Schema name> qualifier
+belongs to the Schema named. A <Domain name> that does not include an explicit
+<Schema name> qualifier belongs to the SQL-session default Schema. The <Domain
+name> must be unique (for all Domains and UDTs) within the Schema that owns it.
+
+If CREATE DOMAIN is part of a CREATE SCHEMA statement, the <Domain name>, if
+explicitly qualified, must include the <Schema name> of the Schema being
+created; that is, it isn't possible to create a Domain belonging to a
+different Schema from within CREATE SCHEMA. For example, this SQL statement
+will not return an error because the <Domain name> will default to include the qualifying <Schema name>:
+
+   CREATE SCHEMA bob
+      CREATE DOMAIN domain_1 AS SMALLINT;
+   -- creates a Domain called BOB.DOMAIN_1 in Schema BOB
+
+This SQL statement will not return an error either because the <Domain name>
+explicitly includes a qualifying <Schema name> that matches the name of the
+Schema being created:
+
+   CREATE SCHEMA bob
+      CREATE DOMAIN bob.domain_1 AS SMALLINT;
+   -- creates a Domain called BOB.DOMAIN_1 in Schema BOB
+
+But this SQL statement will return an error because the <Domain name>
+explicitly includes a qualifying <Schema name> that is different from the name
+of the Schema being created:
+
+   CREATE SCHEMA bob
+      CREATE DOMAIN sam.domain_1 AS SMALLINT;
+   -- tries to create a Domain belonging to Schema SAM inside Schema BOB; illegal syntax
+
+Privileges:
+If CREATE DOMAIN is executed as a stand-alone SQL statement, the current
+<AuthorizationID> must either be the owner of the Schema that this new Domain
+belongs to, or the Schema's owner must be a Role that the current
+<AuthorizationID> may use. That is, only the owner of a Schema can create
+Domains for that Schema. In addition to creating a Domain, CREATE DOMAIN also
+causes the SQL special grantor, "_SYSTEM", to grant the USAGE Privilege on the
+new Domain to the Schema owner <AuthorizationID> (that is, the
+<AuthorizationID creating the Domain). This USAGE Privilege will be grantable
+if (a) the grantee also has a grantable REFERENCES Privilege for each Column
+named in the Domain definition and (b) the grantee also has a grantable USAGE
+Privilege for each Domain, Collation, Character set and Translation named in a
+<Domain Constraint> in the Domain definition.
+
+<data type>:
+A Domain must be defined to accept a certain type of data. The Domain's <data
+type> specification constrains the values that can be accepted by the Domain.
+The <data type> specification includes length, precision and scale as
+applicable. Valid <data type>s are: INT, SMALLINT, NUMERIC(p,s), DECIMAL(p,s),
+FLOAT(p), REAL, DOUBLE PRECISION, BIT(l), BIT VARYING(l), BLOB(l), CHAR(l),
+NCHAR(l), VARCHAR(l), NCHAR VARYING(l), CLOB(l), NCLOB(l), DATE, TIME(p),
+TIME(p) WITH TIME ZONE, TIMESTAMP(p), TIMESTAMP(p) WITH TIME ZONE, INTERVAL
+<interval qualifier>, BOOLEAN, ARRAY, ROW and REF.
+
+The <keyword> AS in the <data type> clause is noise and can be omitted. For example, these two SQL statements are equivalent:
+
+   CREATE DOMAIN domain_1 AS CHAR(10);
+
+   CREATE DOMAIN domain_1 CHAR(10);
+
+[Obscure Rule] If the <data type> of a Domain is CHAR, VARCHAR or CLOB, the
+Character set that the Domain's values must belong to is determined as follows:
+      ## If your CREATE DOMAIN statement includes a CHARACTER SET clause, the
+Domain's Character set is the Character set named. Your current
+<AuthorizationID> must have the USAGE Privilege on that Character set.
+      ## If your CREATE DOMAIN statement does not include a CHARACTER SET
+clause, the Domain's Character set is the Character set named in the DEFAULT
+CHARACTER SET clause of the CREATE SCHEMA statement that defines the Schema that the Domain belongs to.
+
+For example, the effect of these two SQL statements:
+
+   CREATE SCHEMA bob AUTHORIZATION bob
+      DEFAULT CHARACTER SET INFORMATION_SCHEMA.LATIN1;
+
+   CREATE DOMAIN domain_1 AS CHAR(10);
+
+is to create a Domain in Schema BOB. The Domain's set of valid values are
+fixed length character strings, exactly 10 characters long, all of whose
+characters must be found in the INFORMATION_SCHEMA.LATIN1 Character set -- the
+Schema's default Character set. The effect of these two SQL statements:
+
+   CREATE SCHEMA bob AUTHORIZATION bob
+      DEFAULT CHARACTER SET INFORMATION_SCHEMA.LATIN1;
+
+   CREATE DOMAIN domain_1 AS CHAR(10)
+      CHARACTER SET INFORMATION_SCHEMA.SQL_CHARACTER);
+
+is to create the same Domain with one difference: this time, its values must
+consist only of characters found in the INFORMATION_SCHEMA.SQL_CHARACTER
+Character set -- the explicit Character set specification in CREATE DOMAIN
+constrains the Domain's set of values. The Schema's default Character set does not.
+
+[Obscure Rule] If the <data type> of a Domain is CHAR, VARCHAR, CLOB, NCHAR,
+NCHAR VARYING or NCLOB, and your CREATE DOMAIN statement does not include a
+COLLATE clause, the Domain has a coercibility attribute of COERCIBLE -- but if
+your CREATE DOMAIN statement includes a COLLATE clause, the Domain has a
+coercibility attribute of IMPLICIT. In either case, the Domain's default
+Collation is determined as follows:
+      ## If your CREATE DOMAIN statement includes a COLLATE clause, the
+Domain's default Collation is the Collation named. Your current
+<AuthorizationID> must have the USAGE Privilege on that Collation.
+      ## If your CREATE DOMAIN statement does not include a COLLATE clause,
+the Domain's default Collation is the default Collation of the Domain's Character set.
+
+[Obscure Rule] If the <data type> of a Domain is REF(UDT), your current
+<AuthorizationID> must have the USAGE Privilege on that UDT. If the <data
+type> of a Domain includes REF with a <scope clause>, your CREATE DOMAIN
+statement must also include a <reference scope check> clause, to indicate
+whether references are to be checked or not (don't add a <reference scope
+check> clause under any other circumstances). In this case, you may also add
+the optional <reference scope check action> clause, to indicate the action to
+be taken whenever a Column based on this Domain is the subject of a DELETE
+statement. If you omit the <reference scope check action> clause, it defaults to ON DELETE RESTRICT.
+      ## If a Domain is defined with REFERENCES ARE CHECKED and a <scope
+clause> naming one or more Tables is included in the CREATE DOMAIN statement,
+then there is an implied DEFERRABLE INITIALLY IMMEDIATE Constraint on the new
+Domain which checks that the values of every Column based on the Domain are
+also found in the system generated Column of each Table named in the <scope
+clause>. In this case, if the <reference scope check action> is SET NULL then,
+prior to deleting any rows from the Tables that own a Column based on this
+Domain, your DBMS will (a) execute a SET CONSTRAINT statement that sets the
+implied Constraint's constraint check time to DEFERRED, (b) DELETE the rows as
+required, (c) set the value of the system generated Column in each Table named
+in the <scope clause> to NULL, for each row that matched the deleted rows and
+(d) execute a SET CONSTRAINT statement that sets the implied Constraint's
+constraint check time to IMMEDIATE.
+
+DEFAULT clause:
+The optional DEFAULT clause defines the Domain's default value: the value to
+insert whenever a Column based on this Domain is the target of an INSERT
+statement that doesn't include an explicit value for that Column. The DEFAULT
+options are: DEFAULT <literal>, DEFAULT CURRENT_DATE, DEFAULT CURRENT_TIME(p),
+DEFAULT CURRENT_TIMESTAMP(p), DEFAULT LOCALTIME(p), DEFAULT LOCALTIMESTAMP(p),
+DEFAULT USER, DEFAULT CURRENT_USER, DEFAULT SESSION_USER, DEFAULT SYSTEM_USER,
+DEFAULT CURRENT_PATH, DEFAULT ARRAY[], DEFAULT ARRAY??(??) and DEFAULT NULL --
+see "<default clause>" in our chapter on Tables. For example, this SQL
+statement creates a Domain whose default value is the <character string
+literal> 'bobby':
+
+   CREATE DOMAIN domain_1 AS VARCHAR(15)
+      DEFAULT 'bobby';
+
+And this SQL statement creates a Domain whose default value is the value returned by the CURRENT_DATE function:
+
+   CREATE DOMAIN domain_1 AS DATE
+      DEFAULT CURRENT_DATE;
+
+<Domain Constraint>s:
+The optional <Domain Constraint> list clause of CREATE DOMAIN is used to
+define zero or more <Constraint>s on the Domain: the Constraint rules will
+restrict the Domain's set of valid values -- see our chapter on Constraints
+and Assertions. The syntax "CREATE DOMAIN <Domain name> AS <data type> DEFAULT
+default value <Domain Constraint> <Domain Constraint>" defines a Domain whose
+definition includes two <Domain Constraint>s. Here is an example:
+
+   CREATE DOMAIN domain_1 AS SMALLINT
+      DEFAULT 150
+      CONSTRAINT constraint_1
+         CHECK (VALUE IS NOT NULL) NOT DEFERRABLE
+      CONSTRAINT constraint_2
+         CHECK (VALUE BETWEEN -1000 AND 9999) DEFERRABLE INITIALLY IMMEDIATE;
+
+In this example, DOMAIN_1 has a default value of 150 and is constrained to
+accept only integers that fall into SMALLINT's range. The Domain is further
+constrained (by CONSTRAINT_1) not to accept null values and (by CONSTRAINT_2)
+to accept only values between -1000 and +9999. Since a <Domain Constraint>'s
+search condition may not be recursive, this SQL statement will return an error
+because the <Domain Constraint> refers to the Domain it belongs to:
+
+   CREATE DOMAIN domain_1 AS FLOAT
+      CONSTRAINT constraint_1
+         CHECK (VALUE IN (domain_1) NOT DEFERRABLE);
+
+If you want to restrict your code to Core SQL, don't use the CREATE DOMAIN statement.
+
+ALTER DOMAIN statement
+
+The ALTER DOMAIN statement changes a Domain's definition. The required syntax for the ALTER DOMAIN statement is:
+
+ALTER DOMAIN <Domain name> <alter domain action>
+
+   <alter domain action> ::=
+   SET DEFAULT default value |
+   DROP DEFAULT |
+   ADD <Domain Constraint> |
+   DROP CONSTRAINT <Constraint name>
+
+The <Domain name> must identify an existing Domain whose owner is either the
+current <AuthorizationID> or a Role that the current <AuthorizationID> may
+use. That is, only the <AuthorizationID> that owns the Domain may alter it.
+Every Column that is based on the Domain will be affected by the change.
+
+SET DEFAULT clause:
+The effect of ALTER DOMAIN <Domain name> SET DEFAULT default value, e.g.:
+
+   ALTER DOMAIN domain_1 SET DEFAULT 200;
+
+is that the default value of the Domain named will be changed. (You can use
+this version of ALTER DOMAIN either to add a default value to a Domain or to
+change a Domain's existing default value.) The ALTER DOMAIN ... SET DEFAULT
+options are: DEFAULT <literal>, DEFAULT CURRENT_DATE, DEFAULT CURRENT_TIME(p),
+DEFAULT CURRENT_TIMESTAMP(p), DEFAULT LOCALTIME(p), DEFAULT LOCALTIMESTAMP(p),
+DEFAULT USER, DEFAULT CURRENT_USER, DEFAULT SESSION_USER, DEFAULT SYSTEM_USER,
+DEFAULT CURRENT_PATH, DEFAULT ARRAY[], DEFAULT ARRAY??(??) and DEFAULT NULL --
+see "<default clause>", in our chapter on Tables.
+
+DROP DEFAULT clause:
+The effect of ALTER DOMAIN <Domain name> DROP DEFAULT, e.g.:
+
+   ALTER DOMAIN domain_1 DROP DEFAULT;
+
+is that the default value of the Domain named will be removed from the
+Domain's definition>. (You'll get a syntax error if the Domain's definition
+doesn't include a default value.) Before removing the default value from the
+Domain's definition, your DBMS will first check the definitions of every
+Column based on the Domain for a default value. If a dependent <Column
+definition> has no default value, your DBMS will add the Domain's default
+value to the <Column definition>. For example, the effect of this SQL statement:
+
+   ALTER domain_1 DROP DEFAULT;
+
+is twofold. First, the definition of every Column dependent on DOMAIN_1 will
+be checked for a Column default value. If none is found, the default value
+from the Domain definition is added to the <Column definition> to ensure that
+the Column is not left without a default value for future insertions. The
+second effect is that the Domain's default value is removed from the definition of DOMAIN_1.
+
+ADD <Domain Constraint> clause:
+The effect of ALTER DOMAIN <Domain name> ADD <Domain Constraint>, e.g.:
+
+   ALTER DOMAIN domain_1 ADD CONSTRAINT constraint_1
+      CHECK(VALUE IS NOT NULL) NOT DEFERRABLE;
+
+is that one <Domain Constraint> is added to the definition of the Domain named
+-- see "<Domain Constraint>" in our chapter on Constraints and Assertions.
+
+DROP CONSTRAINT clause:
+The effect of ALTER DOMAIN <Domain name> DROP CONSTRAINT <Constraint name>, e.g.:
+
+   ALTER DOMAIN domain_1 DROP CONSTRAINT constraint_1;
+
+is that the Constraint named is removed from the definition of the Domain that
+owns it. (Note: If the dropped Constraint caused one or more Columns to have
+the "known not nullable" nullability characteristic, then the affected
+Columns' nullability characteristic becomes "possibly nullable" unless some
+other Constraint also constrains them to non-null values.)
+
+If you want to restrict your code to Core SQL, don't use the ALTER DOMAIN statement.
+
+DROP DOMAIN statement
+
+The DROP DOMAIN statement destroys a Domain. The required syntax for the DROP DOMAIN statement is:
+
+DROP DOMAIN <Domain name> {RESTRICT | CASCADE}
+
+The <Domain name> must identify an existing Domain whose owner is either the
+current <AuthorizationID> or a Role that the current <AuthorizationID> may
+use. That is, only the <AuthorizationID> that owns the Domain may drop it.
+
+The effect of DROP DOMAIN <Domain name> RESTRICT, e.g.:
+
+   DROP DOMAIN domain_1 RESTRICT;
+
+is that the Domain named is destroyed, provided that (a) no Columns are based
+on the Domain and (b) that the Domain isn't referred to in any View
+definition, Constraint or Assertion definition, or SQL routine. That is,
+RESTRICT ensures that only a Domain with no dependent Objects can be
+destroyed. If the Domain is used by any other Object, DROP DOMAIN ... RESTRICT will fail.
+
+The effect of DROP DOMAIN <Domain name> CASCADE, e.g.:
+
+   DROP DOMAIN domain_1 CASCADE;
+
+is that the Domain named is destroyed.
+
+Successfully dropping a Domain has a five-fold effect:
+      ## The Domain named is destroyed.
+      ## All Privileges held on the Domain by the <AuthorizationID> that owns
+it are revoked (by the SQL special grantor, "_SYSTEM") with a CASCADE revoke
+behaviour, so that all Privileges held on the Domain by any other <AuthorizationID> are also revoked.
+      ## The definition of every Column based on the Domain is changed: the
+<Domain name> is removed and the Domain's <data type> specification is added.
+If the <Column definition> has no default value, the Domain's default value is
+added. If the <Column definition> has no COLLATE clause, the Domain's COLLATE
+clause is added, provided that the <AuthorizationID> has the USAGE Privilege on the Collation named.
+      ## The definition of every Table that owns a Column based on the Domain
+is changed: a <Table Constraint> that is equivalent to every applicable
+<Domain Constraint> is added, provided that the <AuthorizationID> has all the
+Privileges needed to add such <Table Constraint>s.
+      ## All SQL routines, Views and Constraints that depend on the Domain are dropped with a CASCADE drop behaviour.
+
+If you want to restrict your code to Core SQL, don't use the DROP DOMAIN statement.
+
+Frequently-used numeric Domains
+
+Any business needs to store "money" -- usually a signed decimal with two fixed
+digits after the decimal point; and "interest" -- usually an unsigned decimal
+with 3 digits after the decimal point. Some SQL DBMSs have special data types
+for business needs, but Standard SQL doesn't, so this is a good place to use a
+Domain. For example, these four SQL statements define and utilize two numeric Domains:
+
+   CREATE DOMAIN MONEY_ AS DECIMAL(8,2));
+
+   CREATE DOMAIN INTEREST_ AS DECIMAL(5,3));
+
+   ALTER DOMAIN INTEREST_ ADD CONSTRAINT constraint_1
+      CHECK (VALUE >= 00.000);
+
+   CREATE TABLE Money_Examples (
+      money_column_1 MONEY_,
+      interest_column_1 INTEREST_,
+      money_column_2 MONEY_,
+      interest_column_2 INTEREST_);
+
+In this example, the first two SQL statements create two Domains named MONEY_
+and INTEREST_. The third SQL statement adds a Constraint to INTEREST_ Domain:
+it must always have a value greater than or equal to zero. Lastly, the Domains
+are used in a CREATE TABLE statement -- this saves a bit of typing, but more
+importantly, using the Domains makes it clear that money and interest fields
+are being defined -- rather than merely vague, generic decimal fields.
+
+SQL provides a predefined unsigned-integer Domain, called CARDINAL_NUMBER,
+that you could use on the theory that anything predefined is better than a
+roll-your-own. Since all predefined Objects are belong to INFORMATION_SCHEMA,
+use a <Schema name> qualifier when making Columns with CARDINAL_NUMBER -- for example:
+
+   ALTER TABLE Exact_Examples ADD COLUMN
+      occurrence_cardinal INFORMATION_SCHEMA.CARDINAL_NUMBER;
+
+This definition will cause this SQL statement to fail because CARDINAL_NUMBER
+allows only unsigned numbers (that is, only numbers that are greater than or equal to zero):
+
+   UPDATE Exact_Examples SET
+      occurrence_cardinal = -1;
+
+But this SQL statement will work:
+
+   UPDATE Exact_Examples SET
+      occurrence_cardinal = +1;
+
+Note: Numbers in a CARDINAL_NUMBER Domain don't have the same range as C/Delphi "unsigned".

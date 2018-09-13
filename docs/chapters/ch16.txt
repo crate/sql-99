@@ -1,0 +1,2098 @@
+Chapter 16 -- SQL Catalog
+
+In this chapter, we'll describe SQL Catalogs in detail, and show you the
+syntax to use to create, alter and destroy them.
+
+Catalog
+
+A Cluster may contain zero or more Catalogs. An SQL Catalog is a named group
+of Schemas, one of which must be an Ur-Schema named INFORMATION_SCHEMA. (The
+INFORMATION_SCHEMA Schema is a set of Views and Domains that contain the
+descriptions of all the SQL-data belonging to that Catalog.) Catalogs are
+dependent on some Cluster -- the <Catalog name> must be unique within the
+Cluster the Catalog belongs to -- and are created and dropped using
+implementation-defined methods.
+
+Schemas are known as Catalog Objects and, as already stated, a Catalog may
+consist of one or more Schemas. The Catalog's name qualifies the names of the
+Schemas that belong to it, and can either be explicitly stated, or a default
+name will be supplied by your DBMS.
+
+[NON-PORTABLE] SQL does not include any CREATE CATALOG, OPEN CATALOG or DROP
+CATALOG statements. The method you'll use to access a Catalog with your DBMS
+is thus non-standard because the SQL Standard requires implementors to define
+how a Catalog comes into being, how it may be accessed and how it may be destroyed.
+
+[OCELOT Implementation] applies for the rest of this section.
+
+The OCELOT DBMS that comes with this book considers a Catalog to  be either a
+directory on your storage device (not necessarily the same device used to
+store the enclosing Cluster) or a subdirectory within the Cluster directory,
+e.g.: either of these following would represent a Catalog:
+   C:\CATALOG
+   C:\CLUSTER\CATALOG
+
+OCELOT's method of creating and connecting to Catalogs depends on the way you
+choose to begin a SQL session.
+      ## When you run a Module defined with a MODULE statement that includes
+an explicit <Catalog name> in the SCHEMA clause or AUTHORIZATION clause, the
+DBMS will search, on the default Cluster directory, for a subdirectory with a
+name that matches that <Catalog name>. If the subdirectory can't be found, the
+DBMS will search for a directory with the same name. If the directory can't be
+found, it will be created and opened.
+      ## If the MODULE statement doesn't provide an explicit <Catalog name>,
+or if you're not running a Module, the DBMS will open a subdirectory or directory named OCELOT.
+
+Catalog names:
+A <Catalog name> identifies a Catalog and is never explicitly
+qualified with the name of the SQL-server (or Cluster) it belongs to. The
+required syntax for a <Catalog name> is:
+
+<Catalog name> ::=
+string
+
+[NON-PORTABLE] A <Catalog name> is a <regular identifier> or <delimited
+identifier> that is unique (for all Catalogs) within the Cluster it belongs
+to, but is non-standard because the SQL Standard requires implementors to
+define what a <Catalog name> may be.
+      [OCELOT Implementation] The OCELOT DBMS that comes with this book
+requires a <Catalog name> to follow the rules for a directory name or a
+subdirectory name on the operating system in use; generally it may include
+[drive:] and [\upper-level name(s)] and \name. The <SQL-server name> which
+implicitly qualifies an OCELOT <Catalog name> identifies the Cluster that the
+Catalog belongs to, and is the same as the <SQL-server name> argument of the
+most recent CONNECT TO statement issued for the SQL-session during which the
+Catalog was created.
+
+Here is an example of a possible <Catalog name>:
+
+   CATALOG_1
+
+If you want to restrict your code to Core SQL, don't use explicit <Catalog name>s.
+
+The Information Schema
+
+Every Catalog in your SQL-environment contains a Schema called
+INFORMATION_SCHEMA: it contains a series of Views, Assertions and Domains --
+together, they allow you to look at (but not change) the description of every
+Object that belongs to the Catalog, as though it was regular SQL-data. The
+SELECT Privilege is granted to PUBLIC WITH GRANT OPTION on every View in
+INFORMATION_SCHEMA; the intent is that you will only be able to see those rows
+that describe Objects on which you have Privileges. The USAGE Privilege is
+also granted to PUBLIC WITH GRANT OPTION on every Domain in INFORMATION_SCHEMA.
+
+INFORMATION_SCHEMA also contains the definition of every built-in SQL
+function, that is, every function that you can use as part of SQL (for
+example: ABS, CHAR_LENGTH, CARDINALITY, etc.). The EXECUTE Privilege is
+granted to PUBLIC on each one.
+
+(Note: The INFORMATION_SCHEMA Views are based on the Tables of an Ur-Schema
+called DEFINITION_SCHEMA, but the Standard doesn't require it to actually
+exist -- its purpose is merely to provide a data model to support
+INFORMATION_SCHEMA. If DEFINITION_SCHEMA did exist though, its Base tables
+would describe all the Objects and SQL-data available to an SQL-server at any
+time -- that is, DEFINITION_SCHEMA would describe an SQL Cluster.)
+
+[NON-PORTABLE] The total number of Views in INFORMATION_SCHEMA, and their
+exact definition, is non-standard because the SQL Standard allows implementors
+to add additional Views, as well as to add additional Columns to the Standard-
+defined Views, to describe additional, implementation-defined features.
+However, except for one exception, the View descriptions that follow must all
+be supported by your SQL DBMS.
+
+In SQL, INFORMATION_SCHEMA is the Schema that contains the Information Schema
+Tables, Assertions and Domains. It is considered to have been created by a
+CREATE SCHEMA statement that includes an AUTHORIZATION clause showing an
+<AuthorizationID> of INFORMATION_SCHEMA. A Standard INFORMATION_SCHEMA
+contains one Base table, one Assertion, four Domains and 52 Views. Their descriptions follow.
+
+INFORMATION_SCHEMA Base tables:
+
+## INFORMATION_SCHEMA.INFORMATION_SCHEMA_CATALOG_NAME
+
+Definition:
+CREATE TABLE INFORMATION_SCHEMA_CATALOG_NAME (
+      CATALOG_NAME SQL_IDENTIFIER,
+      CONSTRAINT INFORMATION_SCHEMA_CATALOG_NAME_PRIMARY_KEY
+            PRIMARY KEY (CATALOG_NAME),
+      CONSTRAINT INFORMATION_SCHEMA_CATALOG_NAME_CHECK
+            CHECK ((SELECT COUNT(*) FROM INFORMATION_SCHEMA_CATALOG_NAME)=1))
+
+The INFORMATION_SCHEMA_CATALOG_NAME Base table identifies the Catalog that
+contains this Information Schema; the CATALOG_NAME Column contains the name of
+the relevant Catalog.
+
+INFORMATION_SCHEMA Assertions:
+
+## INFORMATION_SCHEMA.INFORMATION_SCHEMA_CATALOG_NAME_CARDINALITY
+
+Definition:
+CREATE ASSERTION INFORMATION_SCHEMA_CATALOG_NAME_CARDINALITY
+      CHECK (1=(SELECT COUNT(*) FROM INFORMATION_SCHEMA_CATALOG_NAME))
+
+The INFORMATION_SCHEMA_CATALOG_NAME_CARDINALITY Assertion ensures that there
+is exactly one row in the INFORMATION_SCHEMA_CATALOG_NAME Table.
+
+INFORMATION_SCHEMA Domains:
+
+## INFORMATION_SCHEMA.CARDINAL_NUMBER
+
+Definition:
+CREATE DOMAIN CARDINAL_NUMBER AS INTEGER
+      CONSTRAINT CARDINAL_NUMBER_DOMAIN_CHECK
+            CHECK (VALUE >= 0)
+
+The set of CARDINAL_NUMBER values includes all non-negative numbers that are
+less than your DBMS's defined maximum for INTEGER values. (Note: This is
+probably an error in the Standard: CARDINAL_NUMBER should include all
+non-negative numbers that are less than or equal to your DBMS's defined
+maximum for INTEGER values.)
+
+## INFORMATION_SCHEMA.CHARACTER_DATA
+
+Definition:
+CREATE DOMAIN CHARACTER_DATA AS CHARACTER VARYING(ML)
+      CHARACTER SET SQL_TEXT
+
+The set of CHARACTER_DATA values includes all character strings, from zero to
+ML characters long, that belong to the SQL_TEXT Character set. (ML is replaced
+by your DBMS's defined maximum length for a variable-length character string.)
+
+## INFORMATION_SCHEMA.SQL_IDENTIFIER
+
+Definition:
+CREATE DOMAIN SQL_IDENTIFIER AS CHARACTER VARYING(L)
+      CHARACTER SET SQL_TEXT
+
+The set of SQL_IDENTIFIER values includes all character strings, from one to L
+characters long, that are valid <regular identifier>s and <delimited
+identifier> bodies. (L is replaced by your DBMS's defined maximum length for a
+<regular identifier> and <delimited identifier> body.
+
+## INFORMATION_SCHEMA.TIME_STAMP
+
+Definition:
+CREATE DOMAIN TIME_STAMP AS TIMESTAMP(2) DEFAULT CURRENT_TIMESTAMP(2)
+
+The set of TIME_STAMP values includes an SQL timestamp value.
+
+INFORMATION_SCHEMA Views:
+
+## INFORMATION_SCHEMA.ADMINISTRABLE_ROLE_AUTHORIZATIONS
+
+This View has the following Columns:
+
+Name              Domain                  Nullable?
+GRANTEE           SQL_IDENTIFIER          no
+ROLE_NAME         SQL_IDENTIFIER          no
+IS_GRANTABLE      CHARACTER_DATA          no
+
+ADMINISTRABLE_ROLE_AUTHORIZATIONS shows the role authorizations that the
+current user may grant to others.
+      ## GRANTEE and ROLE_NAME uniquely identify a role authorization which
+the current user may use.
+      ## IS_GRANTABLE is 'YES' (the role authorization is grantable).
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.ADMINISTRABLE_ROLE_AUTHORIZATIONS.
+
+## INFORMATION_SCHEMA.APPLICABLE_ROLES
+
+This View has the following Columns:
+
+Name              Domain                  Nullable?
+GRANTEE           SQL_IDENTIFIER          no
+ROLE_NAME         SQL_IDENTIFIER          no
+IS_GRANTABLE      CHARACTER_DATA          no
+
+APPLICABLE_ROLES shows the role authorizations that the current user may use.
+      ## GRANTEE and ROLE_NAME uniquely identify a role authorization that the current user may use.
+      ## IS_GRANTABLE is either 'YES' (the role authorization is grantable) or 'NO' (the role authorization is not grantable).
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.APPLICABLE_ROLES.
+
+## INFORMATION_SCHEMA.ASSERTIONS
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+CONSTRAINT_CATALOG      SQL_IDENTIFIER          no
+CONSTRAINT_SCHEMA       SQL_IDENTIFIER          no
+CONSTRAINT_NAME         SQL_IDENTIFIER          no
+IS_DEFERRABLE           CHARACTER_DATA          no
+INITIALLY_DEFERRED      CHARACTER_DATA          no
+
+ASSERTIONS shows the Assertions in this Catalog that are owned by the current user.
+      ## CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, CONSTRAINT_NAME uniquely
+identify an Assertion owned by the current user.
+      ## IS_DEFERRABLE is either 'YES' (the Assertion is DEFERRABLE) or 'NO'
+(the Assertion is NOT DEFERRABLE).
+      ## INITIALLY_DEFERRED is either 'YES' (the Assertion is INITIALLY
+DEFERRED) or 'NO' (the Assertion is INITIALLY IMMEDIATE).
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.ASSERTIONS.
+
+## INFORMATION_SCHEMA.CHARACTER_SETS
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+CHARACTER_SET_CATALOG   SQL_IDENTIFIER          no
+CHARACTER_SET_SCHEMA    SQL_IDENTIFIER          no
+CHARACTER_SET_NAME      SQL_IDENTIFIER          no
+FORM_OF_USE             SQL_IDENTIFIER          no
+NUMBER_OF_CHARACTERS    CARDINAL_NUMBER         no
+DEFAULT_COLLATE_CATALOG SQL_IDENTIFIER          no
+DEFAULT_COLLATE_SCHEMA  SQL_IDENTIFIER          no
+DEFAULT_COLLATE_NAME    SQL_IDENTIFIER          no
+
+CHARACTER_SETS shows the Character sets in this Catalog that the current user has Privileges on.
+      ## CHARACTER_SET_CATALOG, CHARACTER_SET_SCHEMA, CHARACTER_SET_NAME
+uniquely identify a Character set that the current user may use.
+      ## FORM_OF_USE is a zero-length string. (Note: This may be an error in
+the Standard. FORM_OF_USE should probably name the Form-of-use for the Character set.)
+      ## NUMBER_OF_CHARACTERS is a zero-length string. (Note: This is an error
+in the Standard. NUMBER_OF_CHARACTERS must be a number and therefore should
+probably show the number of characters in the Character set.)
+      ## DEFAULT_COLLATE_CATALOG, DEFAULT_COLLATE_SCHEMA, DEFAULT_COLLATE_NAME
+uniquely identify the Character set's default Collation.
+
+## INFORMATION_SCHEMA.CHECK_CONSTRAINTS
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+CONSTRAINT_CATALOG      SQL_IDENTIFIER          no
+CONSTRAINT_SCHEMA       SQL_IDENTIFIER          no
+CONSTRAINT_NAME         SQL_IDENTIFIER          no
+CHECK_CLAUSE            CHARACTER_DATA          yes
+
+CHECK_CONSTRAINTS shows the CHECK Constraints in this Catalog that are owned
+by the current user. (This category includes the user's Domain Constraints,
+Assertions and some Table Constraints.
+      ## CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, CONSTRAINT_NAME uniquely
+identify a CHECK Constraint owned by the current user.
+      ## CHECK_CLAUSE shows the Constraint's CHECK clause in full. It will be
+NULL if the CHECK clause was too long to be stored.
+
+## INFORMATION_SCHEMA.COLLATIONS
+
+This View has the following Columns:
+
+Name                    Domain            Nullable?
+COLLATION_CATALOG       SQL_IDENTIFIER    no
+COLLATION_SCHEMA        SQL_IDENTIFIER    no
+COLLATION_NAME          SQL_IDENTIFIER    no
+CHARACTER_SET_CATALOG   SQL_IDENTIFIER    no
+CHARACTER_SET_SCHEMA    SQL_IDENTIFIER    no
+CHARACTER_SET_NAME      SQL_IDENTIFIER    no
+PAD_ATTRIBUTE           CHARACTER_DATA    no
+COLLATION_TYPE          CHARACTER_DATA    no
+COLLATION_DEFINITION    CHARACTER_DATA    no
+COLLATION_DICTIONARY    CHARACTER_DATA    no
+
+COLLATIONS shows the Collations in this Catalog that the current user has Privileges on.
+      ## COLLATION_CATALOG, COLLATION_SCHEMA, COLLATION_NAME uniquely identify
+a Collation that the current user may use.
+      ## CHARACTER_SET_CATALOG, CHARACTER_SET_SCHEMA, CHARACTER_SET_NAME
+uniquely identify the Character set for the Collation.
+      ## PAD_ATTRIBUTE is either 'NO PAD' (the Collation has the NO PAD
+attribute) or 'SPACE' (the Collation has the PAD SPACE attribute).
+      ## COLLATION_TYPE, COLLATION_DEFINITION and COLLATION_DICTIONARY are
+zero-length strings. To date, the Standard makes no use of these fields.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.COLLATIONS.
+
+## INFORMATION_SCHEMA.COLUMNS
+
+This View has the following Columns:
+
+Name                                Domain                  Nullable?
+TABLE_CATALOG                       SQL_IDENTIFIER          no
+TABLE_SCHEMA                        SQL_IDENTIFIER          no
+TABLE_NAME                          SQL_IDENTIFIER          no
+COLUMN_NAME                         SQL_IDENTIFIER          no
+ORDINAL_POSITION                    CARDINAL_NUMBER         no
+COLUMN_DEFAULT                      CHARACTER_DATA          yes
+IS_NULLABLE                         CHARACTER_DATA          no
+DATA_TYPE                           CHARACTER_DATA          no
+CHARACTER_MAXIMUM_LENGTH            CARDINAL_NUMBER         yes
+CHARACTER_OCTET_LENGTH              CARDINAL_NUMBER         yes
+NUMERIC_PRECISION                   CARDINAL_NUMBER         yes
+NUMERIC_PRECISION_RADIX             CARDINAL_NUMBER         yes
+NUMERIC_SCALE                       CARDINAL_NUMBER         yes
+DATETIME_PRECISION                  CARDINAL_NUMBER         yes
+INTERVAL_TYPE                       CHARACTER_DATA          yes
+INTERVAL_PRECISION                  CARDINAL_NUMBER         yes
+CHARACTER_SET_CATALOG               SQL_IDENTIFIER          yes
+CHARACTER_SET_SCHEMA                SQL_IDENTIFIER          yes
+CHARACTER_SET_NAME                  SQL_IDENTIFIER          yes
+COLLATION_CATALOG                   SQL_IDENTIFIER          yes
+COLLATION_SCHEMA                    SQL_IDENTIFIER          yes
+COLLATION_NAME                      SQL_IDENTIFIER          yes
+DOMAIN_CATALOG                      SQL_IDENTIFIER          yes
+DOMAIN_SCHEMA                       SQL_IDENTIFIER          yes
+DOMAIN_NAME                         SQL_IDENTIFIER          yes
+USER_DEFINED_TYPE_CATALOG           SQL_IDENTIFIER          yes
+USER_DEFINED_TYPE_SCHEMA            SQL_IDENTIFIER          yes
+USER_DEFINED_TYPE_NAME              SQL_IDENTIFIER          yes
+CHECK_REFERENCES                    CHARACTER_DATA          yes
+CHECK_ACTION                        CHARACTER_DATA          yes
+
+COLUMNS shows the Columns in this Catalog that the current user has Privileges on.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME uniquely
+identify a Column that the current user may use.
+      ## ORDINAL_POSITION shows the position of the Column in its Table: the
+first Column has ordinal position 1, the second Column has ordinal position 2,
+etc. Warning: the position can change if ALTER TABLE is used to add or drop a Column.
+      ## COLUMN_DEFAULT shows the Column's default value (presumably the DBMS
+will CAST the value to a character string if it must). It will be NULL if the
+Column was defined without a DEFAULT clause (and presumably if it was defined
+with DEFAULT NULL) or if the Column's default value comes only from a Domain.
+COLUMN_DEFAULT will be 'TRUNCATED' if the default value was too long to be stored.
+      ## IS_NULLABLE is either 'YES' (the Column is possibly nullable) or 'NO'
+(the Column is known not nullable).
+      ## DATA_TYPE shows the Column's <data type>: either 'BINARY LARGE
+OBJECT', 'BIT', 'BIT VARYING', 'CHARACTER', 'CHARACTER VARYING', 'CHARACTER
+LARGE OBJECT', 'INTEGER', 'SMALLINT', 'NUMERIC', 'DECIMAL', 'REAL', 'DOUBLE
+PRECISION', 'FLOAT', 'DATE', 'TIME', 'TIME WITH TIME ZONE', 'TIMESTAMP',
+'TIMESTAMP WITH TIME ZONE', 'INTERVAL', 'BOOLEAN', 'USER-DEFINED TYPE' -- or
+something else, such as an implementation-defined data type.
+      ## CHARACTER_MAXIMUM_LENGTH shows the Column's maximum length in
+characters (for 'CHARACTER', 'CHARACTER VARYING', 'CHARACTER LARGE OBJECT') or
+in bits (for 'BIT', 'BIT VARYING', 'BINARY LARGE OBJECT'). For other <data
+type>s, CHARACTER_MAXIMUM_LENGTH is NULL.
+      ## CHARACTER_OCTET_LENGTH shows the Column's maximum length in octets
+(for 'CHARACTER', 'CHARACTER VARYING', 'CHARACTER LARGE OBJECT', 'BIT', 'BIT
+VARYING', 'BINARY LARGE OBJECT'). For other <data type>s, CHARACTER_OCTET_LENGTH is NULL.
+      ## NUMERIC_PRECISION shows the Column's precision (for 'INTEGER',
+'SMALLINT', 'NUMERIC', 'DECIMAL', 'REAL', 'FLOAT', 'DOUBLE PRECISION', 'DATE',
+'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE', 'TIMESTAMP WITH TIME ZONE',
+'INTERVAL'). For other <data type>s, NUMERIC_PRECISION is NULL.
+      ## NUMERIC_PRECISION_RADIX is either 2 or 10, depending on your DBMS
+(for 'INTEGER', 'SMALLINT, 'DATE', 'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE',
+'TIMESTAMP WITH TIME ZONE', 'INTERVAL'), 10 (for 'NUMERIC', 'DECIMAL'), 2 (for
+'REAL', 'FLOAT', 'DOUBLE PRECISION'. For other <data type>s, NUMERIC_PRECISION_RADIX is NULL.
+      ## NUMERIC_SCALE is either 0 (for 'INTEGER', 'SMALLINT') or shows the
+Column's scale (for 'NUMERIC', 'DECIMAL'). For other <data type>s, NUMERIC_SCALE is NULL.
+      ## DATETIME_PRECISION shows the Column's fractional-seconds precision
+(for 'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE', 'TIMESTAMP WITH TIME ZONE',
+'INTERVAL'). For other <data type>s, DATETIME_PRECISION is NULL.
+      ## INTERVAL_TYPE shows the Column's interval type (for 'INTERVAL'):
+either 'YEAR', 'MONTH', 'DAY', 'HOUR', 'MINUTE', 'SECOND', 'YEAR TO MONTH',
+'DAY TO HOUR', 'DAY TO MINUTE', 'DAY TO SECOND', 'HOUR TO MINUTE', 'HOUR TO
+SECOND', 'MINUTE TO SECOND'. For other <data type>s, INTERVAL_TYPE is NULL.
+      ## INTERVAL_PRECISION shows the Column's precision for the interval
+leading field (for 'INTERVAL'). For other <data type>s, INTERVAL_PRECISION is NULL.
+      ## CHARACTER_SET_CATALOG, CHARACTER_SET_SCHEMA, CHARACTER_SET_NAME
+uniquely identify the Character set the Column values belong to (for
+'CHARACTER', 'CHARACTER VARYING', 'CHARACTER LARGE OBJECT'). For other <data
+type>s, these fields are NULL.
+      ## COLLATION_CATALOG, COLLATION_SCHEMA, COLLATION_NAME uniquely identify
+the Column's default Collation (for 'CHARACTER', 'CHARACTER VARYING',
+'CHARACTER LARGE OBJECT'). For other <data type>s, these fields are NULL.
+      ## DOMAIN_CATALOG, DOMAIN_SCHEMA, DOMAIN_NAME uniquely identify the
+Domain that the Column depends on. If no Domain was used in the Column definition, these fields are NULL.
+      ## USER_DEFINED_TYPE_CATALOG, USER_DEFINED_TYPE_SCHEMA,
+USER_DEFINED_TYPE_NAME uniquely identify the UDT that the Column depends on.
+If the Column doesn't use a UDT, these fields are NULL.
+      ## CHECK_REFERENCES is NULL if the Column is part of a View or if its
+<data type> is not a reference type. Otherwise, CHECK_REFERENCES is 'YES'
+(reference values are checked) or 'NO' (reference values are not checked).
+      ## CHECK_ACTION is NULL if the Column is part of a View or if its <data
+type> is not a reference type. Otherwise, CHECK_ACTION is 'RESTRICT'
+(<reference scope check action> is RESTRICT) or 'SET NULL' (<reference scope
+check action> is SET NULL).
+
+## INFORMATION_SCHEMA.COLUMN_DOMAIN_USAGE
+
+This View has the following Columns:
+
+Name              Domain                  Nullable?
+DOMAIN_CATALOG    SQL_IDENTIFIER          no
+DOMAIN_SCHEMA     SQL_IDENTIFIER          no
+DOMAIN_NAME       SQL_IDENTIFIER          no
+TABLE_CATALOG     SQL_IDENTIFIER          no
+TABLE_SCHEMA      SQL_IDENTIFIER          no
+TABLE_NAME        SQL_IDENTIFIER          no
+COLUMN_NAME       SQL_IDENTIFIER          no
+
+COLUMN_DOMAIN_USAGE shows the Columns that depend on Domains in this Catalog,
+where the Domains are owned by the current user.
+      ## DOMAIN_CATALOG, DOMAIN_SCHEMA, DOMAIN_NAME uniquely identify a Domain owned by the current user.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME uniquely identify a Column that depends on the Domain.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.COLUMN_DOMAIN_USAGE.
+
+## INFORMATION_SCHEMA.COLUMN_PRIVILEGES
+
+This View has the following Columns:
+
+Name              Domain            Nullable?
+GRANTOR           SQL_IDENTIFIER    no
+GRANTEE           SQL_IDENTIFIER    no
+TABLE_CATALOG     SQL_IDENTIFIER    no
+TABLE_SCHEMA      SQL_IDENTIFIER    no
+TABLE_NAME        SQL_IDENTIFIER    no
+COLUMN_NAME       SQL_IDENTIFIER    no
+PRIVILEGE_TYPE    CHARACTER_DATA    no
+IS_GRANTABLE      CHARACTER_DATA    no
+
+COLUMN_PRIVILEGES shows the Privileges on Columns belonging to Tables in this
+Catalog, where the Privileges are either available to, or granted by, the current user.
+      ## GRANTOR shows the <AuthorizationID> of the user (or perhaps the Role)
+who granted the Privilege.
+      ## GRANTEE shows the <AuthorizationID> of the user (or perhaps the Role)
+who may use the Privilege. By definition, if GRANTOR isn't CURRENT_USER, then
+GRANTEE is either CURRENT_USER or 'PUBLIC'.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME uniquely
+identify a Column belonging to a Table in this Catalog.
+      ## PRIVILEGE_TYPE shows the Privilege granted: either 'INSERT', 'UPDATE', 'REFERENCES', 'SELECT'.
+      ## IS_GRANTABLE is either 'YES' (Privilege was granted WITH GRANT OPTION) or 'NO' (Privilege was not granted WITH GRANT OPTION).
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.COLUMN_PRIVILEGES.
+
+## INFORMATION_SCHEMA.COLUMN_USER_DEFINED_TYPE_USAGE
+
+This View has the following Columns:
+
+Name                          Domain                  Nullable?
+USER_DEFINED_TYPE_CATALOG     SQL_IDENTIFIER          no
+USER_DEFINED_TYPE_SCHEMA      SQL_IDENTIFIER          no
+USER_DEFINED_TYPE_NAME        SQL_IDENTIFIER          no
+TABLE_CATALOG                 SQL_IDENTIFIER          no
+TABLE_SCHEMA                  SQL_IDENTIFIER          no
+TABLE_NAME                    SQL_IDENTIFIER          no
+COLUMN_NAME                   SQL_IDENTIFIER          no
+
+COLUMN_USER_DEFINED_TYPE_USAGE shows the Columns that depend on a UDT in this
+Catalog, where the UDT is owned by the current user.
+      ## USER_DEFINED_TYPE_CATALOG, USER_DEFINED_TYPE_SCHEMA, USER_DEFINED_TYPE_NAME uniquely identify a UDT that belongs to the current user.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME uniquely identify a Column that depends on the UDT.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.COLUMN_USER_DEFINED_TYPE_USAGE.
+
+## INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+TABLE_CATALOG           SQL_IDENTIFIER          no
+TABLE_SCHEMA            SQL_IDENTIFIER          no
+TABLE_NAME              SQL_IDENTIFIER          no
+COLUMN_NAME             SQL_IDENTIFIER          no
+CONSTRAINT_CATALOG      SQL_IDENTIFIER          no
+CONSTRAINT_SCHEMA       SQL_IDENTIFIER          no
+CONSTRAINT_NAME         SQL_IDENTIFIER          no
+
+CONSTRAINT_COLUMN_USAGE shows the Columns used by any Constraint or Assertion
+in this Catalog, where the Constraint or Assertion is owned by the current user.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME uniquely identify a Column that appears in a Constraint/Assertion.
+      ## CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, CONSTRAINT_NAME uniquely identify the Constraint/Assertion that uses the Column. The Constraint/Assertion is owned by the current user.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE.
+
+## INFORMATION_SCHEMA.CONSTRAINT_TABLE_USAGE
+
+This View has the following Columns:
+
+Name                    Domain            Nullable?
+TABLE_CATALOG           SQL_IDENTIFIER    no
+TABLE_SCHEMA            SQL_IDENTIFIER    no
+TABLE_NAME              SQL_IDENTIFIER    no
+CONSTRAINT_CATALOG      SQL_IDENTIFIER    no
+CONSTRAINT_SCHEMA       SQL_IDENTIFIER    no
+CONSTRAINT_NAME         SQL_IDENTIFIER    no
+
+CONSTRAINT_TABLE_USAGE shows the Tables used by any Constraint or Assertion in
+this Catalog, where the Constraint or Assertion is owned by the current user.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME uniquely identify a Table that appears in a Constraint/Assertion.
+      ## CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, CONSTRAINT_NAME uniquely identify the Constraint/Assertion that uses the Table. The Constraint/Assertion is owned by the current user.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.CONSTRAINT_TABLE_USAGE.
+
+## INFORMATION_SCHEMA.DIRECT_SUPERTABLES
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+TABLE_CATALOG           SQL_IDENTIFIER          no
+TABLE_SCHEMA            SQL_IDENTIFIER          no
+TABLE_NAME              SQL_IDENTIFIER          no
+SUPERTABLE_NAME         SQL_IDENTIFIER          no
+
+DIRECT_SUPERTABLES shows the direct subtables in this Catalog that are related
+to a supertable, where the subtables are owned by the current user.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME uniquely identify a Table owned by the current user.
+      ## SUPERTABLE_NAME identifies the related supertable for the Table.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.DIRECT_SUPERTABLES.
+
+## INFORMATION_SCHEMA.DOMAINS
+
+This View has the following Columns:
+
+Name                          Domain                  Nullable?
+DOMAIN_CATALOG                SQL_IDENTIFIER          no
+DOMAIN_SCHEMA                 SQL_IDENTIFIER          no
+DOMAIN_NAME                   SQL_IDENTIFIER          no
+DATA_TYPE                     CHARACTER_DATA          no
+CHARACTER_MAXIMUM_LENGTH      CARDINAL_NUMBER         yes
+CHARACTER_OCTET_LENGTH        CARDINAL_NUMBER         yes
+COLLATION_CATALOG             SQL_IDENTIFIER          yes
+COLLATION_SCHEMA              SQL_IDENTIFIER          yes
+COLLATION_NAME                SQL_IDENTIFIER          yes
+CHARACTER_SET_CATALOG         SQL_IDENTIFIER          yes
+CHARACTER_SET_SCHEMA          SQL_IDENTIFIER          yes
+CHARACTER_SET_NAME            SQL_IDENTIFIER          yes
+NUMERIC_PRECISION             CARDINAL_NUMBER         yes
+NUMERIC_PRECISION_RADIX       CARDINAL_NUMBER         yes
+NUMERIC_SCALE                 CARDINAL_NUMBER         yes
+DATETIME_PRECISION            CARDINAL_NUMBER         yes
+INTERVAL_TYPE                 CHARACTER_DATA          yes
+INTERVAL_PRECISION            CARDINAL_NUMBER         yes
+DOMAIN_DEFAULT                CHARACTER_DATA          yes
+USER_DEFINED_TYPE_CATALOG     SQL_IDENTIFIER          yes
+USER_DEFINED_TYPE_SCHEMA      SQL_IDENTIFIER          yes
+USER_DEFINED_TYPE_NAME        SQL_IDENTIFIER          yes
+
+DOMAINS shows the Domains in this Catalog that the current user has Privileges on.
+      ## DOMAIN_CATALOG, DOMAIN_SCHEMA, DOMAIN_NAME uniquely identify a Domain
+that the current user may use, either because of a USAGE Privilege directly on
+the Domain or because of a Privilege on any Column that depends on the Domain.
+      ## DATA_TYPE shows the Domain's <data type>: either 'BINARY LARGE
+OBJECT', 'BIT', 'BIT VARYING', 'CHARACTER', 'CHARACTER VARYING', 'CHARACTER
+LARGE OBJECT', 'INTEGER', 'SMALLINT', 'NUMERIC', 'DECIMAL', 'REAL', 'DOUBLE
+PRECISION', 'FLOAT', 'DATE', 'TIME', 'TIME WITH TIME ZONE', 'TIMESTAMP',
+'TIMESTAMP WITH TIME ZONE', 'INTERVAL', 'BOOLEAN', 'USER-DEFINED TYPE' -- or
+something else, such as an implementation-defined data type.
+      ## CHARACTER_MAXIMUM_LENGTH shows the Domain's maximum length in
+characters (for 'CHARACTER', 'CHARACTER VARYING', 'CHARACTER LARGE OBJECT') or
+in bits (for 'BIT', 'BIT VARYING', 'BINARY LARGE OBJECT'). For other <data
+type>s, CHARACTER_MAXIMUM_LENGTH is NULL.
+      ## CHARACTER_OCTET_LENGTH shows the Domain's maximum length in octets
+(for 'CHARACTER', 'CHARACTER VARYING', 'CHARACTER LARGE OBJECT', 'BIT', 'BIT
+VARYING', 'BINARY LARGE OBJECT'). For other <data type>s, CHARACTER_OCTET_LENGTH is NULL.
+      ## COLLATION_CATALOG, COLLATION_SCHEMA, COLLATION_NAME uniquely identify
+the Domain's default Collation (for 'CHARACTER', 'CHARACTER VARYING',
+'CHARACTER LARGE OBJECT'). For other <data type>s, these fields are NULL.
+      ## CHARACTER_SET_CATALOG, CHARACTER_SET_SCHEMA, CHARACTER_SET_NAME
+uniquely identify the Character set the Domain values belong to (for
+'CHARACTER', 'CHARACTER VARYING', 'CHARACTER LARGE OBJECT'). For other <data type>s, these fields are NULL.
+      ## NUMERIC_PRECISION shows the Domain's precision (for 'INTEGER',
+'SMALLINT', 'NUMERIC', 'DECIMAL', 'REAL', 'FLOAT', 'DOUBLE PRECISION', 'DATE',
+'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE', 'TIMESTAMP WITH TIME ZONE',
+'INTERVAL'). For other <data type>s, NUMERIC_PRECISION is NULL.
+      ## NUMERIC_PRECISION_RADIX is either 2 or 10, depending on your DBMS
+(for 'INTEGER', 'SMALLINT, 'DATE', 'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE',
+'TIMESTAMP WITH TIME ZONE', 'INTERVAL'), 10 (for 'NUMERIC', 'DECIMAL'), 2 (for
+'REAL', 'FLOAT', 'DOUBLE PRECISION'. For other <data type>s, NUMERIC_PRECISION_RADIX is NULL.
+      ## NUMERIC_SCALE is either 0 (for 'INTEGER', 'SMALLINT') or shows the
+Domain's scale (for 'NUMERIC', 'DECIMAL'). For other <data type>s, NUMERIC_SCALE is NULL.
+      ## DATETIME_PRECISION shows the Domain's fractional-seconds precision
+(for 'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE', 'TIMESTAMP WITH TIME ZONE',
+'INTERVAL'). For other <data type>s, DATETIME_PRECISION is NULL.
+      ## INTERVAL_TYPE shows the Domain's interval type (for 'INTERVAL'):
+either 'YEAR', 'MONTH', 'DAY', 'HOUR', 'MINUTE', 'SECOND', 'YEAR TO MONTH',
+'DAY TO HOUR', 'DAY TO MINUTE', 'DAY TO SECOND', 'HOUR TO MINUTE', 'HOUR TO
+SECOND', 'MINUTE TO SECOND'. For other <data type>s, INTERVAL_TYPE is NULL.
+      ## INTERVAL_PRECISION shows the Domain's precision for the interval
+leading field (for 'INTERVAL'). For other <data type>s, INTERVAL_PRECISION is NULL.
+      ## DOMAIN_DEFAULT shows the Domain's default value (presumably the DBMS
+will CAST the value to a character string if it must). It will be NULL if the
+Domain was defined without a DEFAULT clause (and presumably if it was defined
+with DEFAULT NULL). DOMAIN_DEFAULT will be 'TRUNCATED' if the default value was too long to be stored.
+      ## USER_DEFINED_TYPE_CATALOG, USER_DEFINED_TYPE_SCHEMA, USER_DEFINED_TYPE_NAME uniquely identify the UDT that the Domain depends on. If the Domain doesn't use a UDT, these fields are NULL.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.DOMAINS.
+
+## INFORMATION_SCHEMA.DOMAIN_CONSTRAINTS
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+CONSTRAINT_CATALOG      SQL_IDENTIFIER          no
+CONSTRAINT_SCHEMA       SQL_IDENTIFIER          no
+CONSTRAINT_NAME         SQL_IDENTIFIER          no
+DOMAIN_CATALOG          SQL_IDENTIFIER          no
+DOMAIN_SCHEMA           SQL_IDENTIFIER          no
+DOMAIN_NAME             SQL_IDENTIFIER          no
+IS_DEFERRABLE           CHARACTER_DATA          no
+INITIALLY_DEFERRED      CHARACTER_DATA          no
+
+DOMAIN_CONSTRAINTS shows the Domain Constraints (i.e.: the Constraints defined
+on Domains in this Catalog) that are owned by the current user.
+      ## CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, CONSTRAINT_NAME uniquely identify a Domain Constraint owned by the current user.
+      ## DOMAIN_CATALOG, DOMAIN_SCHEMA, DOMAIN_NAME uniquely identify the Domain that uses the Constraint.
+      ## IS_DEFERRABLE is either 'YES' (the Constraint is DEFERRABLE) or 'NO' (the Constraint is NOT DEFERRABLE).
+      ## INITIALLY_DEFERRED is either 'YES' (the Constraint is INITIALLY DEFERRED) or 'NO' (the Constraint is INITIALLY IMMEDIATE).
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.DOMAIN_CONSTRAINTS.
+
+## INFORMATION_SCHEMA.DOMAIN_USER_DEFINED_TYPE_USAGE
+
+This View has the following Columns:
+
+Name                          Domain                  Nullable?
+USER_DEFINED_TYPE_CATALOG     SQL_IDENTIFIER          no
+USER_DEFINED_TYPE_SCHEMA      SQL_IDENTIFIER          no
+USER_DEFINED_TYPE_NAME        SQL_IDENTIFIER          no
+DOMAIN_CATALOG                SQL_IDENTIFIER          no
+DOMAIN_SCHEMA                 SQL_IDENTIFIER          no
+DOMAIN_NAME                   SQL_IDENTIFIER          no
+
+DOMAIN_USER_DEFINED_TYPE_USAGE shows the Domains that depend on UDTs in this
+Catalog, where the UDT is owned by the current user.
+      ## USER_DEFINED_TYPE_CATALOG, USER_DEFINED_TYPE_SCHEMA, USER_DEFINED_TYPE_NAME uniquely identify a UDT owned by the current user.
+      ## DOMAIN_CATALOG, DOMAIN_SCHEMA, DOMAIN_NAME uniquely identify a Domain that uses the UDT.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.DOMAIN_USER_DEFINED_TYPE_USAGE.
+
+## INFORMATION_SCHEMA.ENABLED_ROLES
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+ROLE_NAME               SQL_IDENTIFIER          no
+
+ENABLED_ROLES shows the enabled roles for the current SQL-session.
+      ## ROLE_NAME uniquely identifies an enabled Role.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.ENABLED_ROLES.
+
+## INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+CONSTRAINT_CATALOG      SQL_IDENTIFIER          no
+CONSTRAINT_SCHEMA       SQL_IDENTIFIER          no
+CONSTRAINT_NAME         SQL_IDENTIFIER          no
+TABLE_CATALOG           SQL_IDENTIFIER          no
+TABLE_SCHEMA            SQL_IDENTIFIER          no
+TABLE_NAME              SQL_IDENTIFIER          no
+COLUMN_NAME             SQL_IDENTIFIER          no
+ORDINAL_POSITION        CARDINAL_NUMBER         no
+
+KEY_COLUMN_USAGE shows the Columns in this Catalog that are keys in Constraints owned by the current user.
+      ## CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, CONSTRAINT_NAME uniquely identify a Constraint owned by the current user.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME uniquely identify a Column that is a key in the Constraint.
+      ## ORDINAL_POSITION is the position of the Column within the Constraint.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.KEY_COLUMN_USAGE.
+
+## INFORMATION_SCHEMA.METHOD_SIGNATURES
+
+This View has the following Columns:
+
+Name                                Domain                  Nullable?
+USER_DEFINED_TYPE_CATALOG           SQL_IDENTIFIER          no
+USER_DEFINED_TYPE_SCHEMA            SQL_IDENTIFIER          no
+USER_DEFINED_TYPE_NAME              SQL_IDENTIFIER          no
+METHOD_CATALOG                      SQL_IDENTIFIER          no
+METHOD_SCHEMA                       SQL_IDENTIFIER          no
+METHOD_NAME                         SQL_IDENTIFIER          no
+DATA_TYPE                           CHARACTER_DATA          no
+CHARACTER_MAXIMUM_LENGTH            CARDINAL_NUMBER         yes
+CHARACTER_OCTET_LENGTH              CARDINAL_NUMBER         yes
+COLLATION_CATALOG                   SQL_IDENTIFIER          yes
+COLLATION_SCHEMA                    SQL_IDENTIFIER          yes
+COLLATION_NAME                      SQL_IDENTIFIER          yes
+NUMERIC_PRECISION                   CARDINAL_NUMBER         yes
+NUMERIC_PRECISION_RADIX             CARDINAL_NUMBER         yes
+NUMERIC_SCALE                       CARDINAL_NUMBER         yes
+DATETIME_PRECISION                  CARDINAL_NUMBER         yes
+INTERVAL_TYPE                       CHARACTER_DATA          yes
+INTERVAL_PRECISION                  CARDINAL_NUMBER         yes
+RETURN_USER_DEFINED_TYPE_CATALOG    SQL_IDENTIFIER          yes
+RETURN_USER_DEFINED_TYPE_SCHEMA     SQL_IDENTIFIER          yes
+RETURN_USER_DEFINED_TYPE_NAME       SQL_IDENTIFIER          yes
+METHOD_LANGUAGE                     CHARACTER_DATA          yes
+PARAMETER_STYLE                     CHARACTER_DATA          yes
+IS_DETERMINISTIC                    CHARACTER_DATA          yes
+SQL_DATA_ACCESS                     CHARACTER_DATA          yes
+IS_NULL_CALL                        CHARACTER_DATA          yes
+METHOD_SIGNATURE_CREATED            TIME_STAMP              yes
+METHOD_SIGNATURE_LAST_ALTERED       TIME_STAMP              yes
+
+METHOD_SIGNATURES shows the SQL-invoked routines in this Catalog that the current user has Privileges on.
+      ## USER_DEFINED_TYPE_CATALOG, USER_DEFINED_TYPE_SCHEMA, USER_DEFINED_TYPE_NAME, METHOD_CATALOG, METHOD_SCHEMA, METHOD_NAME uniquely identify a SQL-invoked routine that the current user may use.
+      ## DATA_TYPE shows the routine's result <data type>: either 'BINARY
+LARGE OBJECT', 'BIT', 'BIT VARYING', 'CHARACTER', 'CHARACTER VARYING',
+'CHARACTER LARGE OBJECT', 'INTEGER', 'SMALLINT', 'NUMERIC', 'DECIMAL', 'REAL',
+'DOUBLE PRECISION', 'FLOAT', 'DATE', 'TIME', 'TIME WITH TIME ZONE',
+'TIMESTAMP', 'TIMESTAMP WITH TIME ZONE', 'INTERVAL', 'BOOLEAN', 'USER-DEFINED
+TYPE' -- or something else, such as an implementation-defined data type.
+      ## CHARACTER_MAXIMUM_LENGTH shows the routine's result maximum length in
+characters (for 'CHARACTER', 'CHARACTER VARYING', 'CHARACTER LARGE OBJECT') or
+in bits (for 'BIT', 'BIT VARYING', 'BINARY LARGE OBJECT'). For other <data type>s, CHARACTER_MAXIMUM_LENGTH is NULL.
+      ## CHARACTER_OCTET_LENGTH shows the routine's result maximum length in
+octets (for 'CHARACTER', 'CHARACTER VARYING', 'CHARACTER LARGE OBJECT', 'BIT',
+'BIT VARYING', 'BINARY LARGE OBJECT'). For other <data type>s, CHARACTER_OCTET_LENGTH is NULL.
+      ## COLLATION_CATALOG, COLLATION_SCHEMA, COLLATION_NAME uniquely identify
+the routine's result default Collation (for 'CHARACTER', 'CHARACTER VARYING',
+'CHARACTER LARGE OBJECT'). For other <data type>s, these fields are NULL.
+      ## NUMERIC_PRECISION shows the routine's result precision (for
+'INTEGER', 'SMALLINT', 'NUMERIC', 'DECIMAL', 'REAL', 'FLOAT', 'DOUBLE
+PRECISION', 'DATE', 'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE', 'TIMESTAMP
+WITH TIME ZONE', 'INTERVAL'). For other <data type>s, NUMERIC_PRECISION is NULL.
+      ## NUMERIC_PRECISION_RADIX is either 2 or 10, depending on your DBMS
+(for 'INTEGER', 'SMALLINT, 'DATE', 'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE',
+'TIMESTAMP WITH TIME ZONE', 'INTERVAL'), 10 (for 'NUMERIC', 'DECIMAL'), 2 (for
+'REAL', 'FLOAT', 'DOUBLE PRECISION'. For other <data type>s, NUMERIC_PRECISION_RADIX is NULL.
+      ## NUMERIC_SCALE is either 0 (for 'INTEGER', 'SMALLINT') or shows the
+routine's result scale (for 'NUMERIC', 'DECIMAL'). For other <data type>s, NUMERIC_SCALE is NULL.
+      ## DATETIME_PRECISION shows the routine's result fractional-seconds
+precision (for 'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE', 'TIMESTAMP WITH
+TIME ZONE', 'INTERVAL'). For other <data type>s, DATETIME_PRECISION is NULL.
+      ## INTERVAL_TYPE shows the routine's result interval type (for
+'INTERVAL'): either 'YEAR', 'MONTH', 'DAY', 'HOUR', 'MINUTE', 'SECOND', 'YEAR
+TO MONTH', 'DAY TO HOUR', 'DAY TO MINUTE', 'DAY TO SECOND', 'HOUR TO MINUTE',
+'HOUR TO SECOND', 'MINUTE TO SECOND'. For other <data type>s, INTERVAL_TYPE is NULL.
+      ## INTERVAL_PRECISION shows the routine's result precision for the
+interval leading field (for 'INTERVAL'). For other <data type>s, INTERVAL_PRECISION is NULL.
+      ## RETURN_USER_DEFINED_TYPE_CATALOG, RETURN_USER_DEFINED_TYPE_SCHEMA,
+RETURN_USER_DEFINED_TYPE_NAME uniquely identify a UDT that the routine uses.
+If no UDT is used, these fields are NULL.
+      ## METHOD_LANGUAGE shows the language the routine is written in: either
+'SQL', 'ADA', 'C', 'COBOL', 'FORTRAN', 'MUMPS', 'PASCAL', 'PLI'.
+      ## If METHOD_LANGUAGE is 'SQL', then PARAMETER_STYLE is NULL. If
+METHOD_LANGUAGE is any other language, then PARAMETER_STYLE is either 'SQL'
+(the method signature specified PARAMETER STYLE SQL) or 'GENERAL' (the method
+signature specified PARAMETER STYLE GENERAL).
+      ## If METHOD_LANGUAGE is 'SQL', then IS_DETERMINISTIC is NULL. If
+METHOD_LANGUAGE is any other language, then IS_DETERMINISTIC is either 'YES'
+(the method is deterministic) or 'NO' (the method is possibly not deterministic).
+      ## SQL_DATA_ACCESS is either 'NONE' (the SQL-invoked routine does not
+possibly contain SQL), 'CONTAINS' (the SQL-invoked routine possibly contains
+SQL), ' READS' (the SQL-invoked routine possibly reads SQL-data) or 'MODIFIES'
+(the SQL-invoked routine possibly modifies SQL-data).
+      ## IS_NULL_CALL is either 'YES' (the SQL-invoked routine is a null-call
+function) or 'NO' (the SQL-invoked routine is not a null-call function).
+      ## METHOD_SIGNATURE_CREATED shows the CURRENT_TIMESTAMP from the time
+the SQL-invoked method signature was created.
+      ## METHOD_SIGNATURE_LAST_ALTERED shows the CURRENT_TIMESTAMP from the
+time the SQL-invoked method signature was last altered. (This will be the same
+as the METHOD_SIGNATURE_CREATED value if the routine hasn't been altered.)
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.METHOD_SIGNATURES.
+
+## INFORMATION_SCHEMA.METHOD_SIGNATURE_PARAMETERS
+
+This View has the following Columns:
+
+Name                          Domain                  Nullable?
+USER_DEFINED_TYPE_CATALOG     SQL_IDENTIFIER          no
+USER_DEFINED_TYPE_SCHEMA      SQL_IDENTIFIER          no
+USER_DEFINED_TYPE_NAME        SQL_IDENTIFIER          no
+METHOD_CATALOG                SQL_IDENTIFIER          no
+METHOD_SCHEMA                 SQL_IDENTIFIER          no
+METHOD_NAME                   SQL_IDENTIFIER          no
+ORDINAL_POSITION              CARDINAL_NUMBER         no
+PARAMETER_MODE                CHARACTER_DATA          yes
+IS_RESULT                     CHARACTER_DATA          yes
+AS_LOCATOR                    CHARACTER_DATA          yes
+PARAMETER_NAME                SQL_IDENTIFIER          yes
+DATA_TYPE                     CHARACTER_DATA          no
+CHARACTER_MAXIMUM_LENGTH      CARDINAL_NUMBER         yes
+CHARACTER_OCTET_LENGTH        CARDINAL_NUMBER         yes
+COLLATION_CATALOG             SQL_IDENTIFIER          yes
+COLLATION_SCHEMA              SQL_IDENTIFIER          yes
+COLLATION_NAME                SQL_IDENTIFIER          yes
+CHARACTER_SET_CATALOG         SQL_IDENTIFIER          no
+CHARACTER_SET_SCHEMA          SQL_IDENTIFIER          no
+CHARACTER_SET_NAME            SQL_IDENTIFIER          no
+NUMERIC_PRECISION             CARDINAL_NUMBER         yes
+NUMERIC_PRECISION_RADIX       CARDINAL_NUMBER         yes
+NUMERIC_SCALE                 CARDINAL_NUMBER         yes
+DATETIME_PRECISION            CARDINAL_NUMBER         yes
+INTERVAL_TYPE                 CHARACTER_DATA          yes
+INTERVAL_PRECISION            CARDINAL_NUMBER         yes
+USER_DEFINED_TYPE_NAME        SQL_IDENTIFIER          yes
+
+METHOD_SIGNATURE_PARAMETERS shows the parameters of the SQL-invoked methods in this Catalog that the current user has Privileges on.
+      ## USER_DEFINED_TYPE_CATALOG, USER_DEFINED_TYPE_SCHEMA, USER_DEFINED_TYPE_NAME uniquely identify the UDT that a parameter is associated with.
+      ## METHOD_CATALOG, METHOD_SCHEMA, METHOD_NAME uniquely identify the SQL-invoked method that contains the parameter.
+      ## ORDINAL_POSITION shows the ordinal position of the parameter in its SQL-invoked method.
+      ## PARAMETER_MODE is either 'IN' (the parameter is an input parameter),
+'OUT' (the parameter is an output parameter) or 'INOUT' (the parameter is both
+an input and an output parameter).
+      ## IS_RESULT is either 'YES' (the parameter is the RESULT parameter of a
+type-preserving function) or 'NO' (the parameter is not the RESULT parameter of a type-preserving function).
+      ## AS_LOCATOR is either 'YES' (the parameter is passed AS LOCATOR) or 'NO' (the parameter is not passed AS LOCATOR).
+      ## PARAMETER_NAME is the name of the parameter, if it was specified when
+the SQL-invoked routine was created. Otherwise, PARAMETER_NAME is NULL.
+      ## DATA_TYPE shows the parameter's <data type>: either 'BINARY LARGE
+OBJECT', 'BIT', 'BIT VARYING', 'CHARACTER', 'CHARACTER VARYING', 'CHARACTER
+LARGE OBJECT', 'INTEGER', 'SMALLINT', 'NUMERIC', 'DECIMAL', 'REAL', 'DOUBLE
+PRECISION', 'FLOAT', 'DATE', 'TIME', 'TIME WITH TIME ZONE', 'TIMESTAMP',
+'TIMESTAMP WITH TIME ZONE', 'INTERVAL', 'BOOLEAN', 'USER-DEFINED TYPE' -- or
+something else, such as an implementation-defined data type.
+      ## CHARACTER_MAXIMUM_LENGTH shows the parameter's maximum length in
+characters (for 'CHARACTER', 'CHARACTER VARYING', 'CHARACTER LARGE OBJECT') or
+in bits (for 'BIT', 'BIT VARYING', 'BINARY LARGE OBJECT'). For other <data
+type>s, CHARACTER_MAXIMUM_LENGTH is NULL.
+      ## CHARACTER_OCTET_LENGTH shows the parameter's maximum length in octets
+(for 'CHARACTER', 'CHARACTER VARYING', 'CHARACTER LARGE OBJECT', 'BIT', 'BIT
+VARYING', 'BINARY LARGE OBJECT'). For other <data type>s, CHARACTER_OCTET_LENGTH is NULL.
+      ## COLLATION_CATALOG, COLLATION_SCHEMA, COLLATION_NAME uniquely identify
+the parameter's default Collation (for 'CHARACTER', 'CHARACTER VARYING',
+'CHARACTER LARGE OBJECT'). For other <data type>s, these fields are NULL.
+      ## CHARACTER_SET_CATALOG, CHARACTER_SET_SCHEMA, CHARACTER_SET_NAME
+uniquely identify the Character set on which the parameter's default Collation is defined.
+      ## NUMERIC_PRECISION shows the parameter's precision (for 'INTEGER',
+'SMALLINT', 'NUMERIC', 'DECIMAL', 'REAL', 'FLOAT', 'DOUBLE PRECISION', 'DATE',
+'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE', 'TIMESTAMP WITH TIME ZONE',
+'INTERVAL'). For other <data type>s, NUMERIC_PRECISION is NULL.
+      ## NUMERIC_PRECISION_RADIX is either 2 or 10, depending on your DBMS
+(for 'INTEGER', 'SMALLINT, 'DATE', 'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE',
+'TIMESTAMP WITH TIME ZONE', 'INTERVAL'), 10 (for 'NUMERIC', 'DECIMAL'), 2 (for
+'REAL', 'FLOAT', 'DOUBLE PRECISION'. For other <data type>s, NUMERIC_PRECISION_RADIX is NULL.
+      ## NUMERIC_SCALE is either 0 (for 'INTEGER', 'SMALLINT') or shows the
+parameter's scale (for 'NUMERIC', 'DECIMAL'). For other <data type>s, NUMERIC_SCALE is NULL.
+      ## DATETIME_PRECISION shows the parameter's fractional-seconds precision
+(for 'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE', 'TIMESTAMP WITH TIME ZONE',
+'INTERVAL'). For other <data type>s, DATETIME_PRECISION is NULL.
+      ## INTERVAL_TYPE shows the parameter's interval type (for 'INTERVAL'):
+either 'YEAR', 'MONTH', 'DAY', 'HOUR', 'MINUTE', 'SECOND', 'YEAR TO MONTH',
+'DAY TO HOUR', 'DAY TO MINUTE', 'DAY TO SECOND', 'HOUR TO MINUTE', 'HOUR TO
+SECOND', 'MINUTE TO SECOND'. For other <data type>s, INTERVAL_TYPE is NULL.
+      ## INTERVAL_PRECISION shows the parameter's precision for the interval
+leading field (for 'INTERVAL'). For other <data type>s, INTERVAL_PRECISION is NULL.
+      ## USER_DEFINED_TYPE_NAME names the UDT that the parameter uses. If no UDT is used, this field is NULL.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.METHOD_SIGNATURE_PARAMETERS.
+
+## INFORMATION_SCHEMA.PARAMETERS
+
+This View has the following Columns:
+
+Name                          Domain                  Nullable?
+SPECIFIC_CATALOG              SQL_IDENTIFIER          no
+SPECIFIC_SCHEMA               SQL_IDENTIFIER          no
+SPECIFIC_NAME                 SQL_IDENTIFIER          no
+ORDINAL_POSITION              CARDINAL_NUMBER         no
+PARAMETER_MODE                CHARACTER_DATA          yes
+IS_RESULT                     CHARACTER_DATA          yes
+AS_LOCATOR                    CHARACTER_DATA          yes
+PARAMETER_NAME                SQL_IDENTIFIER          yes
+DATA_TYPE                     CHARACTER_DATA          no
+CHARACTER_MAXIMUM_LENGTH      CARDINAL_NUMBER         yes
+CHARACTER_OCTET_LENGTH        CARDINAL_NUMBER         yes
+COLLATION_CATALOG             SQL_IDENTIFIER          yes
+COLLATION_SCHEMA              SQL_IDENTIFIER          yes
+COLLATION_NAME                SQL_IDENTIFIER          yes
+CHARACTER_SET_CATALOG         SQL_IDENTIFIER          no
+CHARACTER_SET_SCHEMA          SQL_IDENTIFIER          no
+CHARACTER_SET_NAME            SQL_IDENTIFIER          no
+NUMERIC_PRECISION             CARDINAL_NUMBER         yes
+NUMERIC_PRECISION_RADIX       CARDINAL_NUMBER         yes
+NUMERIC_SCALE                 CARDINAL_NUMBER         yes
+DATETIME_PRECISION            CARDINAL_NUMBER         yes
+INTERVAL_TYPE                 CHARACTER_DATA          yes
+INTERVAL_PRECISION            CARDINAL_NUMBER         yes
+USER_DEFINED_TYPE_NAME        SQL_IDENTIFIER          yes
+
+PARAMETERS shows the parameters of the SQL-invoked routines in this Catalog that the current user has Privileges on.
+      ## SPECIFIC_CATALOG, SPECIFIC_SCHEMA, SPECIFIC_NAME uniquely identify
+the SQL-invoked routine that contains the parameter being described.
+      ## ORDINAL_POSITION shows the ordinal position of the parameter in its SQL-invoked routine.
+      ## PARAMETER_MODE is either 'IN' (the parameter is an input parameter),
+'OUT' (the parameter is an output parameter) or 'INOUT' (the parameter is both
+an input and an output parameter).
+      ## IS_RESULT is either 'YES' (the parameter is the RESULT parameter of a
+type-preserving function) or 'NO' (the parameter is not the RESULT parameter
+of a type-preserving function).
+      ## AS_LOCATOR is either 'YES' (the parameter is passed AS LOCATOR) or
+'NO' (the parameter is not passed AS LOCATOR).
+      ## PARAMETER_NAME is the name of the parameter, if it was specified when
+the SQL-invoked routine was created. Otherwise, PARAMETER_NAME is NULL.
+      ## DATA_TYPE shows the parameter's <data type>: either 'BINARY LARGE
+OBJECT', 'BIT', 'BIT VARYING', 'CHARACTER', 'CHARACTER VARYING', 'CHARACTER
+LARGE OBJECT', 'INTEGER', 'SMALLINT', 'NUMERIC', 'DECIMAL', 'REAL', 'DOUBLE
+PRECISION', 'FLOAT', 'DATE', 'TIME', 'TIME WITH TIME ZONE', 'TIMESTAMP',
+'TIMESTAMP WITH TIME ZONE', 'INTERVAL', 'BOOLEAN', 'USER-DEFINED TYPE' -- or
+something else, such as an implementation-defined data type.
+      ## CHARACTER_MAXIMUM_LENGTH shows the parameter's maximum length in
+characters (for 'CHARACTER', 'CHARACTER VARYING', 'CHARACTER LARGE OBJECT') or
+in bits (for 'BIT', 'BIT VARYING', 'BINARY LARGE OBJECT'). For other <data
+type>s, CHARACTER_MAXIMUM_LENGTH is NULL.
+      ## CHARACTER_OCTET_LENGTH shows the parameter's maximum length in octets
+(for 'CHARACTER', 'CHARACTER VARYING', 'CHARACTER LARGE OBJECT', 'BIT', 'BIT
+VARYING', 'BINARY LARGE OBJECT'). For other <data type>s, CHARACTER_OCTET_LENGTH is NULL.
+      ## COLLATION_CATALOG, COLLATION_SCHEMA, COLLATION_NAME uniquely identify
+the parameter's default Collation (for 'CHARACTER', 'CHARACTER VARYING',
+'CHARACTER LARGE OBJECT'). For other <data type>s, these fields are NULL.
+      ## CHARACTER_SET_CATALOG, CHARACTER_SET_SCHEMA, CHARACTER_SET_NAME
+uniquely identify the Character set on which the parameter's default Collation is defined.
+      ## NUMERIC_PRECISION shows the parameter's precision (for 'INTEGER',
+'SMALLINT', 'NUMERIC', 'DECIMAL', 'REAL', 'FLOAT', 'DOUBLE PRECISION', 'DATE',
+'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE', 'TIMESTAMP WITH TIME ZONE',
+'INTERVAL'). For other <data type>s, NUMERIC_PRECISION is NULL.
+      ## NUMERIC_PRECISION_RADIX is either 2 or 10, depending on your DBMS
+(for 'INTEGER', 'SMALLINT, 'DATE', 'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE',
+'TIMESTAMP WITH TIME ZONE', 'INTERVAL'), 10 (for 'NUMERIC', 'DECIMAL'), 2 (for
+'REAL', 'FLOAT', 'DOUBLE PRECISION'. For other <data type>s, NUMERIC_PRECISION_RADIX is NULL.
+      ## NUMERIC_SCALE is either 0 (for 'INTEGER', 'SMALLINT') or shows the
+parameter's scale (for 'NUMERIC', 'DECIMAL'). For other <data type>s, NUMERIC_SCALE is NULL.
+      ## DATETIME_PRECISION shows the parameter's fractional-seconds precision
+(for 'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE', 'TIMESTAMP WITH TIME ZONE',
+'INTERVAL'). For other <data type>s, DATETIME_PRECISION is NULL.
+      ## INTERVAL_TYPE shows the parameter's interval type (for 'INTERVAL'):
+either 'YEAR', 'MONTH', 'DAY', 'HOUR', 'MINUTE', 'SECOND', 'YEAR TO MONTH',
+'DAY TO HOUR', 'DAY TO MINUTE', 'DAY TO SECOND', 'HOUR TO MINUTE', 'HOUR TO
+SECOND', 'MINUTE TO SECOND'. For other <data type>s, INTERVAL_TYPE is NULL.
+      ## INTERVAL_PRECISION shows the parameter's precision for the interval
+leading field (for 'INTERVAL'). For other <data type>s, INTERVAL_PRECISION is NULL.
+      ## USER_DEFINED_TYPE_NAME names the UDT that the parameter uses. If no UDT is used, this field is NULL.
+
+## INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS
+
+This View has the following Columns:
+
+Name                          Domain                  Nullable?
+CONSTRAINT_CATALOG            SQL_IDENTIFIER          no
+CONSTRAINT_SCHEMA             SQL_IDENTIFIER          no
+CONSTRAINT_NAME               SQL_IDENTIFIER          no
+UNIQUE_CONSTRAINT_CATALOG     SQL_IDENTIFIER          no
+UNIQUE_CONSTRAINT_SCHEMA      SQL_IDENTIFIER          no
+UNIQUE_CONSTRAINT_NAME        SQL_IDENTIFIER          no
+MATCH_OPTION                  CHARACTER_DATA          no
+UPDATE_RULE                   CHARACTER_DATA          no
+DELETE_RULE                   CHARACTER_DATA          no
+
+REFERENTIAL_CONSTRAINTS shows the FOREIGN KEY Constraints in this Catalog,
+where the Constraints are owned by the current user.
+      ## CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, CONSTRAINT_NAME uniquely
+identify a FOREIGN KEY Constraint owned by the current user.
+      ## UNIQUE_CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, UNIQUE_CONSTRAINT_NAME
+uniquely identify the UNIQUE Constraint or PRIMARY KEY Constraint that
+contains the key which this FOREIGN KEY Constraint references.
+      ## MATCH_OPTION will be one of: 'NONE' (no match type defined),
+'PARTIAL' (match type of PARTIAL defined) or 'FULL' (match type of FULL defined).
+      ## UPDATE_RULE shows the referential action that will take place on
+UPDATE: either 'CASCADE' (referential action of CASCADE defined), 'SET NULL'
+(referential action of SET NULL defined), 'SET DEFAULT' (referential action of
+SET DEFAULT defined), 'RESTRICT' (referential action of RESTRICT defined) or
+'NO ACTION' (referential action of NO ACTION defined).
+      ## DELETE_RULE shows the referential action that will take place on
+DELETE: either 'CASCADE' (referential action of CASCADE defined), 'SET NULL'
+(referential action of SET NULL defined), 'SET DEFAULT' (referential action of
+SET DEFAULT defined), 'RESTRICT' (referential action of RESTRICT defined) or
+'NO ACTION' (referential action of NO ACTION defined).
+
+## INFORMATION_SCHEMA.ROLE_COLUMN_GRANTS
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+GRANTOR                 SQL_IDENTIFIER          no
+GRANTEE                 SQL_IDENTIFIER          no
+TABLE_CATALOG           SQL_IDENTIFIER          no
+TABLE_SCHEMA            SQL_IDENTIFIER          no
+TABLE_NAME              SQL_IDENTIFIER          no
+COLUMN_NAME             SQL_IDENTIFIER          no
+PRIVILEGE_TYPE          CHARACTER_DATA          no
+
+ROLE_COLUMN_GRANTS shows the Privileges on Columns in this Catalog that currently enabled Roles may use.
+      ## GRANTOR shows the <AuthorizationID> of the user (or perhaps the Role) who granted this Privilege.
+      ## GRANTEE shows the <AuthorizationID> of the Role that may use the Privilege.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME uniquely identify the Column to which the Privilege applies.
+      ## PRIVILEGE_TYPE shows the Privilege granted: either 'INSERT', 'UPDATE', 'REFERENCES' or 'SELECT'.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.ROLE_COLUMN_GRANTS.
+
+## INFORMATION_SCHEMA.ROLE_ROUTINE_GRANTS
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+GRANTOR                 SQL_IDENTIFIER          no
+GRANTEE                 SQL_IDENTIFIER          no
+SPECIFIC_CATALOG        SQL_IDENTIFIER          no
+SPECIFIC_SCHEMA         SQL_IDENTIFIER          no
+SPECIFIC_NAME           SQL_IDENTIFIER          no
+PRIVILEGE_TYPE          CHARACTER_DATA          no
+IS_GRANTABLE            CHARACTER_DATA          no
+
+ROLE_ROUTINE_GRANTS shows the Privileges on SQL-invoked routines in this Catalog that currently enabled Roles may use.
+      ## GRANTOR shows the <AuthorizationID> of the user (or perhaps the Role) who granted this EXECUTE Privilege.
+      ## GRANTEE shows the <AuthorizationID> of the Role that may use the Privilege.
+      ## SPECIFIC_CATALOG, SPECIFIC_SCHEMA, SPECIFIC_NAME uniquely identify the SQL-invoked routine to which the Privilege applies.
+      ## PRIVILEGE_TYPE shows the Privilege granted: 'EXECUTE'.
+      ## IS_GRANTABLE is either 'YES' (Privilege was granted WITH GRANT OPTION) or 'NO' (Privilege was not granted WITH GRANT OPTION).
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.ROLE_ROUTINE_GRANTS.
+
+## INFORMATION_SCHEMA.ROLE_TABLE_GRANTS
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+GRANTOR                 SQL_IDENTIFIER          no
+GRANTEE                 SQL_IDENTIFIER          no
+TABLE_CATALOG           SQL_IDENTIFIER          no
+TABLE_SCHEMA            SQL_IDENTIFIER          no
+TABLE_NAME              SQL_IDENTIFIER          no
+PRIVILEGE_TYPE          CHARACTER_DATA          no
+
+ROLE_TABLE_GRANTS shows the Privileges on Tables in this Catalog that currently enabled Roles may use.
+      ## GRANTOR shows the <AuthorizationID> of the user (or perhaps the Role) who granted this Privilege.
+      ## GRANTEE shows the <AuthorizationID> of the Role that may use the Privilege.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME uniquely identify the Table to which the Privilege applies.
+      ## PRIVILEGE_TYPE shows the Privilege granted: either 'DELETE', 'INSERT', 'UPDATE', 'REFERENCES', 'TRIGGER' or 'SELECT'.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.ROLE_TABLE_GRANTS.
+
+## INFORMATION_SCHEMA.ROLE_USAGE_GRANTS
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+GRANTOR                 SQL_IDENTIFIER          no
+GRANTEE                 SQL_IDENTIFIER          no
+OBJECT_CATALOG          SQL_IDENTIFIER          no
+OBJECT_SCHEMA           SQL_IDENTIFIER          no
+OBJECT_NAME             SQL_IDENTIFIER          no
+OBJECT_TYPE             CHARACTER_DATA          no
+IS_GRANTABLE            CHARACTER_DATA          no
+
+ROLE_USAGE_GRANTS shows the USAGE Privileges on Objects in this Catalog that currently enabled Roles may use.
+      ## GRANTOR shows the <AuthorizationID> of the user (or perhaps the Role) who granted this Privilege.
+      ## GRANTEE shows the <AuthorizationID> of the Role that may use the Privilege.
+      ## OBJECT_CATALOG, OBJECT_SCHEMA, OBJECT_NAME, OBJECT_TYPE uniquely identify the Object -- either a Domain, Character set, Collation or Translation -- that the Role may use.
+      ## IS_GRANTABLE is either 'YES' (Privilege was granted WITH GRANT OPTION) or 'NO' (Privilege was not granted WITH GRANT OPTION).
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.ROLE_USAGE_GRANTS.
+
+## INFORMATION_SCHEMA.ROLE_USER_DEFINED_TYPE_GRANTS
+
+This View has the following Columns:
+
+Name                          Domain                  Nullable?
+GRANTOR                       SQL_IDENTIFIER          no
+GRANTEE                       SQL_IDENTIFIER          no
+USER_DEFINED_TYPE_CATALOG     SQL_IDENTIFIER          no
+USER_DEFINED_TYPE_SCHEMA      SQL_IDENTIFIER          no
+USER_DEFINED_TYPE_NAME        SQL_IDENTIFIER          no
+PRIVILEGE_TYPE                CHARACTER_DATA          no
+IS_GRANTABLE                  CHARACTER_DATA          no
+
+ROLE_USER_DEFINED_TYPE_GRANTS shows the Privileges on UDTs in this Catalog that currently enabled Roles may use.
+      ## GRANTOR shows the <AuthorizationID> of the user (or perhaps the Role) who granted this Privilege.
+      ## GRANTEE shows the <AuthorizationID> of the Role that may use the Privilege.
+      ## USER_DEFINED_TYPE_CATALOG, USER_DEFINED_TYPE_SCHEMA, USER_DEFINED_TYPE_NAME uniquely identify the UDT the Role may use.
+      ## PRIVILEGE_TYPE shows the Privilege granted: 'TYPE USAGE'.
+      ## IS_GRANTABLE is either 'YES' (Privilege was granted WITH GRANT OPTION) or 'NO' (Privilege was not granted WITH GRANT OPTION).
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.ROLE_USER_DEFINED_TYPE_GRANTS.
+
+## INFORMATION_SCHEMA.ROUTINES
+
+This View has the following Columns:
+
+Name                                Domain                  Nullable?
+SPECIFIC_CATALOG                    SQL_IDENTIFIER          no
+SPECIFIC_SCHEMA                     SQL_IDENTIFIER          no
+SPECIFIC_NAME                       SQL_IDENTIFIER          no
+ROUTINE_CATALOG                     SQL_IDENTIFIER          yes
+ROUTINE_SCHEMA                      SQL_IDENTIFIER          yes
+ROUTINE_NAME                        SQL_IDENTIFIER          yes
+ROUTINE_TYPE                        CHARACTER_DATA          no
+MODULE_CATALOG                      SQL_IDENTIFIER          yes
+MODULE_SCHEMA                       SQL_IDENTIFIER          yes
+MODULE_NAME                         SQL_IDENTIFIER          yes
+USER_DEFINED_TYPE_CATALOG           SQL_IDENTIFIER          yes
+USER_DEFINED_TYPE_SCHEMA            SQL_IDENTIFIER          yes
+USER_DEFINED_TYPE_NAME              SQL_IDENTIFIER          yes
+DATA_TYPE                           CHARACTER_DATA          no
+CHARACTER_MAXIMUM_LENGTH            CARDINAL_NUMBER         yes
+CHARACTER_OCTET_LENGTH              CARDINAL_NUMBER         yes
+COLLATION_CATALOG                   SQL_IDENTIFIER          yes
+COLLATION_SCHEMA                    SQL_IDENTIFIER          yes
+COLLATION_NAME                      SQL_IDENTIFIER          yes
+NUMERIC_PRECISION                   CARDINAL_NUMBER         yes
+NUMERIC_PRECISION_RADIX             CARDINAL_NUMBER         yes
+NUMERIC_SCALE                       CARDINAL_NUMBER         yes
+DATETIME_PRECISION                  CARDINAL_NUMBER         yes
+INTERVAL_TYPE                       CHARACTER_DATA          yes
+INTERVAL_PRECISION                  CARDINAL_NUMBER         yes
+TYPE_USER_DEFINED_TYPE_CATALOG      SQL_IDENTIFIER          yes
+TYPE_USER_DEFINED_TYPE_SCHEMA       SQL_IDENTIFIER          yes
+TYPE_USER_DEFINED_TYPE_NAME         SQL_IDENTIFIER          yes
+ROUTINE_BODY                        CHARACTER_DATA          no
+ROUTINE_DEFINITION                  CHARACTER_DATA          yes
+EXTERNAL_NAME                       SQL_IDENTIFIER          yes
+EXTERNAL_LANGUAGE                   CHARACTER_DATA          yes
+PARAMETER_STYLE                     CHARACTER_DATA          yes
+IS_DETERMINISTIC                    CHARACTER_DATA          yes
+SQL_DATA_ACCESS                     CHARACTER_DATA          no
+SQL_PATH                            CHARACTER_DATA          yes
+SCHEMA_LEVEL_ROUTINE                CHARACTER_DATA          yes
+MAX_DYNAMIC_RESULT_SETS             CARDINAL_NUMBER         yes
+ROUTINE_CREATED                     TIME_STAMP              yes
+ROUTINE_LAST_ALTERED                TIME_STAMP              yes
+
+ROUTINES shows the SQL-invoked routines in this Catalog that the current user has Privileges on.
+      ## SPECIFIC_CATALOG, SPECIFIC_SCHEMA, SPECIFIC_NAME, ROUTINE_CATALOG,
+ROUTINE_SCHEMA, ROUTINE_NAME uniquely identify an SQL-invoked routine that the
+current user has Privileges on. Among the routines in this View, you will find all the functions which your DBMS defined in advance: the SQL built-in functions, e.g.: "ABS", "BIT_LENGTH", "CHARACTER_LENGTH", "CHAR_LENGTH", "LOWER", "MOD", "OCTET_LENGTH", "POSITION", "SUBSTRING", "UPPER".
+      ## ROUTINE_TYPE is either 'PROCEDURE' (the SQL-invoked routine is an
+SQL-invoked procedure), 'FUNCTION' (the SQL-invoked routine is an SQL-invoked
+function that is not an SQL-invoked method) or 'METHOD' (the SQL-invoked routine is an SQL-invoked method).
+      ## MODULE_CATALOG, MODULE_SCHEMA, MODULE_NAME are all NULL.
+      ## USER_DEFINED_TYPE_CATALOG, USER_DEFINED_TYPE_SCHEMA, USER_DEFINED_TYPE_NAME uniquely identify the UDT that this SQL-invoked routine is a method of. If the routine is not defined as a method of a UDT, these fields are NULL.
+      ## DATA_TYPE shows the routine's result <data type>: either 'BINARY
+LARGE OBJECT', 'BIT', 'BIT VARYING', 'CHARACTER', 'CHARACTER VARYING',
+'CHARACTER LARGE OBJECT', 'INTEGER', 'SMALLINT', 'NUMERIC', 'DECIMAL', 'REAL',
+'DOUBLE PRECISION', 'FLOAT', 'DATE', 'TIME', 'TIME WITH TIME ZONE',
+'TIMESTAMP', 'TIMESTAMP WITH TIME ZONE', 'INTERVAL', 'BOOLEAN', 'USER-DEFINED
+TYPE' -- or something else, such as an implementation-defined data type.
+      ## CHARACTER_MAXIMUM_LENGTH shows the routine's result maximum length in
+characters (for 'CHARACTER', 'CHARACTER VARYING', 'CHARACTER LARGE OBJECT') or
+in bits (for 'BIT', 'BIT VARYING', 'BINARY LARGE OBJECT'). For other <data
+type>s, CHARACTER_MAXIMUM_LENGTH is NULL.
+      ## CHARACTER_OCTET_LENGTH shows the routine's result maximum length in
+octets (for 'CHARACTER', 'CHARACTER VARYING', 'CHARACTER LARGE OBJECT', 'BIT',
+'BIT VARYING', 'BINARY LARGE OBJECT'). For other <data type>s, CHARACTER_OCTET_LENGTH is NULL.
+      ## COLLATION_CATALOG, COLLATION_SCHEMA, COLLATION_NAME uniquely identify
+the routine's result default Collation (for 'CHARACTER', 'CHARACTER VARYING',
+'CHARACTER LARGE OBJECT'). For other <data type>s, these fields are NULL.
+      ## NUMERIC_PRECISION shows the routine's result precision (for
+'INTEGER', 'SMALLINT', 'NUMERIC', 'DECIMAL', 'REAL', 'FLOAT', 'DOUBLE
+PRECISION', 'DATE', 'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE', 'TIMESTAMP
+WITH TIME ZONE', 'INTERVAL'). For other <data type>s, NUMERIC_PRECISION is NULL.
+      ## NUMERIC_PRECISION_RADIX is either 2 or 10, depending on your DBMS
+(for 'INTEGER', 'SMALLINT, 'DATE', 'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE',
+'TIMESTAMP WITH TIME ZONE', 'INTERVAL'), 10 (for 'NUMERIC', 'DECIMAL'), 2 (for
+'REAL', 'FLOAT', 'DOUBLE PRECISION'. For other <data type>s, NUMERIC_PRECISION_RADIX is NULL.
+      ## NUMERIC_SCALE is either 0 (for 'INTEGER', 'SMALLINT') or shows the
+routine's result scale (for 'NUMERIC', 'DECIMAL'). For other <data type>s, NUMERIC_SCALE is NULL.
+      ## DATETIME_PRECISION shows the routine's result fractional-seconds
+precision (for 'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE', 'TIMESTAMP WITH
+TIME ZONE', 'INTERVAL'). For other <data type>s, DATETIME_PRECISION is NULL.
+      ## INTERVAL_TYPE shows the routine's result interval type (for
+'INTERVAL'): either 'YEAR', 'MONTH', 'DAY', 'HOUR', 'MINUTE', 'SECOND', 'YEAR
+TO MONTH', 'DAY TO HOUR', 'DAY TO MINUTE', 'DAY TO SECOND', 'HOUR TO MINUTE',
+'HOUR TO SECOND', 'MINUTE TO SECOND'. For other <data type>s, INTERVAL_TYPE is NULL.
+      ## INTERVAL_PRECISION shows the routine's result precision for the interval leading field (for 'INTERVAL'). For other <data type>s, INTERVAL_PRECISION is NULL.
+      ## TYPE_USER_DEFINED_TYPE_CATALOG, TYPE_USER_DEFINED_TYPE_SCHEMA,
+TYPE_USER_DEFINED_TYPE_NAME uniquely identify a UDT that the routine uses. If no UDT is used, these fields are NULL.
+      ## ROUTINE_BODY is either 'SQL' (the SQL-invoked routine is an SQL
+routine) or 'EXTERNAL' (the SQL-invoked routine is an external routine).
+      ## If this SQL-invoked routine is an SQL routine that is not part of an
+SQL-server Module definition, ROUTINE_DEFINITION shows the routine body. If
+the routine body was too big to be stored, or if this is not an SQL routine
+that doesn't belong to an SQL-server Module definition, ROUTINE_DEFINITION is NULL.
+      ## If this SQL-invoked routine is an external routine (i.e.: ROUTINE_BODY is 'EXTERNAL'), EXTERNAL_NAME shows its external name. If ROUTINE_BODY is 'SQL', EXTERNAL_NAME is NULL.
+      ## If this SQL-invoked routine is an external routine (i.e.:
+ROUTINE_BODY is 'EXTERNAL'), EXTERNAL_LANGUAGE shows the language it's written
+in: either 'ADA', 'C', 'COBOL','FORTRAN', 'MUMPS', 'PASCAL' or 'PLI'. If
+ROUTINE_BODY is 'SQL', EXTERNAL_LANGUAGE is NULL.
+      ## If this SQL-invoked routine is an external routine (i.e.:
+ROUTINE_BODY is 'EXTERNAL'), PARAMETER_STYLE shows its SQL parameter passing
+style: either 'SQL' or 'GENERAL'. If ROUTINE_BODY is 'SQL', PARAMETER_STYLE is NULL.
+      ## If this SQL-invoked routine is an external routine (i.e.:
+ROUTINE_BODY is 'EXTERNAL'), IS_DETERMINISTIC is either 'YES' (routine was
+defined as DETERMINISTIC) or 'NO' (routine was not defined as DETERMINISTIC).
+If ROUTINE_BODY is 'SQL', IS_DETERMINISTIC is NULL.
+      ## SQL_DATA_ACCESS is either 'NONE' (the SQL-invoked routine does not
+possibly contain SQL), 'CONTAINS' (the SQL-invoked routine possibly contains
+SQL), ' READS' (the SQL-invoked routine possibly reads SQL-data) or 'MODIFIES'
+(the SQL-invoked routine possibly modifies SQL-data).
+      ## If this SQL-invoked routine is an SQL routine, SQL_PATH shows the SQL-path of the Schema that contains it. Otherwise, SQL_PATH is NULL.
+      ## SCHEMA_LEVEL_ROUTINE is either 'YES' (this is a Schema-level routine)
+or 'NO' (this is not a Schema-level routine).
+      ## If this is an SQL-invoked procedure that was defined by an
+SQL-invoked routine containing a <maximum dynamic result sets> clause in its
+definition, MAX_DYNAMIC_RESULT_SETS shows that value. Otherwise, MAX_DYNAMIC_RESULT_SETS is zero.
+      ## ROUTINE_CREATED shows the CURRENT_TIMESTAMP from the time this SQL-invoked routine was created.
+      ## ROUTINE_LAST_ALTERED shows the CURRENT_TIMESTAMP from the time this
+SQL-invoked routine was last altered. (This will be the same as the
+ROUTINE_CREATED value if the routine hasn't been altered.)
+
+## INFORMATION_SCHEMA.ROUTINE_COLUMN_USAGE
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+SPECIFIC_CATALOG        SQL_IDENTIFIER          no
+SPECIFIC_SCHEMA         SQL_IDENTIFIER          no
+SPECIFIC_NAME           SQL_IDENTIFIER          no
+ROUTINE_CATALOG         SQL_IDENTIFIER          yes
+ROUTINE_SCHEMA          SQL_IDENTIFIER          yes
+ROUTINE_NAME            SQL_IDENTIFIER          yes
+TABLE_CATALOG           SQL_IDENTIFIER          no
+TABLE_SCHEMA            SQL_IDENTIFIER          no
+TABLE_NAME              SQL_IDENTIFIER          no
+COLUMN_NAME             SQL_IDENTIFIER          no
+
+ROUTINE_COLUMN_USAGE shows the Columns on which SQL-invoked routines in this Catalog depend, where the Columns are owned by the current user.
+      ## SPECIFIC_CATALOG, SPECIFIC_SCHEMA, SPECIFIC_NAME, ROUTINE_CATALOG,
+ROUTINE_SCHEMA, ROUTINE_NAME uniquely identify an SQL-invoked routine.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME uniquely
+identify a Column that is owned by the current user and upon which this routine depends.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.ROUTINE_COLUMN_USAGE.
+
+## INFORMATION_SCHEMA.ROUTINE_PRIVILEGES
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+GRANTOR                 SQL_IDENTIFIER          no
+GRANTEE                 SQL_IDENTIFIER          no
+SPECIFIC_CATALOG        SQL_IDENTIFIER          no
+SPECIFIC_SCHEMA         SQL_IDENTIFIER          no
+SPECIFIC_NAME           SQL_IDENTIFIER          no
+ROUTINE_CATALOG         SQL_IDENTIFIER          yes
+ROUTINE_SCHEMA          SQL_IDENTIFIER          yes
+ROUTINE_NAME            SQL_IDENTIFIER          yes
+PRIVILEGE_TYPE          CHARACTER_DATA          no
+IS_GRANTABLE            CHARACTER_DATA          no
+
+ROUTINE_PRIVILEGES shows the Privileges on SQL-invoked routines in this
+Catalog, where the Privileges are either available to, or granted by, the
+current user.
+      ## GRANTOR shows the <AuthorizationID> of the user (or perhaps the Role) who granted the Privilege.
+      ## GRANTEE shows the <AuthorizationID> of the user (or perhaps the Role)
+who may use the Privilege. By definition, if GRANTOR isn't CURRENT_USER, then
+GRANTEE is either CURRENT_USER or 'PUBLIC'.
+      ## SPECIFIC_CATALOG, SPECIFIC_SCHEMA, SPECIFIC_NAME, ROUTINE_CATALOG,
+ROUTINE_SCHEMA, ROUTINE_NAME uniquely identify the SQL-invoked routine that this Privilege applies to.
+      ## PRIVILEGE_TYPE shows the Privilege granted: 'EXECUTE'.
+      ## IS_GRANTABLE is either 'YES' (Privilege was granted WITH GRANT OPTION) or 'NO' (Privilege was not granted WITH GRANT OPTION).
+
+## INFORMATION_SCHEMA.ROUTINE_TABLE_USAGE
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+SPECIFIC_CATALOG        SQL_IDENTIFIER          no
+SPECIFIC_SCHEMA         SQL_IDENTIFIER          no
+SPECIFIC_NAME           SQL_IDENTIFIER          no
+ROUTINE_CATALOG         SQL_IDENTIFIER          yes
+ROUTINE_SCHEMA          SQL_IDENTIFIER          yes
+ROUTINE_NAME            SQL_IDENTIFIER          yes
+TABLE_CATALOG           SQL_IDENTIFIER          no
+TABLE_SCHEMA            SQL_IDENTIFIER          no
+TABLE_NAME              SQL_IDENTIFIER          no
+
+ROUTINE_TABLE_USAGE shows the Tables on which SQL-invoked routines in this
+Catalog depend, where the Tables are owned by the current user.
+      ## SPECIFIC_CATALOG, SPECIFIC_SCHEMA, SPECIFIC_NAME, ROUTINE_CATALOG,
+ROUTINE_SCHEMA, ROUTINE_NAME uniquely identify an SQL-invoked routine in this Catalog.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME uniquely identify a Table that is owned by the current user and upon which this routine depends.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.ROUTINE_TABLE_USAGE.
+
+## INFORMATION_SCHEMA.SCHEMATA
+
+This View has the following Columns:
+
+Name                             Domain                  Nullable?
+CATALOG_NAME                     SQL_IDENTIFIER          no
+SCHEMA_NAME                      SQL_IDENTIFIER          no
+SCHEMA_OWNER                     SQL_IDENTIFIER          no
+DEFAULT_CHARACTER_SET_CATALOG    SQL_IDENTIFIER          no
+DEFAULT_CHARACTER_SET_SCHEMA     SQL_IDENTIFIER          no
+DEFAULT_CHARACTER_SET_NAME       SQL_IDENTIFIER          no
+SQL_PATH                         CHARACTER_DATA          yes
+
+SCHEMATA shows the Schemas in this Catalog that are owned by the current user.
+      ## CATALOG_NAME, SCHEMA_NAME uniquely identify a Schema owned by the user.
+      ## SCHEMA_OWNER shows the <AuthorizationID> of the current user. This was the Schema owner specified in the Schema definition.
+      ## DEFAULT_CHARACTER_SET_CATALOG, DEFAULT_CHARACTER_SET_SCHEMA,
+DEFAULT_CHARACTER_SET_NAME uniquely identify the Character set that was
+specified by a DEFAULT CHARACTER SET clause in the Schema definition. This is
+the default Character set for the Columns and Domains belonging to this Schema.
+      ## SQL_PATH shows the contents of the Schema definition's PATH clause,
+if there was one. If PATH was omitted, or if its value was too large to be
+stored, SQL_PATH is NULL.
+
+## INFORMATION_SCHEMA.SQL_FEATURES
+
+This View has the following Columns:
+
+Name              Domain            Nullable?
+FEATURE_ID        CHARACTER_DATA    no
+FEATURE_NAME      CHARACTER_DATA    no
+SUB_FEATURE_ID    CHARACTER_DATA    no
+SUB_FEATURE_NAME  CHARACTER_DATA    no
+IS_SUPPORTED      CHARACTER_DATA    no
+IS_VERIFIED_BY    CHARACTER_DATA    yes
+FEATURE_COMMENTS  CHARACTER_DATA    yes
+
+SQL_FEATURES shows all the SQL Standard-defined features and subfeatures (see
+Appendix B -- SQL Taxonomy for a list of these), and marks the ones your DBMS supports.
+      ## FEATURE_ID, SUB_FEATURE_ID uniquely identify an SQL feature or
+subfeature. If SUB_FEATURE_ID is zero, this is a feature; otherwise this is a subfeature.
+      ## FEATURE_NAME is the name assigned to the feature by the Standard.
+      ## SUB_FEATURE_NAME is the name assigned to the subfeature by the
+Standard. If SUB_FEATURE_NAME is a zero-length string, this is a feature; otherwise this is a subfeature.
+      ## IS_SUPPORTED is either 'YES' (the DBMS fully supports this
+feature/subfeature) or 'NO' (the DBMS doesn't fully support this
+feature/subfeature). Note: if IS_SUPPORTED is 'YES' for a feature, then it
+must also be 'YES' for every subfeature of that feature.
+      ## If your DBMS has had its conformance claim for this
+feature/subfeature independently tested, IS_VERIFIED_BY identifies the
+conformance test used to verify the claim. If no such verification exists,
+IS_VERIFIED_BY is NULL. (Note: if IS_SUPPORTED is 'NO' or NULL, IS_VERIFIED_BY
+must be NULL.)
+      ## FEATURE_COMMENTS is either NULL, or shows any implementer's comments that are pertinent to this feature/subfeature.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.SQL_FEATURES.
+
+## INFORMATION_SCHEMA.SQL_IMPLEMENTATION_INFO
+
+This View has the following Columns:
+
+Name                          Domain                  Nullable?
+IMPLEMENTATION_INFO_ID        CHARACTER_DATA          no
+IMPLEMENTATION_INFO_NAME      CHARACTER_DATA          no
+INTEGER_VALUE                 CARDINAL_NUMBER         yes
+CHARACTER_VALUE               CHARACTER_DATA          yes
+IMPLEMENTATION_INFO_COMMENTS  CHARACTER_DATA          yes
+
+SQL_IMPLEMENTATION_INFO lists all the information items that the SQL Standard
+states are "implementor-defined" and shows your DBMS's defined value for each one.
+      ## IMPLEMENTATION_INFO_ID uniquely identifies an implementor-defined information item.
+      ## IMPLEMENTATION_INFO_NAME shows the name for this IMPLEMENTATION_INFO_ID.
+      ## INTEGER_VALUE and CHARACTER_VALUE show your DBMS's defined value for
+this item. Depending on the item's type, one field will contain a value and
+the other will be NULL. If INTEGER_VALUE is zero, or CHARACTER_VALUE is a
+zero-length string, then your DBMS's value for this item is not known. If both
+fields are NULL, then the value for this item is not applicable for your DBMS,
+probably because the feature is not supported.
+      ## IMPLEMENTATION_INFO_COMMENTS is either NULL, or shows any implementer's comments that are pertinent to this item.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.SQL_IMPLEMENTATION_INFO.
+
+## INFORMATION_SCHEMA.SQL_SIZING
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+SIZING_ID               CARDINAL_NUMBER         no
+SIZING_NAME             CHARACTER_DATA          no
+SUPPORTED_VALUE         CARDINAL_NUMBER         yes
+SIZING_COMMENTS         CHARACTER_DATA          yes
+
+SQL_SIZING lists all the sizing items defined in the SQL Standard and shows
+the size supported by your DBMS for each one.
+      ## SIZING_ID uniquely identifies a sizing item defined in the SQL Standard.
+      ## SIZING_NAME shows the name for this SIZING_ID.
+      ## SUPPORTED_VALUE shows the maximum size your DBMS supports for this
+item. If SUPPORTED_VALUE is NULL, then your DBMS doesn't support any features
+that use this item. If SUPPORTED_VALUE is zero, then your DBMS either doesn't
+place a limit on this item or can't determine the item's limit.
+      ## SIZING_COMMENTS is either NULL, or shows any implementer's comments that are pertinent to this item.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.SQL_SIZING.
+
+## INFORMATION_SCHEMA.SQL_SIZING_PROFILES
+
+This View has the following Columns:
+
+Name                          Domain                  Nullable?
+SIZING_ID                     CARDINAL_NUMBER         no
+SIZING_NAME                   CHARACTER_DATA          no
+PROFILE_ID                    CHARACTER_DATA          no
+REQUIRED_VALUE                CARDINAL_NUMBER         yes
+SIZING_PROFILES_COMMENTS      CHARACTER_DATA          yes
+
+SQL_SIZING_PROFILES lists all the sizing items defined in the SQL Standard and
+shows the size required by one or more profiles of the Standard.
+      ## SIZING_ID, PROFILE_ID uniquely identify a sizing item for a given profile.
+      ## SIZING_NAME is the name for this SIZING_ID.
+      ## REQUIRED_VALUE shows the minimum size that this profile requires for
+this item. If REQUIRED_VALUE is NULL, then the item isn't used by any features
+supported by this profile. If REQUIRED_VALUE is zero, then this profile doesn't set a limit for the item.
+      ## SIZING_PROFILES_COMMENTS is either NULL, or shows any implementer's comments that are pertinent to this item within this profile.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.SQL_SIZING_PROFILES.
+
+## INFORMATION_SCHEMA.SQL_LANGUAGES
+
+This View has the following Columns:
+
+Name                                Domain            Nullable?
+SQL_LANGUAGE_SOURCE                 CHARACTER_DATA    no
+SQL_LANGUAGE_YEAR                   CHARACTER_DATA    yes
+SQL_LANGUAGE_CONFORMANCE            CHARACTER_DATA    yes
+SQL_LANGUAGE_INTEGRITY              CHARACTER_DATA    yes
+SQL_LANGUAGE_IMPLEMENTATION         CHARACTER_DATA    yes
+SQL_LANGUAGE_BINDING_STYLE          CHARACTER_DATA    yes
+SQL_LANGUAGE_PROGRAMMING_LANGUAGE   CHARACTER_DATA    yes
+
+SQL_LANGUAGES shows the SQL conformance levels, options and dialects supported by your DBMS.
+      ## SQL_LANGUAGE_SOURCE shows the name of the source of your DBMS's SQL
+language definition. For SQL defined by the SQL Standard, this is 'ISO 9075'.
+If your DBMS supports some other version of SQL, SQL_LANGUAGE_SOURCE must show
+some implementation-defined value, as must all of the Columns in this View.
+We'll ignore this possibility when discussing the rest of the Columns.
+      ## SQL_LANGUAGE_YEAR shows the year that the supported version of the
+SQL Standard was approved: either '1987', '1989', '1992' or '1998'. It may not be NULL.
+      ## SQL_LANGUAGE_CONFORMANCE shows the level of SQL Standard conformance
+your DBMS claims: for '1987' and '1989', either '1' or '2'; for '1992', either
+'ENTRY', 'INTERMEDIATE' or 'FULL'; and for '1998', 'CORE'. It may not be NULL.
+      ## SQL_LANGUAGE_INTEGRITY shows whether the 1989 SQL Standard integrity
+features are fully supported by your DBMS: for '1989', either 'YES' (SQL-89
+integrity features fully supported) or 'NO' (SQL-89 integrity features not
+fully supported); it may not be NULL. For '1987', '1992' and '1998', SQL_LANGUAGE_INTEGRITY must be NULL.
+      ## SQL_LANGUAGE_IMPLEMENTATION is NULL if SQL_LANGUAGE_SOURCE is 'ISO
+9075'. If your DBMS supports some other version of SQL, SQL_LANGUAGE_IMPLEMENTATION shows some implementation-defined value.
+      ## SQL_LANGUAGE_BINDING_STYLE shows the binding style supported by your
+DBMS: either 'MODULE' (SQL-client Module support), 'EMBEDDED' (embedded SQL
+support) or 'DIRECT' (direct SQL invocation support). It may not be NULL.
+Note: if your DBMS supports more than one binding style, there will be a
+separate row in the View for each one.
+      ## SQL_LANGUAGE_PROGRAMMING_LANGUAGE shows the host language supported
+by your DBMS for this binding style: (a) for 'DIRECT', this Column is NULL;
+(b) for '1987' and '1989' and either 'EMBEDDED' or 'MODULE', either 'COBOL',
+'FORTRAN', 'PASCAL' or 'PLI' and (c) for '1992' and either 'EMBEDDED' or
+'MODULE', either 'ADA', 'C', 'COBOL', 'FORTRAN', 'MUMPS', 'PASCAL' or 'PLI'.
+Note: if your DBMS supports more than one host language for this binding
+style, there will be a separate row in the View for each one.
+
+## INFORMATION_SCHEMA.TABLES
+
+This View has the following Columns:
+
+Name              Domain                  Nullable?
+TABLE_CATALOG     SQL_IDENTIFIER          no
+TABLE_SCHEMA      SQL_IDENTIFIER          no
+TABLE_NAME        SQL_IDENTIFIER          no
+TABLE_TYPE        CHARACTER_DATA          no
+
+TABLES shows the Tables (i.e.: Base tables and Views) in this Catalog that the
+current user has Privileges on.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME uniquely identify a Table
+which the current user may use -- i.e.: CURRENT_USER (or PUBLIC) has any
+Privilege on the Table or on any Column of the Table.
+      ## TABLE_TYPE is either: 'BASE TABLE' (for a persistent Base table),
+'VIEW' (for a View), 'LOCAL TEMPORARY' (for a local temporary Table) or
+'GLOBAL TEMPORARY' (for a global temporary Table). Note: instead of 'BASE
+TABLE' some DBMSs will return 'TABLE' because (for some reason or other) Delphi expects 'TABLE' here.
+
+## INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+CONSTRAINT_CATALOG      SQL_IDENTIFIER          no
+CONSTRAINT_SCHEMA       SQL_IDENTIFIER          no
+CONSTRAINT_NAME         SQL_IDENTIFIER          no
+TABLE_CATALOG           SQL_IDENTIFIER          no
+TABLE_SCHEMA            SQL_IDENTIFIER          no
+TABLE_NAME              SQL_IDENTIFIER          no
+CONSTRAINT_TYPE         CHARACTER_DATA          no
+IS_DEFERRABLE           CHARACTER_DATA          no
+INITIALLY_DEFERRED      CHARACTER_DATA          no
+
+TABLE_CONSTRAINTS shows the Table Constraints in this Catalog, where the Constraints are owned by the current user.
+      ## CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, CONSTRAINT_NAME uniquely identify a Constraint owned by the current user.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME uniquely identify the Table to which this Constraint applies.
+      ## CONSTRAINT_TYPE is either: 'UNIQUE', 'PRIMARY KEY', 'FOREIGN KEY' or 'CHECK'.
+      ## IS_DEFERRABLE is either 'YES' (the Constraint is DEFERRABLE) or 'NO' (the Constraint is NOT DEFERRABLE).
+      ## INITIALLY_DEFERRED is either 'YES' (the Constraint is INITIALLY DEFERRED) or 'NO' (the Constraint is INITIALLY IMMEDIATE).
+
+## INFORMATION_SCHEMA.TABLE_PRIVILEGES
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+GRANTOR                 SQL_IDENTIFIER          no
+GRANTEE                 SQL_IDENTIFIER          no
+TABLE_CATALOG           SQL_IDENTIFIER          no
+TABLE_SCHEMA            SQL_IDENTIFIER          no
+TABLE_NAME              SQL_IDENTIFIER          no
+PRIVILEGE_TYPE          CHARACTER_DATA          no
+IS_GRANTABLE            CHARACTER_DATA          no
+
+TABLE_PRIVILEGES shows the Privileges on Tables in this Catalog, where the
+Privileges are either available to, or granted by, the current user.
+      ## GRANTOR shows the <AuthorizationID> of the user (or perhaps the Role) who granted the Privilege.
+      ## GRANTEE shows the <AuthorizationID> of the user (or perhaps the Role)
+who may use the Privilege. By definition, if GRANTOR isn't CURRENT_USER, then
+GRANTEE is either CURRENT_USER or 'PUBLIC'.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME uniquely identify a Table in this Catalog.
+      ## PRIVILEGE_TYPE shows the Privilege granted: either 'INSERT', 'UPDATE', 'REFERENCES', 'DELETE', 'TRIGGER' or 'SELECT'.
+      ## IS_GRANTABLE is either 'YES' (Privilege was granted WITH GRANT OPTION) or 'NO' (Privilege was not granted WITH GRANT OPTION).
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.TABLE_PRIVILEGES.
+
+## INFORMATION_SCHEMA.TRANSFORMS
+
+This View has the following Columns:
+
+Name                          Domain                  Nullable?
+USER_DEFINED_TYPE_CATALOG     SQL_IDENTIFIER          no
+USER_DEFINED_TYPE_SCHEMA      SQL_IDENTIFIER          no
+USER_DEFINED_TYPE_NAME        SQL_IDENTIFIER          no
+SPECIFIC_CATALOG              SQL_IDENTIFIER          yes
+SPECIFIC_SCHEMA               SQL_IDENTIFIER          yes
+SPECIFIC_NAME                 SQL_IDENTIFIER          yes
+GROUP_NAME                    SQL_IDENTIFIER          no
+TRANSFORM_TYPE                CHARACTER_DATA          no
+
+TRANSFORMS shows the transforms on UDTs in this Catalog, where the transforms may be used by the current user.
+      ## USER_DEFINED_TYPE_CATALOG, USER_DEFINED_TYPE_SCHEMA, USER_DEFINED_TYPE_NAME uniquely identify the UDT to which this transform applies.
+      ## SPECIFIC_CATALOG, SPECIFIC_SCHEMA, SPECIFIC_NAME uniquely identify the SQL-invoked routine that acts as the transform function for this transform.
+      ## GROUP_NAME is the name of the transform group.
+      ## TRANSFORM_TYPE is either: 'TO SQL' (the transform is a to-sql function) or 'FROM SQL' (the transform is a from-sql function).
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.TRANSFORMS.
+
+## INFORMATION_SCHEMA.TRANSLATIONS
+
+This View has the following Columns:
+
+Name                                Domain                  Nullable?
+TRANSLATION_CATALOG                 SQL_IDENTIFIER          no
+TRANSLATION_SCHEMA                  SQL_IDENTIFIER          no
+TRANSLATION_NAME                    SQL_IDENTIFIER          no
+SOURCE_CHARACTER_SET_CATALOG        SQL_IDENTIFIER          no
+SOURCE_CHARACTER_SET_SCHEMA         SQL_IDENTIFIER          no
+SOURCE_CHARACTER_SET_NAME           SQL_IDENTIFIER          no
+TARGET_CHARACTER_SET_CATALOG        SQL_IDENTIFIER          no
+TARGET_CHARACTER_SET_SCHEMA         SQL_IDENTIFIER          no
+TARGET_CHARACTER_SET_NAME           SQL_IDENTIFIER          no
+TRANSLATION_DEFINITION              CHARACTER_DATA          no
+
+TRANSLATIONS shows the Translations in this Catalog that the current user has Privileges on.
+      ## TRANSLATION_CATALOG, TRANSLATION_SCHEMA, TRANSLATION_NAME uniquely identify a Translation that the current user may use.
+      ## SOURCE_CHARACTER_SET_CATALOG, SOURCE_CHARACTER_SET_SCHEMA, SOURCE_CHARACTER_SET_NAME uniquely identify the Character set named in the FOR clause of the Translation definition.
+      ## TARGET_CHARACTER_SET_CATALOG, TARGET_CHARACTER_SET_SCHEMA, TARGET_CHARACTER_SET_NAME uniquely identify the Character set named in the TO clause of the Translation definition.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.TRANSLATIONS.
+
+## INFORMATION_SCHEMA.TRIGGERED_UPDATE_COLUMNS
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+TRIGGER_CATALOG         SQL_IDENTIFIER          no
+TRIGGER_SCHEMA          SQL_IDENTIFIER          no
+TRIGGER_NAME            SQL_IDENTIFIER          no
+EVENT_OBJECT_CATALOG    SQL_IDENTIFIER          no
+EVENT_OBJECT_SCHEMA     SQL_IDENTIFIER          no
+EVENT_OBJECT_TABLE      SQL_IDENTIFIER          no
+EVENT_OBJECT_COLUMN     SQL_IDENTIFIER          no
+
+TRIGGERED_UPDATE_COLUMNS shows the Columns in this Catalog that are referenced
+by the explicit UPDATE trigger event Columns of a Trigger in this Catalog, where the Trigger is owned by the current user.
+      ## TRIGGER_CATALOG, TRIGGER_SCHEMA, TRIGGER_NAME uniquely identify a Trigger with a trigger event of UPDATE. The Trigger is owned by the current user.
+      ## EVENT_OBJECT_CATALOG, EVENT_OBJECT_SCHEMA, EVENT_OBJECT_TABLE, EVENT_OBJECT_COLUMN uniquely identify a Column that is affected by the Trigger.
+
+## INFORMATION_SCHEMA.TRIGGERS
+
+This View has the following Columns:
+
+Name                          Domain            Nullable?
+TRIGGER_CATALOG               SQL_IDENTIFIER    no
+TRIGGER_SCHEMA                SQL_IDENTIFIER    no
+TRIGGER_NAME                  SQL_IDENTIFIER    no
+EVENT_MANIPULATION            CHARACTER_DATA    yes
+EVENT_OBJECT_CATALOG          SQL_IDENTIFIER    no
+EVENT_OBJECT_SCHEMA           SQL_IDENTIFIER    no
+EVENT_OBJECT_TABLE            SQL_IDENTIFIER    no
+CONDITION_TIMING              CHARACTER_DATA    yes
+CONDITION_REFERENCE_OLD_TABLE SQL_IDENTIFIER    yes
+CONDITION_REFERENCE_NEW_TABLE SQL_IDENTIFIER    yes
+ACTION_ORDER                  CARDINAL_NUMBER   no
+ACTION_CONDITION              CHARACTER_DATA    yes
+ACTION_STATEMENT              CHARACTER_DATA    no
+ACTION_ORIENTATION            CHARACTER_DATA    yes
+COLUMN_LIST_IS_IMPLICIT       SQL_IDENTIFIER    yes
+
+TRIGGERS shows the Triggers in this Catalog, where the Triggers are owned by the current user.
+      ## TRIGGER_CATALOG, TRIGGER_SCHEMA, TRIGGER_NAME uniquely identify a Trigger that is owned by the current user.
+      ## EVENT_MANIPULATION is either: 'INSERT' (the trigger event is INSERT),
+'DELETE' (the trigger event is DELETE) or 'UPDATE' (the trigger event is UPDATE).
+      ## EVENT_OBJECT_CATALOG, EVENT_OBJECT_SCHEMA, EVENT_OBJECT_TABLE uniquely identify the Table the Trigger acts on.
+      ## CONDITION_TIMING is either: 'BEFORE' (the trigger action time is BEFORE) or 'AFTER' (the trigger action time is AFTER).
+      ## CONDITION_REFERENCE_OLD_TABLE shows the <old value correlation name> of the Trigger.
+      ## CONDITION_REFERENCE_NEW_TABLE shows the <new value correlation name> of the Trigger.
+      ## ACTION_ORDER shows the ordinal position of the triggered action in
+the list of all Triggers on the same Table, where the Triggers have the same
+EVENT_MANIPULATION, CONDITION_TIMING and ACTION_ORIENTATION values.
+      ## ACTION_CONDITION shows the Trigger's search condition for its triggered action.
+      ## ACTION_STATEMENT shows the Trigger's statement list for its triggered action.
+      ## ACTION_ORIENTATION is either: 'ROW' (the trigger action is FOR EACH
+ROW) or 'STATEMENT' (the trigger action is FOR EACH STATEMENT).
+      ## COLUMN_LIST_IS_IMPLICIT is either: 'YES' (the trigger event is UPDATE
+and the trigger Column list is implicit), 'NO' (the trigger event is UPDATE
+and the trigger Column list is explicit) or NULL (the trigger event is INSERT or DELETE).
+
+## INFORMATION_SCHEMA.TRIGGER_COLUMN_USAGE
+
+This View has the following Columns:
+
+Name              Domain            Nullable?
+TRIGGER_CATALOG   SQL_IDENTIFIER    no
+TRIGGER_SCHEMA    SQL_IDENTIFIER    no
+TRIGGER_NAME      SQL_IDENTIFIER    no
+TABLE_CATALOG     SQL_IDENTIFIER    no
+TABLE_SCHEMA      SQL_IDENTIFIER    no
+TABLE_NAME        SQL_IDENTIFIER    no
+COLUMN_NAME       SQL_IDENTIFIER    no
+
+TRIGGER_COLUMN_USAGE shows the Columns on which Triggers in this Catalog
+depend, where the Triggers are owned by the current user.
+      ## TRIGGER_CATALOG, TRIGGER_SCHEMA, TRIGGER_NAME uniquely identify a
+Trigger that is owned by the current user. The Trigger's trigger event is either 'INSERT' or 'DELETE'.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME uniquely
+identify a Column that this Trigger depends on. The dependence is created by
+one of two things: either (a) this Column belongs to a Table named in the
+search condition of this Trigger's triggered action clause or (b) this Column,
+or the Table it belongs to, is referred to in a triggered SQL statement of this Trigger's definition.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.TRIGGER_COLUMN_USAGE.
+
+## INFORMATION_SCHEMA.TRIGGER_TABLE_USAGE
+
+This View has the following Columns:
+
+Name              Domain            Nullable?
+TRIGGER_CATALOG   SQL_IDENTIFIER    no
+TRIGGER_SCHEMA    SQL_IDENTIFIER    no
+TRIGGER_NAME      SQL_IDENTIFIER    no
+TABLE_CATALOG     SQL_IDENTIFIER    no
+TABLE_SCHEMA      SQL_IDENTIFIER    no
+TABLE_NAME        SQL_IDENTIFIER    no
+
+TRIGGER_TABLE_USAGE shows the Tables on which Triggers in this Catalog depend, where the Triggers are owned by the current user.
+      ## TRIGGER_CATALOG, TRIGGER_SCHEMA, TRIGGER_NAME uniquely identify a Trigger that is owned by the current user.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME uniquely identify a Table
+that this Trigger depends on. The dependence is created by one of two things:
+either (a) this Table is named in the search condition of this Trigger's
+triggered action clause or (b) this Table is referred to in a triggered SQL
+statement of this Trigger's definition.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.TRIGGER_TABLE_USAGE.
+
+## INFORMATION_SCHEMA.TYPE_INFO
+
+[NON-PORTABLE] The total number of Views in INFORMATION_SCHEMA is non-standard
+because the SQL Standard allows vendors to add additional Views to describe
+additional, implementation-defined features.
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book has one non-
+standard INFORMATION_SCHEMA View, called INFORMATION_SCHEMA.TYPE_INFO. The
+Standard defines TYPE_INFO as a temporary make-believe Table, in order to make
+the CLI SQLGetTypeInfo Catalog function more comprehensible. We decided that,
+since TYPE_INFO is effectively a metadata Table, it makes sense to describe
+TYPE_INFO here, rather than in our chapter on SQL/CLI Catalog functions.
+Though you can't simply select from TYPE_INFO with most DBMSs, you can select
+the same information using the CLI.
+
+This View has the following Columns:
+
+Name                    Data Type         Nullable?
+TYPE_NAME               VARCHAR(128)      no
+DATA_TYPE               SMALLINT          no
+COLUMN_SIZE             INTEGER           yes
+LITERAL_PREFIX          VARCHAR(128       yes
+LITERAL_SUFFIX          VARCHAR(128)      yes
+CREATE_PARAMS           VARCHAR(128)      yes
+NULLABLE                SMALLINT          no
+CASE_SENSITIVE          SMALLINT          no
+SEARCHABLE              SMALLINT          no
+UNSIGNED_ATTRIBUTE      SMALLINT          yes
+FIXED_PREC_SCALE        SMALLINT          no
+AUTO_UNIQUE_VALUE       SMALLINT          no
+LOCAL_TYPE_NAME         VARCHAR(128)      yes
+MINIMUM_SCALE           INTEGER           yes
+MAXIMUM_SCALE           INTEGER           yes
+SQL_DATA_TYPE           SMALLINT          no
+SQL_DATETIME_SUB        SMALLINT          yes
+NUM_PREC_RADIX          INTEGER           yes
+INTERVAL_PRECISION      SMALLINT          yes
+
+TYPE_INFO shows a description of every SQL predefined <data type> that the DBMS supports.
+      ## TYPE_NAME shows the name of this <data type>, either: 'CHARACTER' (or
+'CHAR'), 'NUMERIC', 'DECIMAL' (or 'DEC'), 'INTEGER' (or 'INT'), 'SMALLINT',
+'FLOAT', 'REAL', 'DOUBLE PRECISION', 'CHARACTER VARYING' (or 'VARCHAR' or
+'CHAR VARYING'), 'CLOB', 'CLOB LOCATOR', 'BIT', 'BIT VARYING', 'REF', 'DATE',
+'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE', 'TIMESTAMP WITH TIME ZONE',
+'INTERVAL YEAR', 'INTERVAL MONTH', 'INTERVAL DAY', 'INTERVAL HOUR', 'INTERVAL
+MINUTE', 'INTERVAL SECOND', 'INTERVAL YEAR TO MONTH', 'INTERVAL DAY TO HOUR',
+'INTERVAL DAY TO MINUTE', 'INTERVAL DAY TO SECOND', 'INTERVAL HOUR TO MINUTE',
+'INTERVAL HOUR TO SECOND' or 'INTERVAL MINUTE TO SECOND', 'BLOB', 'BLOB
+LOCATOR', 'ROW TYPE', 'ARRAY', 'ARRAY LOCATOR', 'BOOLEAN', 'USER-DEFINED
+TYPE', 'USER-DEFINED TYPE LOCATOR'. Most implementations give the name in
+upper case and use the full name, e.g.: 'DECIMAL' or 'INTEGER' rather than
+'DEC' or 'INT'. Sometimes an SQL <data type> can map to several data types.
+For example, the 'NUMERIC' <data type> might also be called 'MONEY' or
+'SERIAL'. In that case, it's implementation-defined whether TYPE_INFO will
+contain only one row, or several rows, to describe this <data type.
+      ## DATA_TYPE shows the Concise Code Value for this <data type>. These values are as follows:
+            ## For 'CHARACTER' the code is: 1.
+            ## For 'NUMERIC' the code is: 2.
+            ## For 'DECIMAL' the code is: 3.
+            ## For 'INTEGER' the code is: 4.
+            ## For 'SMALLINT' the code is: 5.
+            ## For 'FLOAT' the code is: 6.
+            ## For 'REAL' the code is: 7.
+            ## For 'DOUBLE PRECISION' the code is: 8.
+            ## For 'CHARACTER VARYING' the code is: 12.
+            ## For 'BIT' the code is: 14.
+            ## For 'BIT VARYING' the code is: 15.
+            ## For 'BOOLEAN' the code is: 16.
+            ## For 'USER-DEFINED TYPE' the code is: 17.
+            ## For 'USER-DEFINED TYPE LOCATOR' the code is: 18.
+            ## For 'ROW TYPE' the code is: 19.
+            ## For 'REF' the code is: 20.
+            ## For 'BLOB' the code is: 30.
+            ## For 'BLOB LOCATOR' the code is: 31.
+            ## For 'CLOB' the code is: 40.
+            ## For 'CLOB LOCATOR' the code is: 41.
+            ## For 'ARRAY' the code is: 50.
+            ## For 'ARRAY LOCATOR' the code is: 51.
+            ## For 'DATE' the code is: 91.
+            ## For 'TIME' the code is: 92.
+            ## For 'TIMESTAMP' the code is: 93.
+            ## For 'TIME WITH TIME ZONE' the code is: 94.
+            ## For 'TIMESTAMP WITH TIME ZONE' the code is: 95.
+            ## For 'INTERVAL YEAR' the code is: 101.
+            ## For 'INTERVAL MONTH' the code is: 102.
+            ## For 'INTERVAL DAY' the code is: 103.
+            ## For 'INTERVAL HOUR' the code is: 104.
+            ## For 'INTERVAL MINUTE' the code is: 105.
+            ## For 'INTERVAL SECOND' the code is: 106.
+            ## For 'INTERVAL YEAR TO MONTH' the code is: 107.
+            ## For 'INTERVAL DAY TO HOUR' the code is: 108.
+            ## For 'INTERVAL DAY TO MINUTE' the code is: 109.
+            ## For 'INTERVAL DAY TO SECOND' the code is: 110.
+            ## For 'INTERVAL HOUR TO MINUTE' the code is: 111.
+            ## For 'INTERVAL HOUR TO SECOND' the code is: 112.
+            ## For 'INTERVAL MINUTE TO SECOND' the code is: 113.
+      ## COLUMN_SIZE shows the size of this <data type>, not including the size of the literal prefix or the literal suffix.
+            ## For 'CHARACTER', 'CHARACTER VARYING' and 'CLOB' the size is the maximum possible length in characters supported by the DBMS.
+            ## For 'NUMERIC', 'DECIMAL', 'INTEGER', 'SMALLINT', 'FLOAT', 'REAL' and 'DOUBLE PRECISION' the size is the maximum possible precision supported by the DBMS.
+            ## For 'BIT', 'BIT VARYING' and 'BLOB' the size is the maximum possible length in bits supported by the DBMS.
+            ## For 'DATE', 'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE', 'TIMESTAMP WITH TIME ZONE' and all the 'INTERVAL' types the size is the
+maximum possible length in positions supported by the DBMS. 'DATE' is always
+10, 'TIME' must be at least 15, 'TIMESTAMP' must be at least 26, 'TIME WITH
+TIME ZONE' must be at least 21, 'TIMESTAMP WITH TIME ZONE' must be at least
+32, 'INTERVAL YEAR' must be at least 4, 'INTERVAL MONTH', 'INTERVAL DAY',
+'INTERVAL HOUR' and 'INTERVAL MINUTE' must be at least 2, 'INTERVAL SECOND'
+must be at least 9, 'INTERVAL YEAR TO MONTH' must be at least 7, 'INTERVAL DAY
+TO HOUR', 'INTERVAL DAY TO MINUTE' and 'INTERVAL HOUR TO MINUTE' must be at
+least 5, 'INTERVAL DAY TO SECOND', 'INTERVAL HOUR TO SECOND' and 'INTERVAL MINUTE TO SECOND' must be at least 12.
+            ## For all other types the size is the null value.
+      ## LITERAL_PREFIX shows the character string that must precede any
+literal of this <data type>. If no prefix string is required, LITERAL_PREFIX is NULL.
+            ## For 'CHARACTER', 'CHARACTER VARYING' and 'CLOB' the prefix is: ' (i.e.: a single quote mark).
+            ## For 'BIT' and 'BIT VARYING' the prefix is: either X' or B'.
+            ## For 'BLOB' the prefix is X'.
+            ## For 'DATE' the prefix is: DATE '.
+            ## For 'TIME' and 'TIME WITH TIME ZONE' the prefix is: TIME '.
+            ## For 'TIMESTAMP' and 'TIMESTAMP WITH TIME ZONE' the prefix is: TIMESTAMP '.
+            ## For all the 'INTERVAL' types the prefix is: INTERVAL '.
+            ## For all other types the prefix is the null value.
+      ## LITERAL_SUFFIX shows the character string that must follow any
+literal of this <data type>. If no suffix string is required, LITERAL_SUFFIX is NULL.
+            ## For 'CHARACTER', 'CHARACTER VARYING', 'CLOB', 'BIT', 'BIT
+VARYING', 'BLOB', 'DATE', 'TIME', 'TIME WITH TIME ZONE', 'TIMESTAMP' and
+'TIMESTAMP WITH TIME ZONE' the suffix is: ' (i.e.: a single quote mark).
+            ## For 'INTERVAL YEAR' the suffix is: ' YEAR.
+            ## For 'INTERVAL MONTH' the suffix is: ' MONTH.
+            ## For 'INTERVAL DAY' the suffix is: ' DAY.
+            ## For 'INTERVAL HOUR' the suffix is: ' HOUR.
+            ## For 'INTERVAL MINUTE' the suffix is: ' MINUTE.
+            ## For 'INTERVAL SECOND' the suffix is: ' SECOND.
+            ## For 'INTERVAL YEAR TO MONTH' the suffix is: ' YEAR TO MONTH.
+            ## For 'INTERVAL DAY TO HOUR' the suffix is: ' DAY TO HOUR.
+            ## For 'INTERVAL DAY TO MINUTE' the suffix is: ' DAY TO MINUTE.
+            ## For 'INTERVAL DAY TO SECOND' the suffix is: ' DAY TO SECOND.
+            ## For 'INTERVAL HOUR TO MINUTE' the suffix is: ' HOUR TO MINUTE.
+            ## For 'INTERVAL HOUR TO SECOND' the suffix is: ' HOUR TO SECOND.
+            ## For 'INTERVAL MINUTE TO SECOND' the suffix is: ' MINUTE TO SECOND.
+            ## For all other types the suffix is the null value.
+      ## CREATE_PARAMS is a list of the names (in order, separated by commas)
+of size-related attributes which can be used in specifications for this <data
+type>. If no options exist for this <data type>, CREATE_PARAMS is NULL. The
+possible names are: 'LENGTH' (for length), 'PRECISION' (for numeric precision,
+interval leading field precision and fractional seconds precision) or 'SCALE' (for numeric scale).
+            ## For 'CHARACTER', 'CHARACTER VARYING', 'CLOB', 'BIT', 'BIT VARYING' and 'BLOB', CREATE_PARAMS is 'LENGTH'.
+            ## For 'NUMERIC' and 'DECIMAL', CREATE_PARAMS is 'PRECISION,SCALE'.
+            ## For 'FLOAT', 'TIME', 'TIME WITH TIME ZONE', TIMESTAMP' and 'TIMESTAMP WITH TIME ZONE', CREATE_PARAMS is 'PRECISION'.
+            ## For 'INTERVAL YEAR', 'INTERVAL MONTH', 'INTERVAL DAY', 'INTERVAL HOUR', 'INTERVAL MINUTE', 'INTERVAL YEAR TO MONTH', 'INTERVAL DAY TO HOUR', 'INTERVAL DAY TO MINUTE' and 'INTERVAL HOUR TO MINUTE', CREATE_PARAMS is 'PRECISION'.
+            ## For 'INTERVAL SECOND', 'INTERVAL DAY TO SECOND', 'INTERVAL HOUR
+TO SECOND' and 'INTERVAL MINUTE TO SECOND', CREATE_PARAMS is 'PRECISION,PRECISION'.
+            ## For all other types, CREATE_PARAMS is the null value.
+      ## NULLABLE shows whether this <data type> may contain NULLs. It is
+either: '0' ("false") if the <data type> may not contain NULLs, '1' ("true")
+if the <data type> might contain NULLs, or '2' ("nullable unknown") if it
+isn't known whether the <data type> might contain NULLs. In Standard SQL, NULLABLE is always '1' for all predefined <data type>s.
+      ## CASE_SENSITIVE shows, for the 'CHARACTER', 'CHARACTER VARYING' and
+'CLOB' <data type>s, whether the default collation of the <data type>'s
+repertoire is case sensitive. If this is so, CASE_SENSITIVE is '1' ("true").
+If this is not so, and for all other <data type>s, CASE_SENSITIVE is '0'.
+      ## SEARCHABLE is comprised of two values, and shows the type of
+predicates that values of this <data type> may be used with. If values based
+on this <data type> may be used with LIKE, the first value is: '1'; if they
+can't, the first value is: '0' . If values based on this <data type> may be
+used with ordinary predicates, the second value is: '2'; if they can't, the
+second value is: '0'. The two values are added together, thus SEARCHABLE is
+either: '0', '1', '2' OR '3' for all <data type>s.
+            ## For 'CHARACTER', 'CHARACTER VARYING', 'CLOB' and 'BLOB',
+SEARCHABLE is: '3', i.e.: '1' for 'works with LIKE' plus '2' for 'works with ordinary predicates'.
+            ## For all other predefined <data type>s, SEARCHABLE is: '2',
+i.e.: '0' for 'doesn't work with LIKE' plus '2' for 'works with ordinary predicates'.
+      ## UNSIGNED_ATTRIBUTE shows whether this <data type> is a signed type.
+It is either: '0' for a signed type, '1' for an unsigned type or NULL for all non-numeric types.
+            ## For 'NUMERIC', 'DECIMAL', 'INTEGER', 'SMALLINT', 'FLOAT',
+'REAL', 'DOUBLE PRECISION' and all the 'INTERVAL' types, UNSIGNED_ATTRIBUTE is: '0'.
+            ## For 'ARRAY LOCATOR', 'BLOB LOCATOR', 'CLOB LOCATOR' and 'USER-DEFINED TYPE LOCATOR', UNSIGNED_ATTRIBUTE is: '1'.
+            ## For all other types, UNSIGNED_ATTRIBUTE is the null value.
+      ## FIXED_PREC_SCALE shows whether this <data type> is an exact numeric
+type with a fixed precision and scale. It is: '1' ("true") for 'INTEGER' and
+'SMALLINT' and '0' ("false") for all other <data type>s. (In Standard SQL,
+FIXED_PREC_SCALE is '0' for 'DECIMAL' and 'NUMERIC' because these <data type>s
+have user-specifiable precision and scale.)
+      ## AUTO_UNIQUE_VALUE shows, for this <data type>, whether any new row is
+guaranteed to be unique when it is inserted; it is either: '0' ("false") or
+'1' ("true"). There is no Standard SQL <data type> like this -- for all
+predefined SQL <data type>s, AUTO_UNIQUE_VALUE is: '0' -- but many
+implementations have it, naming it something like 'SERIAL'. Watch out: just
+because it's unique when you INSERT, doesn't mean it remains unique after you UPDATE.
+      ## [NON-PORTABLE] LOCAL_TYPE_NAME shows an implementation-defined
+"localized representation" of this <data type>'s TYPE_NAME value. This could
+mean that the Albanian term for 'CHARACTER VARYING' would appear here; your
+DBMS should output what would be appropriate in a dialog box. For Standard SQL
+names, LOCAL_TYPE_NAME and TYPE_NAME would usually be the same.
+            [OCELOT Implementation] The OCELOT DBMS that comes with this book
+shows the same name in both the TYPE_NAME and the LOCAL_TYPE_NAME Columns for all <data type>s.
+      ## MINIMUM_SCALE shows the minimum possible value of the scale (for
+<data type>s that have one) or the minimum possible value of a fractional
+seconds precision (for <data types> that have one). For <data type>s that have neither, MINIMUM_SCALE is NULL.
+            ## For 'NUMERIC', 'DECIMAL', 'INTEGER', 'SMALLINT', 'TIME',
+'TIMESTAMP', 'TIME WITH TIME ZONE', 'TIMESTAMP WITH TIME ZONE', 'INTERVAL
+SECOND', 'INTERVAL DAY TO SECOND', 'INTERVAL HOUR TO SECOND' and 'INTERVAL
+MINUTE TO SECOND', MINIMUM_SCALE is: '0'.
+            ## For all other types, MINIMUM_SCALE is the null value.
+      ## MAXIMUM_SCALE shows your DBMS's maximum possible value of the scale
+(for <data type>s that have one) or the maximum possible value of a fractional
+seconds precision (for <data types> that have one). For <data type>s that have
+neither, MAXIMUM_SCALE is NULL.
+            ## For 'INTEGER' and 'SMALLINT', MAXIMUM_SCALE is '0'.
+            ## [NON-PORTABLE] For 'NUMERIC', 'DECIMAL', 'TIME', 'TIMESTAMP',
+'TIME WITH TIME ZONE', 'TIMESTAMP WITH TIME ZONE', 'INTERVAL SECOND',
+'INTERVAL DAY TO SECOND', 'INTERVAL HOUR TO SECOND' and 'INTERVAL MINUTE TO
+SECOND', MAXIMUM_SCALE is implementation-defined.
+                  [OCELOT Implementation] The OCELOT DBMS that comes with this book shows these maximum scale values:
+                        ## For 'NUMERIC' and 'DECIMAL', MAXIMUM_SCALE is '38'.
+                        ## For 'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE',
+'TIMESTAMP WITH TIME ZONE', 'INTERVAL SECOND', 'INTERVAL DAY TO SECOND',
+'INTERVAL HOUR TO SECOND' and 'INTERVAL MINUTE TO SECOND', MAXIMUM_SCALE is '6'.
+            ## For all other types, MAXIMUM_SCALE is the null value.
+      ## SQL_DATA_TYPE shows the SQL Data Type Code value. This will be the
+same as the DATA_TYPE value for all non-temporal <data type>s. There is a
+correspondence with the SQL_DESC_TYPE field of a descriptor.
+            ## For 'CHARACTER' the code is: '1'.
+            ## For 'NUMERIC' the code is: '2'.
+            ## For 'DECIMAL' the code is: '3'.
+            ## For 'INTEGER' the code is: '4'.
+            ## For 'SMALLINT' the code is: '5'.
+            ## For 'FLOAT' the code is: '6'.
+            ## For 'REAL' the code is: '7'.
+            ## For 'DOUBLE PRECISION' the code is: '8'.
+            ## For 'CHARACTER VARYING' the code is: '12'.
+            ## For 'BIT' the code is: '14'.
+            ## For 'BIT VARYING' the code is: '15'.
+            ## For 'REF' the code is: '20'.
+            ## For 'DATE', 'TIME', 'TIMESTAMP', 'TIME WITH TIME ZONE' and 'TIMESTAMP WITH TIME ZONE' the code is: '9'.
+            ## For all the 'INTERVAL' types the code is: '10'.
+      ## SQL_DATETIME_SUB shows the SQL_DATA-TYPE subtype for the temporal <data type>s. For all the non-temporal <data type>s, this field is NULL.
+            ## For 'DATE' the code is: '1'.
+            ## For 'TIME' the code is: '2'.
+            ## For 'TIMESTAMP' the code is: '3'.
+            ## For 'TIME WITH TIME ZONE' the code is: '4'.
+            ## For 'TIMESTAMP WITH TIME ZONE' the code is: '5'.
+            ## For 'INTERVAL YEAR' the code is: '1'.
+            ## For 'INTERVAL MONTH' the code is: '2'.
+            ## For 'INTERVAL DAY' the code is: '3'.
+            ## For 'INTERVAL HOUR' the code is: '4'.
+            ## For 'INTERVAL MINUTE' the code is: '5'.
+            ## For 'INTERVAL SECOND' the code is: '6'.
+            ## For 'INTERVAL YEAR TO MONTH' the code is: '7'.
+            ## For 'INTERVAL DAY TO HOUR' the code is: '8'.
+            ## For 'INTERVAL DAY TO MINUTE' the code is: '9'.
+            ## For 'INTERVAL DAY TO SECOND' the code is: '10'.
+            ## For 'INTERVAL HOUR TO MINUTE' the code is: '11'.
+            ## For 'INTERVAL HOUR TO SECOND' the code is: '12'.
+            ## For 'INTERVAL MINUTE TO SECOND' the code is: '13'.
+      ## NUM_PREC_RADIX shows your DBMS's radix of the precision for this
+<data type> (if there is one). If there is no precision, this field is NULL.
+For exact numeric <data type>s, the precision's radix will almost always be 10
+(indeed for ODBC it must be 10), but some implementations declare that
+SMALLINT and INTEGER have binary radices, respectively 15 and 31 (the number
+does not include the sign bit). For approximate numeric <data type>s, the
+precision's radix will usually be 2.
+            ## [NON-PORTABLE] For 'NUMERIC', 'DECIMAL', 'INTEGER', 'SMALLINT',
+'FLOAT', 'REAL' and 'DOUBLE PRECISION', NUM_PREC_RADIX is implementation-defined.
+                  [OCELOT Implementation] The OCELOT DBMS that comes with this book shows these radix values:
+                        ## For 'NUMERIC' and 'DECIMAL', NUM_PREC_RADIX is:
+'10'.
+                        ## For 'INTEGER', 'SMALLINT', 'FLOAT', 'REAL' and 'DOUBLE PRECISION', NUM_PREC_RADIX is: '2'.
+            ## For all other types, NUM_PREC_RADIX is the null value.
+      ## INTERVAL_PRECISION shows your DBMS's interval leading field precision
+for an INTERVAL <data type>. If this is not an INTERVAL, INTERVAL_PRECISION is NULL.
+            ## [NON-PORTABLE] For all the 'INTERVAL' types, INTERVAL_PRECISION is implementation-defined.
+                  [OCELOT Implementation] The OCELOT DBMS that comes with this book shows these interval precision values:
+                        ## For 'INTERVAL YEAR' and 'INTERVAL YEAR TO MONTH, INTERVAL PRECISION is: '4'.
+                        ## For all other 'INTERVAL' types, INTERVAL_PRECISION is: '2'.
+
+## INFORMATION_SCHEMA.USAGE_PRIVILEGES
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+GRANTOR                 SQL_IDENTIFIER          no
+GRANTEE                 SQL_IDENTIFIER          no
+OBJECT_CATALOG          SQL_IDENTIFIER          no
+OBJECT_SCHEMA           SQL_IDENTIFIER          no
+OBJECT_NAME             SQL_IDENTIFIER          no
+OBJECT_TYPE             CHARACTER_DATA          no
+PRIVILEGE_TYPE          CHARACTER_DATA          no
+IS_GRANTABLE            CHARACTER_DATA          no
+
+USAGE_PRIVILEGES shows the USAGE Privileges on Objects (i.e.: Domains,
+Character sets, Collations  or Translations) in this Catalog, where the
+Privileges are either available to, or granted by, the current user.
+      ## GRANTOR shows the <AuthorizationID> of the user (or perhaps the Role) who granted the Privilege.
+      ## GRANTEE shows the <AuthorizationID> of the user (or perhaps the Role)
+who may use the Privilege. By definition, if GRANTOR isn't CURRENT_USER, then
+GRANTEE is either CURRENT_USER or 'PUBLIC'.
+      ## OBJECT_CATALOG, OBJECT_SCHEMA, OBJECT_NAME, OBJECT_TYPE uniquely
+identify an Object in this Catalog. OBJECT_TYPE is either: 'DOMAIN',
+'CHARACTER SET', 'COLLATION' or 'TRANSLATION'.
+      ## PRIVILEGE_TYPE shows the Privilege granted: 'USAGE'.
+      ## IS_GRANTABLE is either 'YES' (Privilege was granted WITH GRANT OPTION) or 'NO' (Privilege was not granted WITH GRANT OPTION).
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.USAGE_PRIVILEGES.
+
+## INFORMATION_SCHEMA.USER_DEFINED_TYPE_PRIVILEGES
+
+This View has the following Columns:
+
+Name                          Domain            Nullable?
+GRANTOR                       SQL_IDENTIFIER    no
+GRANTEE                       SQL_IDENTIFIER    no
+USER_DEFINED_TYPE_CATALOG     SQL_IDENTIFIER    no
+USER_DEFINED_TYPE_SCHEMA      SQL_IDENTIFIER    no
+USER_DEFINED_TYPE_NAME        SQL_IDENTIFIER    no
+PRIVILEGE_TYPE                CHARACTER_DATA    no
+IS_GRANTABLE                  CHARACTER_DATA    no
+
+USER_DEFINED_TYPE_PRIVILEGES shows the TYPE USAGE Privileges on UDTs in this
+Catalog, where the Privileges are either available to, or granted by, the current user.
+      ## GRANTOR shows the <AuthorizationID> of the user (or perhaps the Role) who granted the Privilege.
+      ## GRANTEE shows the <AuthorizationID> of the user (or perhaps the Role)
+who may use the Privilege. By definition, if GRANTOR isn't CURRENT_USER, then
+GRANTEE is either CURRENT_USER or 'PUBLIC'.
+      ## USER_DEFINED_TYPE_CATALOG, USER_DEFINED_TYPE_SCHEMA, USER_DEFINED_TYPE_NAME uniquely identify a UDT in this Catalog.
+      ## PRIVILEGE_TYPE shows the Privilege granted: 'TYPE USAGE'.
+      ## IS_GRANTABLE is either 'YES' (Privilege was granted WITH GRANT OPTION) or 'NO' (Privilege was not granted WITH GRANT OPTION).
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.USER_DEFINED_TYPE_PRIVILEGES.
+
+## INFORMATION_SCHEMA.USER_DEFINED_TYPES
+
+This View has the following Columns:
+
+Name                                Domain            Nullable?
+USER_DEFINED_TYPE_CATALOG           SQL_IDENTIFIER    no
+USER_DEFINED_TYPE_SCHEMA            SQL_IDENTIFIER    no
+USER_DEFINED_TYPE_NAME              SQL_IDENTIFIER    no
+USER_DEFINED_TYPE_CATEGORY          CHARACTER_DATA    no
+USER_DEFINED_TYPE_ORDER             CHARACTER_DATA    no
+USER_DEFINED_TYPE_EQUALS_CATALOG    CHARACTER_DATA    yes
+USER_DEFINED_TYPE_EQUALS_SCHEMA     CHARACTER_DATA    yes
+USER_DEFINED_TYPE_EQUALS_NAME       CHARACTER_DATA    yes
+USER_DEFINED_TYPE_RELATIVE_CATALOG  CHARACTER_DATA    yes
+USER_DEFINED_TYPE_RELATIVE_SCHEMA   CHARACTER_DATA    yes
+USER_DEFINED_TYPE_RELATIVE_NAME     CHARACTER_DATA    yes
+USER_DEFINED_TYPE_HASH_CATALOG      CHARACTER_DATA    yes
+USER_DEFINED_TYPE_HASH_SCHEMA       CHARACTER_DATA    yes
+USER_DEFINED_TYPE_HASH_NAME         CHARACTER_DATA    yes
+
+USER_DEFINED_TYPES shows the UDTs in this Catalog that the current user has Privileges on.
+      ## USER_DEFINED_TYPE_CATALOG, USER_DEFINED_TYPE_SCHEMA, USER_DEFINED_TYPE_NAME uniquely identify a UDT in this Catalog that the current user has Privileges on.
+      ## USER_DEFINED_TYPE_CATEGORY is: 'USER-DEFINED TYPE'.
+      ## USER_DEFINED_TYPE_ORDER is either: 'ORDER FULL' (two values of this
+UDT may be compared for equality or relative order) or 'EQUALS ONLY' (two
+values of this UDT may be compared only for equality).
+      ## USER_DEFINED_TYPE_EQUALS_CATALOG, USER_DEFINED_TYPE_EQUALS_SCHEMA,
+USER_DEFINED_TYPE_EQUALS_NAME uniquely identify the specific name of the EQUALS function for this UDT.
+      ## USER_DEFINED_TYPE_RELATIVE_CATALOG, USER_DEFINED_TYPE_RELATIVE_SCHEMA, USER_DEFINED_TYPE_RELATIVE_NAME uniquely identify the specific name of the RELATIVE function for this UDT.
+      ## USER_DEFINED_TYPE_HASH_CATALOG, USER_DEFINED_TYPE_HASH_SCHEMA,
+USER_DEFINED_TYPE_HASH_NAME uniquely identify the specific name of the HASH function for this UDT.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.USER_DEFINED_TYPES.
+
+## INFORMATION_SCHEMA.VIEWS
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+TABLE_CATALOG           SQL_IDENTIFIER          no
+TABLE_SCHEMA            SQL_IDENTIFIER          no
+TABLE_NAME              SQL_IDENTIFIER          no
+VIEW_DEFINITION         CHARACTER_DATA          yes
+CHECK_OPTION            CHARACTER_DATA          no
+IS_UPDATABLE            CHARACTER_DATA          no
+
+VIEWS shows the Views in this Catalog that the current user has Privileges on.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME uniquely identify a View that the current user may use.
+      ## VIEW_DEFINITION shows the query specification that defines the View.
+If the expression was too big to be stored, or if the current user doesn't own
+TABLE_SCHEMA, then VIEW_DEFINITION is NULL.
+      ## CHECK_OPTION is either: 'CASCADED' (the View definition has a WITH
+CASCADED CHECK OPTION clause), 'LOCAL' (the View definition has a WITH LOCAL
+CHECK OPTION clause) or 'NONE' (the View definition has no CHECK OPTION clause).
+      ## IS_UPDATABLE is either: 'YES' (the View definition simply contains an
+updatable query specification) or 'NO' (the View definition simply contains a
+query specification that isn't updatable). If IS_UPDATABLE is 'NO', then CHECK_OPTION must be 'NONE'.
+
+## INFORMATION_SCHEMA.VIEW_COLUMN_USAGE
+
+This View has the following Columns:
+
+Name                    Domain                  Nullable?
+VIEW_CATALOG            SQL_IDENTIFIER          no
+VIEW_SCHEMA             SQL_IDENTIFIER          no
+VIEW_NAME               SQL_IDENTIFIER          no
+TABLE_CATALOG           SQL_IDENTIFIER          no
+TABLE_SCHEMA            SQL_IDENTIFIER          no
+TABLE_NAME              SQL_IDENTIFIER          no
+COLUMN_NAME             SQL_IDENTIFIER          no
+
+VIEW_COLUMN_USAGE shows the Columns on which Views in this Catalog depend,
+where the Views are owned by the current user.
+      ## VIEW_CATALOG, VIEW_SCHEMA, VIEW_NAME uniquely identify a View that is owned by the current user.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME uniquely
+identify a Column which is (explicitly or implicitly) referred to in this View's query specification.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.VIEW_COLUMN_USAGE.
+
+## INFORMATION_SCHEMA.VIEW_TABLE_USAGE
+
+This View has the following Columns:
+
+Name              Domain            Nullable?
+VIEW_CATALOG      SQL_IDENTIFIER    no
+VIEW_SCHEMA       SQL_IDENTIFIER    no
+VIEW_NAME         SQL_IDENTIFIER    no
+TABLE_CATALOG     SQL_IDENTIFIER    no
+TABLE_SCHEMA      SQL_IDENTIFIER    no
+TABLE_NAME        SQL_IDENTIFIER    no
+
+VIEW_TABLE_USAGE shows the Tables on which Views in this Catalog depend, where
+the Views are owned by the current user.
+      ## VIEW_CATALOG, VIEW_SCHEMA, VIEW_NAME uniquely identify a View that is owned by the current user.
+      ## TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME uniquely identify a Table which is referred to in this View's query specification.
+
+If you want to restrict your code to Core SQL, do not reference INFORMATION_SCHEMA.VIEW_TABLE_USAGE.

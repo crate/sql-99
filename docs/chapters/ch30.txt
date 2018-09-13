@@ -1,0 +1,725 @@
+Chapter 30 -- Searching with Joins
+
+It's France in the 1600s. Rene Descartes is playing cards with Madame du
+Barry. The game is War. Each player has a deck. Rene plays a card from the top
+of his deck. Madame du Barry plays a card from the top of her deck. If Rene's
+card has a higher value then Madame's, he wins the trick. If his card has a
+lower value, Madame wins the trick. In the case of a tie, each player throws
+down another card. They repeat this until one player has all the tricks, or
+until Rene and Madame think of something more interesting to do (it's France in the 1600s).
+
+In set theory, each trick is an ordered two-element pair. There are (52*52)
+possible first-round combinations. To honor Mr Descartes, we call the set of
+all possible tricks the Cartesian product of the two original (deck) sets. Two valuable insights arise from playing the game:
+      ## Insight: What matters is the values on the cards. There are no
+threads connecting the queens in Rene's deck to the queens in Madame's deck.
+There are no notes on each card saying "I match the nth card from the top in
+the other deck". There are, in other words, no pointers -- in the real world, we match based on values.
+      ## Insight: Slow, tedious meaninglessness. We recognize that there is
+always conceptually a Cartesian product, but we would like as quickly as
+possible to filter out the only interesting cases -- the ties (the 52*4 cases
+where the cards' face values are equal).
+
+The first insight is the basis of relational-database theory. The second is a warning that we want to minimize the undesirable consequences of joined Tables.
+
+Joined Tables
+
+The SQL definition for a joined Table is: a Table derived from a Cartesian
+product, an inner join, an outer join or a union join. The required syntax for a joined Table is:
+
+<joined Table> ::=
+<Table reference> CROSS JOIN <Table reference> |
+<Table reference> [ NATURAL ] [ <join type> ] JOIN <Table reference>
+   [ <join specification> ] |
+( <joined Table> )
+
+   <join type> ::=
+   INNER |
+   {LEFT | RIGHT | FULL} [ OUTER ] |
+   UNION
+
+   <join specification> ::=
+   ON <search condition> |
+   USING (join <Column name> [ {,join <Column name>} ... ])
+
+Basically, a joined Table is the result of some expression that represents an
+explicit join of two Tables, each of which is identified by a <Table
+reference> (the <Table reference> could itself be a joined Table, but is
+usually just a <Table name> or a Table identified by a <Correlation name>, and
+we'll use only that form for now). We'll use a library database with these
+Tables in all the examples of joins that follow. Here's our data:
+
+BORROWERS
+NAME      BORROWER_ID   PARENT
+Paige     1             Barbara
+Hayley    2             Barbara
+Jaclyn    3             Christa
+Christa   4             Edith
+Barbara   5             Edith
+Edith     6             NULL
+
+CHECKOUTS
+BORROWER_ID   BOOK_ID
+1            1
+2            2
+2            3
+
+BOOKS
+CHECKOUT_DATE     BOOK_ID     TITLE
+1999-04-27        1           The Borrowers
+1999-04-28        2           The Unexpected Mrs. Pollifax
+1999-04-29        3           The Hobbit
+NULL              4           Friday
+
+Our example database illustrates a very common Humans --> Transactions -->
+Objects framework, which appears in many businesses -- (Customers --> Sales
+--> Products), (Clients --> Deposits_Withdrawals --> Accounts), (Workers -->
+Shifts --> Tasks) -- so think of your own analogies for each example of a join situation that follows.
+
+Cartesian-filter Join:
+"List titles for all Books checked out on April 27"
+
+Our answer to this question -- the first of several answers -- will use the traditional syntax, which is legal in all versions of SQL:
+
+   SELECT title
+   FROM   Books, Checkouts
+   WHERE  checkout_date = DATE '1999-04-27' AND
+          Books.book_id = Checkouts.book_id;
+
+In this SELECT statement, the words "FROM Books, Checkouts" tell the DBMS we
+want a Cartesian join of BOOKS and CHECKOUTS. That gives us four
+BOOKS/CHECKOUTS pairs. But the WHERE conditions filter out the unwanted pairs
+and leave us with only one.
+
+When we think of both the WHERE clause conditions as "filters" that winnow the
+results from an imagined Cartesian BOOKS+CHECKOUTS Table, the two conditions
+both appear to be doing similar tasks. It appears natural that both conditions
+should be in the WHERE clause. Now, here is a niggle: it's not real. You are
+supposed to conceptualize that a Cartesian product is formed and then
+filtered, but -- since the number of rows in a Cartesian product is always the
+number of rows in each individual Table multiplied by each other -- its size
+rises geometrically as database size rises, so the DBMS will avoid it and
+quietly use a navigational trick instead ("first find a CHECKOUTS row where
+CHECKOUT_DATE = April 27, then take the BOOK_ID of that checkout and find
+BOOK_ID within BOOKS ...").
+
+Efficiency of evaluation isn't the subject of this chapter, though. Right now
+we're only concerned with the fact that Cartesian products are a simplifying
+myth. Unfortunately, to programmers aware of the myth, it is obvious that the
+two conditions in the WHERE clause are not really the same sort of thing. One
+is a typical filter, but the other is a glue directive to the DBMS. It's not
+really a WHERE sort of condition at all.
+
+Cartesian-filter Join II: CROSS JOIN:
+As shown in our syntax diagram earlier, we could use the <keyword>s "CROSS
+JOIN" instead of a comma in the FROM clause to get the same result:
+
+   SELECT title
+   FROM   Books CROSS JOIN Checkouts
+   WHERE  checkout_date = DATE '1999-04-27' AND
+          Books.book_id = Checkouts.book_id;
+
+This is synonymous with the "... FROM Books, Checkouts ..." query (CROSS JOIN
+just means "Cartesian product"), and it's too bad we didn't use English words
+instead of commas in the first place, but CROSS JOIN is relatively new (a
+SQL-92 introduction).
+
+JOIN ... USING:
+We're still asking: "List titles for all Books checked out on April 27". This time we will use the modern syntax:
+
+   SELECT title
+   FROM   Books INNER JOIN Checkouts USING (book_id)
+   WHERE  checkout_date = DATE '1999-04-27';
+
+For some years to come, the conventional syntax for joins (our first example)
+will still be the most popular. However, modern syntax (of which JOIN ...
+USING is the best example) is now seen frequently in tutorials and magazine
+articles, especially when Microsoft Access is the subject. In modern syntax,
+we acknowledge that joining conditions might look better in a clause of their
+own. The clause "USING (book_id)" replaces the traditional "WHERE ...
+Books.book_id = Checkouts.book_id". Thus, BOOK_ID is a reference to both
+BOOK_ID Columns -- the one in the BOOKS Table and the one in the CHECKOUTS
+Table. It's not a piece of luck, you know, that we used the same <Column name>
+in both Tables -- you should always use the same <Column name> when you
+anticipate joining over a pair of Columns.
+
+NATURAL JOIN:
+The ultimate simplification of JOIN ... USING is to throw out the <Column
+name>s entirely, and specify "wherever <Column name>s are the same in both
+Tables, join on them". Here's how:
+
+   SELECT title
+   FROM   Books NATURAL JOIN Checkouts
+   WHERE  checkout_date = DATE '1999-04-27';
+
+A natural join is a join over matching Columns (Columns which have the same
+name in the Tables being joined). This is the ultimate step. It hides the join
+process from the user who gets the result. Perhaps, one could even change the
+join <Column name>s, or add new Columns, without having to change all SELECT
+statements which refer to the joined Tables. On the other hand, users of
+NATURAL JOIN have to be careful that all joinable Columns really do have the
+same name, and that all non-joinable Columns don't. The casual-looking "Books
+NATURAL JOIN Checkouts" is only possible when database naming conventions are formal and enforced.
+
+In some places, the custom is to use NATURAL JOIN for only one class of
+situations: where one is joining a Table with a FOREIGN KEY Constraint to the
+Table that the foreign key REFERENCES. Such a join is, due to the way that
+primary/foreign keys work, always a "one-to-many" join (that is: there will
+always be only one row in TABLE_1 which is joined with between zero and infinity rows in TABLE_2).
+
+JOIN ... ON:
+There is one more way to "List titles for books checked out on April 27":
+
+   SELECT title
+   FROM   Books INNER JOIN Checkouts ON (Books.book_id = Checkouts.book_id)
+   WHERE  checkout_date = DATE '1999-04-27';
+
+With this syntax, the ON clause introduces a conditional expression for a
+join: it contains a conditional expression just like a WHERE clause does.
+Legally, you could take all the conditions out of the WHERE clause and put
+them in the ON clause, but that would flout the principle of the exercise,
+which is: "ON clauses should have joining conditions, WHERE clauses should
+have filtering conditions". Earlier we discussed why this syntax just looks
+better, to some people, than the conventional syntax. Later we'll discuss one
+situation where you must use ON rather than WHERE, but the current example is
+not one of those situations. The more immediate question is: why would we ever
+want to use ON rather than USING? The immediate reply is: well, USING is only
+possible when you're joining over two Columns with the same name and when the
+relator is implicitly equality ("="). Joins can, of course, also be related
+using the other SQL comparison operators too.
+
+Self-Joins:
+Here's a new question: "List parents with their children".
+
+Among our library's borrowers are several children. Their parents also have
+cards (it's one of the conditions of membership for child borrowers). That is,
+there is a relationship between different rows of the same Table. When we have
+a query that bases itself on an intra-Table relationship, we must join the
+Table with itself -- this is called a self-join and is one of the rare cases
+where SQL provides no alternative means of answering the query. Here's an example:
+
+   SELECT Parents.name,
+          Children.name
+   FROM   Borrowers AS Parents,
+          Borrowers AS Children
+   WHERE  Parents.name = Children.parent;
+
+The result is:
+
+NAME      NAME
+Barbara   Paige
+Barbara   Hayley
+Christa   Jaclyn
+
+In a self-join, by definition, all the Columns in the first Table have the
+same names as the Columns in the second Table. So we can't "SELECT name ..."
+or even "SELECT Borrowers.name ..." -- such expressions are ambiguous. This is
+a case where we absolutely must use a <Correlation name> to explicitly
+identify each Table, and each Column of a particular Table. Here, we've given
+one copy of the BORROWERS Table the <Correlation name> PARENTS, and the other
+the <Correlation name> CHILDREN, so as to be able to distinguish between them.
+
+Theta-Joins:
+A theta-join is any Cartesian product that's filtered by a condition which compares values from both Tables. That is, the general theta-join form is:
+
+   <Table_1.Column> relator <Table_2.Column>
+
+where the relator is almost always "=", as in this example:
+
+   Sellers.seller_name = Sales.seller_name
+
+This special case of theta-join -- where the relation is equality -- is called an equijoin. Although all relators are legal, the other kinds of theta-join are, in fact, rare.
+
+In a typical programming life, you'll never encounter a lone theta-join (or if
+you do, you're looking at some sort of an error). The common cases are always
+double theta-joins. Here is an example:
+
+## double theta: > combined with equijoin
+"List identification numbers of borrowers who took out books on two different days"
+
+To answer this request, we need to use a greater than operator, so this is an
+example of a general theta-join -- but it's also an equijoin. Here are two
+ways of doing it (the first example uses the WHERE clause to set the
+conditions and the second example uses the ON clause for the same purpose):
+
+      -- <with WHERE>
+   SELECT DISTINCT Firsts.borrower_id
+   FROM   Checkouts Firsts, Checkouts Seconds
+   WHERE  Firsts.date > Seconds.date AND
+          Firsts.borrower_id = Seconds.borrower_id;
+
+   --  <with ON>
+   SELECT DISTINCT Firsts.borrower_id
+   FROM Checkouts Firsts, Checkouts Seconds
+   ON   (Firsts.borrower_id = Seconds.borrower_id) AND
+        (Firsts.date > Seconds.date);
+
+(Remember that the <keyword> AS is optional when you're defining a <Correlation name>.) The result is:
+
+BORROWER_ID
+2
+
+*** TIP: For queries containing the word "different", consider whether a ">" will do. Queries with > are often a bit faster than queries with <>.
+
+The double theta-join is, in practice, often associated with a self-join. Sometimes the relators are <= and >= (for instance, when we join over a floating-point number).
+
+Bad Joins:
+"List all the borrowers whose names appear in a book title, and the book titles"
+
+   SELECT Borrowers.name, Books.title
+   FROM   Borrowers INNER JOIN Titles
+   ON     (POSITION(TRIM(Borrowers.name) IN Books.title) > 0)
+
+The result is no rows found.
+
+It might please 'Paige' to find her name on a book: 'The book of Paige ...'. The syntax is technically legal. The reasons that we use this as a bad join example are:
+      ## The Domain of BORROWERS.NAME is not the same as the Domain of
+BOOKS.TITLE, and there are no Columns common to BORROWERS and BOOKS which
+would qualify for a NATURAL JOIN. Together, these two observations are always
+signs that a query is frivolous, if not downright erroneous.
+      ## The joining expression contains a scalar, and has both Columns on the same side of the relator. Together, these two characteristics will choke every DBMS currently in existence.
+
+Allow the query, of course. But, for critical and common situations, use only simple expressions, on related Tables, over similar Columns. Odd syntax is bad syntax.
+
+Joins with multiple Tables:
+"List titles and borrowers for books taken out on April 27"
+
+The answer is straightforward -- once you know two-Table joins you can also do three-Table joins:
+
+   SELECT DISTINCT Borrowers.name, Books.title
+   FROM   Borrowers, Checkouts, Books
+   WHERE  Borrowers.borrower_id = Checkouts.borrower_id AND
+          Books.book_id = Checkouts.book_id AND
+          Checkouts.checkout_date = DATE '1999-04-27';
+
+The result is:
+
+NAME    TITLE
+Paige   The Borrowers
+
+It should be possible in a 3-way join to follow a chain of links as a reading
+exercise. In this case, if we start with the first Table (BORROWERS), we can
+see that it's possible to go from there to CHECKOUTS (using the BORROWER_ID
+Column), and from CHECKOUTS to BOOKS (using the BOOK_ID Column). If there is
+no chain, think hard: maybe the query "goes Cartesian" during some intermediate stage.
+
+*** TRAP: The next query looks like it does the same thing. In fact, though, it is an example of the most common mistake that can happen with multi-Table joins:
+
+   SELECT DISTINCT Borrowers.name, Books.title
+   FROM   Borrowers, Books
+   WHERE  Borrowers.borrower_id IN
+      (SELECT borrower_id
+       FROM   Checkouts
+       WHERE  checkout_date = DATE '1999-04-27') AND
+              Books.book_id IN
+                (SELECT book_id
+                 FROM   Checkouts
+                 WHERE checkout_date = DATE '1999-04-27');
+
+The error is in the assumption that "if A is linked to B and C is linked to B,
+then C is linked to A". That sounds like fundamental arithmetic (the Law Of
+Transitivity) -- but it's wrong in this case because B is not a value -- it is
+a set of values -- and the IN predicate means "... linked to any one of (B)
+...". When writing a multi-Table join, an intermediate link should be true
+"for all", not just "for any".
+
+What about 4-Table, 5-Table, 6-Table joins? Yes, as long as you remember that
+adding a new Table adds time to your query geometrically. Eventually you will
+run into a fixed limit for every DBMS. To conform with the US government's
+requirements (FIPS 127-2), an "intermediate level" SQL DBMS must be able to
+join at least 10 Tables. If you find yourself needing more than that, you
+might want to consider either (a) splitting up your query using temporary
+Tables or (b) combining two Tables into one ("denormalizing").
+
+Avoiding duplicates:
+"List names of borrowers who have taken out books"
+
+To get the result, you can use any join syntax you like, provided you include DISTINCT in your select list. Here's an example:
+
+   SELECT DISTINCT name
+   FROM   Borrowers, Checkouts
+   WHERE  Borrowers.borrower_id = Checkouts.borrower_id;
+
+The result is:
+
+NAME
+Paige
+Hayley
+
+Without DISTINCT, we would see 'Hayley' twice in the result, because Hayley
+took out two books. Any join can cause duplication unless both sides of the
+join are unique keys. So we are tempted to say: "always use DISTINCT when you
+join" ... but that would be a false tip. True, you want to eliminate
+duplicates caused in this case by the join, but what if there are two Hayleys?
+That is, do you want to eliminate duplicates which were not caused by the
+join? Some people would answer "yes I do", and would add "duplicate
+information isn't real information anyway". We'll contrive an example, then:
+(a) we want to hand out name cards to borrowers who took books out, so this
+list is going to a printer and (b) assume that there are two different
+'Hayley's, one of whom took out two books. If we form a query using DISTINCT,
+we'll get too few 'Hayley' cards -- but if we don't use DISTINCT we'll get too
+many 'Hayley' cards. For such situations, the real tip is: use a subquery, like this:
+
+   SELECT name
+   FROM   Borrowers
+   WHERE  borrower_id IN (SELECT borrower_id FROM Checkouts);
+
+This query neither generates nor eliminates duplicates, so would be better. We'll talk more about subqueries in a later chapter.
+
+Amusing story: There once was a vendor who secretly converted all subqueries
+into joins (the transform is fairly easy), and that vendor's DBMS produced
+spurious duplicate rows when subqueries were used. Instead of admitting this,
+that vendor's employees wrote an "SQL textbook" informing the public that
+false duplicates were a necessary evil of Standard SQL! The vendor is still around and sells thousands of copies a month.
+
+OUTER JOIN:
+"List all books, along with the dates they were checked out and who borrowed them (if they're out)".
+
+This query will give us the NATURAL JOIN of the BOOKS and CHECKOUTS Tables:
+
+   SELECT DISTINCT Books.title,
+                   Books.checkout_date,
+                   Checkouts.borrower_id
+   FROM   Books NATURAL JOIN Checkouts;
+
+The result is:
+
+TITLE                           CHECKOUT_DATE       BORROWER_ID
+The Borrowers                   1999-04-27        1
+The Unexpected Mrs. Pollifax    1999-04-28        2
+The Hobbit                      1999-04-29        2
+
+There is one book missing from the list. At this point, most people will say
+"What about 'Friday'? I realize it's not in the CHECKOUTS Table, but that very
+fact is important to me. It seems your join will always lose information
+unless both Tables have the same set of matching keys."
+
+True -- but there is a way around this. Let's give 'Friday' a checkout:
+
+   INSERT INTO Checkouts VALUES (NULL,4);
+
+Now, when we do the NATURAL JOIN again, we get this result:
+
+TITLE                           CHECKOUT_DATE       BORROWER_ID
+The Borrowers                   1999-04-27        1
+The Unexpected Mrs. Pollifax    1999-04-28        2
+The Hobbit                      1999-04-29        2
+Friday                          NULL              NULL
+
+... and that's your answer. (Incidentally we inserted NULL in the BORROWER_ID Column because the book wasn't really checked out, so no one's ID could apply.)
+
+"So, to band-aid your broken join you invent an ad-hoc CHECKOUTS row that matches. I can imagine what your idea of a general solution would be."
+
+Exactly. The general solution would be imaginary rows. In fact, we don't really have to insert them all, we can just pretend they're there -- and call what we're doing an OUTER JOIN.
+
+"Okay."
+
+But is it really okay? It's true that the OUTER JOIN has answered the example
+question: an OUTER JOIN will answer any question of the form "give me the join
+of Table A and Table B without losing information from Table A." So, sure it's
+okay, as long as we keep in mind that there's a band-aid involved. In
+particular -- what is this NULL? Certainly it does not mean UNKNOWN. Remember,
+we're not uncertain what the BORROWER_ID is; on the contrary, we know
+perfectly well that there is no BORROWER_ID for 'Friday'.
+
+SQL actually provides us with "official" syntax to express an OUTER JOIN request:
+
+   SELECT Books.title, Books.checkout_date, Checkouts.borrower_id
+   FROM   Checkouts RIGHT OUTER JOIN Books USING (book_id);
+
+Our example is a "right" outer join because, although we have everything in
+the right (second) Table (which is BOOKS), there are implied NULLs in the left
+(first) Table (which is CHECKOUTS). In such cases, the <keyword> RIGHT is
+mandatory (although the <keyword> OUTER is optional). You must always use
+RIGHT [OUTER] JOIN in conjunction with a USING clause or an ON clause --
+though a query can certainly also include a WHERE clause, it should not
+contain the joining conditions.
+
+Since there are RIGHT [OUTER] JOINs, there ought to be LEFT [OUTER] JOINs too,
+and indeed there are. For instance, we could have made our query this way:
+
+   SELECT Books.title, Books.checkout_date, Checkouts.borrower_id
+   FROM   Books LEFT OUTER JOIN Checkouts USING (book_id);
+
+There is also a FULL [OUTER] JOIN, for situations when there might be missing information from both joined Tables. This is rarely used.
+
+To summarize: the basic idea behind an OUTER JOIN is that, where an INNER JOIN
+would lose rows because there is no row in one of the joined Tables that
+matches a row in the other Table, an OUTER JOIN includes such rows -- with a
+NULL in the Column positions that would show values from some matching row, if
+a matching row existed. An INNER JOIN loses non-matching rows; an OUTER JOIN
+preserves them. For two Tables, a LEFT OUTER JOIN preserves non-matching rows
+from the first Table, a RIGHT OUTER JOIN preserves non-matching rows from the
+second Table and a FULL OUTER JOIN preserves non-matching rows from both Tables.
+
+Consider using OUTER JOIN if you worry that INNER JOIN would lose information
+that is really valuable. But if you use them a lot, that's too often. There
+are severe consequences to using outer joins unnecessarily:
+      ## Outer-Join-Downside #1: Performance. Inner joins are always faster.
+      ## Outer-Join-Downside #2: Syntax. Although all the major vendors are now able to handle the SQL-92 Standard syntax for outer joins, there is a bewildering variety of "outer join" syntaxes still in existence.
+      ## Outer-Join-Downside #3: Three-way-join confusion. Let's face it,
+we're not bright enough to figure out what "Table_1 LEFT JOIN Table_2 RIGHT
+JOIN Table_3" means. And it appears that not all vendors are bright either.
+Trying multiple outer joins with different DBMSs will give different results.
+      ## Outer-Join-Downside #4: Nullability. You can't think "Column X was defined as NOT NULL so it will never be NULL" -- any Column can be NULL if it's in an OUTER JOIN.
+      ## Outer-Join-Downside #5: confused NULL. We can't tell whether a NULL is due to an OUTER JOIN or was always there.
+
+UNION JOIN:
+A UNION JOIN constructs a result Table that includes every Column of both
+Tables and every row of both Tables. Every Column position that has no value
+because it wasn't part of one or the other Table you're joining, gets a null
+value. Here's an example:
+
+   SELECT Checkouts UNION JOIN Books;
+
+The result is:
+
+BORROWER_ID BOOK_ID     CHECKOUT_DATE  BOOK_ID    TITLE
+1             1         NULL           NULL       NULL
+2             2         NULL           NULL       NULL
+2             3         NULL           NULL       NULL
+NULL          NULL      1999-04-27     1          The Borrowers
+NULL          NULL      1999-04-28     2          The Unexpected Mrs. Pollifax
+NULL          NULL      1999-04-29     3          The Hobbit
+NULL          NULL      NULL           4          Friday
+
+Joined Tables aren't updatable in SQL-92. Usually, this means that a View
+which is based on a query that joins multiple Tables can't be the object of a
+DELETE, INSERT or UPDATE statement.
+
+But such Views might be updatable in SQL3. For example, a UNION JOIN is useful
+in SQL3 because it allows you to change the joined data. Consider a situation
+where you want to INSERT a row into a UNION JOIN of two Tables, where the
+first Table has five Columns and the second Table has six Columns (so the
+UNION JOIN has 11 Columns). There are three possible situations:
+      ## If the first 5 Columns of the new row are all NULL and any of the
+last six Columns are a non-null value, then the INSERT operation strips off
+the first 5 NULLs and puts the remaining new row into the second Table.
+      ## If any of the first 5 Columns of the new row are a non-null value and
+all of the last six Columns are NULL, then the INSERT operation strips off the
+last six NULLs and puts the remaining new row into the first Table.
+      ## If any of the first 5 Columns of the new row are a non-null value and
+any of the last six Columns are also a non-null value, then the INSERT
+operation will fail: your DBMS will return the SQLSTATE error 22014 "data
+exception-invalid update value".
+
+Now consider a situation where you want to DELETE a row from the same UNION JOIN. This time, there are two possible situations:
+      ## If the row you want to DELETE was derived from the first Table (that
+is, the row contains only NULLs for every Column derived from the second
+Table), then the DELETE operation will remove that row from the first Table.
+      ## If the row you want to DELETE was derived from the second Table, then the DELETE operation will remove that row from the second Table.
+
+Finally, consider a situation where you want to UPDATE a row from the same
+UNION JOIN. Once again, there are three possible situations:
+      ## If the row you want to UPDATE was derived from the first Table (and so the last six Columns of the row are NULL), then the UPDATE operation will change that row in the first Table.
+      ## If the row you want to UPDATE was derived from the second Table (and
+so the first five Columns of the row are NULL), then the UPDATE operation will
+change that row in the second Table.
+      ## If any of the first 5 Columns of the row you want to change are a
+non-null value and any of the last six Columns are also a non-null value, then
+the UPDATE operation will fail: your DBMS will return the SQLSTATE error 22014
+"data exception-invalid update value".
+
+Syntax rules
+
+Now that we've shown you an example of each type of join, here's a list of the
+formal syntax rules you'll have to follow when forming a join expression.
+First, we'll repeat the join syntax itself:
+
+<joined Table> ::=
+<Table reference> CROSS JOIN <Table reference> |
+<Table reference> [ NATURAL ] [ <join type> ] JOIN <Table reference>
+   [ <join specification> ] |
+( <joined Table> )
+
+   <join type> ::=
+   INNER |
+   {LEFT | RIGHT | FULL} [ OUTER ] |
+   UNION
+
+   <join specification> ::=
+   ON <search condition> |
+   USING (join <Column name> [ {,join <Column name>} ... ])
+
+You can't join over BLOBs, CLOBs, NCLOBs or ARRAYs, so don't name any Column
+with one of these <data type>s in a USING clause and don't expect a NATURAL
+JOIN to join over such Columns either.
+
+If your join expression specifies NATURAL, it may not include either an ON
+clause or a USING clause: your DBMS will just search out the Columns with the
+same name and equal values in each Table. The common Columns must have mutually comparable <data type>s.
+
+If your join expression specifies UNION, it may not also specify NATURAL, nor
+may it include an ON clause or a USING clause: your DBMS will merely join
+every Column in each Table together, for all rows in both Tables.
+
+If your join expression doesn't specify either NATURAL or UNION, then it must
+include either an ON clause or a USING clause, to tell your DBMS what the join conditions are.
+
+If your join expression is "Table_1 NATURAL JOIN Table_2", the effect is the same as if you specified "Table_1 NATURAL INNER JOIN Table_2" -- so non-matching rows won't be part of the result Table.
+
+If you want to restrict your code to Core SQL, don't use CROSS JOIN, don't use UNION JOIN, don't use NATURAL for any type of join and don't use FULL [OUTER] JOIN.
+
+Retrieval using joins:
+The ability to join a Table to others is one of the most powerful features of
+SQL. Here's some more examples of joins, using the sample database we defined
+in our chapter on simple search conditions. Remember that, to join Tables, the
+select list must contain the unambiguous names of the desired Columns, and the
+ON, USING or WHERE clause must specify the conditions which define the
+relationship between them. (The relationship is usually equality, but it need
+not be.) Also, of course, the Columns that specify the required join
+relationship must have comparable <data-type>s; that is, they must either both
+be numeric or both be character strings or both be dates, and so on. They do
+not always have to have the same name, but it is helpful in reading the query if they do.
+
+To find all information available on all employees (retrieve a join of all Columns) the following SQL statement are equivalent:
+
+   SELECT Employee.*,Payroll.*
+   FROM   Employee,Payroll
+   WHERE  Employee.empnum=Payroll.empnum;
+
+   SELECT *
+   FROM   Employee,Payroll
+   WHERE  Employee.empnum=Payroll.empnum;
+
+   SELECT *
+   FROM   Employee NATURAL JOIN Payroll;
+
+   SELECT *
+   FROM   Employee JOIN Payroll ON(empnum);
+
+   SELECT *
+   FROM   Employee JOIN Payroll USING(Employee.empnum=Payroll.empnum);
+
+The result is the entire EMPLOYEE Table joined with the entire PAYROLL Table
+over their matching employee numbers; ten rows and ten columns in all. Note
+the <Column reference>s for the EMPNUM Column, to avoid ambiguity. To
+eliminate duplicate Columns from the result, specific <Column reference>s
+(rather than "*") must be put in the select list, as in these two equivalent SQL statements:
+
+   SELECT Employee.empnum,dept,surname,rate,location
+   FROM   Employee,Payroll
+   WHERE  Employee.empnum=1 and Employee.empnum=Payroll.empnum;
+
+   SELECT Employee.empnum,dept,surname,rate,location
+   FROM   Employee NATURAL JOIN Payroll
+   WHERE  Employee.empnum=1;
+
+The result is:
+
+EMPNUM DEPT SURNAME RATE  LOCATION
+1      A    KOO     6.00  10TH FLOOR
+
+To find an employee's manager (retrieve one equivalent Column from multiple Tables):
+
+   SELECT surname,manager
+   FROM   Employee NATURAL JOIN Department
+   WHERE  empnum=28;
+
+The result is:
+
+SURNAME     MANAGER
+TURNER      JONES B
+
+To find the pay rates and locations of all department A employees (join values fulfilling multiple conditions from multiple Tables):
+
+   SELECT Employee.*,Payroll.*
+   FROM   Employee NATURAL JOIN Payroll ON dept='A';
+
+The result is the EMPLOYEE Table joined with the PAYROLL Table, for all rows where the DEPT Column contains an "A" in both Tables.
+
+To find the department and payroll data for employee 35, here are two equivalent SQL statements:
+
+   SELECT Employee.empnum,surname,Employee.dept,manager,rate
+   FROM   Employee,Department,Payroll
+   WHERE  Employee.empnum=35 AND
+          Employee.empnum=Payroll.empnum AND
+          Employee.dept=Department.dept;
+
+   SELECT empnum,surname,dept,manager,rate
+   FROM   Department NATURAL JOIN Employee NATURAL JOIN Payroll
+   WHERE  empnum=35;
+
+The result is:
+
+EMPNUM  SURNAME  DEPT  MANAGER  RATE
+35      OLSEN    E     GREEN E  9.00
+
+Outer join results Tables are produced exactly the same way as inner join results are -- with the exception that, in an outer join, rows are retrieved even when data in one of the Tables has no match in the other.
+
+If a row in the first Table named has no match in the second Table, and the
+outer join type is either a LEFT JOIN or a FULL JOIN, then a dummy row appears
+for the second Table. If a row in the second Table named has no match in the
+first Table, and the outer join type is either a RIGHT JOIN or a FULL JOIN,
+then a dummy row appears for the first Table. In both cases, the Columns in a
+dummy row are all equal to their DEFAULT values.
+
+For example, suppose TABLE_1 has one Column and four rows, containing the values {1,2,3,5} and TABLE_2 has one Column and four rows, containing the values {2,4,5,7}. An inner join query on the Tables would be:
+
+   SELECT Table_1.column_1 AS T1_column,
+          Table_2.column_1 AS T2.column
+   FROM   Table_1 NATURAL JOIN Table_2;
+
+The result is:
+
+T1_COLUMN    T2_COLUMN
+2            2
+5            5
+
+The values in either Table that have no match are not retrieved.
+
+A left outer join query on the Tables would be:
+
+   SELECT Table_1.column_1 AS T1_column,
+          Table_2.column_1 AS T2_column
+   FROM   Table_1 LEFT JOIN Table_2 USING (column_1);
+
+The result is:
+
+T1_COLUMN    T2_COLUMN
+1            NULL
+2            2
+3            NULL
+5            5
+
+The values in the first (left) Table that have no match are matched with a NULL (or default) value.
+
+A right outer join query on the Tables would be:
+
+   SELECT Table_1.column_1 AS T1_column,
+          Table_2.column_1 AS T2_column
+   FROM   Table_1 RIGHT JOIN Table_2 USING (column_1);
+
+The result is:
+
+T1_COLUMN    T2_COLUMN
+2            2
+NULL         4
+5            5
+NULL         7
+
+The values in the second (right) Table that have no match are matched with a NULL (or default) value.
+
+A full outer join query on the Tables would be:
+
+   SELECT Table_1.column_1 AS T1_column,
+          Table_2.column_1 AS T2_column
+   FROM   Table_1 FULL JOIN Table_2 USING (column_1);
+
+The result is:
+
+T1_COLUMN    T2_COLUMN
+1            NULL
+2            2
+3            NULL
+NULL         4
+5            5
+NULL         7
+
+The values in either Table that have no match are matched with a NULL (or default) value.
+
+Dialects
+
+Since "modern" syntax is relatively new to SQL, various products support different syntax for the types of joins we've illustrated here. For example:
+      ## Oracle uses "WHERE Table_1.column (+) = Table_2.column" for a LEFT OUTER JOIN.
+      ## For Microsoft SQL Server, the search condition for an OUTER JOIN must be an equals condition.
