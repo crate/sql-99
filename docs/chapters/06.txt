@@ -6,189 +6,230 @@ Chapter 6 -- Characters
 
 ::
 
-          "Now we know our Alphabet all the way from A to Z[ed]"
-    (Grade 1 Tune)
-          "Now we know our ABC all the way from A to Z[ee]"
-    (same, USA variant)
+    "Now we know our Alphabet all the way from A to Z[ed]"
 
-    If you remember one of the above jingles, you've probably got a few things to
-    unlearn before you can use SQL character strings properly. Many people think
-    that the alphabet is something from grade 1: that they know it already. If you
-    fall into this category, be patient with us. By the end of this chapter,
-    you'll understand why we feel it's necessary to devote so much space to what
-    appears to be a fairly simple topic.
+    -- (Grade 1 Tune)
 
-    Before we can begin to address the question "what does SQL do with
-    characters?", we have first have to ask: "what should it do?". That's why this
-    book has two chapters on characters and character strings. The first one, the
-    one you're reading, explains what characters are, what the important character
-    sets are and how to relate or switch ... the universal things. The next
-    chapter gets into what the database solutions are. After you've read this
-    chapter, you'll see why the "solutions" are varied, random and wrong.
+::
+
+    "Now we know our ABC all the way from A to Z[ee]"
+
+    -- (same, USA variant)
+
+If you remember one of the above jingles, you've probably got a few things to
+unlearn before you can use SQL character strings properly. Many people think
+that the alphabet is something from grade 1: that they know it already. If you
+fall into this category, be patient with us. By the end of this chapter,
+you'll understand why we feel it's necessary to devote so much space to what
+appears to be a fairly simple topic.
+
+Before we can begin to address the question "what does SQL do with
+characters?", we have first have to ask: "what should it do?". That's why this
+book has two chapters on characters and character strings. The first one, the
+one you're reading, explains what characters are, what the important character
+sets are and how to relate or switch ... the universal things. The next
+chapter gets into what the database solutions are. After you've read this
+chapter, you'll see why the "solutions" are varied, random and wrong.
+
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
 
 What is a Character?
 ====================
 
+Consider two vertical bars with a horizontal bar between them: H. This H is a
+glyph. To us, this glyph is a symbol -- it's the letter "Aitch" and it appears
+in English words. Thus, a "letter" is a combination of a glyph and a meaning.
+(The importance of this will become apparent as you go through this chapter.)
+We know that H is the eighth letter of an alphabet. Or -- in SQL terms -- H is
+the eighth symbol in a character repertoire. While an alphabet is a familiar
+example of a character repertoire, any computer will also support a repertoire
+containing digits, punctuators and special characters as well as glyphless
+(non-printing) characters such as the '\0' which terminates strings in C.
+
+However, no computer can handle the letter H by itself. It can only handle
+numbers, so we have a convention that the letter H will be represented by some
+number, such as 72. If we all agree that "72 is the code for H ... 74 is the
+code for J ..." and so on for every character in the repertoire, we can make a
+computer character set. Every character set has two parts: a character
+repertoire and an agreement on how the repertoire's characters will be encoded
+as numbers. (The SQL Standard calls the encoding scheme itself a Form-of-use.)
+
+Internationally, there are many character sets, and many names for them. When
+using SQL, you'll be concerned mainly with the ones that the International
+Standards Organization (ISO) has published standards for:
+
+## ISO 646 (1965), also known as US-ASCII, DIN 66003, etc.
+
+## ISO 8859-1 (1985), also known as LATIN 1 and Windows Code Page 1252.
+
+## ISO 8859-2 (1987), also known as LATIN 2 and Windows Code Page 1250.
+
+... and several others which we'll describe as we go along. The numeric codes
+between 0 and 127 have the same meaning in every ISO standard; differences
+exist only for codes greater than 127. In each standard, the codes between 0
+and 127 include punctuation, digits, special characters and (what's most
+important for this discussion) the upper case letters A to Z (for example, the
+code for H is indeed 72) and the lower case letters a to z. Thus, all
+character sets start with Latin.
+
+Latin:
+
+Cicero never saw a W or a lower-case j, but medieval and modern Latin have 26
+letters, each of which has two forms ("Upper Case" and "Lower Case"). These
+are the simple Latin letters:
+
 ::
 
-    Consider two vertical bars with a horizontal bar between them: H. This H is a
-    glyph. To us, this glyph is a symbol -- it's the letter "Aitch" and it appears
-    in English words. Thus, a "letter" is a combination of a glyph and a meaning.
-    (The importance of this will become apparent as you go through this chapter.)
-    We know that H is the eighth letter of an alphabet. Or -- in SQL terms -- H is
-    the eighth symbol in a character repertoire. While an alphabet is a familiar
-    example of a character repertoire, any computer will also support a repertoire
-    containing digits, punctuators and special characters as well as glyphless
-    (non-printing) characters such as the '\0' which terminates strings in C.
-
-    However, no computer can handle the letter H by itself. It can only handle
-    numbers, so we have a convention that the letter H will be represented by some
-    number, such as 72. If we all agree that "72 is the code for H ... 74 is the
-    code for J ..." and so on for every character in the repertoire, we can make a
-    computer character set. Every character set has two parts: a character
-    repertoire and an agreement on how the repertoire's characters will be encoded
-    as numbers. (The SQL Standard calls the encoding scheme itself a Form-of-use.)
-
-    Internationally, there are many character sets, and many names for them. When
-    using SQL, you'll be concerned mainly with the ones that the International
-    Standards Organization (ISO) has published standards for:
-         ## ISO 646 (1965), also known as US-ASCII, DIN 66003, etc.
-         ## ISO 8859-1 (1985), also known as LATIN 1 and Windows Code Page 1252.
-         ## ISO 8859-2 (1987), also known as LATIN 2 and Windows Code Page 1250.
-    ... and several others which we'll describe as we go along. The numeric codes
-    between 0 and 127 have the same meaning in every ISO standard; differences
-    exist only for codes greater than 127. In each standard, the codes between 0
-    and 127 include punctuation, digits, special characters and (what's most
-    important for this discussion) the upper case letters A to Z (for example, the
-    code for H is indeed 72) and the lower case letters a to z. Thus, all
-    character sets start with Latin.
-
-    Latin:
-    Cicero never saw a W or a lower-case j, but medieval and modern Latin have 26
-    letters, each of which has two forms ("Upper Case" and "Lower Case"). These
-    are the simple Latin letters:
     ABCDEFGHIJKLMNOPQRSTUVWXYZ     -- simple upper-case Latin letters
     abcdefghijklmnopqrstuvwxyz     -- simple lower-case Latin letters
 
-    These letters appear in all standard computer character sets including 7-bit
-    ASCII and EBCDIC. They even appear in character sets for languages which don't
-    use Latin. For instance, character sets used in Russia (such as KOI8R or ISO
-    8859-5) contain all the Latin letters with the same codes as 7-bit ASCII has;
-    the Russian Cyrillic letters follow the Latin letters.
+These letters appear in all standard computer character sets including 7-bit
+ASCII and EBCDIC. They even appear in character sets for languages which don't
+use Latin. For instance, character sets used in Russia (such as KOI8R or ISO
+8859-5) contain all the Latin letters with the same codes as 7-bit ASCII has;
+the Russian Cyrillic letters follow the Latin letters.
 
-    Because they are universal, the Latin letters are vital for computer
-    languages. In SQL, all <keyword>s and <regular identifier>s (or names) are
-    made with Latin letters (though they may also contain digits and the underline
-    character).
+Because they are universal, the Latin letters are vital for computer
+languages. In SQL, all <keyword>s and <regular identifier>s (or names) are
+made with Latin letters (though they may also contain digits and the underline
+character).
 
-    The letters of the Latin alphabet are in alphabetic order. That might sound
-    ... well, "Duh" ... but it helps to point out the most fundamental point about
-    a collation, or collating sequence -- namely, that a collation represents a
-    fixed order, and that order is known to most members of the general public.
-    They expect to see words and names sorted that way (though they don't expect A
-    to sort before a -- that's a computer thing).
+The letters of the Latin alphabet are in alphabetic order. That might sound
+... well, "Duh" ... but it helps to point out the most fundamental point about
+a collation, or collating sequence -- namely, that a collation represents a
+fixed order, and that order is known to most members of the general public.
+They expect to see words and names sorted that way (though they don't expect A
+to sort before a -- that's a computer thing).
 
-    English:
-    English uses the Latin alphabet but adds rules when sorting. To set the scene
-    for the complexities that follow, here are the rules for English sorting.
+English:
 
-    soup‡on of those pesky "accented letters" for names like El Ni¤o -- we'll look
-    at English only. All examples come from The Concise Oxford Dictionary Of
-    Current English.)
+English uses the Latin alphabet but adds rules when sorting. To set the scene
+for the complexities that follow, here are the rules for English sorting.
 
-    PREPROCESS (Map to Simple Latin Upper Case Letters)
-         ## Preprocessing involves stripping accents off all accented characters
-    (e.g.:   becomes O), eliminating all special characters such as hyphen or
-    space or apostrophe or dot, and changing ligatures such as AE to
-    double-characters such as ’.
+soup‡on of those pesky "accented letters" for names like El Ni¤o -- we'll look
+at English only. All examples come from The Concise Oxford Dictionary Of
+Current English.)
 
-    SORT
-         ## Use the alphabetical order: ABCDEFGHIJKLMNOPQRSTUVWXYZ
+PREPROCESS (Map to Simple Latin Upper Case Letters)
 
-    TIE BREAKERS
-         ## Tie breakers apply only if two words are otherwise equal.
-         ## If a special character (such as a hyphen or apostrophe) was stripped
-    in the preprocess stage, the word containing it FOLLOWS. For example: "cant"
-    before "can't" before "Cant", "recollect" before "re-collect", "nones" before
-    "non est", "francophone" before "franc tireur".
-         ## If a word contained an accented character, it FOLLOWS. For example:
-    "lame" before "lamŠ".
-         ## If a word contains a capital letter, it DOESN'T MATTER. For example:
-    "Negus" before "negus", "AR" before "Ar" -- but: "dan" before "Dan", "ma"
-    before "MA". (We acknowledge that some people believe it does matter: we
-    report only what actually happens.)
+## Preprocessing involves stripping accents off all accented characters
+(e.g.:   becomes O), eliminating all special characters such as hyphen or
+space or apostrophe or dot, and changing ligatures such as AE to
+double-characters such as ’.
 
-    About 50% of English-world phone books have additional rules:
-         ## Mc and Mac appear before M (sometimes M' does too, but only in
-    Ireland). For example: "McDonald" before "Macdonald" before "Maastricht".
-         ## Ste and St appear as if they were spelled "Saint". For example: "St
-    John" before "Saan Stores Limited".
-         ## In these cases, we effectively combine a group of letters into one,
-    and place the result in the hidden interstices between O and M, or between R
-    and S. It looks odd, but many languages have two-letter combinations (called
-    "digraphs") which fit between primary letters of the alphabet.
+SORT
 
-    From all this, we see that English sorting involves, in addition to the basic
-    A-to-Z stuff, several special collation rules, including mapping, ligatures
-    ("one character maps to two"), tie breaking and digraphs ("two characters map
-    to one"). Nobody makes a fuss about English because the special cases are
-    rare. But special cases in non-English languages are not rare at all -- they
-    are the norm, so it's the non-English collation rules that get the attention.
+## Use the alphabetical order: ABCDEFGHIJKLMNOPQRSTUVWXYZ
 
-    French:
-    French words have:
+TIE BREAKERS
+
+## Tie breakers apply only if two words are otherwise equal.
+
+## If a special character (such as a hyphen or apostrophe) was stripped
+in the preprocess stage, the word containing it FOLLOWS. For example: "cant"
+before "can't" before "Cant", "recollect" before "re-collect", "nones" before
+"non est", "francophone" before "franc tireur".
+
+## If a word contained an accented character, it FOLLOWS. For example:
+"lame" before "lamŠ".
+
+## If a word contains a capital letter, it DOESN'T MATTER. For example:
+"Negus" before "negus", "AR" before "Ar" -- but: "dan" before "Dan", "ma"
+before "MA". (We acknowledge that some people believe it does matter: we
+report only what actually happens.)
+
+About 50% of English-world phone books have additional rules:
+
+## Mc and Mac appear before M (sometimes M' does too, but only in
+Ireland). For example: "McDonald" before "Macdonald" before "Maastricht".
+
+## Ste and St appear as if they were spelled "Saint". For example: "St
+John" before "Saan Stores Limited".
+
+## In these cases, we effectively combine a group of letters into one,
+and place the result in the hidden interstices between O and M, or between R
+and S. It looks odd, but many languages have two-letter combinations (called
+"digraphs") which fit between primary letters of the alphabet.
+
+From all this, we see that English sorting involves, in addition to the basic
+A-to-Z stuff, several special collation rules, including mapping, ligatures
+("one character maps to two"), tie breaking and digraphs ("two characters map
+to one"). Nobody makes a fuss about English because the special cases are
+rare. But special cases in non-English languages are not rare at all -- they
+are the norm, so it's the non-English collation rules that get the attention.
+
+French:
+
+French words have:
+
+::
+
     a or e with Grave accent     Šs …
     a or e with Acute accent     Chr‚tien r‚sum‚
     a or i or o with Circumflex  h“te c“te
     c with Cedilla               soup‡on ‡a
     i or e or o with Diaeresis   na‹f co”p‰rant
 
-    In simple cases, the French sorting rules are like the English rules.
-          ## Accented characters map to their Latin upper case equivalents
-    ("r‚sum‚" comes after "rester" but before "retard").
-          ## Words with accented characters come after words with none -- "…"
-    comes after "a" -- but that's only a tie-breaker, "…" comes before "abbe`".
-    Then things get complicated.
-          ## For words with multiple accented characters, the word with the last
-    accented character FOLLOWS. For example: "pŠche" before "pŠchŠ".
-          ## France and French Canada don't capitalize accented letters the same
-    way. In France the upper case of the word rŠsumŠ is RESUME -- there are no
-    capital letters with accents, which is why the old PC-DOS Character set (IBM
-    extended ASCII) could dispense with the letters  ,   etc. But French Canadians
-    capitalize the word rŠsumŠ and keep the accents: R SUM .
+In simple cases, the French sorting rules are like the English rules.
 
-    This shows us that we have more characters, another collation rule and
-    conflicting ideas for changing lower case to upper case.
+## Accented characters map to their Latin upper case equivalents
+("r‚sum‚" comes after "rester" but before "retard").
 
-    German:
-    German words have:
+## Words with accented characters come after words with none -- "…"
+comes after "a" -- but that's only a tie-breaker, "…" comes before "abbe`".
+Then things get complicated.
+
+## For words with multiple accented characters, the word with the last
+accented character FOLLOWS. For example: "pŠche" before "pŠchŠ".
+
+## France and French Canada don't capitalize accented letters the same
+way. In France the upper case of the word rŠsumŠ is RESUME -- there are no
+capital letters with accents, which is why the old PC-DOS Character set (IBM
+extended ASCII) could dispense with the letters  ,   etc. But French Canadians
+capitalize the word rŠsumŠ and keep the accents: R SUM .
+
+This shows us that we have more characters, another collation rule and
+conflicting ideas for changing lower case to upper case.
+
+German:
+
+German words have:
+
+::
+
     a or o or u with umlaut   M„dchen ”
     sharp S or Eszet          biáchen
 
-    Sharp S's similarity to a Greek Beta is just coincidence: it is really a
-    ligature which maps to "ss". This is the only character in any Latin alphabet
-    which is always lower case.
+Sharp S's similarity to a Greek Beta is just coincidence: it is really a
+ligature which maps to "ss". This is the only character in any Latin alphabet
+which is always lower case.
 
-    There are three ways to sort characters with umlauts, depending on the
-    German-speaking country and the application.
-          ## In the German DIN-1 official standard, Ž = A and ™ = O and š = U.
-    That is, accented characters map to unaccented equivalents. This is the
-    standard used for dictionaries, book indexes or any lists of words. Thus,
+There are three ways to sort characters with umlauts, depending on the
+German-speaking country and the application.
 
-          ## In German DIN-2 official standard, Ž = AE and ™ = OE and š = UE. That
-    is, accented characters map to unaccented character plus E. This is the
-    standard used for phone books, voter lists, or any lists of names in Germany.
-    Thus, G”
-          ## In the Austrian unofficial standard, Ž > AZ and ™ > OZ and š > UZ.
-    That is, accented character are treated as a separate letter between A and B
-    or O and P or U and V. This is the standard used for lists of names in
+## In the German DIN-1 official standard, Ž = A and ™ = O and š = U.
+That is, accented characters map to unaccented equivalents. This is the
+standard used for dictionaries, book indexes or any lists of words. Thus,
 
-          ## The Swiss use DIN 1 for all sorting.
+## In German DIN-2 official standard, Ž = AE and ™ = OE and š = UE. That
+is, accented characters map to unaccented character plus E. This is the
+standard used for phone books, voter lists, or any lists of names in Germany.
+Thus, G”
+## In the Austrian unofficial standard, Ž > AZ and ™ > OZ and š > UZ.
+That is, accented character are treated as a separate letter between A and B
+or O and P or U and V. This is the standard used for lists of names in
 
-    The German tie-breaker rules are: unaccented before accented (this rule is
-    universal), Eszet before umlaut, umlaut before any other accent. Here are
+## The Swiss use DIN 1 for all sorting.
 
-    book) and Austrian collation (Vienna phone book):
+The German tie-breaker rules are: unaccented before accented (this rule is
+universal), Eszet before umlaut, umlaut before any other accent. Here are
+
+book) and Austrian collation (Vienna phone book):
+
+::
 
     DIN-1     DIN-2     Austrian
     Moeller   Moeller   Moeller
@@ -198,33 +239,44 @@ What is a Character?
     M”se      M”se      M”se
     Motler    Motler    Motler
 
-    At this point, you may be wondering what happens if you click "use German
-    collating sequence" on some Windows dialog box. Well, Microsoft seems to
-    prefer DIN 1, but the point is: if you just click, you'll get a Microsoft
-    choice which is wrong at least half the time. As we said at the beginning of
-    this chapter: you have to know what the problem is before you know what the
-    solutions are worth.
+At this point, you may be wondering what happens if you click "use German
+collating sequence" on some Windows dialog box. Well, Microsoft seems to
+prefer DIN 1, but the point is: if you just click, you'll get a Microsoft
+choice which is wrong at least half the time. As we said at the beginning of
+this chapter: you have to know what the problem is before you know what the
+solutions are worth.
 
-    Spanish:
-    Spanish words have:
+Spanish:
+
+Spanish words have:
+
+::
+
     tilde over n               ca¤on
     acute accent over a u o i  coraz•n
 
-    Some circles (such as the Spanish-speaking community in the United States) use
-    the English style rules to sort Spanish words: all accented characters map to
-    their simple Latin equivalents, period. However, the following discussion on
-    Spanish collation refers to the traditional rules which apply in most situations.
-          ## CH comes between C and D
-          ## LL comes between L and M
-          ## N comes before ¥
-    (From now on, we'll use the formula "<x> follows <y>" to mean "<x> is treated
-    as a separate letter which follows <y> in the alphabet", as in: CH follows C.
+Some circles (such as the Spanish-speaking community in the United States) use
+the English style rules to sort Spanish words: all accented characters map to
+their simple Latin equivalents, period. However, the following discussion on
+Spanish collation refers to the traditional rules which apply in most situations.
 
-    The Spanish CH and LL digraphs are truly separate letters. They get separate
-    headings in the dictionaries and the Spanish alphabet really has 28 letters:
-    "a b c ch d e f g h i j k l ll m n ¤ o p q r s t u v x y z".
+## CH comes between C and D
 
-    Here is an example of a sorted Spanish list:
+## LL comes between L and M
+
+## N comes before ¥
+
+(From now on, we'll use the formula "<x> follows <y>" to mean "<x> is treated
+as a separate letter which follows <y> in the alphabet", as in: CH follows C.
+
+The Spanish CH and LL digraphs are truly separate letters. They get separate
+headings in the dictionaries and the Spanish alphabet really has 28 letters:
+"a b c ch d e f g h i j k l ll m n ¤ o p q r s t u v x y z".
+
+Here is an example of a sorted Spanish list:
+
+::
+
     calza
     calle
     cantor
@@ -232,165 +284,178 @@ What is a Character?
     culto
     che
 
-    Dutch, Italian, Portuguese, Basque, Catalan:
-    These languages present no special problems. Dutch does have one digraph, IJ,
-    which is sometimes used for Y, but it is acceptable to use the letters IJ and
-    sort with the digraph IJ. Acute accents are common in Portuguese, grave
-    accents in Italian; however, they all map to simple Latin letters and there
-    are no special collation rules.
+Dutch, Italian, Portuguese, Basque, Catalan:
 
-    Welsh:
-    CH follows C. FF follows F. LL follows L. PH follows P. RH follows R. TH follows T.
+These languages present no special problems. Dutch does have one digraph, IJ,
+which is sometimes used for Y, but it is acceptable to use the letters IJ and
+sort with the digraph IJ. Acute accents are common in Portuguese, grave
+accents in Italian; however, they all map to simple Latin letters and there
+are no special collation rules.
 
-    Nordic:
-    The Scandinavian alphabets have a common history and a few similar features,
-    the most notable of which is their tendency to add letters at the end of the
-    alphabet (after Z).
+Welsh:
 
-    Central Europe:
-    So far, we've discussed eleven alphabets and collations without having to
-    change the standard computer character set. Every one of the symbols in the
-    alphabets we've discussed appears in ISO 8859-1, usually called the LATIN I
-    character set. They also appear in ISO 8859-1's most famous derivative,
-    Windows code page 1252, which is the default code page on computers in North
-    America and in all European countries west of a line drawn through Finland,
-    Germany, Austria and Italy. We are now going to cross that line, and briefly
-    discuss ISO 8859-2, usually called the LATIN 2 character set (or, in Windows,
-    code page 1250).
+CH follows C. FF follows F. LL follows L. PH follows P. RH follows R. TH follows T.
 
-    The Central European character set supports languages that use Latin-based
-    characters with macrons, slashes, haceks, ogoneks, breves, bars and carons.
-    Many of these do not map to a simple Latin letter when sorting.
+Nordic:
 
-    The many extra letters created by adding these marks to the simple Latin
-    letters made it impossible to fit them all into the 8-bit LATIN 1 character
-    set, since there can only be a maximum of 256 different symbols in an 8-bit
-    set. (In fact, LATIN 1 actually provides fewer than 256 characters because
-    0x00 to 0x1f and 0x7f to 0x9f are reserved for control "characters".)
-    Therefore, the most convenient thing to do was group the Latin-based East
-    European character sets together into LATIN 2.
+The Scandinavian alphabets have a common history and a few similar features,
+the most notable of which is their tendency to add letters at the end of the
+alphabet (after Z).
 
-    There has been lots of confusion in the past and several national character
-    set encodings are still in common use, so it's a bit idealist to write as if
-    the ISO standards were already universal; however, there's no other useful
-    assumption that a small shop can make.
+Central Europe:
 
-    Baltic:
-    The Baltic countries have alphabets containing yet more characters,
-    culminating in the world's longest Latin-based alphabet -- Latvian. Again, the
-    addition of the extra letters made it necessary to set up another 8-bit
-    character set. This one is ISO 8859-4, usually called the BALTIC character set
-    (or, in Windows, code page 1257). The Baltic collations are the only ones in
-    which the simple Latin letters do not follow what we usually think of as
-    alphabetic order.
+So far, we've discussed eleven alphabets and collations without having to
+change the standard computer character set. Every one of the symbols in the
+alphabets we've discussed appears in ISO 8859-1, usually called the LATIN I
+character set. They also appear in ISO 8859-1's most famous derivative,
+Windows code page 1252, which is the default code page on computers in North
+America and in all European countries west of a line drawn through Finland,
+Germany, Austria and Italy. We are now going to cross that line, and briefly
+discuss ISO 8859-2, usually called the LATIN 2 character set (or, in Windows,
+code page 1250).
 
-    Turkish:
-    The Turkish character set is defined by ISO 8859-9, usually called the LATIN 5
-    character set (or, in Windows, code page 1254). There is an irritating
-    capitalization problem in Turkish (irritating to us that is, we assume it
+The Central European character set supports languages that use Latin-based
+characters with macrons, slashes, haceks, ogoneks, breves, bars and carons.
+Many of these do not map to a simple Latin letter when sorting.
 
-     . Because of this single character, it is impossible to capitalize
-    simple-Latin-letter strings without being sure that the strings are not written
-    in Turkish.
+The many extra letters created by adding these marks to the simple Latin
+letters made it impossible to fit them all into the 8-bit LATIN 1 character
+set, since there can only be a maximum of 256 different symbols in an 8-bit
+set. (In fact, LATIN 1 actually provides fewer than 256 characters because
+0x00 to 0x1f and 0x7f to 0x9f are reserved for control "characters".)
+Therefore, the most convenient thing to do was group the Latin-based East
+European character sets together into LATIN 2.
 
-    Cyrillic:
-    The main Cyrillic character sets can be represented by a single Windows code
-    page: 1251, a derivative of ISO 8859-5. In Ukrainian, the soft sign appears at
-    the end of the alphabet, instead of the position (between YERU and E) used by
-    other Cyrillic languages. This affects the order of a few words, so two
-    collations are necessary for completeness: a Ukrainian collation and a
-    generalized-Cyrillic (Bulgarian Russian Serbian) collation, which differs only
-    with respect to the position of this one letter.
+There has been lots of confusion in the past and several national character
+set encodings are still in common use, so it's a bit idealist to write as if
+the ISO standards were already universal; however, there's no other useful
+assumption that a small shop can make.
 
-    ** TRAP: The Cyrillic letters A B E I J K M H O P C S T Y X are only similar
-    to Latin letters in one respect: their appearance. Remember that we defined a
-    character as "a combination of a glyph and a meaning" -- this is why.
-    Similarity don't mean equivalence. These Cyrillic letters have codes of their
-    own, they never map to Latin letters.
+Baltic:
 
-    Greek:
-    Greek is the oldest European character set and contains a few archaic features
-    (for example, breath marks) which don't really indicate anything nowadays. On
-    the other hand, we'd just as often want to use the Greek letters for classical
-    texts as for modern Greek. So it's good that they're all found in ISO 8859-7,
-    usually called the GREEK character set (or, in Windows, code page 1253).
+The Baltic countries have alphabets containing yet more characters,
+culminating in the world's longest Latin-based alphabet -- Latvian. Again, the
+addition of the extra letters made it necessary to set up another 8-bit
+character set. This one is ISO 8859-4, usually called the BALTIC character set
+(or, in Windows, code page 1257). The Baltic collations are the only ones in
+which the simple Latin letters do not follow what we usually think of as
+alphabetic order.
 
-    The Rest of the World:
-    We have now described all the alphabets of Europe and given you some idea of
-    their collation quirks. We think that's the minimum requirement for a book
-    that mentions character sets. We also think that it's the maximum! With some
-    relief, we note that other alphabets and other writing systems (syllabaries,
-    hieroglyphs etc.) are unavailable on a typically-configured computer in "the
-    western world", so we won't talk about them in any detail. Three other systems
-    deserve a mention, though.
+Turkish:
 
-    In Arabic, a character is displayable in several different forms, depending on
-    whether it is alone, or is the first, middle or last character in a word.
-    Thus, search and sort features are needed that can recognize multiple
-    encodings of the same symbol.
+The Turkish character set is defined by ISO 8859-9, usually called the LATIN 5
+character set (or, in Windows, code page 1254). There is an irritating
+capitalization problem in Turkish (irritating to us that is, we assume it
 
-    In Chinese, there are at least 13000 different signs, which are implemented
-    with double byte character sets (usually "BIG5" in Taiwan, or "GB" in Red
-    China); ideally the arrangement is that characters are sorted phonetically
-    (Level 1) or according to radical and number of strokes (Level 2).
+. Because of this single character, it is impossible to capitalize
+simple-Latin-letter strings without being sure that the strings are not written
+in Turkish.
 
-    In Japanese, several systems are in simultaneous use. For example, the word
-    for "water" can be a single character (Kanji), two characters (Hiragana), two
-    characters (Katakana) or four Latin letters (Romaji). The double character
-    sets are usually encoded using escape characters. That saves space, but makes
-    it impossible to determine a text's length or find its nth letter without
-    starting at the front and working through the text.
+Cyrillic:
+
+The main Cyrillic character sets can be represented by a single Windows code
+page: 1251, a derivative of ISO 8859-5. In Ukrainian, the soft sign appears at
+the end of the alphabet, instead of the position (between YERU and E) used by
+other Cyrillic languages. This affects the order of a few words, so two
+collations are necessary for completeness: a Ukrainian collation and a
+generalized-Cyrillic (Bulgarian Russian Serbian) collation, which differs only
+with respect to the position of this one letter.
+
+** TRAP: The Cyrillic letters A B E I J K M H O P C S T Y X are only similar
+to Latin letters in one respect: their appearance. Remember that we defined a
+character as "a combination of a glyph and a meaning" -- this is why.
+Similarity don't mean equivalence. These Cyrillic letters have codes of their
+own, they never map to Latin letters.
+
+Greek:
+
+Greek is the oldest European character set and contains a few archaic features
+(for example, breath marks) which don't really indicate anything nowadays. On
+the other hand, we'd just as often want to use the Greek letters for classical
+texts as for modern Greek. So it's good that they're all found in ISO 8859-7,
+usually called the GREEK character set (or, in Windows, code page 1253).
+
+The Rest of the World:
+
+We have now described all the alphabets of Europe and given you some idea of
+their collation quirks. We think that's the minimum requirement for a book
+that mentions character sets. We also think that it's the maximum! With some
+relief, we note that other alphabets and other writing systems (syllabaries,
+hieroglyphs etc.) are unavailable on a typically-configured computer in "the
+western world", so we won't talk about them in any detail. Three other systems
+deserve a mention, though.
+
+In Arabic, a character is displayable in several different forms, depending on
+whether it is alone, or is the first, middle or last character in a word.
+Thus, search and sort features are needed that can recognize multiple
+encodings of the same symbol.
+
+In Chinese, there are at least 13000 different signs, which are implemented
+with double byte character sets (usually "BIG5" in Taiwan, or "GB" in Red
+China); ideally the arrangement is that characters are sorted phonetically
+(Level 1) or according to radical and number of strokes (Level 2).
+
+In Japanese, several systems are in simultaneous use. For example, the word
+for "water" can be a single character (Kanji), two characters (Hiragana), two
+characters (Katakana) or four Latin letters (Romaji). The double character
+sets are usually encoded using escape characters. That saves space, but makes
+it impossible to determine a text's length or find its nth letter without
+starting at the front and working through the text.
 
 What's in it for Me?
 ====================
 
-::
+Now that you've read this far, you know everything you'll need to write your
+own Serbian Sort or make party chat about the relative utility of 8-bit-code
+subsets. Of course, you're a high-level programmer -- you haven't got any
+intention of doing either. Instead, you're going to want to ask:
 
-    Now that you've read this far, you know everything you'll need to write your
-    own Serbian Sort or make party chat about the relative utility of 8-bit-code
-    subsets. Of course, you're a high-level programmer -- you haven't got any
-    intention of doing either. Instead, you're going to want to ask:
-          ## 1. Is it safe to regard character sets and collations as black boxes,
-    for which you only need to know what the inputs are without worrying about the
-    process or the outputs?
-          ## 2. Are my OS and DBMS vendors aware of the problems and do they
-    handle all cases correctly?
+## 1. Is it safe to regard character sets and collations as black boxes,
+for which you only need to know what the inputs are without worrying about the
+process or the outputs?
 
-    Answers (we hope you got this, if not read the chapter again):
-          ## 1. No.
-          ## 2. No.
+## 2. Are my OS and DBMS vendors aware of the problems and do they
+handle all cases correctly?
 
-    If you got both answers right, congratulations -- you've understood the
-    problem. In the next chapter, we'll look at how an SQL implementation solves
-    it, but first we'll look at the Character sets that you can expect your DBMS
-    to provide.
+Answers (we hope you got this, if not read the chapter again):
+
+## 1. No.
+
+## 2. No.
+
+If you got both answers right, congratulations -- you've understood the
+problem. In the next chapter, we'll look at how an SQL implementation solves
+it, but first we'll look at the Character sets that you can expect your DBMS
+to provide.
 
 Predefined Character sets
 =========================
 
+In SQL, a Character set may be a Character set defined by a national or
+international standard, by your DBMS or by a user of SQL-data.
+
+Standard-defined Character sets consist of a set of characters predefined by
+some standards body and have a default Collation that is the order of the
+characters in the relevant standard. The default Collation has the PAD SPACE
+characteristic. The SQL Standard requires a DBMS to support, at a minimum,
+these standard-defined Character sets: SQL_CHARACTER, GRAPHIC_IRV (also called
+ASCII_GRAPHIC), LATIN1, ISO8BIT (also called ASCII_FULL) and UNICODE (also
+called ISO10646).
+
+Implementation-defined Character sets consist of a set of characters
+predefined by your DBMS and have a default Collation that is also defined by
+your DBMS. The default Collation may have either the PAD SPACE characteristic
+or the NO PAD characteristic. The SQL Standard requires a DBMS to support, at
+a minimum, this implementation-defined Character set: SQL_TEXT.
+
+SQL_CHARACTER:
+
+The SQL_CHARACTER Character set is an 8-bit Character set that consists of the
+83 <SQL language character>s. These are found in codepage 1252; the
+characters, and their codepage 1252 Form-of-use codes, are:
+
 ::
 
-    In SQL, a Character set may be a Character set defined by a national or
-    international standard, by your DBMS or by a user of SQL-data.
-
-    Standard-defined Character sets consist of a set of characters predefined by
-    some standards body and have a default Collation that is the order of the
-    characters in the relevant standard. The default Collation has the PAD SPACE
-    characteristic. The SQL Standard requires a DBMS to support, at a minimum,
-    these standard-defined Character sets: SQL_CHARACTER, GRAPHIC_IRV (also called
-    ASCII_GRAPHIC), LATIN1, ISO8BIT (also called ASCII_FULL) and UNICODE (also
-    called ISO10646).
-
-    Implementation-defined Character sets consist of a set of characters
-    predefined by your DBMS and have a default Collation that is also defined by
-    your DBMS. The default Collation may have either the PAD SPACE characteristic
-    or the NO PAD characteristic. The SQL Standard requires a DBMS to support, at
-    a minimum, this implementation-defined Character set: SQL_TEXT.
-
-    SQL_CHARACTER:
-    The SQL_CHARACTER Character set is an 8-bit Character set that consists of the
-    83 <SQL language character>s. These are found in codepage 1252; the
-    characters, and their codepage 1252 Form-of-use codes, are:
     decimal code 032 =   <space>
     decimal code 034 = " <double quote>
     decimal code 037 = % <percent>
@@ -475,21 +540,26 @@ Predefined Character sets
     decimal code 122 = z
     decimal code 124 = | <vertical bar>
 
-    [NON-PORTABLE] The default Collation for the SQL_CHARACTER Character set is
-    non-standard because the SQL Standard requires implementors to define
-    SQL_CHARACTER's default Collation. Most DBMSs will sort the characters of
-    SQL_CHARACTER in the decimal order shown above.
-          [OCELOT Implementation] The OCELOT DBMS that comes with this book has a
-    default Collation (called SQL_CHARACTER) for the SQL_CHARACTER Character set
-    that sorts the characters in their codepage 1252 decimal order.
+[NON-PORTABLE] The default Collation for the SQL_CHARACTER Character set is
+non-standard because the SQL Standard requires implementors to define
+SQL_CHARACTER's default Collation. Most DBMSs will sort the characters of
+SQL_CHARACTER in the decimal order shown above.
 
-    GRAPHIC_IRV and ASCII_GRAPHIC:
-    The GRAPHIC_IRV Character set (ASCII_GRAPHIC is a synonym) is an 8-bit
-    Character set that consists of 95 characters: all of the SQL_CHARACTER
-    characters, plus an additional 12 characters from codepage 1252. The default
-    Collation for the GRAPHIC_IRV Character set sorts the characters in their
-    codepage 1252 decimal order. The GRAPHIC_IRV characters, and their codepage
-    1252 Form-of-use codes, are (in default Collation order):
+[OCELOT Implementation] The OCELOT DBMS that comes with this book has a
+default Collation (called SQL_CHARACTER) for the SQL_CHARACTER Character set
+that sorts the characters in their codepage 1252 decimal order.
+
+GRAPHIC_IRV and ASCII_GRAPHIC:
+
+The GRAPHIC_IRV Character set (ASCII_GRAPHIC is a synonym) is an 8-bit
+Character set that consists of 95 characters: all of the SQL_CHARACTER
+characters, plus an additional 12 characters from codepage 1252. The default
+Collation for the GRAPHIC_IRV Character set sorts the characters in their
+codepage 1252 decimal order. The GRAPHIC_IRV characters, and their codepage
+1252 Form-of-use codes, are (in default Collation order):
+
+::
+
     decimal code 032 =   <space>
     decimal code 033 = ! <exclamation mark>
     decimal code 034 = " <double quote>
@@ -586,21 +656,26 @@ Predefined Character sets
     decimal code 125 = } <right brace>
     decimal code 126 = ~ <tilde>
 
-    [NON-PORTABLE] The default Collation for the GRAPHIC_IRV Character set has a
-    non-standard name because the SQL Standard requires implementors to define
-    what a legal <Collation name> is.
-          [OCELOT Implementation] The OCELOT DBMS that comes with this book has a
-    default Collation called ASCII_GRAPHIC for the GRAPHIC_IRV Character set.
+[NON-PORTABLE] The default Collation for the GRAPHIC_IRV Character set has a
+non-standard name because the SQL Standard requires implementors to define
+what a legal <Collation name> is.
 
-    LATIN1:
-    The LATINI Character set is an 8-bit Character set that consists of all the
-    characters commonly used in Danish, Dutch, English, Faeroese, Finnish, French,
-    German, Icelandic, Irish, Italian, Norwegian, Portuguese, Spanish and Swedish
-    -- a total of 191 characters: all of the GRAPHIC_IRV characters, plus an
-    additional 96 characters from codepage 1252. The default Collation for the
-    LATIN1 Character set sorts the characters in their codepage 1252 decimal
-    order. The additional LATIN1 characters, and their codepage 1252 Form-of-use
-    codes, are (in default Collation order):
+[OCELOT Implementation] The OCELOT DBMS that comes with this book has a
+default Collation called ASCII_GRAPHIC for the GRAPHIC_IRV Character set.
+
+LATIN1:
+
+The LATINI Character set is an 8-bit Character set that consists of all the
+characters commonly used in Danish, Dutch, English, Faeroese, Finnish, French,
+German, Icelandic, Irish, Italian, Norwegian, Portuguese, Spanish and Swedish
+-- a total of 191 characters: all of the GRAPHIC_IRV characters, plus an
+additional 96 characters from codepage 1252. The default Collation for the
+LATIN1 Character set sorts the characters in their codepage 1252 decimal
+order. The additional LATIN1 characters, and their codepage 1252 Form-of-use
+codes, are (in default Collation order):
+
+::
+
     decimal code 160 =   <no-break space>
     decimal code 161 =  <inverted exclamation mark>
     decimal code 162 = › <cent sign>
@@ -698,19 +773,24 @@ Predefined Character sets
     decimal code 254 =   <nordic p>
     decimal code 255 = ˜ <y umlaut>
 
-    [NON-PORTABLE] The default Collation for the LATIN1 Character set has a non-
-    standard name because the SQL Standard requires implementors to define what a
-    legal <Collation name> is.
-          [OCELOT Implementation] The OCELOT DBMS that comes with this book has a
-    default Collation called LATIN1 for the LATIN1 Character set.
+[NON-PORTABLE] The default Collation for the LATIN1 Character set has a non-
+standard name because the SQL Standard requires implementors to define what a
+legal <Collation name> is.
 
-    ISO8BIT and ASCII_FULL:
-    The ISO8BIT Character set (ASCII_FULL is a synonym) is an 8-bit Character set
-    that consists of 256 characters: all of the LATIN1 characters, plus the rest
-    of the characters (including control characters and graphic characters) from
-    codepage 1252. The default Collation for the ISO8BIT Character set sorts the
-    characters in their codepage 1252 decimal order. The ISO8BIT characters, and
-    their codepage 1252 Form-of-use codes, are (in default Collation order):
+[OCELOT Implementation] The OCELOT DBMS that comes with this book has a
+default Collation called LATIN1 for the LATIN1 Character set.
+
+ISO8BIT and ASCII_FULL:
+
+The ISO8BIT Character set (ASCII_FULL is a synonym) is an 8-bit Character set
+that consists of 256 characters: all of the LATIN1 characters, plus the rest
+of the characters (including control characters and graphic characters) from
+codepage 1252. The default Collation for the ISO8BIT Character set sorts the
+characters in their codepage 1252 decimal order. The ISO8BIT characters, and
+their codepage 1252 Form-of-use codes, are (in default Collation order):
+
+::
+
     decimal code 000 =      control character; not displayed
     decimal code 001 =      control character; not displayed
     decimal code 002 =      control character; not displayed
@@ -779,133 +859,150 @@ Predefined Character sets
     decimal code 159 =     <Y umlaut>
     decimal codes 160 through 256, from LATIN1
 
-    [NON-PORTABLE] The default Collation for the ISO8BIT Character set has a non-
-    standard name because the SQL Standard requires implementors to define what a
-    legal <Collation name> is.
-          [OCELOT Implementation] The OCELOT DBMS that comes with this book has a
-    default Collation called ASCII_FULL for the ISO8BIT Character set.
+[NON-PORTABLE] The default Collation for the ISO8BIT Character set has a non-
+standard name because the SQL Standard requires implementors to define what a
+legal <Collation name> is.
 
-    UNICODE and ISO10646:
-    The UNICODE Character set (ISO10646 is a synonym) is a 16-bit Character set
-    that consists of every character represented by the Unicode specification
-    (specifically, by The Unicode Standard Version 2.1). Since there are 38,887
-    characters in this set, we won't include a list in this book. It suffices to
-    say that the UNICODE Character set includes all of the ISO8BIT characters,
-    plus many others. The default Collation for the UNICODE Character set sorts
-    the characters in their Unicode Form-of-use code order.
-    [NON-PORTABLE] The default Collation for the UNICODE Character set has a non-
-    standard name because the SQL Standard requires implementors to define what a
-    legal <Collation name> is.
-          [OCELOT Implementation] The OCELOT DBMS that comes with this book has a
-    default Collation called SQL_TEXT for the UNICODE Character set.
+[OCELOT Implementation] The OCELOT DBMS that comes with this book has a
+default Collation called ASCII_FULL for the ISO8BIT Character set.
 
-    SQL_TEXT:
-    The SQL Standard requires every DBMS to provide an Ur-Character set named
-    SQL_TEXT. The complete set of SQL_TEXT characters is implementation defined,
-    but SQL_TEXT must contain every <SQL language character> plus every other
-    character that the DBMS supports -- that is, SQL_TEXT (at a minimum) includes
-    all of the UNICODE characters and is therefore at least a 16-bit Character
-    set.
+UNICODE and ISO10646:
 
-    [NON-PORTABLE] The default Collation for the SQL_TEXT Character set must be
-    called SQL_TEXT too, but is otherwise non-standard because the SQL Standard
-    requires implementors to define the default Collation and Form-of-use of
-    SQL_TEXT.
-          [OCELOT Implementation] The OCELOT DBMS that comes with this book sorts
-    the characters of SQL_TEXT in their Unicode Form-of-use code order.
+The UNICODE Character set (ISO10646 is a synonym) is a 16-bit Character set
+that consists of every character represented by the Unicode specification
+(specifically, by The Unicode Standard Version 2.1). Since there are 38,887
+characters in this set, we won't include a list in this book. It suffices to
+say that the UNICODE Character set includes all of the ISO8BIT characters,
+plus many others. The default Collation for the UNICODE Character set sorts
+the characters in their Unicode Form-of-use code order.
+[NON-PORTABLE] The default Collation for the UNICODE Character set has a non-
+standard name because the SQL Standard requires implementors to define what a
+legal <Collation name> is.
 
-    There are some curious consequences to making SQL_TEXT (and UNICODE) a 16-bit,
-    rather than an 8-bit Character set.
+[OCELOT Implementation] The OCELOT DBMS that comes with this book has a
+default Collation called SQL_TEXT for the UNICODE Character set.
 
-    The consequences are the result of the fact that all <identifier>s and other
-    character strings in INFORMATION_SCHEMA, all <SQL-server name>s, all
-    <Connection name>s, all <AuthorizationID>s, and the results of many functions
-    (e.g.: USER, CURRENT_USER, SESSION_USER, SYSTEM_USER) are SQL_TEXT character strings.
+SQL_TEXT:
 
-    SQL_TEXT, however, is normally not the default Character set (the default
-    Character set is almost always an 8-bit Character set) -- and SQL specifically
-    prohibits comparisons between strings that belong to different Character sets.
-    (The rules require that, for such comparisons, one string be translated to the
-    other string's Character set first -- see "TRANSLATE function" in our chapter
-    on character strings.)
+The SQL Standard requires every DBMS to provide an Ur-Character set named
+SQL_TEXT. The complete set of SQL_TEXT characters is implementation defined,
+but SQL_TEXT must contain every <SQL language character> plus every other
+character that the DBMS supports -- that is, SQL_TEXT (at a minimum) includes
+all of the UNICODE characters and is therefore at least a 16-bit Character
+set.
 
-    So, will you have special trouble when you want to display INFORMATION_SCHEMA
-    strings, <AuthorizationID>s, <SQL-server name>s, <Connection name>s or the
-    like? There are two possibilities, and the answer is usually "NO" to both.
+[NON-PORTABLE] The default Collation for the SQL_TEXT Character set must be
+called SQL_TEXT too, but is otherwise non-standard because the SQL Standard
+requires implementors to define the default Collation and Form-of-use of
+SQL_TEXT.
 
-    Possibility 1:
-    Consider the following SQL statements:
+[OCELOT Implementation] The OCELOT DBMS that comes with this book sorts
+the characters of SQL_TEXT in their Unicode Form-of-use code order.
 
-       SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES;
+There are some curious consequences to making SQL_TEXT (and UNICODE) a 16-bit,
+rather than an 8-bit Character set.
 
-       SELECT SESSION_USER FROM INFORMATION_SCHEMA.TABLES;
+The consequences are the result of the fact that all <identifier>s and other
+character strings in INFORMATION_SCHEMA, all <SQL-server name>s, all
+<Connection name>s, all <AuthorizationID>s, and the results of many functions
+(e.g.: USER, CURRENT_USER, SESSION_USER, SYSTEM_USER) are SQL_TEXT character strings.
 
-    The SQL Standard allows a DBMS to decide whether there should be an automatic
-    translation from SQL_TEXT to the default Character set when an SQL statement
-    assigns an SQL_TEXT string to a host language variable or parameter. In such
-    cases, most DBMSs do the automatic translation for you (as, for example, the
-    OCELOT DBMS that comes with this book does) -- so, to display the result of a
-    SELECT from INFORMATION_SCHEMA or the result from a function that returns an
-    SQL_TEXT string, you won't need to do anything special. It won't normally be
-    necessary to use the TRANSLATE function to translate the retrieved values from
-    16-bit SQL_TEXT characters into 8-bit, readable format (or vice versa) -- just
-    write your SQL statement as if the Character set difference doesn't exist. (In
-    the example above, by the way, the ASCII <identifier> TABLE_NAME would also be
-    automatically converted to a SQL_TEXT string by your DBMS before the search was done.)
+SQL_TEXT, however, is normally not the default Character set (the default
+Character set is almost always an 8-bit Character set) -- and SQL specifically
+prohibits comparisons between strings that belong to different Character sets.
+(The rules require that, for such comparisons, one string be translated to the
+other string's Character set first -- see "TRANSLATE function" in our chapter
+on character strings.)
 
-    Possibility 2:
-    Consider this SQL statement:
+So, will you have special trouble when you want to display INFORMATION_SCHEMA
+strings, <AuthorizationID>s, <SQL-server name>s, <Connection name>s or the
+like? There are two possibilities, and the answer is usually "NO" to both.
 
-       SELECT TABLE_NAME
-       FROM   INFORMATION_SCHEMA.TABLES
-       WHERE  TABLE_NAME = 'ocelot';
+Possibility 1:
 
-    The SQL Standard does not allow a DBMS to decide whether there should be an
-    automatic translation from SQL_TEXT to the default Character set when an SQL
-    statement involves a comparison between a SQL_TEXT string and a default
-    Character set string -- but the rules do allow a DBMS to provide a predefined
-    Translation for this purpose. In such cases, most DBMSs will use this option
-    to do an automatic translation for you (as, for example, the OCELOT DBMS that
-    comes with this book does) -- so, to compare SQL_TEXT strings with default
-    Character set strings, you won't need to do anything special. It won't
-    normally be necessary to use the TRANSLATE function to translate the retrieved
-    values from 16-bit SQL_TEXT characters into 8-bit, readable format (or vice
-    versa) -- just write your SQL statement as if the Character set difference doesn't exist.
+Consider the following SQL statements:
 
-    A second consequence of the fact that SQL_TEXT is 16-bit and the default
-    Character set is usually 8-bit involves the use of <AuthorizationID>s,
-    <SQL-server name>s and <Connection name>s. Although <AuthorizationID>s,
-    <SQL-server name>s and <Connection name>s are stored as 16-bit SQL_TEXT
-    strings, the SQL-Connection arguments in CONNECT TO are inevitably in 8-bit
-    sets, since ASCII is used to type them. If, however, these same arguments are
-    assigned to host language variable parameters, you will see them as 16-bit
-    strings. Therefore, when you have an expression like this:
+::
 
-       ... WHERE <AuthorizationID> = 'x' ...
+   SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES;
 
-    you know that the <character string literal> 'x' is a 16-bit string because
-    <Authorization ID>s are SQL_TEXT strings. But the same <literal> in a CONNECT
-    statement, e.g.:
+   SELECT SESSION_USER FROM INFORMATION_SCHEMA.TABLES;
 
-       CONNECT TO 'x';
+The SQL Standard allows a DBMS to decide whether there should be an automatic
+translation from SQL_TEXT to the default Character set when an SQL statement
+assigns an SQL_TEXT string to a host language variable or parameter. In such
+cases, most DBMSs do the automatic translation for you (as, for example, the
+OCELOT DBMS that comes with this book does) -- so, to display the result of a
+SELECT from INFORMATION_SCHEMA or the result from a function that returns an
+SQL_TEXT string, you won't need to do anything special. It won't normally be
+necessary to use the TRANSLATE function to translate the retrieved values from
+16-bit SQL_TEXT characters into 8-bit, readable format (or vice versa) -- just
+write your SQL statement as if the Character set difference doesn't exist. (In
+the example above, by the way, the ASCII <identifier> TABLE_NAME would also be
+automatically converted to a SQL_TEXT string by your DBMS before the search was done.)
 
-    has to be an 8-bit string because it is typed in ASCII.
+Possibility 2:
 
-    One last comment, about parsing SQL_TEXT strings. Consider the following
-    expression, which concatenates a character string with a value from a Column:
+Consider this SQL statement:
 
-       ... _INFORMATION_SCHEMA.SQL_TEXT 'A ' || column_1
+::
 
-    The default Character set for an SQL statement is usually an 8-bit Character
-    set, but the string 'A ' in this example is explicitly introduced as 16-bit
-    SQL_TEXT. Thus, what appears to be two 8-bit characters -- A and <space> --
-    is, in fact, one 16-bit character, the Unicode value 4120h.
+   SELECT TABLE_NAME
+   FROM   INFORMATION_SCHEMA.TABLES
+   WHERE  TABLE_NAME = 'ocelot';
 
-    Parsing of SQL statements is always based on 8-bit values regardless of the
-    Character set of a string, so your DBMS will consider the SQL_TEXT string 'A '
-    to begin after the first single quote mark and end before the second single
-    quote mark; i.e.: although the characters inside the single quotes are 16-bit,
-    the delimiting single quote marks themselves are 8-bit. Thus, when the parser
-    reaches the second single quote mark it knows that the string is over --
-    despite the fact that in 16-bit, a single quote mark character has not yet
-    been found.
+The SQL Standard does not allow a DBMS to decide whether there should be an
+automatic translation from SQL_TEXT to the default Character set when an SQL
+statement involves a comparison between a SQL_TEXT string and a default
+Character set string -- but the rules do allow a DBMS to provide a predefined
+Translation for this purpose. In such cases, most DBMSs will use this option
+to do an automatic translation for you (as, for example, the OCELOT DBMS that
+comes with this book does) -- so, to compare SQL_TEXT strings with default
+Character set strings, you won't need to do anything special. It won't
+normally be necessary to use the TRANSLATE function to translate the retrieved
+values from 16-bit SQL_TEXT characters into 8-bit, readable format (or vice
+versa) -- just write your SQL statement as if the Character set difference doesn't exist.
+
+A second consequence of the fact that SQL_TEXT is 16-bit and the default
+Character set is usually 8-bit involves the use of <AuthorizationID>s,
+<SQL-server name>s and <Connection name>s. Although <AuthorizationID>s,
+<SQL-server name>s and <Connection name>s are stored as 16-bit SQL_TEXT
+strings, the SQL-Connection arguments in CONNECT TO are inevitably in 8-bit
+sets, since ASCII is used to type them. If, however, these same arguments are
+assigned to host language variable parameters, you will see them as 16-bit
+strings. Therefore, when you have an expression like this:
+
+::
+
+   ... WHERE <AuthorizationID> = 'x' ...
+
+you know that the <character string literal> 'x' is a 16-bit string because
+<Authorization ID>s are SQL_TEXT strings. But the same <literal> in a CONNECT
+statement, e.g.:
+
+::
+
+   CONNECT TO 'x';
+
+has to be an 8-bit string because it is typed in ASCII.
+
+One last comment, about parsing SQL_TEXT strings. Consider the following
+expression, which concatenates a character string with a value from a Column:
+
+::
+
+   ... _INFORMATION_SCHEMA.SQL_TEXT 'A ' || column_1
+
+The default Character set for an SQL statement is usually an 8-bit Character
+set, but the string 'A ' in this example is explicitly introduced as 16-bit
+SQL_TEXT. Thus, what appears to be two 8-bit characters -- A and <space> --
+is, in fact, one 16-bit character, the Unicode value 4120h.
+
+Parsing of SQL statements is always based on 8-bit values regardless of the
+Character set of a string, so your DBMS will consider the SQL_TEXT string 'A '
+to begin after the first single quote mark and end before the second single
+quote mark; i.e.: although the characters inside the single quotes are 16-bit,
+the delimiting single quote marks themselves are 8-bit. Thus, when the parser
+reaches the second single quote mark it knows that the string is over --
+despite the fact that in 16-bit, a single quote mark character has not yet
+been found.
