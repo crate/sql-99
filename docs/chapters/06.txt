@@ -4,13 +4,9 @@
 Chapter 6 -- Characters
 =======================
 
-::
-
     "Now we know our Alphabet all the way from A to Z[ed]"
 
     -- (Grade 1 Tune)
-
-::
 
     "Now we know our ABC all the way from A to Z[ee]"
 
