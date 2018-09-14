@@ -4,79 +4,95 @@
 Appendix E -- SQL Web Sites
 ===========================
 
-::
+You will get millions of hits if you submit the keyword SQL to any Internet
+search engine. You will get only 12 hits from this list. But they all have one
+interesting common feature: FREE STUFF. Our list of SQL web sites includes:
 
-    You will get millions of hits if you submit the keyword SQL to any Internet
-    search engine. You will get only 12 hits from this list. But they all have one
-    interesting common feature: FREE STUFF. Our list of SQL web sites includes:
-         ## Private companies which produce SQL databases or SQL-related programs,
-    and which allow downloads of real working programs.
-         ## Both government and private bodies which produce SQL-related
-    standards.
-         ## Sites which offer timely and real SQL news.
+## Private companies which produce SQL databases or SQL-related programs,
+and which allow downloads of real working programs.
 
-    Our selection is primarily of English-speaking sites. As URLs change, and as
-    new sites match our criteria, we will update a copy of this list at our own
-    web site:
-       http://ourworld.compuserve.com/homepages/OCELOTSQL/sites.htm
+## Both government and private bodies which produce SQL-related
+standards.
 
-    So probably your best way to keep up-to-date is to add our web site to your
-    favourite places, and click links from there.
+## Sites which offer timely and real SQL news.
 
-    Here's the list:
+Our selection is primarily of English-speaking sites. As URLs change, and as
+new sites match our criteria, we will update a copy of this list at our own
+web site:
 
-    Beagle SQL
-    www.beaglesql.com
-      Strictly a work in progress. Linux oriented.
+    http://ourworld.compuserve.com/homepages/OCELOTSQL/sites.htm
 
-    Gnu SQL
-    www.ispras.ru/~kml/gss
-      Alpha. The usual gnu software license.
+So probably your best way to keep up-to-date is to add our web site to your
+favourite places, and click links from there.
 
-    Intelligent Enterprise Journal
-    www.intelligententerprise.com
-      An online regular database magazine.
+Here's the list:
 
-    ISO
-    ftp://jerry.ece.umassd.edu
-      This is the archive site for ISO standards committee minutes and memoranda.
+Beagle SQL
+  http://www.beaglesql.com
 
-    Microsoft
-    www.microsoft.com/msdn
-      You can get the ODBC manual from here, as a .hlp file.
+  Strictly a work in progress. Linux oriented.
 
-    miniSQL
-    www.hughes.com.au
-      A Unix-oriented SQL-89 implementation.
+Gnu SQL
+  http://www.ispras.ru/~kml/gss
 
-    NIST
-    speckle.ncsl.nist.gov/~ftp/sql-testing
-      A large group of SQL conformance tests (C source code). Somewhat dated.
+  Alpha. The usual gnu software license.
 
-    mySQL
-    www.tcx.se
-      Another Unix-oriented SQL-89 implementation.
+Intelligent Enterprise Journal
+  http://www.intelligententerprise.com
 
-    Ocelot
-    ourworld.compuserve.com/homepages/OCELOTSQL
-      Any errata for this book, plus updated copy of this list, plus downloads.
+  An online regular database magazine.
 
-    Oracle
-    www.oracle.com
-      Apparently you can download 30-day free trials (we didn't try).
+ISO
+  ftp://jerry.ece.umassd.edu
 
-    Postresql
-    www.postgresql.org/index.htm
-      One of the few "free" SQL implementations that supports UDTs.
+  This is the archive site for ISO standards committee minutes and memoranda.
 
-    Sun
-    www.sun.com/products/jdbc
-      Get a copy of the test suite for the JDBC here.
+Microsoft
+  http://www.microsoft.com/msdn
 
-    Unicode
-    www.unicode.org
-      Look for "code charts".
+  You can get the ODBC manual from here, as a .hlp file.
 
-    Yard
-    www.yard.de
-      "Yard SQL" is free for educational institutions.
+miniSQL
+  http://www.hughes.com.au
+
+  A Unix-oriented SQL-89 implementation.
+
+NIST
+  http://speckle.ncsl.nist.gov/~ftp/sql-testing
+
+  A large group of SQL conformance tests (C source code). Somewhat dated.
+
+mySQL
+  http://www.tcx.se
+
+  Another Unix-oriented SQL-89 implementation.
+
+Ocelot
+  http://ourworld.compuserve.com/homepages/OCELOTSQL
+
+  Any errata for this book, plus updated copy of this list, plus downloads.
+
+Oracle
+  http://www.oracle.com
+
+  Apparently you can download 30-day free trials (we didn't try).
+
+Postresql
+  http://www.postgresql.org/index.htm
+
+  One of the few "free" SQL implementations that supports UDTs.
+
+Sun
+  http://www.sun.com/products/jdbc
+
+ Get a copy of the test suite for the JDBC here.
+
+Unicode
+  http://www.unicode.org
+
+  Look for "code charts".
+
+Yard
+  http://www.yard.de
+
+  "Yard SQL" is free for educational institutions.
