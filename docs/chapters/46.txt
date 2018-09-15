@@ -289,11 +289,11 @@ information with the SQLGetDiagField function.
 
 ::
 
-     May be Gotten by ...           May be Set by ...
-ARD
-IRD  user                           SQLPrepare
-APD
-IPD  user                           SQLPrepare
+         May be Gotten by ...           May be Set by ...
+    ARD
+    IRD  user                           SQLPrepare
+    APD
+    IPD  user                           SQLPrepare
 
 ## SQL_DESC_KEY_TYPE
 
@@ -466,12 +466,12 @@ type> is INTEGER rather than SMALLINT.
 
 ::
 
-     May be Gotten by ...           May be Set by ...
-ARD  user                           user
-IRD  SQLGetData, SQLDescribeCol,    SQLPrepare
-     user
-APD  SQLExecute, user               user
-IPD  SQLExecute, user               SQLBindParameter, SQLPrepare[I], user
+         May be Gotten by ...           May be Set by ...
+    ARD  user                           user
+    IRD  SQLGetData, SQLDescribeCol,    SQLPrepare
+         user
+    APD  SQLExecute, user               user
+    IPD  SQLExecute, user               SQLBindParameter, SQLPrepare[I], user
 
 ## SQL_DESC_INDICATOR_POINTER
 
@@ -537,12 +537,12 @@ ANSI SQL, SQL_DESC_LENGTH may be changed with the SQLSetDescField function. In I
 
 ::
 
-     May be Gotten by ...           May be Set by ...
-ARD  user                           user
-IRD  SQLGetData, SQLDescribeCol,    SQLPrepare
-     user
-APD  SQLExecute, user               user
-IPD  SQLExecute, user               SQLPrepare[I], user
+         May be Gotten by ...           May be Set by ...
+    ARD  user                           user
+    IRD  SQLGetData, SQLDescribeCol,    SQLPrepare
+         user
+    APD  SQLExecute, user               user
+    IPD  SQLExecute, user               SQLPrepare[I], user
 
 ## SQL_DESC_NAME
 
@@ -561,11 +561,11 @@ In ODBC, named parameters are supported.
 
 ::
 
-     May be Gotten by ...           May be Set by ...
-ARD  user                           user
-IRD  SQLDescribeCol, user           SQLPrepare
-APD  user                           user
-IPD  user                           user
+         May be Gotten by ...           May be Set by ...
+    ARD  user                           user
+    IRD  SQLDescribeCol, user           SQLPrepare
+    APD  user                           user
+    IPD  user                           user
 
 ## SQL_DESC_NULLABLE
 
@@ -580,11 +580,11 @@ In ISO SQL, it may not be. In ODBC, the value might also be 2
 
 ::
 
-     May be Gotten by ...           May be Set by ...
-ARD  user                           user
-IRD  SQLDescribeCol, user           SQLPrepare
-APD  user                           user
-IPD  user                           SQLPrepare[I], user
+         May be Gotten by ...           May be Set by ...
+    ARD  user                           user
+    IRD  SQLDescribeCol, user           SQLPrepare
+    APD  user                           user
+    IPD  user                           SQLPrepare[I], user
 
 ## SQL_DESC_OCTET_LENGTH
 
@@ -1372,7 +1372,7 @@ changes are. Any fields not shown are reset to implementation-dependent values.
     the DBMS cannot allow any further inconsistency. If you've read our chapters
     about the various SQL predefined <data type>s, you'll find that the
     consistency check is merely an enforcement of the rules you already know. And
-    there are no **GOTCHAs because the DBMS only checks what's relevant. It looks
+    there are no ``**GOTCHAs`` because the DBMS only checks what's relevant. It looks
     for these things:
 
         ## SQL_DESC_PRECISION, SQL_DESC_SCALE, SQL_DESC_LENGTH,
@@ -1513,15 +1513,15 @@ SQLGetDescField several times, with different field identifiers:
 SQL_DESC_NAME, SQL_DESC_TYPE, SQL_DESC_DATETIME_INTERVAL_CODE,
 SQL_DESC_OCTET_LENGTH, SQL_DESC_PRECISION, SQL_DESC_SCALE and SCALE_NULLABLE.
 
-## Regarding the value of *Length, what the Standard actually says is
+## Regarding the value of ``*Length``, what the Standard actually says is
 that it should be set to "the length (in octets or positions, as appropriate)"
 ... which is ambiguous. We have taken the ODBC specification as our guide here
--- it says *Length should be set to SQL_DESC_OCTET_LENGTH. Probably you should
+-- it says ``*Length`` should be set to SQL_DESC_OCTET_LENGTH. Probably you should
 use another function if the setting of Length is important to you.
 
 ## For fields which are "not applicable", pass null parameters. For
 example, the SQL_DESC_NAME field is usually meaningless within an ARD or an
-APD. So, for *Name, BufferLength and *Namelength, pass null if you're
+APD. So, for ``*Name``, BufferLength and ``*Namelength``, pass null if you're
 retrieving from an ARD or APD. By passing null pointers, you can limit the
 values you get, to fill only the fields you really want.
 
@@ -1714,8 +1714,8 @@ Algorithm:
        If (associated statement not prepared)
          return error: HY007 CLI-specific condition-associated statement is not prepared)
       Copy the contents of every field in source desc to target desc -- with
-the exception of the SQL_DESC_ALLOC_TYPE field. SQL_DESC_ALLOC_TYPE keeps its
-original value).
+      the exception of the SQL_DESC_ALLOC_TYPE field. SQL_DESC_ALLOC_TYPE keeps its
+      original value).
 
 Notes:
 
@@ -2224,8 +2224,8 @@ feature. You can check whether your DBMS supports it (you'll see how when we
 describe the SQLGetInfo function). But usually there's nothing difficult about
 getting Columns in ascending Column-number order.
 
-## *StrLen_or_Ind points to a 32-bit integer, not a 16-bit integer. Thus
-the final three parameters -- *TargetValue, BufferLength, *StrLen_or_Ind -- do
+## ``*StrLen_or_Ind`` points to a 32-bit integer, not a 16-bit integer. Thus
+the final three parameters -- ``*TargetValue``, BufferLength, ```*StrLen_or_Ind`` -- do
 not form a typical example of Character String Retrieval parameters.
 
 ## Since SQLGetData cannot take advantage of the full set of ARD fields,
@@ -2549,9 +2549,9 @@ Notes:
 
 ## ValueType might be SQL_C_DEFAULT.
 
-## *StrLen_or_Ind might be SQL_DATA_AT_EXEC.
+## ``*StrLen_or_Ind`` might be SQL_DATA_AT_EXEC.
 
-## *StrLen_or_Ind might be SQL_DATA_NULL.
+## ``*StrLen_or_Ind`` might be SQL_DATA_NULL.
 
 ## Datetime codings are an occasional source of confusion, because the
 specification was changed a few years ago. Make sure, especially, that
@@ -2617,7 +2617,7 @@ programmers would pass [6] here -- i.e.: the number of octets in c. We deplore
 this misleading practice. If the parameter mode is SQL_PARAM_MODE_INPUT, the
 "octet length" is not determined by what is passed for BufferLength.)
 
-## [NULL] is *StrLen_or_Ind -- in this case we won't supply an indicator pointer.
+## [NULL] is ``*StrLen_or_Ind`` -- in this case we won't supply an indicator pointer.
 
 ::
 
@@ -2971,13 +2971,13 @@ chart shows what the effects are of the calculation in the "Algorithm" section:
     INTERVAL               SQL_DESC_LENGTH        INTERVAL SECOND(1)   4 [2]
 
 * Note 1: This <data type> usually has a binary-radix precision, so the
-value in SQL_DESC_PRECISION is in bits. When this is the case, the DBMS
-converts to the number of decimal digits that would be needed to represent the
-<data type>'s largest literal (not including space for sign, decimal point or exponent).
+  value in SQL_DESC_PRECISION is in bits. When this is the case, the DBMS
+  converts to the number of decimal digits that would be needed to represent the
+  <data type>'s largest literal (not including space for sign, decimal point or exponent).
 
 * Note 2: The INTERVAL example is based on an assumption that the
-leading field precision is 2; the specified fractional precision is 1, so a
-typical <literal> would be INTERVAL '-33.5' SECOND.
+  leading field precision is 2; the specified fractional precision is 1, so a
+  typical <literal> would be INTERVAL '-33.5' SECOND.
 
 ## Old-timers may recognize that the fields retrieved by SQLDescribeCol
 are analogous to the fields of IBM DB2's SQLDA (SQL descriptor area), used for
@@ -3047,7 +3047,7 @@ Algorithm:
 
 If (there is no prepared statement associated with StatementHandle)
 return error: HY010 CLI-specific condition-function sequence error
-Set *ColumnCount = IRD.SQL_DESC_COUNT
+Set ``*ColumnCount`` = IRD.SQL_DESC_COUNT
 
 Notes:
 
@@ -3065,7 +3065,7 @@ Columns in the select list.
 
 ## Some applications call SQLNumResultCols in order to find out whether
 the last executed statement was a query. If it was something else -- INSERT,
-for instance -- then *ColumnCount would be 0. This is a reliable test, but
+for instance -- then ``*ColumnCount`` would be 0. This is a reliable test, but
 SQL3 programmers can use desc.SQL_DESC_DYNAMIC_FUNCTION_CODE for a slightly
 more precise answer.
 

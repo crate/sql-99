@@ -692,7 +692,7 @@ Objective is: Define and invoke a replacement for a frequently-used subquery. He
          FROM   Table_1
          WHERE  smallint_column > 5);
 
-To invoke MAX_, use the <routine invocation> "Max_()" in an SQL statement, for example:
+To invoke ``MAX_``, use the <routine invocation> "Max_()" in an SQL statement, for example:
 
 ::
 
@@ -703,9 +703,9 @@ than "SELECT MAX(date_column) FROM Table_1 WHERE smallint_column > 5);". It's
 also safer -- if a subquery is long and complex and used frequently, you'll
 reduce the chances of error by putting the subquery into a function.
 
-A far less likely advantage is that the MAX_ routine is parsed and done only
+A far less likely advantage is that the ``MAX_`` routine is parsed and done only
 once. Although that sort of optimization is theoretically possible, there are
-some hidden dynamic variables that could change each time MAX_ is invoked (for
+some hidden dynamic variables that could change each time ``MAX_`` is invoked (for
 example, the Schema that contains TABLE_1). One does not call functions like
 this for "efficiency" reasons.
 

@@ -355,8 +355,6 @@ Algorithm:
 
 Notes:
 
-::
-
 ## The specification allows for implementation-defined attributes and
 for the possibility of future change. That's why the StringLength parameter
 exists, although it's not currently used.

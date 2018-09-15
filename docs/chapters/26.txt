@@ -577,6 +577,8 @@ We're still not done with the BEGIN ... END statement. The final form of a
 compound statement adds two more optional clauses: a beginning label and an
 end label. The required syntax for a compound statement is:
 
+::
+
     [ <beginning_label>: ]
     BEGIN [ [ NOT ] ATOMIC ]
       [ <variable | condition declaration>; ... ]

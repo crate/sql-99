@@ -85,7 +85,7 @@ applicable".
 parameter -- the "length". This length should be the number of octets in the
 input string. The special value SQL_NTS is permissible. The special value 0
 (zero) is permissible, and a zero-length string means "don't care" -- for
-example, if you pass a zero-length string for a parameter named *SchemaName,
+example, if you pass a zero-length string for a parameter named ``*SchemaName``,
 the DBMS will accept all <Schema name>s in the Catalog.
 
 ## Metadata ID. You may recall that there is an option to the
@@ -97,12 +97,12 @@ is FALSE).
 
         ## If there is such a thing as a <Catalog name> (which is
         the case in all standard DBMSs), then you must not pass a null pointer for any
-        Catalog function parameter which is labelled *CatalogName. Passing a null
+        Catalog function parameter which is labelled ``*CatalogName``. Passing a null
         pointer will result in the error: HY009 CLI-specific condition-invalid use of
         null pointer.
 
         ## You must not pass a null pointer for any Catalog function
-        parameter which is labelled *SchemaName. Passing a null pointer will result in
+        parameter which is labelled ``*SchemaName``. Passing a null pointer will result in
         the error: HY009 CLI-specific condition-invalid use of null pointer.
 
         ## You may pass a string which begins and ends with quotes,
@@ -168,6 +168,7 @@ Algorithm:
 Execute the following SELECT statement and return a result set.
 
 ::
+
          SELECT
           TABLE_CATALOG AS table_cat,   /* VARCHAR(128) */
           TABLE_SCHEMA AS table_schem,  /* VARCHAR(128) NOT NULL */
@@ -519,7 +520,7 @@ To visualize how the DBMS gets the result set and what it will contain, assume
 that the DBMS makes a View and then SELECTS from it. We are trying, in the
 following CREATE VIEW statement, to make it clear what each <Column name> will
 be (that's why there are AS clauses) and what each Column <data type> will be
-(that's why there are /* comments */). The View we're creating is a join of
+(that's why there are ``/* comments */``). The View we're creating is a join of
 three INFORMATION_SCHEMA Views: KEY_COLUMN_USAGE, REFERENTIAL_CONSTRAINTS and
 TABLE_CONSTRAINTS.
 
@@ -608,7 +609,7 @@ is:
     UK_TABLE_NAME  UK_COLUMN_NAME  FK_TABLE_NAME  FK_COLUMN_NAME
     T2             T2_COL_1        T3             T3_COL_1
 
-[2] If the *FKTableName parameter is passed, search the temporary View looking
+[2] If the ``*FKTableName`` parameter is passed, search the temporary View looking
 for foreign key:
 
 ::
@@ -634,7 +635,7 @@ is:
     UK_TABLE_NAME  UK_COLUMN_NAME  FK_TABLE_NAME  FK_COLUMN_NAME
     T1             T1_COL_1        T2             T2_COL_1
 
-[3] If both the *PKTableName and *FKTableName parameters are passed, then
+[3] If both the ``*PKTableName`` and ``*FKTableName`` parameters are passed, then
 search the temporary View looking for both primary and foreign key:
 
 ::
@@ -1452,7 +1453,7 @@ Show information about specified Table(s).
 
 Algorithm:
 
-For a moment let us ignore the *TableType parameter. Now,
+For a moment let us ignore the ``*TableType`` parameter. Now,
 the SQLTables function is effectively the same as this query:
 
 ::
@@ -1487,12 +1488,12 @@ the SQLTables function is effectively the same as this query:
 
 Notes:
 
-## The *TableType parameter is a wrinkle which is hard to show in an SQL
+## The ``*TableType`` parameter is a wrinkle which is hard to show in an SQL
 statement but it's reasonably straightforward. The idea is that there are five
 general categories of Tables: the INFORMATION_SCHEMA Views ('SYSTEM TABLE'),
 all other Views ('VIEW'), ordinary Base tables ('TABLE') and the two kinds of
 temporary Tables ('GLOBAL TEMPORARY' or 'LOCAL TEMPORARY'). To restrict to the
-categories you want, pass a commalist in *TableType -- for example: 'SYSTEM
+categories you want, pass a commalist in ``*TableType`` -- for example: 'SYSTEM
 TABLE','VIEW'. Or pass SYSTEM TABLE,VIEW (the quote marks are optional). Or
 pass nothing (if you pass a blank string, the DBMS returns Tables in all
 categories).

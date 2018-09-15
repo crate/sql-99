@@ -154,8 +154,8 @@ Algorithm:
         /* You must close Cursor before re-using the stmt */
         return error: 24000 - invalid Cursor state -
       Get the string using StatementText and TextLength. This is a typical
-example of a pass of a character string, except that TextLength is an integer
-rather than a smallint. TextLength may be SQL_NTS.
+      example of a pass of a character string, except that TextLength is an integer
+      rather than a smallint. TextLength may be SQL_NTS.
       If the TextLength value doesn't make sense:
         return error: HY090 CLI-specific condition-invalid string length or buffer length
       If (the string contains "DELETE|UPDATE ... WHERE CURRENT OF ...")

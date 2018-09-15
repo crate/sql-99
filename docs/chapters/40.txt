@@ -76,7 +76,7 @@ code as follows:
 "sqlcli.h" but you might see this statement -- include "sql.h" -- instead. The
 header file has the prototypes of all the CLI functions and #defines for all
 the constants. The function names begin with SQL and the constant names begin
-with SQL_ -- that's the convention in C programs. You can program standard SQL
+with ``SQL_`` -- that's the convention in C programs. You can program standard SQL
 without following this convention, but it seems reasonable to follow it.
 
 ## [Note 2]: Variable declarations. The convention this time is: h
@@ -439,12 +439,12 @@ Algorithm:
 
 Notes:
 
-## The idea is simply to copy the *Source string to the *Target string,
-but there's a safeguard against overflowing *Target (that's why we pass
+## The idea is simply to copy the ``*Source`` string to the ``*Target`` string,
+but there's a safeguard against overflowing ``*Target`` (that's why we pass
 MaxTargetOctetLength) and there's a place to store the original size (that's
-why we pass *ReturnedOctetLength).
+why we pass ``*ReturnedOctetLength``).
 
-## The *Target string will always be null-terminated, unless TargetOctetLength=0.
+## The ``*Target`` string will always be null-terminated, unless TargetOctetLength=0.
 
 ## There are variations of this routine where ...OctetLength is 16-bit.
 

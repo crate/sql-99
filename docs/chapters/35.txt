@@ -219,10 +219,10 @@ Table definition:
    CREATE TABLE Table_1 (
       column_1 INTEGER, column_2 CHARACTER(7), column_3 DATE);
 
-::
-
 these INSERT statements, which insert one row of data into TABLE_1 using
 <literal>s and/or the <keyword> NULL, are equivalent:
+
+::
 
    INSERT INTO Table_1 (column_2, column_3)
    VALUES ('GOODBYE', DATE '1996-12-31');
@@ -602,7 +602,7 @@ error, the next two will result in a "syntax" error:
      id = 1,
      id = 1;
    -- fails because the same Column can't be changed more than once in a
-single UPDATE statement
+   single UPDATE statement
 
 Here's an UPDATE statement that sets the AUTHORS_1 NAME Column to a
 corresponding authors_2 NAME value:

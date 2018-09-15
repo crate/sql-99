@@ -4,7 +4,7 @@
 Chapter 53 -- Style
 ===================
 
-Here is one SQL operation, written in two contrasting styles. Notice the different names, spacing, indentation and choice of optional keywords: [CASUAL] SELECT * FROM T WHERE C1>5 ORDER BY 1 ASC; [FORMAL] SELECT package_id, special_handling_code, buy_date FROM Packages WHERE package_id > 1.0 ORDER BY package_id; Casual style is better for notes, examples, blackboard discussions and prototypes. We use it in this book whenever we enclose an SQL statement in an illustrative sentence, as when we say that "SELECT * FROM T WHERE C1>5 ORDER BY 1 ASC" is an example of casual style. We don't wear suits on beaches and we believe that casual style is appropriate for our purposes. On the other hand, a serious program demands some formality. There is one good reason and one bad reason. ## Appearance. Okay, this is the bad reason. Formal style persuades others, perhaps even yourself, that you used some sort of organization and design. ## Coherence. You can read statements more easily if you know in advance the shape, order and vocabulary. More time is spent "reading" code than "writing" it, so you will save time by investing time at the start. Besides, maybe you do wear suits on beaches. A true story There once was a clever DBMS named O_____ (tm). The people who program O_____ were mulling in their tall building in Redwood Shores CA one day. "Sometimes we have to run the same SQL statements twice", they mulled. "So why should we parse the same statement again when we already know what the Access Plan is from the first time we ran it?" And they came up with a clever plan. They put the first SQL statement in a cache! Then, when the second SQL statement came along, they had a clever way of telling that it was really something they'd done before (maybe with a parameter or two different but that doesn't affect the story). And they just re-used the same Access Plan and saved oodles of time. They even used this clever plan for Views. Which was great. Except that their way of comparing the new SQL statement with the cached SQL statement was, well, simple. What they did was: they compared every byte in the cached statement with every byte in the new statement. That's it. No lower-to-upper conversions, no lead-space trimming, nothing but a REP CMPSB (that's "strcmp" to you C fans). What happened next? Well, in all the good-doobie programming shops, where everybody wrote every detail according to the same style rules ... why, the programs ran faster. But in all the other programming shops, where freedom and creativity ruled, nothing happened. The moral of the story is: choose a common style, then STICK TO YOUR STYLE.
+Here is one SQL operation, written in two contrasting styles. Notice the different names, spacing, indentation and choice of optional keywords: [CASUAL] ``SELECT * FROM T WHERE C1>5 ORDER BY 1 ASC;`` [FORMAL] SELECT package_id, special_handling_code, buy_date FROM Packages WHERE package_id > 1.0 ORDER BY package_id; Casual style is better for notes, examples, blackboard discussions and prototypes. We use it in this book whenever we enclose an SQL statement in an illustrative sentence, as when we say that ``SELECT * FROM T WHERE C1>5 ORDER BY 1 ASC`` is an example of casual style. We don't wear suits on beaches and we believe that casual style is appropriate for our purposes. On the other hand, a serious program demands some formality. There is one good reason and one bad reason. ## Appearance. Okay, this is the bad reason. Formal style persuades others, perhaps even yourself, that you used some sort of organization and design. ## Coherence. You can read statements more easily if you know in advance the shape, order and vocabulary. More time is spent "reading" code than "writing" it, so you will save time by investing time at the start. Besides, maybe you do wear suits on beaches. A true story There once was a clever DBMS named ``O_____`` (tm). The people who program ``O_____`` were mulling in their tall building in Redwood Shores CA one day. "Sometimes we have to run the same SQL statements twice", they mulled. "So why should we parse the same statement again when we already know what the Access Plan is from the first time we ran it?" And they came up with a clever plan. They put the first SQL statement in a cache! Then, when the second SQL statement came along, they had a clever way of telling that it was really something they'd done before (maybe with a parameter or two different but that doesn't affect the story). And they just re-used the same Access Plan and saved oodles of time. They even used this clever plan for Views. Which was great. Except that their way of comparing the new SQL statement with the cached SQL statement was, well, simple. What they did was: they compared every byte in the cached statement with every byte in the new statement. That's it. No lower-to-upper conversions, no lead-space trimming, nothing but a REP CMPSB (that's "strcmp" to you C fans). What happened next? Well, in all the good-doobie programming shops, where everybody wrote every detail according to the same style rules ... why, the programs ran faster. But in all the other programming shops, where freedom and creativity ruled, nothing happened. The moral of the story is: choose a common style, then STICK TO YOUR STYLE.
 
 .. rubric:: Table of Contents
 
@@ -31,7 +31,7 @@ written entirely in upper case -- but not recent examples. You should remember
 that are stored in upper case, but it's been a long time since any DBMS
 insisted that Object names must be entered in upper case in the first place. 2.
 Spaces. Put a single space after every SQL -- that is, after every and after s
-and after operators such as * or + or =. For example: SELECT width * 5 ...
+and after operators such as ``*`` or + or =. For example: ``SELECT width * 5 ...``
 Exception: There need be no spaces after scalar or set function names, or
 within parentheses. For example: SELECT MAX(width) ... Exception: There should
 be no space before comma (,) or semicolon (;). There should, however, be a
@@ -114,7 +114,7 @@ minus sign (--) and ends at the next line. Unfortunately, if an SQL statement
 comes from keyboard input, then the dialog manager will strip the line breaks.
 And, OSs disagree whether a line break is one character (LF) or two (CR+LF).
 Because of the danger that presents to the parser, many eschew all comments in
-the SQL statement and put them in the host language code. For example: /* Here
+the SQL statement and put them in the host language code. For example: ``/* Here
 is a C comment preceding an embedded SQL statement */ EXEC SQL SELECT width,
 length FROM Widgets; /* Here is a C comment following an embedded SQL statement
 */ The problem disappears if your DBMS supports SQL3, which allows C-like
@@ -124,7 +124,7 @@ SQL Server users. Occasionally they are even used for section headings, thus:
 /************************************* The Table creations
 *************************************/ CREATE Table ... CREATE Table ...
 /************************************* The procedure definitions
-*************************************/ CREATE PROCEDURE ... CREATE PROCEDURE
+*************************************/ CREATE PROCEDURE ... CREATE PROCEDURE``
 ... Speaking of comments, Weinberg (The Psychology of Computer Programming)
 suggested that code and comments should be written in separate columns. This
 would make it easier to focus on the code when debugging (if a program has bugs
@@ -136,10 +136,10 @@ qualification of a help the reader see which Table a Column belongs to, it
 guards against later breakage of the code (if, for instance, a new Column named
 WIDTH is someday added to FOOBARS). Sometimes the qualification may have to
 include Schema and s too. If qualification starts to get at all lengthy, use s.
-7. Shorthands. 7a. Shorthands for lists. Do not use "SELECT * ..." to mean
+7. Shorthands. 7a. Shorthands for lists. Do not use ``SELECT * ...`` to mean
 "SELECT all Columns ...". List the Columns you want by name. For example:
-SELECT length, width FROM Widgets; Exception: In the set function COUNT(*), the
-asterisk is necessary and in "EXISTS (SELECT * ..." the asterisk is preferred.
+SELECT length, width FROM Widgets; Exception: In the set function ``COUNT(*)``, the
+asterisk is necessary and in ``EXISTS (SELECT * ...`` the asterisk is preferred.
 Do not use an INSERT statement without a Column list. List the Columns you want
 by name. For example: INSERT INTO Widgets (length, width) VALUES (1, 2);
 Exception: Streams of INSERT statements contain no Column list, see rule 3c. Do
@@ -166,8 +166,8 @@ width FROM Widgets; instead of: SELECT ALL width FROM Widgets; Remember Shannon
 and information theory: when a word adds nothing to the meaning, it is not
 information. It is noise. Exception: It's never bad to add unnecessary
 parentheses if there is any chance that a reader might not guess what the
-precedence of operators might be. For example: SELECT (width * 5) + 4 FROM
-Widgets; Exception: Although UNION DISTINCT is not in common use, it is clear
+precedence of operators might be. For example: `SELECT (width * 5) + 4 FROM
+Widgets;`` Exception: Although UNION DISTINCT is not in common use, it is clear
 that SQL3's designers believe that explicitly saying DISTINCT is good. 9b.
 Superfluous clauses. Most SQL programmers are willing to say the same thing
 twice "to make the meaning clearer". We give two examples of this bad but
@@ -215,8 +215,8 @@ COLUMN_OF_DOOM is NULL?". There should be an explicit ELSE clause, here to
 allow for that. Defensive programmers code for the "default" or "otherwise"
 case, even if the case can't possibly happen. 14. Precise comparisons
 Comparisons with ">" and "<" operators are sometimes vaguer than they need be.
-For example: name > 'X' /* what if somebody is named 'X'? */ position < 1 /*
-you mean position <= 0? */ By rephrasing the comparison with a ">=" or "<="
+For example: ``name > 'X' /* what if somebody is named 'X'? */ position < 1 /*
+you mean position <= 0? */`` By rephrasing the comparison with a ">=" or "<="
 operator, you can sometimes catch such problems. 15. Distributing NOTs "Neither
 a borrower nor a lender be." -- Polonius Instead of saying "be not a borrower
 or a lender" Polonius said "neither a borrower nor a lender be" -- using a
@@ -264,7 +264,7 @@ However, this won't tell you if some other DBMS reserves that word, or if the
 next version of your DBMS will reserve it. ## You can put underscores (_) in
 names. This is unpopular. The SQL Standards committee doesn't intend to add s
 containing underscores in any future SQL version. However, there are some
-exceptions: words that begin with CURRENT_ or SESSION_ or SYSTEM_, or words
+exceptions: words that begin with ``CURRENT_`` or ``SESSION_`` or ``SYSTEM_``, or words
 that end with _LENGTH. Underscores have special meanings when used with
 introducers, with LIKE predicates and with SIMILAR predicates. The SQL
 Standards committee will also avoid s containing digits in all future versions.
@@ -358,9 +358,9 @@ from trends in other computer languages, this taste will become obsolete. At
 this moment it's still a matter of taste. A few abbreviated prefixes/suffixes
 are used for some common Domains: _id for single-Column candidate key (e.g.:
 author_id, program_id), _no for ordinal number (e.g.: player_no, receipt_no),
-qty_ for quantity (e.g.: qty_of_goods_sold), avg_ for average (e.g.:
-avg_qty_of_goods_sold), min_ for minimum (e.g.: min_weight), max_ for maximum
-(e.g.: max_length) and sum_ for total (e.g.: sum_balance). Notice that some of
+``qty_`` for quantity (e.g.: qty_of_goods_sold), ``avg_`` for average (e.g.:
+avg_qty_of_goods_sold), ``min_`` for minimum (e.g.: min_weight), ``max_`` for maximum
+(e.g.: max_length) and ``sum_`` for total (e.g.: sum_balance). Notice that some of
 the prefixes are derived from SQL s. ## Examples of s/s Some names that we have
 seen in use in databases for banking/libraries /retail shops/government
 include: firstname, lastname or surname, street, houseno, aptno or unitno or
@@ -390,21 +390,21 @@ necessary add the first letter of the last name: JeanC, RalphK, LucienB. This
 convention appears to derive from names on the Internet. Often there is no
 choice in this regard, because the operating system feeds user names to the
 DBMS. 33. Comma Lists Whenever a list is disordered, people wonder why. For
-example, these SQL statements look a trifle curious: SELECT firstname,
+example, these SQL statements look a trifle curious: ``SELECT firstname,
 travel_allowance, surname FROM SalesPersons; SELECT * FROM States WHERE
-state_abbreviation IN('WY','MI','AK','CO'); If there is some hidden order, add
+state_abbreviation IN('WY','MI','AK','CO');`` If there is some hidden order, add
 a note explaining what it is. Otherwise, change to a natural or alphabetical
 order.
 
 Examples of statements in formal style
 ======================================
 
-Here are some actual SQL statement examples. We have not edited them to fit all the rules in this chapter. ALTER Table Countries ADD gnp DECIMAL(8, 2); COMMIT; CONNECT TO 'c:\db'; CREATE TABLE players (playerno SMALLINT NOT NULL PRIMARY KEY, name CHAR(15) NOT NULL , leagueno SMALLINT DEFAULT 99); ALTER Table players ADD Constraint check_playerno CHECK (playerno BETWEEN 00 AND 99); CREATE VIEW ages (playerno, age) AS SELECT playerno, 1986 - YEAR_OF_BIRTH FROM Players; DELETE FROM Order_Items WHERE partid IN ( SELECT partid FROM Inventory WHERE description LIKE 'd%'); GRANT SELECT, UPDATE ON Jackets TO Carol, Kathleen; INSERT INTO Gradings (gradeno, inspectorid, description) VALUES (3, ?, 'Prime'); INSERT INTO Temporary_Workers (workerid, name, town, phoneno) SELECT workerid, name, town, phoneno FROM Workers WHERE benefit IS NULL; SELECT title FROM Videos WHERE out_date > DATE '1994-07-06' GROUP BY title HAVING COUNT(*) > 1 ORDER BY title; SELECT accountid, balance FROM Accounts WHERE (town = 'Amesville' OR balance < 0) AND NOT (town = 'Amityville' AND balance < 0); SELECT NAME, TOWN FROM PLAYERS WHERE TOWN IN ('Inglewood', 'Stratford') SELECT first_name, last_name FROM Students WHERE studentno IN (SELECT studentno FROM Delinquent_Students WHERE excuse IN ('sick','unhappy','deprived')) UNION SELECT first_name, last_name FROM Teachers WHERE teacher_status = 'sick'; SELECT Realtors.name AS realtor_name, Vendors.name AS vendor_name FROM Members_Of_Real_Estate_Board Realtors, Sellers_Of_Farm_Land Vendors WHERE Realtors.name = Vendors.contact_name; UPDATE Addresses SET street = ?, houseno = ?, town = ?, state_or_province = ?, zip_or_postal_code = ?, country = ? WHERE CURRENT OF Selection; SELECT title, release, censorrtg, runtime FROM title WHERE runtime BETWEEN 120 AND 231 ORDER BY release DESC
+Here are some actual SQL statement examples. We have not edited them to fit all the rules in this chapter. ALTER Table Countries ADD gnp DECIMAL(8, 2); COMMIT; CONNECT TO 'c:\db'; CREATE TABLE players (playerno SMALLINT NOT NULL PRIMARY KEY, name CHAR(15) NOT NULL , leagueno SMALLINT DEFAULT 99); ALTER Table players ADD Constraint check_playerno CHECK (playerno BETWEEN 00 AND 99); CREATE VIEW ages (playerno, age) AS SELECT playerno, 1986 - YEAR_OF_BIRTH FROM Players; DELETE FROM Order_Items WHERE partid IN ( SELECT partid FROM Inventory WHERE description LIKE 'd%'); GRANT SELECT, UPDATE ON Jackets TO Carol, Kathleen; INSERT INTO Gradings (gradeno, inspectorid, description) VALUES (3, ?, 'Prime'); INSERT INTO Temporary_Workers (workerid, name, town, phoneno) SELECT workerid, name, town, phoneno FROM Workers WHERE benefit IS NULL; ``SELECT title FROM Videos WHERE out_date > DATE '1994-07-06' GROUP BY title HAVING COUNT(*) > 1 ORDER BY title;`` SELECT accountid, balance FROM Accounts WHERE (town = 'Amesville' OR balance < 0) AND NOT (town = 'Amityville' AND balance < 0); SELECT NAME, TOWN FROM PLAYERS WHERE TOWN IN ('Inglewood', 'Stratford') SELECT first_name, last_name FROM Students WHERE studentno IN (SELECT studentno FROM Delinquent_Students WHERE excuse IN ('sick','unhappy','deprived')) UNION SELECT first_name, last_name FROM Teachers WHERE teacher_status = 'sick'; SELECT Realtors.name AS realtor_name, Vendors.name AS vendor_name FROM Members_Of_Real_Estate_Board Realtors, Sellers_Of_Farm_Land Vendors WHERE Realtors.name = Vendors.contact_name; UPDATE Addresses SET street = ?, houseno = ?, town = ?, state_or_province = ?, zip_or_postal_code = ?, country = ? WHERE CURRENT OF Selection; SELECT title, release, censorrtg, runtime FROM title WHERE runtime BETWEEN 120 AND 231 ORDER BY release DESC
 
 Host Language Programs
 ======================
 
-Some programmers keep SQL statements apart from host language statements, in separate procedures (or even separate modules). Others allow mixing, as in this (embedded Pascal SQL) example: EXEC SQL SELECT COUNT(*) INTO :counter FROM Specifiers; if (counter=0) Writeln('Empty Table!'); if (counter>0) begin EXEC SQL UPDATE Specifiers SET process_count = process_count + 1; end; The following style notes apply to either SQL/CLI or to embedded SQL. 34. Host language variable names should be similar to corresponding SQL s, but not identical. 35. Put comments in the host program (not inside the SQL statement), using the host program's comment style. 36. Employ assertions (here we use the word "assertion" in the non-SQL sense: a conditional statement that you'd like to have in the debug version but not in the production version.) SQL is interpretive, so all "asserting" has to take place at runtime. In programs, the best method is to add executable SQL statements with #if/#endif host language directives. ** Warning: Some SQL precompilers ignore #if and #endif. For example, this assertion example checks that Column PROGRAMS. SUMMARY has matching definitions in both C and SQL. The format of the SQLExecDirect call is not a common style; you should take it merely as a suggestion. ... #define SUMMARY_LENGTH [500] SQLCHAR summary[SUMMARY_LENGTH+1]; #if DEBUG_ON SQLINTEGER character_maximum_length; #endif ... /* assertion start */ #if DEBUG_ON character_maximum_length = 0; SQLExecDirect(hstmt,"SELECT CHARACTER_MAXIMUM_LENGTH\ FROM INFORMATION_SCHEMA.COLUMNS\ WHERE TABLE_NAME = 'PROGRAMS'\ AND COLUMN_NAME = 'SUMMARY'", SQL_NTS); SQLFetch(hstmt); SQLGetData(hstmt,1,SQL_INTEGER,&character_maximum_length,NULL,NULL); if (character_maximum_length <> SUMMARY_LENGTH) exit(1); if (SQLFetch(hstmt) != SQL_NO_DATA) exit(1); #endif /* assertion end -- if you survive to here, things are all right */ SQLExecDirect(hstmt,"SELECT summary FROM Programs",SQL_NTS); The following style notes apply only to SQL/CLI. 37. Use conventional names. For example, resource handles are henv, hdbc, hstmt and hdesc. When there is more than one stmt, use ordinals: hstmt1, hstmt2 and so on. 38. Declare variables with constants or macros, supplied in sqlcli.h. For example: #include "sqlcli.h" #define NAMELEN 50 ... SQLCHAR name[NAMELEN]; SQLCHAR create[] = "CREATE TABLE NameID (\ id INT,name CHAR(50))"; ... 39. If an SQL statement contains constants which are also used in the host program, check or edit the statement at runtime. For example, add this to the last example: ... sprintf(create,"CREATE TABLE NameID(id INT,name CHAR(%d))",NAMELEN); ... 40. When testing a function's return values, programmers use various styles. For example: if (SQL_ERROR == SQLAllocStmt (hdbc,&hstmt)) goto error; if (sqlreturn = (SQLExecute(hstmt)) < 0) { printf("sqlreturn = %ld\n",sqlreturn); exit(1); }
+Some programmers keep SQL statements apart from host language statements, in separate procedures (or even separate modules). Others allow mixing, as in this (embedded Pascal SQL) example: ``EXEC SQL SELECT COUNT(*) INTO :counter FROM Specifiers;`` if (counter=0) Writeln('Empty Table!'); if (counter>0) begin EXEC SQL UPDATE Specifiers SET process_count = process_count + 1; end; The following style notes apply to either SQL/CLI or to embedded SQL. 34. Host language variable names should be similar to corresponding SQL s, but not identical. 35. Put comments in the host program (not inside the SQL statement), using the host program's comment style. 36. Employ assertions (here we use the word "assertion" in the non-SQL sense: a conditional statement that you'd like to have in the debug version but not in the production version.) SQL is interpretive, so all "asserting" has to take place at runtime. In programs, the best method is to add executable SQL statements with #if/#endif host language directives. ``**`` Warning: Some SQL precompilers ignore #if and #endif. For example, this assertion example checks that Column PROGRAMS. SUMMARY has matching definitions in both C and SQL. The format of the SQLExecDirect call is not a common style; you should take it merely as a suggestion. ... #define SUMMARY_LENGTH [500] SQLCHAR summary[SUMMARY_LENGTH+1]; #if DEBUG_ON SQLINTEGER character_maximum_length; #endif ... ``/* assertion start */`` #if DEBUG_ON character_maximum_length = 0; SQLExecDirect(hstmt,"SELECT CHARACTER_MAXIMUM_LENGTH\ FROM INFORMATION_SCHEMA.COLUMNS\ WHERE TABLE_NAME = 'PROGRAMS'\ AND COLUMN_NAME = 'SUMMARY'", SQL_NTS); SQLFetch(hstmt); SQLGetData(hstmt,1,SQL_INTEGER,&character_maximum_length,NULL,NULL); if (character_maximum_length <> SUMMARY_LENGTH) exit(1); if (SQLFetch(hstmt) != SQL_NO_DATA) exit(1); #endif ``/* assertion end -- if you survive to here, things are all right */`` SQLExecDirect(hstmt,"SELECT summary FROM Programs",SQL_NTS); The following style notes apply only to SQL/CLI. 37. Use conventional names. For example, resource handles are henv, hdbc, hstmt and hdesc. When there is more than one stmt, use ordinals: hstmt1, hstmt2 and so on. 38. Declare variables with constants or macros, supplied in sqlcli.h. For example: #include "sqlcli.h" #define NAMELEN 50 ... SQLCHAR name[NAMELEN]; SQLCHAR create[] = "CREATE TABLE NameID (\ id INT,name CHAR(50))"; ... 39. If an SQL statement contains constants which are also used in the host program, check or edit the statement at runtime. For example, add this to the last example: ... sprintf(create,"CREATE TABLE NameID(id INT,name CHAR(%d))",NAMELEN); ... 40. When testing a function's return values, programmers use various styles. For example: if (SQL_ERROR == SQLAllocStmt (hdbc,&hstmt)) goto error; if (sqlreturn = (SQLExecute(hstmt)) < 0) { printf("sqlreturn = %ld\n",sqlreturn); exit(1); }
 
 Summary
 =======

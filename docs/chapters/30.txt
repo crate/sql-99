@@ -303,7 +303,7 @@ conditions and the second example uses the ON clause for the same purpose):
     BORROWER_ID
     2
 
-*** TIP: For queries containing the word "different", consider whether a ">" will do. Queries with > are often a bit faster than queries with <>.
+``***`` TIP: For queries containing the word "different", consider whether a ">" will do. Queries with > are often a bit faster than queries with <>.
 
 The double theta-join is, in practice, often associated with a self-join. Sometimes the relators are <= and >= (for instance, when we join over a floating-point number).
 
@@ -357,7 +357,7 @@ see that it's possible to go from there to CHECKOUTS (using the BORROWER_ID
 Column), and from CHECKOUTS to BOOKS (using the BOOK_ID Column). If there is
 no chain, think hard: maybe the query "goes Cartesian" during some intermediate stage.
 
-*** TRAP: The next query looks like it does the same thing. In fact, though, it is an example of the most common mistake that can happen with multi-Table joins:
+``***`` TRAP: The next query looks like it does the same thing. In fact, though, it is an example of the most common mistake that can happen with multi-Table joins:
 
 ::
 

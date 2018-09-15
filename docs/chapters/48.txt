@@ -311,7 +311,8 @@ whether our DBMS supports it. Here's how.
         SQLFreeHandle(SQL_HANDLE_DBC,...);
         SQLFreeHandle(SQL_HANDLE_ENV,...);
 
-ODBC: The SQLGetFunctions function has been around since ODBC version 1.0. The third parameter, *Supported, can be a pointer to an array.
+ODBC: The SQLGetFunctions function has been around since ODBC version 1.0. The
+third parameter, ``*Supported``, can be a pointer to an array.
 
 SQLGetInfo
 ==========
@@ -616,7 +617,7 @@ server, or the maximum number of connections period, or zero if the maximum is n
 
 The return is the length, in characters, of the largest possible <identifier>
 for any kind of Object. This value won't be greater than any of the
-SQL_MAXIMUM_..._NAME_LENGTH values. Expect 18 for an SQL-89 DBMS, 128 for a later DBMS.
+``SQL_MAXIMUM_..._NAME_LENGTH`` values. Expect 18 for an SQL-89 DBMS, 128 for a later DBMS.
 
 ## 32 SQL_MAXIMUM_SCHEMA_NAME_LENGTH -- SMALLINT
 

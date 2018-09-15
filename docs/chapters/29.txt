@@ -642,7 +642,7 @@ The result is the entire EMPLOYEE Table joined with the entire PAYROLL Table
 over their matching employee numbers; ten rows and ten columns in all. Note
 the <Column reference>s for the EMPNUM Column, necessary to avoid ambiguity.
 To eliminate duplicate Columns from the result, specific <Column reference>s
-(rather than *) must also be listed in the select list, as in this SQL statement:
+(rather than ``*``) must also be listed in the select list, as in this SQL statement:
 
 ::
 
@@ -1410,7 +1410,8 @@ aggregation rules determine which <data type>s are compatible, and what the
 <data type> of the result is. Stated in a very general way, the aggregation
 rules are that "what's compatible for assignment is compatible for
 aggregation", "varying trumps fixed" and "long trumps short". More specifically:
-      ## All numeric -- INT, SMALLINT, NUMERIC, DECIMAL, FLOAT, REAL, DOUBLE
+
+## All numeric -- INT, SMALLINT, NUMERIC, DECIMAL, FLOAT, REAL, DOUBLE
 PRECISION -- values are compatible. If any aggregated value is approximate
 numeric, the result is approximate numeric; otherwise the result is exact
 numeric and the result's scale is the biggest scale of any of the aggregated

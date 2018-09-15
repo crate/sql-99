@@ -402,11 +402,10 @@ Algorithm:
 
 Notes:
 
-::
-
 ## You MUST close the Cursor when you are done processing a result set.
 Otherwise, you won't be able to re-use the stmt. SQLPrepare and SQLExecute
 will return with an error if there is an open Cursor.
+
 ## The DBMS automatically closes the Cursor when executing any of these
 CLI functions:
 
@@ -482,11 +481,11 @@ Algorithm:
         /* looks like SQLSetCursorName was never called,
            so the DBMS must generate an implicit Cursor name */
         Set the Cursor name = 'SQL_CUR' (or 'SQLCUR') plus some
-implementation-defined characters (e.g.: 'SQL_CUR9999'). If the DBMS has to
-make up a name like this, it will ensure that no two statements use the same
-Cursor name.
+      implementation-defined characters (e.g.: 'SQL_CUR9999'). If the DBMS has to
+      make up a name like this, it will ensure that no two statements use the same
+      Cursor name.
       Copy the value of the Cursor name to *CursorName. This is a standard
-case of Character String Retrieval.
+      case of Character String Retrieval.
 
 Notes:
 

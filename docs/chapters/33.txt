@@ -234,11 +234,11 @@ Column of Table T):
 
    SELECT 5 FROM T GROUP BY a;
       -- legal: the <literal> isn't a reference to a Column of T, so it
-doesn't have to be a grouping Column: you'll get a bunch of "5"s
+   doesn't have to be a grouping Column: you'll get a bunch of "5"s
 
    SELECT a*5 AS b FROM T GROUP BY b;
       -- illegal: a is not a grouping Column and b isn't evaluated until the
-select list is; by then it's too late
+   select list is; by then it's too late
 
    SELECT a,max(a) FROM T;
       -- illegal: GROUP BY "implied", see set functions
@@ -809,8 +809,7 @@ early SQL DBMSs didn't ignore NULLs, but now they all do.
 
 Now, this is a little inconsistent, because in most arithmetic expressions
 that involve NULL, the result is NULL (e.g.: "5 + NULL yields NULL"). This
-leads to a **TRAP:
-
+leads to a ``**`` TRAP:
 
 SUM(a)+SUM(b) is not the same as SUM(a+b)! Consider these two rows:
 

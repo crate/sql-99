@@ -104,7 +104,7 @@ follow a convention that "if the parameter value doesn't matter then use a
 constant containing the word NULL". This convention helps make it clear that
 the value we're passing has no significance.
 
-The third parameter (*OutputHandle) must be an address of an environment
+The third parameter (``*OutputHandle``) must be an address of an environment
 handle. As explained before, we prefer to call an environment handle a "henv".
 But use a descriptive name for your program variable if you have one.
 
@@ -155,13 +155,13 @@ parameter may contain any one of:
 
     ## (implementation-defined)  <  1
 
-    ## SQL_HANDLE_ENV               1  /* handle of an env */
+    ## SQL_HANDLE_ENV               1  ``/* handle of an env */``
 
-    ## SQL_HANDLE_DBC               2  /* handle of a dbc */
+    ## SQL_HANDLE_DBC               2 ``/* handle of a dbc */``
 
-    ## SQL_HANDLE_HSTMT             3  /* handle of a stmt */
+    ## SQL_HANDLE_HSTMT             3  ``/* handle of a stmt */``
 
-    ## SQL_HANDLE_DESC              4  /* handle of a desc */
+    ## SQL_HANDLE_DESC              4  ``* handle of a desc */``
 
     ## (implementation-defined)  >100
 

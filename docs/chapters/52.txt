@@ -21,8 +21,9 @@ Because we believe that SQL/CLI will quickly become the SQL interface of choice,
 Note: The SQL Standard actually describes three kinds of SQL Module, each of
 which has certain characteristics and contains various kinds of Module Objects
 (principally, routines). An SQL-client Module contains only externally-invoked
-procedures, an SQL-session Module contains only SQL statements prepared in
-that SQL-session and an SQL-server Module -- the SQL/PSM type -- is a Schema Object that contains only SQL-invoked routines.
+procedures, an SQL-session Module contains only SQL statements prepared in that
+SQL-session and an SQL-server Module -- the SQL/PSM type -- is a Schema Object
+that contains only SQL-invoked routines.
 
 .. rubric:: Table of Contents
 

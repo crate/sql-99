@@ -220,26 +220,26 @@ Example:
 
 ::
 
-  /* EXAMPLE2.C */
-  /* This is a program example. Connection is to the default database for the
-DBMS that came with this book. For variety, we test sqlreturn each time. Tear-
-down calls are omitted. */
-  #include "sqlcli.h"
-  SQLHENV    henv;
-  SQLHDBC    hdbc;
-  SQLRETURN  sqlreturn;
-  void main ()
-  {
-    sqlreturn = SQLAllocHandle(SQL_HANDLE_ENV,SQL_NULL_HANDLE,&henv);
-    if (sqlreturn == SQL_SUCCESS || sqlreturn == SQL_SUCCESS_WITH_INFO) {
-      sqlreturn = SQLAllocHandle(SQL_HANDLE_DBC,henv,&hdbc);
-      if (sqlreturn == SQL_SUCCESS || sqlreturn == SQL_SUCCESS_WITH_INFO) {
-        sqlreturn = SQLConnect(hdbc,
-                    (SQLCHAR*)"OCELOT",SQL_NTS,
-                    (SQLCHAR*)"OCELOT",SQL_NTS,
-                    (SQLCHAR*)"",SQL_NTS);
+      /* EXAMPLE2.C */
+      /* This is a program example. Connection is to the default database for the
+    DBMS that came with this book. For variety, we test sqlreturn each time. Tear-
+    down calls are omitted. */
+      #include "sqlcli.h"
+      SQLHENV    henv;
+      SQLHDBC    hdbc;
+      SQLRETURN  sqlreturn;
+      void main ()
+      {
+        sqlreturn = SQLAllocHandle(SQL_HANDLE_ENV,SQL_NULL_HANDLE,&henv);
         if (sqlreturn == SQL_SUCCESS || sqlreturn == SQL_SUCCESS_WITH_INFO) {
-          printf("connected successfully.\n"); } } } }
+          sqlreturn = SQLAllocHandle(SQL_HANDLE_DBC,henv,&hdbc);
+          if (sqlreturn == SQL_SUCCESS || sqlreturn == SQL_SUCCESS_WITH_INFO) {
+            sqlreturn = SQLConnect(hdbc,
+                        (SQLCHAR*)"OCELOT",SQL_NTS,
+                        (SQLCHAR*)"OCELOT",SQL_NTS,
+                        (SQLCHAR*)"",SQL_NTS);
+            if (sqlreturn == SQL_SUCCESS || sqlreturn == SQL_SUCCESS_WITH_INFO) {
+              printf("connected successfully.\n"); } } } }
 
 ODBC: SQLConnect has been a supported function since ODBC 1.0. But there are
 other, non-standard, ODBC functions which can be used to connect. The
@@ -405,12 +405,11 @@ Algorithm:
 
 Notes:
 
-::
-
 ## There might be several implementation-defined attributes for
 connections. The Standard allows for that. That's why BufferLength and
-*Stringlength -- which aren't needed for SQL_ATTR_AUTO_IPD -- are defined
-parameters. They're there in case someday it's necessary to return a character string value.
+``*Stringlength`` -- which aren't needed for SQL_ATTR_AUTO_IPD -- are defined
+parameters. They're there in case someday it's necessary to return a character
+string value.
 
 ## Some things which we think of as "connection attributes" are not retrieved with SQLGetConnectAttr. They are:
 

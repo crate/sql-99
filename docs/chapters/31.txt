@@ -14,9 +14,50 @@ A subquery is a parenthesized query enclosed within some outer SQL statement. Mo
 Subquery syntax
 ===============
 
-A subquery is used to specify either a value (the scalar subquery, which returns one value), a row (the row subquery, which returns one row), or a Table (the Table subquery, which returns a result Table). The required syntax for a subquery is: ::= ( ) That is, a subquery is a parenthesized -- and the is usually a SELECT statement. Here's an example: SELECT /* outer statement begins */ Table_1.column_1, Table_1.column_2 FROM Table_1 WHERE Table_1.column_1 = (SELECT * /* subquery begins */ FROM Table_2 WHERE Table_2.column_1 = 5); There are some restrictions regarding where subqueries can be used and what they may contain. In early SQL days, the restrictions were quite strict. For instance, the subquery had to be on the right side of a comparison operator within a WHERE clause, as in the above example. Nowadays, the restrictions for an SQL subquery, in a fully-conformant DBMS environment, are mild: ## There can be no ORDER BY clause inside the subquery. ## The subquery's select list may not include any reference to a value that evaluates to a BLOB, CLOB, NCLOB or ARRAY. ## A subquery may not be immediately enclosed within a set function, for example: ... AVG((SELECT column_1 FROM Table_1)) ... is not legal syntax. It is legal to nest subqueries within subqueries. The maximum level of nesting depends on your implementation, since the Standard doesn't specify the number of levels of nesting that must be supported. We said earlier that there are three types of subquery. They are distinguished from each other, not by their form -- the general form of a subquery is always just "()" -- but by the shape of their result: how many Columns and rows do they return? ## If a subquery can return exactly one Column and one row, it is a scalar subquery. The subquery: ... (SELECT MAX(Table_1.column_1) FROM Table_1) ... would fit the bill, but usually it's not so easy to simply glance at a query and realize that it will return only one Column and one row. ## If a subquery can return more than one Column, but still exactly one row, it is a row subquery. A row subquery is just a generalized derivation of a scalar subquery, used in some comparisons. Row subqueries are the least-frequently-seen type of subquery. ## If a subquery can return more than one Column and more than one row, it is a Table subquery. A Table subquery is another type of
-, and can be used in an SQL statement wherever a
-can be used -- which isn't very often! However, there are some special search operators which are specifically designed to work with Table subqueries. Discussion of those search operators is an important part of this chapter. Thus, the distinction between subquery types depends on the size of the select list, and the number of rows returned. The three types of subquery are not utterly separate: a scalar subquery's definition is subsumed by a row subquery's definition, which is subsumed by a Table subquery's definition. (In fact, a one-Column Table subquery is such a common thing that some people regard it as a separate type, which they call a "Column subquery".) Nevertheless, the potential distinction should be kept in mind. It's easy to get confused by assuming that everything which applies for one type, applies for the others as well. We will discuss scalar subqueries, row subqueries and Table subqueries separately.
+A subquery is used to specify either a value (the scalar subquery, which
+returns one value), a row (the row subquery, which returns one row), or a Table
+(the Table subquery, which returns a result Table). The required syntax for a
+subquery is: ::= ( ) That is, a subquery is a parenthesized -- and the is
+usually a SELECT statement. Here's an example: ``SELECT /* outer statement begins
+*/ Table_1.column_1, Table_1.column_2 FROM Table_1 WHERE Table_1.column_1 =
+(SELECT * /* subquery begins */ FROM Table_2 WHERE Table_2.column_1 = 5);`` There
+are some restrictions regarding where subqueries can be used and what they may
+contain. In early SQL days, the restrictions were quite strict. For instance,
+the subquery had to be on the right side of a comparison operator within a
+WHERE clause, as in the above example. Nowadays, the restrictions for an SQL
+subquery, in a fully-conformant DBMS environment, are mild: ## There can be no
+ORDER BY clause inside the subquery. ## The subquery's select list may not
+include any reference to a value that evaluates to a BLOB, CLOB, NCLOB or
+ARRAY. ## A subquery may not be immediately enclosed within a set function, for
+example: ... AVG((SELECT column_1 FROM Table_1)) ... is not legal syntax. It is
+legal to nest subqueries within subqueries. The maximum level of nesting
+depends on your implementation, since the Standard doesn't specify the number
+of levels of nesting that must be supported. We said earlier that there are
+three types of subquery. They are distinguished from each other, not by their
+form -- the general form of a subquery is always just "()" -- but by the shape
+of their result: how many Columns and rows do they return? ## If a subquery can
+return exactly one Column and one row, it is a scalar subquery. The subquery:
+... (SELECT MAX(Table_1.column_1) FROM Table_1) ... would fit the bill, but
+usually it's not so easy to simply glance at a query and realize that it will
+return only one Column and one row. ## If a subquery can return more than one
+Column, but still exactly one row, it is a row subquery. A row subquery is just
+a generalized derivation of a scalar subquery, used in some comparisons. Row
+subqueries are the least-frequently-seen type of subquery. ## If a subquery can
+return more than one Column and more than one row, it is a Table subquery. A
+Table subquery is another type of , and can be used in an SQL statement
+wherever a can be used -- which isn't very often! However, there are some
+special search operators which are specifically designed to work with Table
+subqueries. Discussion of those search operators is an important part of this
+chapter. Thus, the distinction between subquery types depends on the size of
+the select list, and the number of rows returned. The three types of subquery
+are not utterly separate: a scalar subquery's definition is subsumed by a row
+subquery's definition, which is subsumed by a Table subquery's definition. (In
+fact, a one-Column Table subquery is such a common thing that some people
+regard it as a separate type, which they call a "Column subquery".)
+Nevertheless, the potential distinction should be kept in mind. It's easy to
+get confused by assuming that everything which applies for one type, applies
+for the others as well. We will discuss scalar subqueries, row subqueries and
+Table subqueries separately.
 
 Scalar Subqueries
 =================
@@ -92,8 +133,8 @@ set. ## Use a completely different syntax, for example, the EXISTS predicate,
 which we'll discuss later in this chapter. Quantified retrieval: Here's some
 examples of comparisons with subqueries, using the sample database we defined
 in our chapter on simple search conditions. To find the records for the
-employees reporting to a manager named D. Black: SELECT * FROM Employee WHERE
-dept = (SELECT dept FROM Department WHERE manager='BLACK D'); The result is:
+employees reporting to a manager named D. Black: ``SELECT * FROM Employee WHERE
+dept = (SELECT dept FROM Department WHERE manager='BLACK D');`` The result is:
 EMPNUM DEPT SURNAME GNAME ADDRESS 4 D MORGAN CHUCK 963 SOUTH Because there is
 only one possible row in the DEPARTMENT Table with a manager named "BLACK D",
 the equals operator can be used in this subquery without a quantifier. If more
@@ -173,25 +214,25 @@ syntax for an is: ::= row_expression [ NOT ] IN ::=
 An is a test for a non-empty set and returns either TRUE or FALSE. EXISTS is
 TRUE if the Table subquery returns at least one row; otherwise it is FALSE. NOT
 EXISTS is TRUE if the Table subquery returns zero rows; otherwise it is FALSE.
-By tradition, the following an begins with "SELECT *". In this case, the
+By tradition, the following an begins with ``SELECT *``. In this case, the
 asterisk is not a shorthand for a list of Columns, it merely stands for "some
 Column". Unless you're using Core SQL, it doesn't actually matter what you put
 here -- but in Core SQL, the Table subquery's select list must either be just
 an asterisk, or it must evaluate to a single derived Column. Whatever you use,
 the result is the same: if the subquery returns any rows, EXISTS is TRUE --
 regardless of the number of Columns that the subquery result contains. Here's
-an example: SELECT column_1 FROM Table_1 WHERE EXISTS (SELECT * FROM Table_2);
+an example: ``SELECT column_1 FROM Table_1 WHERE EXISTS (SELECT * FROM Table_2);``
 If there are any rows at all in TABLE_2, then the search condition is TRUE and
 all values of TABLE_1.COLUMN_1 will be selected. This is a rare example of a
 rather static subquery. Much more often, the Table subquery will be a
 correlated subquery. If you use EXISTS, followed by a correlated subquery with
 a single outer reference, you are accomplishing the same thing as you would
 accomplish with a quantified ANY comparison. For example, here are two
-equivalent SQL statements: -- query using "> ANY" and a simple subquery SELECT
+equivalent SQL statements: -- query using "> ANY" and a simple subquery ``SELECT
 * FROM Table_1 WHERE column_1 > ANY (SELECT column_1 FROM Table_2 WHERE
-Table_2.column_2 = 5); -- the same query, using EXISTS and a correlated
-subquery SELECT * FROM Table_1 WHERE EXISTS (SELECT * FROM Table_2 WHERE
-Table_2.column_2 = 5 AND Table_1.column_1 > Table_2.column_1); The EXISTS
+Table_2.column_2 = 5);`` -- the same query, using EXISTS and a correlated
+subquery ``SELECT * FROM Table_1 WHERE EXISTS (SELECT * FROM Table_2 WHERE
+Table_2.column_2 = 5 AND Table_1.column_1 > Table_2.column_1);`` The EXISTS
 version of the request is more cumbersome, but it's a better choice if there
 are several items to compare between the outer statement and the subquery. NOT
 EXISTS is merely the negation of EXISTS, but it deserves attention as a
@@ -200,25 +241,25 @@ predicate, which can solve questions of the general form: find all the As which
 are related to all of the Bs. Logicians call these FORALL questions. An example
 of a FORALL question is "list the students who are in a class for every course
 that the school offers". Expressed with a double-nested NOT EXISTS predicate,
-this question is answered with: SELECT student_name FROM Students WHERE NOT
+this question is answered with: ``SELECT student_name FROM Students WHERE NOT
 EXISTS (SELECT * FROM Courses WHERE NOT EXISTS (SELECT * FROM Classes WHERE
 Classes.course_id = Courses.course_id AND Classes.student_id =
-Students.student_id)); In other words: "look for the case where there exists no
+Students.student_id));`` In other words: "look for the case where there exists no
 student where there exists no course where there exists a class for the course
 containing the student". We can't say that quickly three times, but it doesn't
 matter: you can use this example as a template for FORALL questions. ##
 Retrieval with EXISTS Here's some examples of the , using the sample database
 we defined in our chapter on simple search conditions. To find the names of
 employees earning a rate of 8.00 (retrieve a value only if some condition
-exists): SELECT surname FROM Employee WHERE EXISTS (SELECT * FROM Payroll WHERE
-rate=8 AND empnum=Employee.Empnum); The result is: SURNAME MORGAN To find the
-employees located in the warehouse: SELECT surname FROM Employee WHERE EXISTS
-(SELECT * FROM Payroll WHERE location='WAREHOUSE' AND empnum=Employee.empnum);
+exists): ``SELECT surname FROM Employee WHERE EXISTS (SELECT * FROM Payroll WHERE
+rate=8 AND empnum=Employee.Empnum);`` The result is: SURNAME MORGAN To find the
+employees located in the warehouse: ``SELECT surname FROM Employee WHERE EXISTS
+(SELECT * FROM Payroll WHERE location='WAREHOUSE' AND empnum=Employee.empnum);``
 The result is: SURNAME JONES FRANCIS EXISTS expressions can be nested. To find
-the managers of employees working in the warehouse: SELECT MANAGER FROM
+the managers of employees working in the warehouse: ``SELECT MANAGER FROM
 Department WHERE EXISTS (SELECT * FROM employee WHERE dept=Department.dept AND
 EXISTS (SELECT * FROM Payroll WHERE location='WAREHOUSE' AND
-empnum=Employee.empnum)); The result is: MANAGER BROWN C GREEN E : The required
+empnum=Employee.empnum));`` The result is: MANAGER BROWN C GREEN E : The required
 syntax for a is: ::= [ NOT ] UNIQUE A is a test for duplicate rows and returns
 either TRUE or FALSE. UNIQUE returns TRUE if the Table subquery returns zero
 rows or one row, or if every row returned by the Table subquery is unique (that
@@ -247,8 +288,8 @@ Constraints. For example, in this pair of SQL statements, the first is a UNIQUE
 Constraint definition and the second is a statement that the DBMS implicitly
 uses to enforce the Constraint: -- UNIQUE Constraint definition ALTER TABLE
 Table_1 ADD CONSTRAINT unique_constraint UNIQUE(column_1); -- implicitly-used
-enforcement statement SELECT * FROM Table_1 WHERE UNIQUE (SELECT column_1 FROM
-Table_1); If you want to restrict your code to Core SQL, don't use the . : The
+enforcement statement ``SELECT * FROM Table_1 WHERE UNIQUE (SELECT column_1 FROM
+Table_1);`` If you want to restrict your code to Core SQL, don't use the . : The
 required syntax for a is: ::= row_expression MATCH [ UNIQUE ] [ SIMPLE |
 PARTIAL | FULL ] A is a test for matching rows and returns either TRUE or
 FALSE. The "row_expression" can be any expression which evaluates to one row of
@@ -296,19 +337,19 @@ result of "row_expression" contains only NULLs. ## It is TRUE if the result of
 row that is equal to "row_expression". Assume a Table called TABLE_1, defined
 with three Columns and containing this data: TABLE_1 COLUMN_1 COLUMN_2 COLUMN_3
 10 10 10 10 10 10 10 NULL 10 10 10 20 Using TABLE_1, here are some examples of
-expressions, all of which are TRUE: ... WHERE ROW(10,NULL,10) MATCH SIMPLE
+expressions, all of which are TRUE: ``... WHERE ROW(10,NULL,10) MATCH SIMPLE
 (SELECT * FROM Table_1) ... ... WHERE ROW(10,10,10) MATCH SIMPLE (SELECT * FROM
 Table_1) ... ... WHERE ROW(10,NULL,10) MATCH UNIQUE SIMPLE (SELECT * FROM
 Table_1) ... ... WHERE ROW(NULL,NULL,NULL) MATCH PARTIAL (SELECT * FROM
 Table_1) ... ... WHERE ROW(10,NULL,10) MATCH PARTIAL (SELECT * FROM Table_1)
 ... ... WHERE ROW(NULL,NULL,NULL) MATCH UNIQUE PARTIAL (SELECT * FROM Table_1)
 ... ... WHERE ROW(NULL,NULL,NULL) MATCH FULL (SELECT * FROM Table_1) ... ...
-WHERE ROW(10,10,10) MATCH FULL (SELECT * FROM Table_1) ... Still using TABLE_1,
-here are some examples of expressions, all of which are FALSE: ... WHERE
+WHERE ROW(10,10,10) MATCH FULL (SELECT * FROM Table_1) ...`` Still using TABLE_1,
+here are some examples of expressions, all of which are FALSE: ``... WHERE
 ROW(10,10,10) MATCH UNIQUE SIMPLE (SELECT * FROM Table_1) ... ... WHERE
 ROW(10,NULL,10) MATCH UNIQUE PARTIAL (SELECT * FROM Table_1) ... ... WHERE
 ROW(10,NULL,10) MATCH FULL (SELECT * FROM Table_1) ... ... WHERE ROW(10,10,10)
-MATCH UNIQUE FULL (SELECT * FROM Table_1) ... If you want to restrict your code
+MATCH UNIQUE FULL (SELECT * FROM Table_1) ...`` If you want to restrict your code
 to Core SQL, don't use the . : The required syntax for a is: ::= FOR ALL list
 () | FOR ANY list () | FOR SOME list () list ::= [ {,
 } ... ] A is a three-valued comparison test: it takes the Cartesian product of
@@ -331,26 +372,61 @@ tries to resolve this by introducing FOR ALL and FOR ANY -- two new predicates,
 which work only with Tables. Syntactically, the quantified predicates don't
 have to involve subqueries. But there are times when they could be replacements
 for subqueries (particularly the confusing NOT EXISTS syntax). Here are some
-simple examples: ... FOR ALL (SELECT * FROM Employee AS Emps) (Emps.empnum>50)
+simple examples: ``... FOR ALL (SELECT * FROM Employee AS Emps) (Emps.empnum>50)``
 evaluates to FALSE if there are no employees with employee numbers greater than
-50. ... FOR ANY (SELECT * FROM Payroll AS Pay) (Pay.location='BASEMENT')
+50. ``... FOR ANY (SELECT * FROM Payroll AS Pay) (Pay.location='BASEMENT')``
 evaluates to TRUE if at least one employee works in the basement. If you want
 to restrict your code to Core SQL, don't use the .
 
 Joins versus Subqueries
 =======================
 
-Often, SQL statements containing subqueries can be re-formulated as statements containing joins, or vice versa. The choice of which to use normally depends on taste or optimization considerations. There are some scenarios, though, which call for subqueries rather than joins: ## When you want duplicates, but not false duplicates. Suppose Table_1 has three rows -- {1,1,2} -- and Table_2 has two rows -- {1,2,2}. If you need to list the rows in Table_1 which are also in Table_2, only this subquery-based SELECT statement will give the right answer (1,1,2): SELECT Table_1.column_1 FROM Table_1 WHERE Table_1.column_1 IN (SELECT Table_2.column_1 FROM Table_2); This SQL statement won't work: SELECT Table_1.column_1 FROM Table_1,Table_2 WHERE Table_1.column_1 = Table_2.column_1; because the result will be {1,1,2,2} -- and the duplication of 2 is an error. This SQL statement won't work either: SELECT DISTINCT Table_1.column_1 FROM Table_1,Table_2 WHERE Table_1.column_1 = Table_2.column_1; because the result will be {1,2} -- and the removal of the duplicated 1 is an error too. ## When the outermost statement is not a query. The SQL statement: UPDATE Table_1 SET column_1 = (SELECT column_1 FROM Table_2); can't be expressed using a join unless some rare SQL3 features are used. ## When the join is over an expression. The SQL statement: SELECT * FROM Table_1 WHERE column_1 + 5 = (SELECT MAX(column_1) FROM Table_2); is hard to express with a join. In fact, the only way we can think of is this SQL statement: SELECT Table_1.* FROM Table_1, (SELECT MAX(column_1) AS max_column_1 FROM Table_2) AS Table_2 WHERE Table_1.column_1 + 5 = Table_2.max_column_1; which still involves a parenthesized query, so nothing is gained from the transformation. ## When you want to see the exception. For example, suppose the question is: what books are longer than Das Kapital? These two queries are effectively almost the same: SELECT DISTINCT Bookcolumn_1.* FROM Books AS Bookcolumn_1 JOIN Books AS Bookcolumn_2 USING(page_count) WHERE title = 'Das Kapital'; SELECT DISTINCT Bookcolumn_1.* FROM Books AS Bookcolumn_1 WHERE Bookcolumn_1.page_count > (SELECT DISTINCT page_count FROM Books AS Bookcolumn_2 WHERE title = 'Das Kapital'); The difference is between these two SQL statements is, if there are two editions of Das Kapital (with different page counts), then the self-join example will return the books which are longer than the shortest edition of Das Kapital. That might be the wrong answer, since the original question didn't ask for "... longer than ANY book named Das Kapital" (it seems to contain a false assumption that there's only one edition).
+Often, SQL statements containing subqueries can be re-formulated as statements
+containing joins, or vice versa. The choice of which to use normally depends on
+taste or optimization considerations. There are some scenarios, though, which
+call for subqueries rather than joins: ## When you want duplicates, but not
+false duplicates. Suppose Table_1 has three rows -- {1,1,2} -- and Table_2 has
+two rows -- {1,2,2}. If you need to list the rows in Table_1 which are also in
+Table_2, only this subquery-based SELECT statement will give the right answer
+(1,1,2): SELECT Table_1.column_1 FROM Table_1 WHERE Table_1.column_1 IN (SELECT
+Table_2.column_1 FROM Table_2); This SQL statement won't work: SELECT
+Table_1.column_1 FROM Table_1,Table_2 WHERE Table_1.column_1 =
+Table_2.column_1; because the result will be {1,1,2,2} -- and the duplication
+of 2 is an error. This SQL statement won't work either: SELECT DISTINCT
+Table_1.column_1 FROM Table_1,Table_2 WHERE Table_1.column_1 =
+Table_2.column_1; because the result will be {1,2} -- and the removal of the
+duplicated 1 is an error too. ## When the outermost statement is not a query.
+The SQL statement: UPDATE Table_1 SET column_1 = (SELECT column_1 FROM
+Table_2); can't be expressed using a join unless some rare SQL3 features are
+used. ## When the join is over an expression. The SQL statement: ``SELECT *
+FROM Table_1 WHERE column_1 + 5 = (SELECT MAX(column_1) FROM Table_2);`` is
+hard to express with a join. In fact, the only way we can think of is this SQL
+statement: ``SELECT Table_1.* FROM Table_1, (SELECT MAX(column_1) AS max_column_1
+FROM Table_2) AS Table_2 WHERE Table_1.column_1 + 5 = Table_2.max_column_1;``
+which still involves a parenthesized query, so nothing is gained from the
+transformation. ## When you want to see the exception. For example, suppose the
+question is: what books are longer than Das Kapital? These two queries are
+effectively almost the same: ``SELECT DISTINCT Bookcolumn_1.* FROM Books AS
+Bookcolumn_1 JOIN Books AS Bookcolumn_2 USING(page_count) WHERE title = 'Das
+Kapital'; SELECT DISTINCT Bookcolumn_1.* FROM Books AS Bookcolumn_1 WHERE
+Bookcolumn_1.page_count > (SELECT DISTINCT page_count FROM Books AS
+Bookcolumn_2 WHERE title = 'Das Kapital');`` The difference is between these two
+SQL statements is, if there are two editions of Das Kapital (with different
+page counts), then the self-join example will return the books which are longer
+than the shortest edition of Das Kapital. That might be the wrong answer, since
+the original question didn't ask for "... longer than ANY book named Das
+Kapital" (it seems to contain a false assumption that there's only one
+edition).
 
 Subquery Examples
 =================
 
-The following examples are derived, with much editing, from an SQL application suite for a public library. They illustrate the most common situations where subqueries have proven to be useful tools. When a query is on one Table, but requires a quick look at a Column in another Table -- for example, "show the number of books checked out for a particular patron". Here's a subquery that answers this: SELECT COUNT(*) FROM Circulations WHERE patron_id = ANY (SELECT patron_id FROM Patrons WHERE Surname = 'Jones'); When detail and summary data are retrieved or compared in the same SQL statement -- for example, "set a report item to show the average cost of books". Here's a subquery that does this: UPDATE Reports SET average_book_cost = (SELECT AVG(book_cost) FROM Books); When a selection involves some calculation or complexity that has nothing to do with the contents of what is ultimately selected -- for example, "who has taken out books from either branch 9 or branch 10". Here's a subquery that answers this: SELECT DISTINCT patron_id FROM Circulations WHERE book_copy_id = ANY (SELECT book_copy_id FROM Book_Copies WHERE branch = 9 OR branch = 10);
+The following examples are derived, with much editing, from an SQL application suite for a public library. They illustrate the most common situations where subqueries have proven to be useful tools. When a query is on one Table, but requires a quick look at a Column in another Table -- for example, "show the number of books checked out for a particular patron". Here's a subquery that answers this: ``SELECT COUNT(*) FROM Circulations WHERE patron_id = ANY (SELECT patron_id FROM Patrons WHERE Surname = 'Jones');`` When detail and summary data are retrieved or compared in the same SQL statement -- for example, "set a report item to show the average cost of books". Here's a subquery that does this: UPDATE Reports SET average_book_cost = (SELECT AVG(book_cost) FROM Books); When a selection involves some calculation or complexity that has nothing to do with the contents of what is ultimately selected -- for example, "who has taken out books from either branch 9 or branch 10". Here's a subquery that answers this: SELECT DISTINCT patron_id FROM Circulations WHERE book_copy_id = ANY (SELECT book_copy_id FROM Book_Copies WHERE branch = 9 OR branch = 10);
 
 Subquery Tips
 =============
 
-Make sure your scalar subqueries return a maximum of one row. You can help by (a) using DISTINCT to remove duplicates, (b) selecting a value returned by a set-function, (c) including a primary key among the selected Columns. If your DBMS won't support row subqueries, you can still avoid repeating the same subquery twice. For example, replace a construct like this: SELECT * FROM Table_1 WHERE smallint_column_1 = (SELECT smallint_column_1 FROM Table_2) AND smallint_column_2 = ALL (SELECT smallint_column_2 FROM Table_2); with a construct like this: SELECT * FROM Table_1 WHERE smallint_column_1 * 100000 + smallint_column_2 = ALL (SELECT smallint_column_1 * 100000 + smallint_column_2 FROM Table_2); Put the fastest subquery at the deepest level. Since most DBMSs will process non-correlated subqueries by travelling from innermost statements to outermost statements, you're (to some extent) controlling the order of evaluation by choosing which expression will be inner and which will be outer. Use scalar subqueries rather than Table subqueries. Since scalar subqueries are more restrictive, you are giving your DBMS more information when you use a construct that requires a scalar subquery. The DBMS might pass that extra information to its optimizer. Consider alternatives to correlated subqueries. There are some SQL statements that work better, or look more natural, if you use joins, set functions or Table operators.
+Make sure your scalar subqueries return a maximum of one row. You can help by (a) using DISTINCT to remove duplicates, (b) selecting a value returned by a set-function, (c) including a primary key among the selected Columns. If your DBMS won't support row subqueries, you can still avoid repeating the same subquery twice. For example, replace a construct like this: ``SELECT * FROM Table_1 WHERE smallint_column_1 = (SELECT smallint_column_1 FROM Table_2) AND smallint_column_2 = ALL (SELECT smallint_column_2 FROM Table_2); with a construct like this: SELECT * FROM Table_1 WHERE smallint_column_1 * 100000 + smallint_column_2 = ALL (SELECT smallint_column_1 * 100000 + smallint_column_2 FROM Table_2);`` Put the fastest subquery at the deepest level. Since most DBMSs will process non-correlated subqueries by travelling from innermost statements to outermost statements, you're (to some extent) controlling the order of evaluation by choosing which expression will be inner and which will be outer. Use scalar subqueries rather than Table subqueries. Since scalar subqueries are more restrictive, you are giving your DBMS more information when you use a construct that requires a scalar subquery. The DBMS might pass that extra information to its optimizer. Consider alternatives to correlated subqueries. There are some SQL statements that work better, or look more natural, if you use joins, set functions or Table operators.
 
 Dialects
 ========

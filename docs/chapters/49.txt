@@ -133,7 +133,7 @@ Algorithm:
       return error: HY010 CLI-specific condition-function sequence error
     Set data-pointer value = Value (temporarily, for SQLPutData to see)
     return exception: HY(no subclass) CLI-specific condition-dynamic parameter
-value needed
+    value needed
   /* Since there are no [more] deferred parameter values, execution can
      proceed. Restart the SQLExecute or SQLExecDirect process which was
      interrupted when deferred parameters were encountered. */

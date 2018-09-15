@@ -189,8 +189,6 @@ Function Prototype:
 
 Job:
 
-::
-
 Return the position of a passed string within a BLOB, CLOB, NCLOB, UDT or
 ARRAY.
 
@@ -198,27 +196,27 @@ Algorithm:
 
 ::
 
-  if (stmt is associated with a prepared or executed statement)
-    return error: HY010 CLI-specific condition-function sequence error
-      If (LocatorType is not SQL_BLOB_LOCATOR or SQL_CLOB_LOCATOR or
-SQL_UDT_LOCATOR or SQL_ARRAY_LOCATOR)
-    return error: CLI-specific condition-invalid argument value
-  If (Locator does not refer to a Locator)
-    return error: 0F001 locator exception-invalid specification
-  If (LocatorType==SQL_BLOB_LOCATOR and Locator doesn't refer to a BLOB)
-  Or (LocatorType==SQL_CLOB_LOCATOR and Locator doesn't refer to a CLOB)
-  Or (LocatorType==SQL_UDT_LOCATOR and Locator doesn't refer to a UDT)
-  Or (LocatorType==SQL_ARRAY_LOCATOR and Locator doesn't refer to an ARRAY)
-    return error: dynamic SQL error-restricted data type attribute violation
-  If (the Large Object's value is NULL)
-    If (IndicatorValue is a null pointer)
-      return error: data exception-null value, no indicator parameter
-    Set *IndicatorValue = SQL_NULL_DATA i.e. -1
-  Else
-    If (IndicatorValue is not a null pointer)
-      Set *IndicatorValue = 0;
-  Set *LocatedAt = position of string within the BLOB or CLOB or NCLOB or UDT
-or ARRAY.
+      if (stmt is associated with a prepared or executed statement)
+        return error: HY010 CLI-specific condition-function sequence error
+          If (LocatorType is not SQL_BLOB_LOCATOR or SQL_CLOB_LOCATOR or
+    SQL_UDT_LOCATOR or SQL_ARRAY_LOCATOR)
+        return error: CLI-specific condition-invalid argument value
+      If (Locator does not refer to a Locator)
+        return error: 0F001 locator exception-invalid specification
+      If (LocatorType==SQL_BLOB_LOCATOR and Locator doesn't refer to a BLOB)
+      Or (LocatorType==SQL_CLOB_LOCATOR and Locator doesn't refer to a CLOB)
+      Or (LocatorType==SQL_UDT_LOCATOR and Locator doesn't refer to a UDT)
+      Or (LocatorType==SQL_ARRAY_LOCATOR and Locator doesn't refer to an ARRAY)
+        return error: dynamic SQL error-restricted data type attribute violation
+      If (the Large Object's value is NULL)
+        If (IndicatorValue is a null pointer)
+          return error: data exception-null value, no indicator parameter
+        Set *IndicatorValue = SQL_NULL_DATA i.e. -1
+      Else
+        If (IndicatorValue is not a null pointer)
+          Set *IndicatorValue = 0;
+      Set *LocatedAt = position of string within the BLOB or CLOB or NCLOB or UDT
+    or ARRAY.
 
 ODBC: Since this is an SQL3 function, it is not in ODBC 3.0.
 

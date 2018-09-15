@@ -1078,7 +1078,7 @@ Example:
     /* The above is illegal SQL so the return code will be negative */
     if (sqlreturn==SQL_ERROR) goto error_handler_for_stmt;
     ...
-error_handler_for_stmt:
+    error_handler_for_stmt:
     /* **TRAP: sometimes errors happen for dbc or env functions too, each
        type of handle needs a separate error-handling procedure. */
     SQLError(0,0,hstmt,sqlstate,&sqlnative,NULL,NULL,NULL);
