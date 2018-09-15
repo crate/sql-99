@@ -17,24 +17,32 @@ Collection <data type>s
 =======================
 
 A <collection type> is defined by a descriptor that contains three pieces of information:
-      ## The <data type>'s name: ARRAY.
-      ## The maximum number of elements in the array.
-      ## The array's element <data type> specification.
+
+## The <data type>'s name: ARRAY.
+
+## The maximum number of elements in the array.
+
+## The array's element <data type> specification.
 
 ARRAY:
+
 The required syntax for a <collection type> specification is:
 
-<collection type> ::=
-<data type> <array specification>
+::
 
-   <array specification> ::=
-   ARRAY[unsigned integer] | ARRAY??(unsigned integer??)
+    <collection type> ::=
+    <data type> <array specification>
+
+       <array specification> ::=
+       ARRAY[unsigned integer] | ARRAY??(unsigned integer??)
 
 A <collection type> specification defines an array: it consists of an element
 <data type> specification followed by an indication of the array's maximum
 element size. For example, both of these <collection type> specifications
 define an array of up to ten numbers, all of which must fall into the range
 supported by SQL's SMALLINT <data type>:
+
+::
 
    SMALLINT ARRAY[10]
 
@@ -65,11 +73,14 @@ are arrays and (b) the element <data type> of the first array is a subtype of
 the element <data type> of the second array.
 
 ARRAY <element reference>:
+
 An <element reference> returns an element of an array. The required syntax for an <element reference> is:
 
-<element reference> ::=
-array_argument[numeric_argument] |
-array_argument??(numeric_argument??)
+::
+
+    <element reference> ::=
+    array_argument[numeric_argument] |
+    array_argument??(numeric_argument??)
 
 An <element reference> allows you to access a specific element of an array. It
 operates on two arguments: the first must evaluate to an array and the second
@@ -78,6 +89,8 @@ the element in the array: the first element in an array is element number 1,
 the second element is element number 2 and so on.) If either portion of an
 element reference is NULL, that element is also NULL. Here are two equivalent
 examples of an <element reference>:
+
+::
 
    array_column[4]
 
@@ -90,17 +103,22 @@ number of elements in the array, the <element reference> will fail: your DBMS
 will return the SQLSTATE error 2202E "data exception-array element error".
 
 <array value constructor>:
+
 An <array value constructor> is used to construct an array. The required syntax for an <array value constructor> is:
 
-<array value constructor> ::=
-ARRAY[element_expression [ {,element_expression}... ]] |
-ARRAY??(element_expression [ {,element_expression}... ]??)
+::
+
+    <array value constructor> ::=
+    ARRAY[element_expression [ {,element_expression}... ]] |
+    ARRAY??(element_expression [ {,element_expression}... ]??)
 
 An <array value constructor> allows you to assign values to the elements of an
 array. An "element_expression" may be any expression that evaluates to a
 scalar value with a <data type> that is assignable to the array's element
 <data type>. The result is an array whose n-th element value is the value of
 the n-th element_expression you specify. Here are two equivalent examples of an <array value constructor>:
+
+::
 
    ARRAY['hello','bob','and','sally']
 
@@ -110,6 +128,8 @@ These examples both construct an array with four elements. The first element
 has a value of 'hello', the second has a value of 'bob', the third has a value
 of 'and' and the fourth has a value of 'sally'. Both <array value
 constructor>s would be valid for this <collection type> specification:
+
+::
 
    VARCHAR(5) ARRAY[4]
 
@@ -121,17 +141,25 @@ delimited values of the correct <data type> (these are called array elements
 in SQL, though in other languages, an instance of an array is called an
 "occurrence"). For example, if your <collection type> specification is:
 
+::
+
    INT ARRAY[3]
 
 a valid <array value constructor> would be:
+
+::
 
    ARRAY[20,10,52]
 
 And if your <collection type> specification is:
 
+::
+
    BIT(4) ARRAY[3]
 
 a valid <array value constructor> would be:
+
+::
 
    ARRAY[B'1011',B'0011',B'0110']
 
@@ -152,14 +180,17 @@ occur in expressions, SELECTs, INSERTs, DELETEs and UPDATEs. Explicit array
 type conversions can be forced with the CAST operator.
 
 CAST:
+
 In SQL, CAST is a scalar operator that converts a given scalar value to a
 given scalar <data type>. The required syntax for the CAST operator is:
 
-CAST (<cast operand> AS <cast target>)
+::
 
-   <cast operand> ::= scalar_expression
+    CAST (<cast operand> AS <cast target>)
 
-   <cast target> ::= <Domain name> | <data type>
+       <cast operand> ::= scalar_expression
+
+       <cast target> ::= <Domain name> | <data type>
 
 The CAST operator converts values of a source <data type> into values of a
 target <data type>, where each <data type> is an SQL pre-defined <data type>
@@ -173,9 +204,11 @@ your current <AuthorizationID> must have the USAGE Privilege on that Domain.)
 
 It isn't, of course, possible to convert the values of every <data type> into
 the values of every other <data type>. For <collection type>s, the rules are:
-      ## CAST (NULL AS <data type>) and CAST (array_source_is_a_null_value AS <data type>)
+
+## CAST (NULL AS <data type>) and CAST (array_source_is_a_null_value AS <data type>)
 both result in a CAST result of NULL.
-      ## You can CAST a <collection type> source only to a <collection type>
+
+## You can CAST a <collection type> source only to a <collection type>
 target whose element <data type> is an appropriate CAST target for the source's element <data type>.
 
 When you CAST an array to an array target, you're actually asking your DBMS to
@@ -188,6 +221,7 @@ is the target element <data type>. Otherwise, the result of the CAST is an
 array with the same number of elements as the source and the target element <data type>.
 
 Assignment:
+
 In SQL, when an array is assigned to an array target, the assignment is done
 one element at a time -- that is, the source value's first element is assigned
 to the target's first element, the source's next element is assigned to the
@@ -243,6 +277,7 @@ parameter with a value less than -1 will cause an error: your DBMS will return
 the SQLSTATE error 22010 "data exception-invalid indicator parameter value".)
 
 Comparison:
+
 SQL provides only two scalar comparison operators -- = and <> -- to perform
 operations on arrays. Both will be familiar; there are equivalent operators in
 other computer languages. Two arrays are comparable if their element <data
@@ -254,25 +289,34 @@ of the second array, and so on. The two arrays are equal if (a) they both have
 the same number of elements and (b) each pair of elements are equal. If any of
 the comparands are NULL, the result of the operation is UNKNOWN. For example:
 
+::
+
    ARRAY[1] <> ARRAY[2]
 
 returns TRUE.
+
+::
 
    array_column = {array result is NULL}
 
 returns UNKNOWN.
 
 Other Operations:
+
 With SQL, you have several other operations that you can perform on <collection type>s.
 
 ## Scalar functions
+
 SQL provides two scalar functions that return a <collection type>: the <array concatenation function> and the <cardinality expression>.
 
 <array concatenation function> --
+
 The required syntax for an <array concatenation function> is:
 
-<array concatenation function> ::=
-CONCATENATE(array_argument_1 { , | WITH } array_argument_2)
+::
+
+    <array concatenation function> ::=
+    CONCATENATE(array_argument_1 { , | WITH } array_argument_2)
 
 CONCATENATE operates on two operands, both of which must evaluate to an array.
 It joins the arrays together in the order given and returns an array value
@@ -280,6 +324,8 @@ that consists of every element of "array_argument_1" followed by every element
 of "array_argument_2". If either operand is NULL, CONCATENATE returns NULL.
 For this function, you can use either a comma or the <keyword> WITH to
 separate your operands. Here are two equivalent examples of array concatenations:
+
+::
 
    CONCATENATE(array_column,ARRAY['element_1','element_2'])
 
@@ -292,31 +338,39 @@ Aggregation", in our description of the CASE expression in our chapter on simple
 If you want to restrict your code to Core SQL, don't use CONCATENATE.
 
 <cardinality expression> --
+
 The required syntax for a <cardinality expression> is:
 
-<cardinality expression> ::=
-CARDINALITY (array_argument)
+::
+
+    <cardinality expression> ::=
+    CARDINALITY (array_argument)
 
 CARDINALITY operates on an argument that evaluates to an array. It counts the
 number of elements in the array and returns this as an exact numeric integer.
 If the argument is NULL, CARDINALITY returns NULL. Here is an example:
+
+::
 
    CARDINALITY(ARRAY[10,20,30,40])
    --returns 4
 
 [NON-PORTABLE] The precision of CARDINALITY's result is non-standard because
 the SQL Standard requires implementors to define the result's precision.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book gives
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book gives
 the result of CARDINALITY an INTEGER <data type>.
 
 If you want to restrict your code to Core SQL, don't use CARDINALITY.
 
 ## Set functions
+
 SQL provides three set functions that operate on a <collection type>:
 COUNT(*), COUNT and GROUPING. Since none of these operate exclusively with
 array arguments, we won't discuss them here; look for them in our chapter on set functions.
 
 ## Predicates
+
 In addition to the comparison operators, SQL provides four other predicates
 that operate on arrays: the <null predicate>, the <exists predicate>, the
 <quantified predicate> and the <distinct predicate>. Each will return a
@@ -333,6 +387,8 @@ array because its subdivisions ("lines") are not meaningful -- e.g.: we don't
 require that the fourth line of a street address must contain a city name.
 Here is an SQL statement that creates a Table with three Columns, the third of which is an array:
 
+::
+
    CREATE TABLE Mailouts (
       given_name CHAR(5),
       surname CHAR(5),
@@ -341,6 +397,8 @@ Here is an SQL statement that creates a Table with three Columns, the third of w
 In this Table definition, ARRAY[5] indicates that the STREET_ADDRESS Column is an array which occurs up to 5 times.
 
 This SQL statement adds a row to the MAILOUTS Table:
+
+::
 
    INSERT INTO TABLE Mailouts (
      given_name,
@@ -360,6 +418,8 @@ An element of an ARRAY can be updated using an <element reference>. For
 example, this SQL statement would change the rows in the MAILOUTS Table by
 updating the second element of every STREET_ADDRESS value:
 
+::
+
    UPDATE Mailouts SET
      street_address[2] = 'line#2 after update';
 
@@ -369,12 +429,16 @@ therefore of each of the array's elements -- is CHAR(20), so any assignment of a
 The result is that the second array element contains the string 'line#2 after update' and the other elements are unchanged.
 We could have achieved the same result by assigning an <array value constructor> to the STREET_ADDRESS Column as a whole, as in this example:
 
+::
+
    UPDATE Mailouts SET
       street_address = ARRAY['line#1','line #2 after update','line#3'];
 
 Note however: if you assign a 2-element <array value constructor> to a
 3-element array, the result is a 2-element array -- not a 3-element array with
 the final element unchanged. That is, if the above example was:
+
+::
 
    UPDATE Mailouts SET
       street_address = ARRAY['line#1','line #2 after update'];
@@ -387,6 +451,8 @@ Both of the above examples updated the value of an existing array element.
 It's also possible to place a value into an element that hasn't been
 constructed for the row yet. For example, this SQL statement:
 
+::
+
    UPDATE Mailouts SET
       street_address[5] = 'line#5';
 
@@ -397,6 +463,8 @@ UPDATE statement doesn't provide an explicit value for the fourth element and
 since the fifth element can't exist unless the first four also exist).
 
 Here is an example of a query on the MAILOUTS Table:
+
+::
 
    SELECT given_name, surname, street_address
    FROM   Mailouts
@@ -411,6 +479,8 @@ an empty array; TRUE for the row we inserted earlier.
 
 This SQL statement uses CONCATENATE to query the MAILOUTS Table:
 
+::
+
    SELECT CONCATENATE(street_address WITH ARRAY['line#4','line#5'])
    FROM   Mailouts;
 
@@ -421,12 +491,15 @@ two from the <array value constructor> (in that order). Each element of the
 result is a CHAR string.
 
 Illegal Operations:
+
 SQL places a number of restrictions on where you may validly use arrays. These
 are worth pointing out, since most of the language is orthogonal in this respect.
-      ## You may not use arrays in a JOIN Column list, as a grouping Column or
+
+## You may not use arrays in a JOIN Column list, as a grouping Column or
 in a Constraint definition (for UNIQUE or PRIMARY KEY or FOREIGN KEY
 Constraints -- Constraints are illegal in most predicates and can't contain REFs or ARRAYs.
-      ## Be very careful with <element reference>s: the fact that an array is
+
+## Be very careful with <element reference>s: the fact that an array is
 defined as "ARRAY[5]" does not guarantee that array element "[4]" exists.
 Above all, it is a mistake to assume that an <element reference> is allowed
 wherever a <Column reference> is allowed -- SQL's rules aren't there to help
