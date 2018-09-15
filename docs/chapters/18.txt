@@ -43,12 +43,14 @@ declared temporary Tables and may only be temporary.
 
 There are two kinds of Schema Base tables: the persistent Base table and the
 temporary Base table.
-      ## A persistent Base table is autonomous: it exists in its own right --
+
+## A persistent Base table is autonomous: it exists in its own right --
 that is, physically stored records that directly represent the Table actually
 exist on some data storage device. A persistent Base table contains rows of
 persistent SQL-data and can be accessed from multiple SQL-sessions. You create
 persistent Base tables with the CREATE TABLE statement.
-      ## A temporary Base table is an SQL-session-dependent Table: it can't be
+
+## A temporary Base table is an SQL-session-dependent Table: it can't be
 accessed from any other SQL-session. There are two types of temporary Base
 tables: the global temporary Base table, which can be accessed from any
 SQL-client Module in a single SQL-session, and the created local temporary
@@ -60,7 +62,8 @@ temporary Base tables with CREATE GLOBAL TEMPORARY TABLE and created local
 temporary Base tables with CREATE LOCAL TEMPORARY TABLE.
 
 There is one kind of Module Base table: the declared local temporary Base table.
-      ## The declared local temporary Base table is a named Table defined
+
+## The declared local temporary Base table is a named Table defined
 (with the DECLARE TABLE statement) in an SQL-client Module. It is effectively
 materialized the first time it is referenced in an SQL-session and it persists
 until that SQL-session ends. A declared local temporary Base table can only be
@@ -69,6 +72,7 @@ contains the Table's declaration. Temporary Base tables are always empty when
 an SQL-session begins and are always emptied when the SQL-session ends.
 
 Subtables and Supertables:
+
 In SQL3, a Table can be defined as a direct subtable of one or more
 supertables, using the optional CREATE TABLE ... UNDER clause. A subtable
 inherits every Column from its supertables, but may also define Columns of its
@@ -86,19 +90,24 @@ identifier type if (a) both types are the same or (b) the first is a subtype
 of the second. The rules for the INSERT, DELETE and UPDATE statements ensure
 that the rows in the Tables of a subtable family are consistent with one
 another. Specifically:
-     ## If you INSERT a row into a subtable, your DBMS will INSERT a
+
+## If you INSERT a row into a subtable, your DBMS will INSERT a
 corresponding row (with the same row identifier, and the same values as the
 values you provided for the subtable's inherited Columns) into each of that
 subtable's supertables, cascading upward in the Table hierarchy. Thus, if you
 INSERT a row into a maximal supertable, it is the only row inserted.
-     ## If you UPDATE a row of a supertable, all inherited Columns in any
+
+## If you UPDATE a row of a supertable, all inherited Columns in any
 corresponding rows of that supertable's subtables are also updated. If you
 UPDATE a row of a subtable, your DBMS will UPDATE every corresponding row so
 that their Columns also contain the new values.
-     ## If you DELETE a row from a Table, your DBMS will also DELETE every
+
+## If you DELETE a row from a Table, your DBMS will also DELETE every
 corresponding row in the subtable family.
 
 For example, consider these SQL statements:
+
+::
 
    CREATE TABLE people (
       given_name VARCHAR(20),
@@ -125,21 +134,34 @@ and your DBMS would automatically create a corresponding row in the PEOPLE
 Table for that author.
 
 A Base table is defined by a descriptor that contains 13 pieces of information:
-      ## The <Table name>, qualified by the <Schema name> of the Schema it belongs to.
-      ## The Base table's type: either persistent Base table, global temporary
+
+## The <Table name>, qualified by the <Schema name> of the Schema it belongs to.
+
+## The Base table's type: either persistent Base table, global temporary
 Base table or created local temporary Base table (for Schema Base tables) or
 (only for Module Base tables)  declared local temporary Base table.
-      ## The degree of the Table: the number of Columns that belong to the Table.
-      ## A descriptor for every Column that belongs to the Table.
-      ## A descriptor for every Constraint that belongs to the Table.
-      ## [Obscure Rule] The name of the structured type (if any) associated with the Table.
-      ## [Obscure Rule] Whether the Table's rows have the REF VALUE characteristic.
-      ## [Obscure Rule] A list (possibly empty) of the names of the Table's direct supertables.
-      ## [Obscure Rule] A list (possibly empty) of the names of the Table's direct subtables.
-      ## [Obscure Rule] The Table's row type.
-      ## [Obscure Rule] A non-empty set of the Table's functional dependencies.
-      ## [Obscure Rule] A non-empty set of the Table's candidate keys.
-      ## [Obscure Rule] An identification of the Table's preferred candidate key (this may or may not be defined as the Table's PRIMARY KEY).
+
+## The degree of the Table: the number of Columns that belong to the Table.
+
+## A descriptor for every Column that belongs to the Table.
+
+## A descriptor for every Constraint that belongs to the Table.
+
+## [Obscure Rule] The name of the structured type (if any) associated with the Table.
+
+## [Obscure Rule] Whether the Table's rows have the REF VALUE characteristic.
+
+## [Obscure Rule] A list (possibly empty) of the names of the Table's direct supertables.
+
+## [Obscure Rule] A list (possibly empty) of the names of the Table's direct subtables.
+
+## [Obscure Rule] The Table's row type.
+
+## [Obscure Rule] A non-empty set of the Table's functional dependencies.
+
+## [Obscure Rule] A non-empty set of the Table's candidate keys.
+
+## [Obscure Rule] An identification of the Table's preferred candidate key (this may or may not be defined as the Table's PRIMARY KEY).
 
 The data contained in a Base table is always updatable via the SQL statements
 INSERT, UPDATE and DELETE. To create a Base table, use the CREATE TABLE
@@ -156,16 +178,26 @@ although its definition is persistent. Instead, a View is logically derived
 from one or more existing Tables, and can be thought of as another way of
 looking at the presented data. Views are either updatable or read-only,
 depending on their definitions. A View is defined by a descriptor that contains ten pieces of information:
-      ## The <Table name>, qualified by the <Schema name> of the Schema the View belongs to.
-      ## The degree of the View: the number of Columns that are part of the View.
-      ## A descriptor for every Column that is part of the View.
-      ## The <query expression> that defines how the View is derived.
-      ## Whether the View is updatable or not.
-      ## Whether the View definition includes a CHECK OPTION clause and, if so, whether the clause CHECK OPTION CASCADED or CHECK OPTION LOCAL.
-      ## [Obscure Rule] The name of the structured type (if any) associated with the View.
-      ## [Obscure Rule] Whether the View's rows have the REF VALUE characteristic.
-      ## [Obscure Rule] A list (possibly empty) of the names of the View's direct supertables.
-      ## [Obscure Rule] A list (possibly empty) of the names of the Views's direct subtables.
+
+## The <Table name>, qualified by the <Schema name> of the Schema the View belongs to.
+
+## The degree of the View: the number of Columns that are part of the View.
+
+## A descriptor for every Column that is part of the View.
+
+## The <query expression> that defines how the View is derived.
+
+## Whether the View is updatable or not.
+
+## Whether the View definition includes a CHECK OPTION clause and, if so, whether the clause CHECK OPTION CASCADED or CHECK OPTION LOCAL.
+
+## [Obscure Rule] The name of the structured type (if any) associated with the View.
+
+## [Obscure Rule] Whether the View's rows have the REF VALUE characteristic.
+
+## [Obscure Rule] A list (possibly empty) of the names of the View's direct supertables.
+
+## [Obscure Rule] A list (possibly empty) of the names of the Views's direct subtables.
 
 Depending on the View's definition, the data shown through a View may be
 updatable via the SQL statements INSERT, UPDATE and DELETE. To create a View,
@@ -183,24 +215,33 @@ can represent a Table with a <Correlation name> -- usually to prevent
 ambiguity and to make your SQL statements easier to read.
 
 <Table name>:
+
 A <Table name> identifies a Base table or a View. The required syntax for a <Table name> is either:
 
-<Table name> ::=
-[ <Schema name>. ] unqualified name
+::
+
+    <Table name> ::=
+    [ <Schema name>. ] unqualified name
 
 or, for a declared LOCAL TEMPORARY Table only:
 
-<Table name> ::=
-[ MODULE. ] unqualified name
+::
+
+    <Table name> ::=
+    [ MODULE. ] unqualified name
 
 A <Table name> is a <regular identifier> or a <delimited identifier> that is unique (for all Base tables and Views) within the Schema it belongs to.
 The <Schema name> that qualifies a <Table name> names the Schema that the Table belongs to and can either be explicitly stated, or a default will be supplied by your DBMS, as follows:
-      ## If a <Table name> in a CREATE SCHEMA statement isn't qualified, the default qualifier is the name of the Schema you're creating.
-      ## If the unqualified <Table name> is found in any other SQL statement
+
+## If a <Table name> in a CREATE SCHEMA statement isn't qualified, the default qualifier is the name of the Schema you're creating.
+
+## If the unqualified <Table name> is found in any other SQL statement
 in a Module, the default qualifier is the name of the Schema identified in the
 SCHEMA clause or AUTHORIZATION clause of the MODULE statement which defines that Module.
 
 Here are some examples of <Table name>s:
+
+::
 
    TABLE_1
    -- a <Table name>
@@ -215,6 +256,7 @@ Here are some examples of <Table name>s:
    -- a declared LOCAL TEMPORARY <Table name>
 
 <Correlation name>:
+
 A <Correlation name> (or alias) identifies a variable that ranges over some
 Table; that is, a variable whose only permitted values are the rows of a given
 Table. A <Correlation name> is evaluated as an alternate <Table name> during a
@@ -227,8 +269,10 @@ with a Table only in the context in which you define it, you can use the same
 <Correlation name>, for any Table, in other transactions. The required syntax
 for a <Correlation name> is:
 
-<Correlation name> ::=
-unqualified name
+::
+
+    <Correlation name> ::=
+    unqualified name
 
 A <Correlation name> is a <regular identifier> or a <delimited identifier>
 that is unique within the Table it represents for the period of a transaction.
@@ -236,19 +280,25 @@ The scope of a <Correlation name> is either a SELECT statement (or some other
 query form), a Trigger definition or both (correlation scopes may be nested).
 Here is an example of a <Correlation name>:
 
+::
+
    CORRELATION_1
    -- a <Correlation name>
 
 The syntax required to define a <Correlation name> for a Table is:
 
-<Table reference> [ AS ] <Correlation name>
-   [ (derived <Column name> [ {,derived <Column name> }... ]) ]
+::
+
+    <Table reference> [ AS ] <Correlation name>
+       [ (derived <Column name> [ {,derived <Column name> }... ]) ]
 
 A <Table reference> is a reference to some Table -- this is usually a named
 Table (that is, a Base table or a View), but could also be an unnamed Table
 (for example, the result of a join, a subquery or a query expression). Most
 often, a <Table reference> is just a <Table name> and we'll use only that form
 for now. Here are two equivalent examples (the <keyword> AS is noise and can be omitted):
+
+::
 
    SELECT First.column_1, Second.column_1
       FROM Table_1 AS First, Table_1 AS Second
@@ -274,6 +324,8 @@ Since a <Table reference> can also refer to an unnamed Table that results from
 a query, it's sometimes necessary (or at least useful) to be able to name the
 Columns of the <Table reference> result. The optional derived <Column name>
 list with the AS <Correlation name> clause allows you to do this. Here's an example:
+
+::
 
    SELECT joined_col_1, joined_col_2
    FROM   (Table_1 NATURAL JOIN Table_2) AS Joined_Table
@@ -307,37 +359,49 @@ nullability characteristic: it determines (a) whether an attempt to INSERT the
 null value into the Column will fail and (b) whether a SELECT from the Column
 can ever return the null value. A Column's nullability characteristic is
 "possibly nullable" unless one of these situations apply:
-      ## A Column's nullability characteristic is "known not
+
+## A Column's nullability characteristic is "known not
 nullable" if a non-deferrable Constraint/Assertion on the Column evaluates to
 "Column IS NOT NULL" or if the Column is based on a Domain and a
 non-deferrable Constraint/Assertion on that Domain evaluates to "VALUE IS NOT NULL".
-      ## A Column's nullability characteristic is "known not
+
+## A Column's nullability characteristic is "known not
 nullable" if a non-deferrable Constraint on the Column is a PRIMARY KEY Constraint.
 
 A Column is defined by a descriptor that contains nine pieces of information:
-      ## The <Column name>, qualified by the <Table name> of the Table it
+
+## The <Column name>, qualified by the <Table name> of the Table it
 belongs to. (It is possible to have a Column with a default name, rather than
 a name you defined for it yourself. In this case, the Column's descriptor also
 indicates that the name is an implementation-dependent, or default, name.)
-      ## The ordinal position of the Column in its Table. (A Table may contain only one referenceable Column: it must be the first Column in the Table.)
-      ## The Column's <data type> specification, including its name, length,
+
+## The ordinal position of the Column in its Table. (A Table may contain only one referenceable Column: it must be the first Column in the Table.)
+
+## The Column's <data type> specification, including its name, length,
 precision and scale, as applicable (or, if the Column is based on a Domain, the <Domain name>).
-      ## The name of the Character set that the Column's set of values must belong to (for character string types).
-      ## The name of the Column's default Collation. (This is the Collation
+
+## The name of the Character set that the Column's set of values must belong to (for character string types).
+
+## The name of the Column's default Collation. (This is the Collation
 that may be used to compare a character string Column's values in the absence
 of an explicit COLLATE clause.)
-      ## Whether reference values must be checked and whether <reference scope
+
+## Whether reference values must be checked and whether <reference scope
 check action> specifies RESTRICT or SET NULL (for REF types).
-      ## Whether the Column is a system-generated Column or not (that is,
+
+## Whether the Column is a system-generated Column or not (that is,
 whether the Column's <data type> is REF with VALUES ARE SYSTEM GENERATED). If
 it is, the Table that the Column belongs to is a referenceable Base Table.
-      ## The Column's default value (if any).
-      ## The Column's nullability characteristic: either "known not nullable" or "possibly nullable".
+
+## The Column's default value (if any).
+
+## The Column's nullability characteristic: either "known not nullable" or "possibly nullable".
 
 To create a Column, use a <Column definition> in a CREATE TABLE or ALTER TABLE
 statement. To change or destroy an existing Column, use the ALTER TABLE statement.
 
 Column names:
+
 A <Column name> identifies a Column. The SQL Standard does not consider a
 <Column name> to be a qualified name but, in practice, <Column name>s are
 often qualified to prevent ambiguity in complex SQL statements: this practice
@@ -346,32 +410,40 @@ is called a <Column reference>. A qualified <Column name> is not allowed in a
 identify a Column in a CREATE TABLE or an ALTER TABLE statement.
 
 ## <Column name>
+
 The required syntax for a <Column name> is:
 
-<Column name> ::=
-unqualified name
+    <Column name> ::=
+    unqualified name
 
 A <Column name> is a <regular identifier> or a <delimited identifier> that is
 unique (for all Columns) within the Table it belongs to. Here is an example of
 a <Column name>:
 
+::
+
    COLUMN_1
    -- a <Column name>
 
 ## <Column reference>
+
 The required syntax for a <Column reference>, valid only outside of a <Column definition> is either:
 
-<Column reference> ::=
-[ Table specification. ] <Column name>
+::
 
-   Table specification ::=
-   <Table name> |
-   <Correlation name>
+    <Column reference> ::=
+    [ Table specification. ] <Column name>
+
+       Table specification ::=
+       <Table name> |
+       <Correlation name>
 
 or, for a declared LOCAL TEMPORARY Table only:
 
-<Column reference> ::=
-MODULE.<Table name>.<Column name>
+::
+
+    <Column reference> ::=
+    MODULE.<Table name>.<Column name>
 
 A <Column reference> is a <Column name> qualified by a Table specification, or
 by "MODULE.<Table name>". The Table specification which qualifies a <Column
@@ -379,6 +451,8 @@ name> identifies the Table that the Column belongs to, and is either that
 Table's name or a <Correlation name> that identifies that Table. If you omit
 the Table specification from a <Column reference>, it will default to the
 <Table name> of the Table that owns the Column. Here are some examples of <Column reference>s:
+
+::
 
    TABLE_1.COLUMN_1
   -- a <Column reference> with a <Table name>
@@ -395,39 +469,42 @@ CREATE TABLE statement
 The CREATE TABLE statement names a new Base table and defines the Table's
 Columns and Constraints. The required syntax for the CREATE TABLE statement is:
 
-CREATE [ {GLOBAL TEMPORARY | LOCAL TEMPORARY} ] TABLE <Table name>
-   <table contents source>
-   [ ON COMMIT {PRESERVE ROWS | DELETE ROWS} ]
+::
 
-   <table contents source> ::=
-   (<table element list>) |
-   OF <UDT name> [ UNDER <supertable name> [ {,<supertable name>}... ] ] [ <table element list> ]
+    CREATE [ {GLOBAL TEMPORARY | LOCAL TEMPORARY} ] TABLE <Table name>
+       <table contents source>
+       [ ON COMMIT {PRESERVE ROWS | DELETE ROWS} ]
 
-      <table element list> ::=
-      <table element> [ {,<table element>}... ]
+       <table contents source> ::=
+       (<table element list>) |
+       OF <UDT name> [ UNDER <supertable name> [ {,<supertable name>}... ] ] [ <table element list> ]
 
-         <table element> ::=
-         <Column definition> |
-         <Table Constraint> |
-         LIKE <Table name> |
-         <Column name> WITH OPTIONS <column option list>
+          <table element list> ::=
+          <table element> [ {,<table element>}... ]
 
-             <Table Constraint> ::=
-             [ CONSTRAINT <Constraint name> ]
-             Constraint_type
-             [ <constraint attributes> ]
+             <table element> ::=
+             <Column definition> |
+             <Table Constraint> |
+             LIKE <Table name> |
+             <Column name> WITH OPTIONS <column option list>
 
-             <column option list> ::=
-            [ <scope clause> ]
-            [ <default clause> ]
-            [ <Column Constraint>... ]
-            [ COLLATE <Collation name> ]
+                 <Table Constraint> ::=
+                 [ CONSTRAINT <Constraint name> ]
+                 Constraint_type
+                 [ <constraint attributes> ]
+
+                 <column option list> ::=
+                [ <scope clause> ]
+                [ <default clause> ]
+                [ <Column Constraint>... ]
+                [ COLLATE <Collation name> ]
 
 CREATE TABLE defines a new persistent Base table. CREATE GLOBAL TEMPORARY
 TABLE defines a new global temporary Base table. CREATE LOCAL TEMPORARY TABLE
 defines a new created local temporary Base table. A Table is owned by the
 Schema it belongs to.
-      ## The <Table name> identifies the Table and the Schema that it belongs
+
+## The <Table name> identifies the Table and the Schema that it belongs
 to. A <Table name> that includes an explicit <Schema name> qualifier belongs
 to the Schema named. A <Table name> that does not include an explicit <Schema
 name> qualifier belongs to the SQL-session default Schema. The <Table name>
@@ -440,6 +517,8 @@ different Schema from within CREATE SCHEMA. For example, this SQL statement
 will not return an error because the <Table name> will default to include the
 qualifying <Schema name>:
 
+::
+
    CREATE SCHEMA bob
       CREATE TABLE Table_1 (column_1 SMALLINT);
       -- creates a Table called BOB.TABLE_1 in Schema BOB
@@ -448,6 +527,8 @@ This SQL statement will not return an error either because the <Table name>
 explicitly includes a qualifying <Schema name> that matches the name of the
 Schema being created:
 
+::
+
    CREATE SCHEMA bob
       CREATE TABLE bob.Table_1 (column_1 SMALLINT);
       -- creates a Table called BOB.TABLE_1 in Schema BOB
@@ -455,6 +536,8 @@ Schema being created:
 But this SQL statement will return an error because the <Table name>
 explicitly includes a qualifying <Schema name> that is different from the name
 of the Schema being created:
+
+::
 
    CREATE SCHEMA bob
       CREATE TABLE sam.Table_1 (column_1 SMALLINT);
@@ -467,14 +550,16 @@ will not be visible to other users. At the end of the SQL-session, all
 temporary Tables invoked during the SQL-session are dropped. Because temporary
 Tables are materialized only when invoked, the Schema they belong to is
 actually defined by your DBMS.
-      ## If you're creating a temporary Table with CREATE GLOBAL TEMPORARY
+
+## If you're creating a temporary Table with CREATE GLOBAL TEMPORARY
 TABLE, the <Table name> may not be explicitly qualified. Because a global
 temporary Table is distinct within an SQL-session, the Schema it belongs to is
 a Schema determined by your DBMS -- in effect, it fixes a qualifying <Schema
 name> for the Table based on the Schema in which the global temporary Table is
 defined, coupled with the DBMS's name for the SQL-session in which you invoke
 that Table.
-      ## If you're creating a temporary Table with CREATE LOCAL TEMPORARY
+
+## If you're creating a temporary Table with CREATE LOCAL TEMPORARY
 TABLE, the <Table name> may not be explicitly qualified. Because a local
 temporary Table is distinct within an SQL-client Module within an SQL-session,
 the Schema it belongs to is a Schema determined by your DBMS -- in effect, it
@@ -495,12 +580,14 @@ the new Table, to the Schema owner <AuthorizationID> (that is, the
 <AuthorizationID creating the Table).
 
 <table contents source clause>:
+
 The <table contents source> clause defines the structure of the Table's
 contents: it tells you what sort of data the Table contains. This clause is
 either a list of elements, such as Column and Table Constraint definitions, or
 an OF clause that defines the UDT structure that makes up the Table. Every
 <table element list> has to contain at least one <Column definition>.
-      ## [Obscure Rule] If CREATE TABLE includes the OF clause, then <UDT
+
+## [Obscure Rule] If CREATE TABLE includes the OF clause, then <UDT
 name> must identify a structured type. If the OF clause also includes the
 (optional) <table element list>, the list (a) may not contain a LIKE clause
 and (b) may contain only one <table element> that is a <Column definition>: it
@@ -541,6 +628,8 @@ options> clause. Multiple <table element>s must be separated by commas.
 
 The effect of CREATE TABLE <Table name> (<Column definition>,<Column definition>), e.g.:
 
+::
+
    CREATE TABLE Table_1 (
       column_1 SMALLINT,
       column_2 DATE);
@@ -551,6 +640,8 @@ element list>. The row type of the new Table is the set of pairs (<Column
 name>, <data type>) defined for the Table.
 
 The effect of CREATE TABLE <Table name> (<Column definition>,<Table Constraint>), e.g.:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT,
@@ -569,6 +660,8 @@ clause, <Table name> identifies the Table whose <Column definition>s you want
 to copy into the new Table. For example, this SQL statement creates a Table in
 the usual manner:
 
+::
+
    CREATE TABLE Table_1 (
       column_1 SMALLINT,
       column_2 DATE,
@@ -578,10 +671,14 @@ the usual manner:
 And this SQL statement uses the LIKE clause to create another Table with the
 same <Column definition>s:
 
-CREATE TABLE Table_2 (LIKE Table_1);
+::
+
+    CREATE TABLE Table_2 (LIKE Table_1);
 
 The result is a Table, called TABLE_2, whose structure will be exactly as if
 it had been defined with this SQL statement:
+
+::
 
    CREATE TABLE Table_2 (
       column_1 SMALLINT,
@@ -595,6 +692,8 @@ Constraint> in a Table's definition, the LIKE clause also won't copy any
 <Column Constraint>s from the existing Table into the new Table. For example,
 for these two SQL statements:
 
+::
+
    CREATE TABLE Table_1 (
       column_1 SMALLINT NOT NULL,
       column_2 DATE,
@@ -605,6 +704,8 @@ for these two SQL statements:
 the result in the first case is a Table, called TABLE_1, whose structure will
 be exactly as if it had been defined with this SQL statement:
 
+::
+
    CREATE TABLE Table_1 (
       column_1 SMALLINT,
       column_2 DATE,
@@ -613,6 +714,8 @@ be exactly as if it had been defined with this SQL statement:
 
 and thus, the result in the second case is a Table, called TABLE_2, whose
 structure will be exactly as if it had been defined with this SQL statement:
+
+::
 
    CREATE TABLE Table_2 (
       column_1 SMALLINT,
@@ -627,11 +730,14 @@ OPTIONS <column option list>) is to create a Table containing one or more
 Columns whose definitions are further outlined by the <column option>(s) chosen.
 
 Temporary Tables:
+
 If you're creating a temporary Table, you may also use the ON COMMIT clause to
 specify whether you want the Table to be emptied whenever a COMMIT statement
 is executed. If you omit the ON COMMIT clause from CREATE TEMPORARY TABLE, it
 defaults to ON COMMIT DELETE ROWS. For example, these two SQL statements are
 equivalent:
+
+::
 
    CREATE GLOBAL TEMPORARY TABLE Table_1 (
       column_1 SMALLINT);
@@ -642,6 +748,8 @@ equivalent:
 
 Based on this Table definition, the effect of these two SQL statements:
 
+::
+
    INSERT INTO Table_1 (column_1)
    VALUES(10);
 
@@ -651,10 +759,14 @@ is that TABLE_1 is first materialized and has data inserted into it, and then
 the rows are deleted. That is, at COMMIT time, your DBMS effectively executes
 this SQL statement:
 
+::
+
    DELETE FROM Table_1;
 
 since the definition of TABLE_1 states that the Table is to be emptied at
 COMMIT. On the other hand, the effect of these three SQL statements:
+
+::
 
    CREATE GLOBAL TEMPORARY TABLE Table_1 (
       column_1 SMALLINT)
@@ -683,27 +795,29 @@ Used in a CREATE TABLE or an ALTER TABLE statement, it names a Column and
 defines the Column's <data type>, default value and Constraints. The required
 syntax for a <Column definition> is:
 
-<Column definition> ::=
-unqualified <Column name>
-{ <data type> | <Domain name> }
-[ <reference scope check> ]
-[ DEFAULT default value ]
-[ <Column Constraint> list ]
-[ COLLATE <Collation name> ]
+::
 
-   <Column Constraint> list ::=
-   <Column Constraint> [ <Column Constraint> ]
+    <Column definition> ::=
+    unqualified <Column name>
+    { <data type> | <Domain name> }
+    [ <reference scope check> ]
+    [ DEFAULT default value ]
+    [ <Column Constraint> list ]
+    [ COLLATE <Collation name> ]
 
-      <Column Constraint> ::=
-      [ CONSTRAINT <Constraint name> ]
-      Constraint_type
-      [ <constraint attributes> ]
+       <Column Constraint> list ::=
+       <Column Constraint> [ <Column Constraint> ]
 
-   <reference scope check> ::=
-   REFERENCES ARE [ NOT ] CHECKED
-   [ ON DELETE <reference scope check action> ]
+          <Column Constraint> ::=
+          [ CONSTRAINT <Constraint name> ]
+          Constraint_type
+          [ <constraint attributes> ]
 
-      <reference scope check action> ::= RESTRICT | SET NULL
+       <reference scope check> ::=
+       REFERENCES ARE [ NOT ] CHECKED
+       [ ON DELETE <reference scope check action> ]
+
+          <reference scope check action> ::= RESTRICT | SET NULL
 
 A <Column definition> defines a new Column for a Base table. A Column is owned
 by the Table it belongs to. The <Column name> identifies the Column and the
@@ -713,6 +827,7 @@ ALTER TABLE statement. The <Column name> must be unique within the Table that
 owns it.
 
 <data type>:
+
 A Column must be defined to accept a certain type of data. This is done in one
 of two ways: you can either define a Column with a <data type> specification>
 or you can define it as being based on a Domain. If you base a Column on a
@@ -731,6 +846,8 @@ type>)" is to define a Column with a <data type> specification. For example,
 this SQL statement creates a Table with a Column that has a <data type> of
 DECIMAL(9,2):
 
+::
+
    CREATE TABLE Table_1 (
       column_1 DEC(9,2));
 
@@ -738,6 +855,8 @@ The effect of the syntax "CREATE TABLE <Table name> (<Column name> <Domain
 name>)" is to define a Column based on a Domain. For example, the effect of
 these SQL statements is also a Table with a Column that has a <data type> of
 DECIMAL(9,2):
+
+::
 
    CREATE DOMAIN domain_1 AS DEC(9,2);
 
@@ -747,20 +866,25 @@ DECIMAL(9,2):
 [Obscure Rule] If the <data type> of a Column is CHAR, VARCHAR or CLOB, the
 Character set that the Column's values must belong to is determined as
 follows:
-      ## If the <Column definition> contains a <data type> specification that
+
+## If the <Column definition> contains a <data type> specification that
 includes a CHARACTER SET clause, the Column's Character set is the Character
 set named. Your current <AuthorizationID> must have the USAGE Privilege on
 that Character set.
-      ## If the <Column definition> does not include a <data type>
+
+## If the <Column definition> does not include a <data type>
 specification, but the Column is based on a Domain whose definition includes a
 CHARACTER SET clause, the Column's Character set is the Character set named.
-      ## If the <Column definition> does not include any CHARACTER SET clause
+
+## If the <Column definition> does not include any CHARACTER SET clause
 at all -- either through a <data type> specification or through a Domain
 definition -- the Column's Character set is the Character set named in the
 DEFAULT CHARACTER SET clause of the CREATE SCHEMA statement that defines the
 Schema that the Column belongs to.
 
 For example, the effect of these two SQL statements:
+
+::
 
    CREATE SCHEMA bob AUTHORIZATION bob
       DEFAULT CHARACTER SET INFORMATION_SCHEMA.LATIN1;
@@ -774,6 +898,8 @@ all of whose characters must be found in the INFORMATION_SCHEMA.LATIN1
 Character set -- the Schema's default Character set.
 
 The effect of these two SQL statements:
+
+::
 
    CREATE SCHEMA bob AUTHORIZATION bob
       DEFAULT CHARACTER SET INFORMATION_SCHEMA.LATIN1;
@@ -790,17 +916,21 @@ COLLATE clause, the Column has a coercibility attribute of COERCIBLE -- but if
 your <Column definition> includes a COLLATE clause, the Column has a
 coercibility attribute of IMPLICIT. In either case, the Column's default
 Collation is determined as follows:
-      ## If the <Column definition> includes a  COLLATE clause, the Column's
+
+## If the <Column definition> includes a  COLLATE clause, the Column's
 default Collation is the Collation named. Your current <AuthorizationID> must
 have the USAGE Privilege on that Collation.
-      ## If the <Column definition> does not include a COLLATE clause, but
+
+## If the <Column definition> does not include a COLLATE clause, but
 does contain a <data type> specification that includes a COLLATE clause, the
 Column's default Collation is the Collation named. Your current
 <AuthorizationID> must have the USAGE Privilege on that Collation.
-      ## If the <Column definition> does not include a COLLATE clause, but the
+
+## If the <Column definition> does not include a COLLATE clause, but the
 Column is based on a Domain whose definition includes a COLLATE clause, the
 Column's default Collation is the Collation named.
-      ## If the <Column definition> does not include any COLLATE clause at all
+
+## If the <Column definition> does not include any COLLATE clause at all
 -- either explicitly, through a <data type> specification or through a Domain
 definition -- the Column's default Collation is the default Collation of the
 Column's Character set.
@@ -814,7 +944,8 @@ clause under any other circumstances). In this case, you may also add the
 optional <reference scope check action> clause, to indicate the action to be
 taken when the Column is the subject of a DELETE statement. If you omit the
 <reference scope check action> clause, it defaults to ON DELETE RESTRICT.
-      ## If a Column is defined with REFERENCES ARE CHECKED and a <scope
+
+## If a Column is defined with REFERENCES ARE CHECKED and a <scope
 clause> naming one or more Tables is included in the <Column definition>, then
 there is an implied DEFERRABLE INITIALLY IMMEDIATE Constraint on the new
 Column which checks that the Column's values are also found in the system
@@ -828,6 +959,7 @@ row that matched the deleted rows and (d) execute a SET CONSTRAINT statement
 that sets the implied Constraint's constraint check time to IMMEDIATE.
 
 DEFAULT clause:
+
 The optional DEFAULT clause defines the Column's default value: the value to
 insert whenever this Column is the target of an INSERT statement that doesn't
 include an explicit value for it. The DEFAULT options are: DEFAULT <literal>,
@@ -838,24 +970,30 @@ DEFAULT ARRAY[], DEFAULT ARRAY??(??) and DEFAULT NULL -- see "<default
 clause>", later in this chapter. The DEFAULT clause is optional whether or not
 the Column is based on a Domain that has a defined default value, so a
 Column's default value is determined as follows:
-      ## If a <Column definition> that contains a <data type> specification
+
+## If a <Column definition> that contains a <data type> specification
 omits the DEFAULT clause, the Column has no default value.
-      ## If a <Column definition> that contains a <data type> specification
+
+## If a <Column definition> that contains a <data type> specification
 includes the DEFAULT clause, the Column's default value is the default value
 specified -- that is, the syntax "CREATE TABLE <Table name> (<Column name>
 DEFAULT default value)" defines a Column with an explicit default value. For
 example, this SQL statement creates a Table with a Column whose default value
 is the <character string literal> 'bobby':
 
+::
+
    CREATE TABLE Table_1 (
       column_1 CHAR(5) DEFAULT 'bobby');
 
-      ## If a Column is based on a Domain and the <Column definition> omits
+## If a Column is based on a Domain and the <Column definition> omits
 the DEFAULT clause, the Column's default value is the Domain's default value.
 If the Domain has no defined default value, then the Column has no default
 value either. For example, the effect of these two SQL statements is to define
 a Column whose default value is the <character string literal> 'bobby' --
 taken from the Domain that the Column is based on:
+
+::
 
    CREATE DOMAIN domain_1 AS
       CHAR(5) DEFAULT 'bobby';
@@ -872,6 +1010,8 @@ to define a Column whose default value is the <character string literal>
 'bobby' -- despite the fact that the Domain that the Column is based on has a
 default value that is the <character string literal> 'sammy':
 
+::
+
    CREATE DOMAIN domain_1 AS
       CHAR(5) DEFAULT 'sammy';
 
@@ -879,6 +1019,7 @@ default value that is the <character string literal> 'sammy':
       column_1 domain_1 DEFAULT 'bobby');
 
 <Column Constraint>s:
+
 The optional <Column Constraint> list clause is used to define zero or more
 <Constraint>s on the Column: the Constraint rules will restrict the Column's
 set of valid values -- see our chapter on Constraints and Assertions. (If the
@@ -889,6 +1030,8 @@ name>s must be unique within the Schema that the Column belongs to. The syntax
 <Column name> <Domain name> <Column Constraint>)" defines a Column whose
 definition includes a <Column Constraint>. Here is an example:
 
+::
+
    CREATE TABLE Table_1 (
       column_1 SMALLINT NOT NULL,
       column_2 domain_1 PRIMARY KEY NOT DEFERRABLE);
@@ -898,6 +1041,8 @@ The syntax "CREATE TABLE <Table name> (<Column name> <data type> DEFAULT
 default value <Column Constraint>, <Column name> <Domain name> DEFAULT default
 value <Column Constraint>)" also defines Columns whose definitions include a
 <Column Constraint>. Here is an example:
+
+::
 
    CREATE TABLE Table _1 (
       column_1 SMALLINT DEFAULT 100
@@ -922,24 +1067,26 @@ your <Column definition>s, don't base your Columns on Domains, don't name your
 A <default clause> defines the default value for a Column, a Domain or an
 attribute of a UDT. The required syntax for a <default clause> is:
 
-<default clause> ::=
-DEFAULT default value
+::
 
-   default value ::=
-   <literal> |
-   USER |
-   CURRENT_USER |
-   SESSION_USER |
-   SYSTEM_USER |
-   CURRENT_PATH |
-   CURRENT_DATE |
-   CURRENT_TIME[(p)] |
-   CURRENT_TIMESTAMP[(p)] |
-   LOCALTIME[(p)] |
-   LOCALTIMESTAMP[(p)] |
-   ARRAY[] |
-   ARRAY??(??) |
-   NULL
+    <default clause> ::=
+    DEFAULT default value
+
+       default value ::=
+       <literal> |
+       USER |
+       CURRENT_USER |
+       SESSION_USER |
+       SYSTEM_USER |
+       CURRENT_PATH |
+       CURRENT_DATE |
+       CURRENT_TIME[(p)] |
+       CURRENT_TIMESTAMP[(p)] |
+       LOCALTIME[(p)] |
+       LOCALTIMESTAMP[(p)] |
+       ARRAY[] |
+       ARRAY??(??) |
+       NULL
 
 The default value of an Object is the data value that will be inserted into
 the Object whenever it is the target of an INSERT statement that does not
@@ -950,12 +1097,16 @@ explicit data value for it, your DBMS will INSERT a null value. (If the Object
 doesn't allow nulls, the INSERT will, of course, fail.) The <data type> of a
 default value must match the Object's <data type> (that is, the default value
 and the Object's <data type> must be mutually assignable).
-      ## If the <data type> of an Object is a <reference type>, the <default clause> must be "DEFAULT NULL".
-      ## If the <data type> of an Object is a <collection type>, the <default clause> must be "DEFAULT NULL" or "DEFAULT ARRAY[]" or "DEFAULT ARRAY??(??)" or "DEFAULT <literal>".
+
+## If the <data type> of an Object is a <reference type>, the <default clause> must be "DEFAULT NULL".
+
+## If the <data type> of an Object is a <collection type>, the <default clause> must be "DEFAULT NULL" or "DEFAULT ARRAY[]" or "DEFAULT ARRAY??(??)" or "DEFAULT <literal>".
 
 If a <default clause> is "DEFAULT <literal>", the value represented by the
 <literal> is the target Object's default value. Here are some examples of
 <default clause>s with a <literal> as the default value:
+
+::
 
    CREATE DOMAIN domain_1 AS NCHAR(5) DEFAULT N'sammy';
 
@@ -984,6 +1135,8 @@ character string <data type> with a defined length of at least 128 characters
 and must belong to the SQL_TEXT Character set. Here are some examples of
 <default clause>s with a <niladic user function> as the default value:
 
+::
+
    CREATE DOMAIN domain_1 AS
       CHAR(128) CHARACTER SET SQL_TEXT DEFAULT CURRENT_USER;
 
@@ -995,6 +1148,8 @@ function is the target Object's default value. In this case, the target Object
 must have a character string <data type> with a defined length of at least
 1031 characters and must belong to the SQL_TEXT Character set. Here are some
 examples of <default clause>s with CURRENT_PATH as the default value:
+
+::
 
    CREATE DOMAIN domain_1 AS
       CHAR(1031) CHARACTER SET SQL_TEXT DEFAULT CURRENT_PATH;
@@ -1008,6 +1163,8 @@ LOCALTIMESTAMP[(p)]", the value returned by the function is the target
 Object's default value. In this case, the target Object must have a datetime
 <data type> that matches the function's <data type>. Here are some examples of
 <default clause>s with a <datetime value function> as the default value:
+
+::
 
    CREATE DOMAIN domain_1 AS
       DATE DEFAULT CURRENT_DATE;
@@ -1025,12 +1182,16 @@ If a <default clause> is "DEFAULT ARRAY[]" or "DEFAULT ARRAY??(??)", an empty
 array value is the target <collection type>'s default value. Here is an
 example of a <default clause> with an empty array as the default value:
 
+::
+
    CREATE DOMAIN domain_1 AS
       INT ARRAY[3] DEFAULT ARRAY[];
 
 If a <default clause> is "DEFAULT NULL", the null value is the target Object's
 default value. (The Object can't, of course, have a NOT NULL Constraint.) Here
 is an example of a <default clause> with a null value as the default value:
+
+::
 
   CREATE TABLE Table_1 (
      column_1 CHAR(15) DEFAULT NULL;
@@ -1048,6 +1209,8 @@ ALTER TABLE statement
 The ALTER TABLE statement changes a Base table's definition. The required syntax for the ALTER TABLE statement is:
 
 ALTER TABLE <Table name> <alter table action>
+
+::
 
    <alter table action> ::=
    ADD [ COLUMN ] <Column definition> |
@@ -1071,7 +1234,10 @@ Base table or a created LOCAL TEMPORARY Base table, but you can't use it to
 change a declared LOCAL TEMPORARY Base table.
 
 ADD [ COLUMN ] clause:
+
 The effect of ALTER TABLE <Table name> ADD [COLUMN] <Column definition>, e.g.:
+
+::
 
    ALTER TABLE Table_1 ADD COLUMN
       column_1 SMALLINT DEFAULT 150
@@ -1081,6 +1247,8 @@ is that the Table named will increase in size by one Column: the Column
 defined by the <Column definition>. The <keyword> COLUMN in the ADD [COLUMN]
 clause is noise and can be omitted. For example, these two SQL statements are equivalent:
 
+::
+
    ALTER TABLE Table_1 ADD COLUMN
       column_1 SMALLINT DEFAULT 150;
 
@@ -1088,16 +1256,20 @@ clause is noise and can be omitted. For example, these two SQL statements are eq
       column_1 SMALLINT DEFAULT 150;
 
 Adding a new Column to a Table has a four-fold effect:
-      ## The degree (i.e.: the number of Columns) of the Table is increased by
+
+## The degree (i.e.: the number of Columns) of the Table is increased by
 1; the new Column's ordinal position in the Table is the new degree of the Table.
-      ## Every <AuthorizationID> that has a SELECT, UPDATE, INSERT or
+
+## Every <AuthorizationID> that has a SELECT, UPDATE, INSERT or
 REFERENCES Privilege on all existing Columns of the Table receives a matching
 set of Privileges on the new Column. The grantor of the new Privilege(s) is
 the same as the grantor of the previous Privileges(s) and so is the
 grantability of the new Privilege(s).
-      ## The value of the new Column for every existing row of the Table is
+
+## The value of the new Column for every existing row of the Table is
 set to its default value.
-      ## The Column is added to the Column list of every UPDATE Trigger event
+
+## The Column is added to the Column list of every UPDATE Trigger event
 for all Triggers that act on the Table. However, adding a new Column to a
 Table has no effect on any existing View definition or Constraint definition
 that refers to the Table because implicit <Column name>s in these definitions
@@ -1105,7 +1277,10 @@ are replaced by explicit <Column name>s the first time the View or Constraint
 is evaluated.
 
 ALTER [ COLUMN ] ... SET DEFAULT clause:
+
 The effect of ALTER TABLE <Table name> ALTER [COLUMN] <Column name> SET DEFAULT default value, e.g.:
+
+::
 
    ALTER TABLE Table_1 ALTER COLUMN
       column_1 SET DEFAULT 200;
@@ -1115,6 +1290,8 @@ this version of ALTER TABLE either to add a default value to a <Column
 definition> or to change a Column's existing default value.) The <keyword>
 COLUMN in the ALTER [COLUMN] clause is noise and can be omitted. For example,
 these two SQL statements are equivalent:
+
+::
 
    ALTER TABLE Table_1 ALTER COLUMN
       column_1 SET DEFAULT CURRENT_TIME;
@@ -1130,7 +1307,10 @@ ARRAY[], DEFAULT ARRAY??(??) and DEFAULT NULL -- see "<default clause>",
 earlier in this chapter.
 
 ALTER [ COLUMN ] ... DROP DEFAULT clause:
+
 The effect of ALTER TABLE <Table name> ALTER [COLUMN] <Column name> DROP DEFAULT, e.g.:
+
+::
 
   ALTER TABLE Table_1 ALTER COLUMN
       column_1 DROP DEFAULT;
@@ -1140,6 +1320,8 @@ definition>. (You'll get a syntax error if the Column's definition doesn't
 include a default value.) The <keyword> COLUMN in the ALTER [COLUMN] clause is
 noise and can be omitted. For example, these two SQL statements are equivalent:
 
+::
+
    ALTER TABLE Table_1 ALTER COLUMN
       column_1 DROP DEFAULT;
 
@@ -1147,7 +1329,10 @@ noise and can be omitted. For example, these two SQL statements are equivalent:
       column_1 DROP DEFAULT;
 
 ALTER [ COLUMN ] ... ADD SCOPE clause:
+
 The effect of ALTER TABLE <Table name> ALTER [COLUMN] <Column name> ADD SCOPE <Table name list>, e.g.:
+
+::
 
    ALTER TABLE Table_2 ALTER COLUMN
       column_1 ADD SCOPE Table_1;
@@ -1161,6 +1346,8 @@ Base tables whose structured type is the same as the structured type of the
 referenced UDT.) The <keyword> COLUMN in the ALTER [COLUMN] clause is noise
 and can be omitted. For example, these two SQL statements are equivalent:
 
+::
+
    ALTER TABLE Table_3 ALTER COLUMN
       column_1 ADD SCOPE (Table_1,Table_2);
 
@@ -1168,7 +1355,10 @@ and can be omitted. For example, these two SQL statements are equivalent:
       column_1 ADD SCOPE (Table_1,Table_2);
 
 ALTER [ COLUMN ] ... DROP SCOPE clause:
+
 The effect of ALTER TABLE <Table name> ALTER [COLUMN] <Column name> DROP SCOPE RESTRICT, e.g.:
+
+::
 
    ALTER TABLE Table_2 ALTER COLUMN
       column_1 DROP SCOPE RESTRICT;
@@ -1186,6 +1376,8 @@ RESTRICT will fail.
 
 The effect of ALTER TABLE <Table name> ALTER [COLUMN] <Column name> DROP SCOPE CASCADE, e.g.:
 
+::
+
    ALTER TABLE Table_2 ALTER COLUMN
       column_1 DROP SCOPE CASCADE;
 
@@ -1199,6 +1391,8 @@ the referenceable Column of its Table. The <keyword> COLUMN in the ALTER
 [COLUMN] clause is noise and can be omitted. For example, these two SQL
 statements are equivalent:
 
+::
+
    ALTER TABLE Table_2 ALTER COLUMN
       column_1 DROP SCOPE RESTRICT;
 
@@ -1206,7 +1400,10 @@ statements are equivalent:
       column_1 DROP SCOPE RESTRICT;
 
 DROP [ COLUMN ] clause:
+
 The effect of ALTER TABLE <Table name> DROP [COLUMN] <Column name> RESTRICT, e.g.:
+
+::
 
    ALTER TABLE Table_1 DROP COLUMN
       column_1 RESTRICT;
@@ -1227,6 +1424,8 @@ Column named must be the Table's referenceable Column.
 
 The effect of ALTER TABLE <Table name> DROP [COLUMN] <Column name> CASCADE, e.g.:
 
+::
+
    ALTER TABLE Table_1 DROP COLUMN
       column_1 CASCADE;
 
@@ -1235,6 +1434,8 @@ it and that all Objects which are dependent on the Column are also dropped.
 The <keyword> COLUMN in the DROP [COLUMN] clause is noise and can be omitted.
 For example, these two SQL statements are equivalent:
 
+::
+
    ALTER TABLE Table_1 DROP COLUMN
       column_1 RESTRICT;
 
@@ -1242,26 +1443,35 @@ For example, these two SQL statements are equivalent:
       column_1 RESTRICT;
 
 Dropping a Column from a Table has a six-fold effect:
-      ## The degree (i.e.: the number of Columns) of the Table is decreased by
+
+## The degree (i.e.: the number of Columns) of the Table is decreased by
 1; the ordinal position of each Column that followed this Column in the
 Table's definition is adjusted accordingly.
-      ## The INSERT, UPDATE, SELECT and REFERENCES Privileges on the Column
+
+## The INSERT, UPDATE, SELECT and REFERENCES Privileges on the Column
 are revoked (by the SQL special grantor, "_SYSTEM") from the <AuthorizationID>
 that owns the Column's Table with a CASCADE drop behaviour, so that the same
 Privileges are also revoked from all other <AuthorizationID>s.
-      ## Any Trigger whose definition explicitly includes the Column is
+
+## Any Trigger whose definition explicitly includes the Column is
 dropped and any UPDATE Trigger whose definition includes the Column only
 implicitly is changed so that it no longer operates on that Column.
-      ## Any View, Constraint, Assertion or SQL routine whose definition
+
+## Any View, Constraint, Assertion or SQL routine whose definition
 includes the Column is dropped with a CASCADE drop behaviour.
-      ## If the Column is the system-generated Column of its Table, the
+
+## If the Column is the system-generated Column of its Table, the
 Table's definition is changed so that it no longer shows the Table to be a
 referenceable Base table and the Table is removed from every SCOPE clause that
 includes it.
-      ## The data in the Column is destroyed.
+
+## The data in the Column is destroyed.
 
 ADD <Table Constraint> clause:
+
 The effect of ALTER TABLE <Table name> ADD <Table Constraint>, e.g.:
+
+::
 
    ALTER TABLE Table_1 ADD CONSTRAINT
       constraint_1 CHECK(column_1 IS NOT NULL) NOT DEFERRABLE;
@@ -1270,7 +1480,10 @@ is that one <Table Constraint> is added to the definition of the Table named
 -- see "<Table Constraint>" in our chapter on Constraints and Assertions.
 
 DROP CONSTRAINT clause:
+
 The effect of ALTER TABLE <Table name> DROP CONSTRAINT <Constraint name> RESTRICT, e.g.:
+
+::
 
    ALTER TABLE Table_1 DROP CONSTRAINT constraint_1 RESTRICT;
 
@@ -1287,6 +1500,8 @@ dropped. If the Constraint is used by any other Object, ALTER TABLE ... DROP
 CONSTRAINT will fail.
 
 The effect of ALTER TABLE <Table name> DROP CONSTRAINT <Constraint name> CASCADE, e.g.:
+
+::
 
    ALTER TABLE Table_1 DROP CONSTRAINT constraint_1 CASCADE;
 
@@ -1309,7 +1524,9 @@ DROP TABLE statement
 The DROP TABLE statement destroys a Base table. The required syntax for the
 DROP TABLE statement is:
 
-DROP TABLE <Table name> {RESTRICT | CASCADE}
+::
+
+    DROP TABLE <Table name> {RESTRICT | CASCADE}
 
 DROP TABLE destroys a Base table and its data. The <Table name> must identify
 an existing Base table whose owner is either the current <AuthorizationID> or
@@ -1320,6 +1537,8 @@ TEMPORARY Base table, but you can't use it to drop a declared LOCAL TEMPORARY
 Base table.
 
 The effect of DROP TABLE <Table name> RESTRICT, e.g.:
+
+::
 
    DROP TABLE Table_1 RESTRICT;
 
@@ -1333,21 +1552,28 @@ used by any other Object, DROP TABLE ... RESTRICT will fail.
 
 The effect of DROP TABLE <Table name> CASCADE, e.g.:
 
+::
+
    DROP TABLE Table_1 CASCADE;
 
 is that the Table named is destroyed.
 
 Successfully destroying a Table has a five-fold effect:
-      ## The Base table named (and all the data it contains) is destroyed.
-      ## All subtables of the Table are dropped with a CASCADE drop behaviour.
-      ## For every supertable of the Table, all superrows of the Table's rows
+
+## The Base table named (and all the data it contains) is destroyed.
+
+## All subtables of the Table are dropped with a CASCADE drop behaviour.
+
+## For every supertable of the Table, all superrows of the Table's rows
 are deleted and the Table is removed from the supertable's list of direct
 subtables.
-      ## All Privileges held on the Table by the <AuthorizationID> that owns
+
+## All Privileges held on the Table by the <AuthorizationID> that owns
 it are revoked (by the SQL special grantor, "_SYSTEM") with a CASCADE revoke
 behaviour, so that all Privileges held on the Table by any other
 <AuthorizationID> are also revoked.
-      ## All SQL routines, Views, Constraints, Assertions and Triggers that
+
+## All SQL routines, Views, Constraints, Assertions and Triggers that
 depend on the Table are dropped with a CASCADE drop behaviour.
 
 If you want to restrict your code to Core SQL, don't use the CASCADE drop
@@ -1360,15 +1586,19 @@ The CREATE VIEW statement names a new View and defines the query which, when
 evaluated, determines the rows of data that are shown in the View. The
 required syntax for the CREATE VIEW statement is:
 
-CREATE [ RECURSIVE ] VIEW <Table name>
-[ (<Column name> [ {,<Column name>} ...) ]
-AS <query expression>
-[ WITH [ {CASCADED | LOCAL} ] CHECK OPTION ]
+::
+
+    CREATE [ RECURSIVE ] VIEW <Table name>
+    [ (<Column name> [ {,<Column name>} ...) ]
+    AS <query expression>
+    [ WITH [ {CASCADED | LOCAL} ] CHECK OPTION ]
 
 Name clause:
+
 CREATE VIEW defines a new derived Table, or View. A View is owned by the
 Schema it belongs to.
-      ## The <Table name> identifies the View and the Schema that it belongs
+
+## The <Table name> identifies the View and the Schema that it belongs
 to. A <Table name> that includes an explicit <Schema name> qualifier belongs
 to the Schema named. A <Table name> that does not include an explicit <Schema
 name> qualifier belongs to the SQL-session default Schema. The <Table name>
@@ -1381,6 +1611,8 @@ Schema from within CREATE SCHEMA. For example, this SQL statement will not
 return an error because the <Table name> will default to include the
 qualifying <Schema name>:
 
+::
+
    CREATE SCHEMA bob
       CREATE TABLE Table_1 (column_1 SMALLINT, column_2 CHAR(5))
       CREATE VIEW View_1 (column_1) AS
@@ -1391,6 +1623,8 @@ This SQL statement will not return an error either because the
 <Table name> explicitly includes a qualifying <Schema name> that matches the
 name of the Schema being created:
 
+::
+
    CREATE SCHEMA bob
       CREATE TABLE bob.Table_1 (
          column_1 SMALLINT, column_2 CHAR(5))
@@ -1400,6 +1634,8 @@ name of the Schema being created:
 
 But this SQL statement will return an error because the <Table name> explicitly includes a qualifying <Schema name> that is different from the name of the Schema being created:
 
+::
+
    CREATE SCHEMA bob
       CREATE TABLE Table_1 (column_1 SMALLINT, column_2 CHAR(5))
       CREATE VIEW sam.View_1 (column_1) AS
@@ -1407,6 +1643,7 @@ But this SQL statement will return an error because the <Table name> explicitly 
       -- tries to create a View belonging to Schema SAM inside Schema BOB; illegal syntax
 
 Privileges:
+
 If CREATE VIEW is executed as a stand-alone SQL statement, the current
 <AuthorizationID> must either be the owner of the Schema that this new View
 belongs to, or the Schema's owner must be a Role that the current
@@ -1437,37 +1674,46 @@ the mere fact that you own a View doesn't mean that you have ALL PRIVILEGES
 for that View. Usually you either "inherit" View Privileges (because you
 possess the Privilege on the underlying Table), or you get them explicitly
 (because someone GRANTs them to you). So:
-      ## In order to create the View: You must have all Privileges necessary
+
+## In order to create the View: You must have all Privileges necessary
 to perform the View's query on the underlying Tables.
-      ## If you own the View: You have one automatic Privilege -- you may
+
+## If you own the View: You have one automatic Privilege -- you may
 destroy it using the DROP VIEW statement.
-      ## If you have the SELECT Privilege on every Column that your View is
+
+## If you have the SELECT Privilege on every Column that your View is
 based on, you get the SELECT Privilege on the View, so you may SELECT from the
 View. If all of your underlying SELECT Privileges are grantable, so is your
 SELECT Privilege on the View. You inherit REFERENCES Privileges in the same
 way: if you have the REFERENCES Privilege on every Column that your View is
 based on, you get the REFERENCES Privilege on the View, so you may use the
 View in an Assertion.
-      ## You inherit INSERT, UPDATE and DELETE Privileges in the same way,
+
+## You inherit INSERT, UPDATE and DELETE Privileges in the same way,
 with a major exception: these Privileges cannot exist if the View is not
 updatable. That explains why, when you try to update a non-updatable View, the
 likely error is "Syntax error or access violation" -- the ultimate cause is
 the non-updatability, but the immediate cause at update time is that you lack
 the appropriate Privilege.
-      ## In addition to the inherited Privileges, you may hold Privileges
+
+## In addition to the inherited Privileges, you may hold Privileges
 which are explicitly granted to you. If you don't own the View, this is the
 only way to get Privileges on it -- you do not hold any Privileges on a View
 you don't own merely because you own an underlying Table.
-      ## If your Privilege on an underlying Table is revoked, your Privilege
+
+## If your Privilege on an underlying Table is revoked, your Privilege
 on the View you created using that Privilege is also revoked. This may cause
 the entire View to be destroyed.
 
 <Column name> clause:
+
 The optional parenthesized <Column name> clause of the CREATE VIEW statement
 explicitly names the View's Columns. (As is usual with Tables, each Column
 must have a name that is unique -- for all Columns -- within the View.) If you
 omit this clause, the View's Columns will inherit the names of the Columns
 they are based on. For example, consider these two SQL statements:
+
+::
 
    CREATE TABLE Table_1 (column_1 SMALLINT, column_2 CHAR(5));
 
@@ -1475,6 +1721,8 @@ they are based on. For example, consider these two SQL statements:
 
 Because the <Column name> clause is omitted, the View's Column will be named
 COLUMN_1 -- just like the Column it's based on. Here's another example:
+
+::
 
    CREATE TABLE Table_1 (column_1 SMALLINT, column_2 CHAR(5));
 
@@ -1497,11 +1745,15 @@ you're defining a RECURSIVE View (see below). Here's an example that shows a
 View definition where the <Column name> clause is mandatory because the second
 and third Columns have no name to inherit:
 
+::
+
    CREATE VIEW View_1 (view_column_1, view_column_2, view_column_3) AS
       SELECT   column_1, column_1+25, 'explanation'
       FROM     Table_1;
 
 Note, however, that this CREATE VIEW statement would give you the same result:
+
+::
 
    CREATE VIEW View_1 AS
       SELECT   column_1 AS view_column_1,
@@ -1513,6 +1765,7 @@ that is, you can also use the AS <Column name> clause in the select list of
 your View query to provide explicit names for the View's Columns.
 
 AS clause:
+
 The AS clause of the CREATE VIEW statement defines the query that determines
 the data you'll see each time you look at the View. At any point in time, a
 View's data consists of the rows that result if its query definition were
@@ -1521,10 +1774,14 @@ Normally, a "query" is a form of SELECT statement (it may be also be VALUES or
 TABLE; we'll define "query" more thoroughly in a later chapter), so you can
 define a View using pretty well any combination of predicates and search
 conditions. There are, however, some restrictions:
-      ## The query may not contain a host variable or SQL parameter reference.
-      ## The query may not refer to any declared LOCAL TEMPORARY Tables.
-      ## The query may not use an expression which would result in a View Column with a NO COLLATION coercibility attribute.
-      ## The query may not include any references to the View you're defining unless you're explicitly defining a RECURSIVE View.
+
+## The query may not contain a host variable or SQL parameter reference.
+
+## The query may not refer to any declared LOCAL TEMPORARY Tables.
+
+## The query may not use an expression which would result in a View Column with a NO COLLATION coercibility attribute.
+
+## The query may not include any references to the View you're defining unless you're explicitly defining a RECURSIVE View.
 
 A View's Columns inherit their <data type> and other attributes and Constraints from the Columns they're based on.
 
@@ -1535,18 +1792,24 @@ View with a query that includes a GROUP BY and/or a HAVING clause that isn't
 in a subquery, the View is known as a grouped View.
 
 ## Macros and Materializers
+
 When materializing a View, your DBMS's problem is to transform the View's
 query definition into a query on the Base table(s) that the View is based on.
 There are two ways to do this.
 
 The Macro, or Inline, View --
+
 The DBMS sees from the View's query that View "V" is based on Base table "T",
 so it simply replaces all occurrences of V with T, and all occurrences of V's
 <Column name>s with T's <Column name>s. Thus, for example:
 
+::
+
    SELECT V.column_1 FROM V WHERE V.column_2 = 7;
 
 becomes:
+
+::
 
    SELECT T.column_1 FROM T WHERE T.column_2 = 7;
 
@@ -1556,6 +1819,8 @@ prepare stage, outside the runtime path, so it is very unlikely that a View
 query will be measurably slower than a query on the underlying Table if a
 macro transform is possible. However, here's an example where it's not possible:
 
+::
+
    CREATE VIEW View_1 AS
       SELECT g, COUNT(*) AS g_count FROM Table_1 GROUP BY g;
 
@@ -1563,14 +1828,19 @@ macro transform is possible. However, here's an example where it's not possible:
 
 This SELECT statement can't work because the macro transform would evaluate to:
 
+::
+
    SELECT AVG(COUNT(*)) FROM Table_1 WHERE COUNT(*)=5 GROUP BY g;
 
 and that's not legal SQL syntax.
 
 The Materialized View --
+
 The DBMS makes a hidden "temporary Base table" with the same definition as the
 Columns in the View, and then populates the temporary Table using the View's
 query. Thus it would handle our difficult-to-do-with-a-macro View (above) like this:
+
+::
 
    CREATE LOCAL TEMPORARY TABLE Some_Table_Name (
       g_count INTEGER);
@@ -1580,9 +1850,13 @@ query. Thus it would handle our difficult-to-do-with-a-macro View (above) like t
 
 Now the transform is of the Table expression only, so:
 
+::
+
    SELECT AVG(g_count) FROM View_1 WHERE g_count = 5;
 
 becomes:
+
+::
 
    SELECT AVG(g_count) FROM Some_Table_Name;
 
@@ -1600,6 +1874,7 @@ DBMS will use macro Views for simple queries and switch to materialized Views
 when the going gets rough.
 
 ## Updatable Views
+
 We have seen that, when we SELECT from a View, the DBMS will transform our
 request into some equivalent request which is a SELECT from the underlying
 Base table(s). Now, UPDATE or INSERT or DELETE operations ("updates" for
@@ -1607,17 +1882,23 @@ short) must also involve a change to the underlying Base tables, otherwise
 they would be pointless. So, for updates on Views, your DBMS must reverse the
 transformation. This is often difficult or impossible. The SQL-92 rules for
 updatability are:
-      ## The query must be a single "SELECT ..." on a single Table, so Views
+
+## The query must be a single "SELECT ..." on a single Table, so Views
 are not updatable if the SELECT contains select functions (UNION, INTERSECT,
 EXCEPT, CORRESPONDING) or join operators (JOIN or joining commas as in "FROM
 a,b,c"). The query may also be "TABLE <Table name" because "TABLE <Table
 name>" is, at bottom, a SELECT. Rule 1 is relaxed in SQL3, which has the big
 effect that you can update Views of joins.
-      ## The select list may contain only <Column name>s and [AS name] clauses. Therefore, this SQL statement defines an updatable View:
+
+## The select list may contain only <Column name>s and [AS name] clauses. Therefore, this SQL statement defines an updatable View:
+
+::
 
    CREATE VIEW View_1 AS SELECT a,b,c FROM Table_1;
 
 but these SQL statements do not:
+
+::
 
    CREATE VIEW View_1 AS SELECT a+5 FROM Table_1;
 
@@ -1629,7 +1910,8 @@ but these SQL statements do not:
 with what the SQL Standard regards as updatable). Rule 2 is irritating because
 many arithmetic and string operations are in fact reversible -- but the DBMS
 doesn't know it.
-      ## There must be no implicit or explicit grouping, so the <keyword>s
+
+## There must be no implicit or explicit grouping, so the <keyword>s
 DISTINCT or GROUP BY or HAVING, or any set function, may not appear in the
 main query (though they may appear in that query's subqueries), nor may any
 subqueries be correlated subqueries (that is, they may not themselves refer to
@@ -1639,8 +1921,10 @@ salaries (Joke: unless you're the Canadian Anti-Poverty Commission which once
 announced that "most Canadians make less than the average wage"). However, the
 rule is syntax-based -- you might find that, in fact, DISTINCT is a no-op
 (that is, the decision "is it distinct?" is a matter of syntax, not of fact).
-      ## The query may not refer to the View being defined.
-      ## If there are multiple levels of View (that is, Views of Views), the
+
+## The query may not refer to the View being defined.
+
+## If there are multiple levels of View (that is, Views of Views), the
 above rules must be followed at every level -- that is, if the "single Table"
 in the query expression is not a Base table, it must be an updatable View.
 Sometimes, as a very general summation of these rules, people say "a View is
@@ -1650,11 +1934,15 @@ Base table".
 What actually happens when you update a View? Your DBMS performs the operation
 on the underlying Base table. For these two SQL statements:
 
+::
+
    DELETE FROM View_1;
 
    UPDATE View_1 SET column_1 = value;
 
 the operation transforms straightforwardly to:
+
+::
 
    DELETE FROM Table_1;
 
@@ -1663,6 +1951,8 @@ the operation transforms straightforwardly to:
 For INSERT operations, there is an additional problem if the View is based on
 only a subset of the Columns of the underlying Base table. In that case, the
 rest of the Base table's Columns all are set to their default value. For example:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT DEFAULT 12,
@@ -1675,11 +1965,15 @@ rest of the Base table's Columns all are set to their default value. For example
 
 The result of the INSERT operation on the View is:
 
+::
+
    INSERT INTO Table_1 (column_1, column_2)
       VALUES (28,'hello');
 
 WITH CHECK OPTION clause:
 Consider these two SQL statements:
+
+::
 
    CREATE VIEW View_1 (view_col_1, view_col_2) AS
       SELECT column_1,column_2 FROM Table_1 WHERE column_1 =5;
@@ -1699,6 +1993,8 @@ The solution is to use the optional WITH CHECK OPTION clause in your updatable
 View definitions (it is valid only if you are defining an updatable View).
 Adjust the two SQL statements to:
 
+::
+
    CREATE VIEW View_1 (view_col_1, view_col_2) AS
       SELECT column_1,column_2 FROM Table_1 WHERE column_1 =5
       WITH CHECK OPTION;
@@ -1712,6 +2008,8 @@ outside the bounds of that definition in any INSERT or UPDATE operation".
 
 A View's CHECK OPTION is effectively a Constraint. That is, there is a
 similarity between the two definitions in this example:
+
+::
 
       -- Constraint on Base table
       CREATE TABLE Table_1 (
@@ -1736,17 +2034,24 @@ satisfies the View's query conditions. Such "View Constraints" are popular,
 probably because the CREATE VIEW statement has been around for a longer time
 than the Base table CHECK Constraint. There are a few downsides you should be
 aware of, though, if you use such View Constraints:
-      ## You do not have the option of deferring Constraint checking. All
+
+## You do not have the option of deferring Constraint checking. All
 checks happen at the end of the INSERT or UPDATE operation.
-      ## It is somewhat easier to violate a View Constraint than a proper
+
+## It is somewhat easier to violate a View Constraint than a proper
 Table Constraint.
-      ## The SQL Standard does not make it clear what the effect should be if
+
+## The SQL Standard does not make it clear what the effect should be if
 NULLs are used (and therefore make the result of the Constraint check UNKNOWN
 rather than TRUE or FALSE). For the Base table insertion:
+
+::
 
    INSERT INTO Table_1 VALUES (NULL);
 
 the answer is clear: there is no error and so the INSERT is allowed. Presumably the same is true for the View insertion:
+
+::
 
    INSERT INTO View_1 VALUES (NULL);
 
@@ -1754,12 +2059,16 @@ but without a guarantee, why risk it?
 
 Regardless of the reasons you use WITH CHECK OPTION -- as a general
 constrainer or as an encapsulation enforcer -- the View must obey these rules:
-      ## The WHERE clause must be "deterministic" (this only means that you
+
+## The WHERE clause must be "deterministic" (this only means that you
 can't use Columns which might change in value, such as CURRENT_TIME. For a
 more complete explanation, see our chapter on Constraints and Assertions.
-      ## The View must be updatable.
+
+## The View must be updatable.
 
 Suppose you create Views within Views within Views, for example:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 INTEGER,
@@ -1795,6 +2104,8 @@ other immediately.
 Our example contains a variety of WITH CHECK OPTION clauses. To see what their
 effects are, we will try to do an INSERT for each of the Views. We begin with VIEW_1:
 
+::
+
    INSERT INTO View_1 VALUES (0,0,0,0,0);
 
 This INSERT operation is legal: there is no check option in the View's
@@ -1803,10 +2114,15 @@ be able to see that effect by looking at VIEW_1.
 
 Here's an INSERT into VIEW_2:
 
+::
+
+
    INSERT INTO View_2 VALUES (1,0,1,1,1);
 
 This INSERT operation will fail: there is a check option saying that the
 second column may not be 0. No surprise there, but this will fail too!:
+
+::
 
    INSERT INTO View_2 VALUES (0,1,1,1,1);
 
@@ -1817,6 +2133,8 @@ underlies it -- and VIEW_1 contains a condition that disallows zeros in COLUMN_1
 
 Here are two INSERTs into VIEW_3:
 
+::
+
    INSERT INTO View_3 VALUES (0,1,1,1,1);
 
    INSERT INTO View_3 VALUES (1,0,1,1,1);
@@ -1825,11 +2143,15 @@ These INSERT operations will also fail: although VIEW_3 has no check option,
 its underlying Views do and so operations on VIEW_3 may not violate their
 conditions. But, since VIEW_3 has no check option of its own, this INSERT is legal:
 
+::
+
    INSERT INTO View_3 VALUES (1,1,0,1,1);
 
 because there is no check on VIEW_3, or on its underlying Views, that disallows zeros in COLUMN_3.
 
 Now, here's an INSERT into VIEW_4:
+
+::
 
    INSERT INTO View_4 VALUES (0,0,0,1,1);
 
@@ -1846,11 +2168,15 @@ OPTION definitions.
 
 Finally, here's an INSERT into VIEW_5:
 
+::
+
    INSERT INTO View_5 VALUES (0,0,0,1,0);
 
 Once again, this INSERT operation is legal: VIEW_5 has no WITH CHECK OPTION
 clause, and so its condition is not checked. However, the View it's based on
 (VIEW_4) does have a WITH CHECK OPTION clause, and so this INSERT statement will fail:
+
+::
 
    INSERT INTO View_5 VALUES (1,1,1,0,1);
 
@@ -1867,7 +2193,10 @@ In real life, one avoids the complexity by declaring a company policy: always
 use WITH CASCADED CHECK OPTION.
 
 RECURSIVE Views:
+
 Here is a contrived, illegal example of two Views that reference each other:
+
+::
 
    CREATE SCHEMA some_schema
       CREATE TABLE Table_1 (column_1 INTEGER)
@@ -1887,6 +2216,8 @@ current DBMSs don't allow them and neither does the SQL-92 Standard. In SQL3,
 though, recursion is allowed provided it's explicit and provided that CREATE
 VIEW includes a <Column name> clause but no WITH CHECK OPTION clause. Thus,
 with SQL3 only, this SQL statement is possible:
+
+::
 
    CREATE SCHEMA some_schema
       CREATE TABLE Table_1 (column_1 INTEGER)
@@ -1909,6 +2240,8 @@ to some useful purpose, the same refrain could be sung each time: Views Hide -- 
 
 One thing we'd like to hide, or abstract, is the retrieval method. For a mailing list, the method might look like this:
 
+::
+
    SELECT Customers.given,
           Customers.surname,
           Customers.city,
@@ -1925,6 +2258,8 @@ Well, some people, sometimes, need to know that the mailing list is a union of
 data from two Tables. But when you print your list, all you really want to say
 is:
 
+::
+
    SELECT given, surname, city, address FROM Mailouts;
 
 This is not a mere matter of "reducing keystrokes". The idea is to remove
@@ -1933,6 +2268,8 @@ information which is not necessary for the task at hand.
 Another thing we want to hide is details. For example, there are some people
 who only care about department-level sales figures, as opposed to individual
 sales. For them we want to say:
+
+::
 
    CREATE VIEW View_1 AS
       SELECT SUM(sales_amount), manager
@@ -1949,6 +2286,8 @@ do a by-Column GRANT (see our chapter on AuthorizationIDs).
 
 ** Tip: Make a one-row permanent Table with:
 
+::
+
    CREATE VIEW View_name AS VALUES (1,2,3);
 
 To create one-row Tables which you never intend to update, this is more
@@ -1956,6 +2295,8 @@ convenient than using the CREATE TABLE statement because you can forget about
 file storage. If your DBMS doesn't allow the use of the <keyword> VALUES for a
 View's <query expression>, make your View with a selection from a one-row
 Table in INFORMATION_SCHEMA, e.g.:
+
+::
 
    CREATE VIEW View_name AS
       SELECT 1,2,3 FROM INFORMATION_SCHEMA.SQL_LANGUAGES;
@@ -1965,7 +2306,9 @@ DROP VIEW statement
 
 The DROP VIEW statement destroys a View. The required syntax for the DROP VIEW statement is:
 
-DROP VIEW <Table name> {RESTRICT | CASCADE}
+::
+
+    DROP VIEW <Table name> {RESTRICT | CASCADE}
 
 DROP VIEW destroys a View, but does not destroy any data: the data in the
 underlying Tables will remain. The <Table name> must identify an existing View
@@ -1974,6 +2317,8 @@ whose owner is either the current <AuthorizationID> or a Role that the current
 View may drop it.
 
 The effect of DROP VIEW <Table name> RESTRICT, e.g.:
+
+::
 
    DROP VIEW View_1 RESTRICT;
 
@@ -1985,17 +2330,22 @@ If the View is used by any other Object, DROP VIEW ... RESTRICT will fail.
 
 The effect of DROP VIEW <Table name> CASCADE, e.g.:
 
+::
+
    DROP VIEW View_1 CASCADE;
 
 is that the View named is destroyed.
 
 Successfully destroying a View has a three-fold effect:
-      ## The View named is destroyed.
-      ## All Privileges held on the View by the <AuthorizationID> that owns it
+
+## The View named is destroyed.
+
+## All Privileges held on the View by the <AuthorizationID> that owns it
 are revoked (by the SQL special grantor, "_SYSTEM") with a CASCADE revoke
 behaviour, so that all Privileges held on the View by any other
 <AuthorizationID> are also revoked.
-      ## All SQL routines, Views, Constraints, Assertions and Triggers that depend on the View are dropped with a CASCADE drop behaviour.
+
+## All SQL routines, Views, Constraints, Assertions and Triggers that depend on the View are dropped with a CASCADE drop behaviour.
 
 If you want to restrict your code to Core SQL, don't use the CASCADE drop behaviour for your DROP VIEW statements.
 
@@ -2006,15 +2356,17 @@ The DECLARE TABLE statement names a new declared local temporary Base table
 and defines the Table's Columns and Constraints. The required syntax for the
 DECLARE TABLE statement is:
 
-DECLARE LOCAL TEMPORARY TABLE [ MODULE. ]<Table name>
-   (<table element> [ {,<table element>}... ])
-   [ ON COMMIT {PRESERVE ROWS | DELETE ROWS} ]
+::
 
-         <table element> ::=
-         <Column definition> |
-         <Table Constraint> |
-         LIKE <Table name> |
-         <Column name> WITH OPTIONS <column option list>
+    DECLARE LOCAL TEMPORARY TABLE [ MODULE. ]<Table name>
+       (<table element> [ {,<table element>}... ])
+       [ ON COMMIT {PRESERVE ROWS | DELETE ROWS} ]
+
+             <table element> ::=
+             <Column definition> |
+             <Table Constraint> |
+             LIKE <Table name> |
+             <Column name> WITH OPTIONS <column option list>
 
 DECLARE LOCAL TEMPORARY TABLE defines a new declared local temporary Base
 table. You can only use this SQL statement within a MODULE statement. Declared
@@ -2025,7 +2377,8 @@ by an SQL-client Module during an SQL-session. Once invoked, it will only be
 visible to the Module in which it is declared -- it will not be visible to
 other users. At the end of the SQL-session, all declared temporary Tables
 invoked during the SQL-session are dropped.
-      ## The <Table name> identifies the Table and the Module that it belongs
+
+## The <Table name> identifies the Table and the Module that it belongs
 to and must be unique (for all declared local temporary Base tables) within
 the Module that owns it. Because a declared local temporary Table is distinct
 within an SQL-client Module within an SQL-session, the Schema it belongs to is
@@ -2042,6 +2395,8 @@ of table elements, such as Column and Table Constraint definitions, that are
 just like the elements we described for the CREATE TABLE statement -- see
 those descriptions for detailed information. Every temporary Table declaration
 has to contain at least one <Column definition>. Here are two equivalent examples:
+
+::
 
    DECLARE LOCAL TEMPORARY TABLE MODULE.Table_1 (
       column_1 SMALLINT,
@@ -2063,6 +2418,8 @@ is executed. If you omit the ON COMMIT clause from DECLARE LOCAL TEMPORARY
 TABLE, it defaults to ON COMMIT DELETE ROWS. For example, these two SQL
 statements are equivalent:
 
+::
+
    DECLARE LOCAL TEMPORARY TABLE Table_1 (
       column_1 SMALLINT);
 
@@ -2072,6 +2429,8 @@ statements are equivalent:
 
 Based on this Table declaration, the effect of these two SQL statements:
 
+::
+
    INSERT INTO MODULE.Table_1 (column_1) VALUES(10);
 
    COMMIT;
@@ -2080,10 +2439,14 @@ is that TABLE_1 is first materialized and has data inserted into it, and then
 the rows are deleted. That is, at COMMIT time, your DBMS effectively executes
 this SQL statement:
 
+::
+
    DELETE FROM Table_1;
 
 since the declaration of TABLE_1 states that the Table is to be emptied at
 COMMIT. On the other hand, the effect of these three SQL statements:
+
+::
 
    DECLARE LOCAL TEMPORARY TABLE Table_1 (
       column_1 SMALLINT)
