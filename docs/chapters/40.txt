@@ -6,421 +6,421 @@ Chapter 40 -- SQL/CLI Binding Style
 
 ::
 
-    SQL DBMSs communicate with SQL applications through a common programming
-    language interface that is invoked through one of the SQL Standard-defined
-    binding styles, or interface options. There are three main approaches to
-    writing complete programs with SQL:
-          ## With embedded SQL, you can put SQL statements directly into host programs. We described this binding style in the last chapter.
-          ## With the Module binding style, you can dispense with host programs
-    and write entire Modules in SQL. You'll still have to call these Modules from
-    one of the standard host languages though. We'll describe this binding style last.
-          ## With SQL/CLI, you can call a SQL DBMS's library from a host program.
-    The SQL statements you want to execute are parameters of the call. Because
-    SQL's modus operandi won't quite match the host language's, helper functions
-    are required for the interface definition. This binding style is the subject
-    of the next several chapters.
+SQL DBMSs communicate with SQL applications through a common programming
+language interface that is invoked through one of the SQL Standard-defined
+binding styles, or interface options. There are three main approaches to
+writing complete programs with SQL:
+      ## With embedded SQL, you can put SQL statements directly into host programs. We described this binding style in the last chapter.
+      ## With the Module binding style, you can dispense with host programs
+and write entire Modules in SQL. You'll still have to call these Modules from
+one of the standard host languages though. We'll describe this binding style last.
+      ## With SQL/CLI, you can call a SQL DBMS's library from a host program.
+The SQL statements you want to execute are parameters of the call. Because
+SQL's modus operandi won't quite match the host language's, helper functions
+are required for the interface definition. This binding style is the subject
+of the next several chapters.
 
-    The SQL/CLI, or Call-level Interface binding style, is defined in part three
-    of the SQL Standard. In this chapter, we'll give you an introduction to this SQL binding style.
+The SQL/CLI, or Call-level Interface binding style, is defined in part three
+of the SQL Standard. In this chapter, we'll give you an introduction to this SQL binding style.
 
-    Embedded SQL used to be the most important way of putting SQL statements into
-    application programs. Nowadays, the CLI is the most important. Not because it's simpler -- far from it! The CLI's real advantages are:
-          ## There's no precompiler (this makes debugging easier).
-          ## DLLs can be substituted (bringing the usual advantages of modularity).
-          ## ODBC -- the best-known SQL CLI -- is very popular.
+Embedded SQL used to be the most important way of putting SQL statements into
+application programs. Nowadays, the CLI is the most important. Not because it's simpler -- far from it! The CLI's real advantages are:
+      ## There's no precompiler (this makes debugging easier).
+      ## DLLs can be substituted (bringing the usual advantages of modularity).
+      ## ODBC -- the best-known SQL CLI -- is very popular.
 
-    Onward, then, to the CLI essentials. CLI stands for Call Level Interface. You
-    have probably heard of an API (Application Programming Interface), which is a
-    non-SQL name for the same sort of thing. The CLI defines a set of public
-    functions which can be called from a host language. Each function has a name,
-    a parameter list and a required algorithm (what the DBMS must do when you call it using this function).
+Onward, then, to the CLI essentials. CLI stands for Call Level Interface. You
+have probably heard of an API (Application Programming Interface), which is a
+non-SQL name for the same sort of thing. The CLI defines a set of public
+functions which can be called from a host language. Each function has a name,
+a parameter list and a required algorithm (what the DBMS must do when you call it using this function).
 
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+:local:
 
 EXAMPLE1.C
 ==========
 
 ::
 
-    Here's a short C program that uses the CLI (the prototypes and short code
-    examples that follow throughout our description of the CLI are all in C):
+Here's a short C program that uses the CLI (the prototypes and short code
+examples that follow throughout our description of the CLI are all in C):
 
-    #include "sqlcli.h"                                             /* [Note 1] */
-    SQLHENV     henv;                                               /* [Note 2] */
-    SQLHDBC     hdbc;
-    SQLHSTMT    hstmt;
-    void main ()
-    {
-      SQLAllocHandle(SQL_HANDLE_ENV,NULL,&henv);                    /* [Note 3] */
-      SQLAllocHandle(SQL_HANDLE_DBC,henv,&hdbc);
-      SQLConnect(hdbc,...,SQL_NTS);
-      SQLAllocHandle(SQL_HANDLE_HSTMT,hdbc,&hstmt);
-      SQLExecDirect(hstmt,"CREATE TABLE World(hello INT);",SQL_NTS);/* [Note 4] */
-      SQLFreeHandle(SQL_HANDLE_STMT,hstmt);                         /* [Note 5] */
-      SQLDisconnect(hdbc);
-      SQLFreeHandle(SQL_HANDLE_DBC,hdbc);
-      SQLFreeHandle(SQL_HANDLE_ENV,henv); }
+#include "sqlcli.h"                                             /* [Note 1] */
+SQLHENV     henv;                                               /* [Note 2] */
+SQLHDBC     hdbc;
+SQLHSTMT    hstmt;
+void main ()
+{
+  SQLAllocHandle(SQL_HANDLE_ENV,NULL,&henv);                    /* [Note 3] */
+  SQLAllocHandle(SQL_HANDLE_DBC,henv,&hdbc);
+  SQLConnect(hdbc,...,SQL_NTS);
+  SQLAllocHandle(SQL_HANDLE_HSTMT,hdbc,&hstmt);
+  SQLExecDirect(hstmt,"CREATE TABLE World(hello INT);",SQL_NTS);/* [Note 4] */
+  SQLFreeHandle(SQL_HANDLE_STMT,hstmt);                         /* [Note 5] */
+  SQLDisconnect(hdbc);
+  SQLFreeHandle(SQL_HANDLE_DBC,hdbc);
+  SQLFreeHandle(SQL_HANDLE_ENV,henv); }
 
-    This sample program has all the necessary CLI ingredients. It will take
-    several pages to say how they all work, but the main points are noted in the
-    code as follows:
-          ## [Note 1]: Include the SQL/CLI header file. The standard name is
-    "sqlcli.h" but you might see this statement -- include "sql.h" -- instead. The
-    header file has the prototypes of all the CLI functions and #defines for all
-    the constants. The function names begin with SQL and the constant names begin
-    with SQL_ -- that's the convention in C programs. You can program standard SQL
-    without following this convention, but it seems reasonable to follow it.
-          ## [Note 2]: Variable declarations. The convention this time is: h
-    stands for handle -- so a henv is a handle of an env, a hdbc is a handle of a
-    dbc and a hstmt is a handle of a stmt. And now, since those abbreviated words
-    will appear many times in the next 200 pages, we'd advise you to memorize
-    them:
-                ## env is an "allocated thing [resource] used for an environment".
-                ## dbc is an "allocated thing [resource] used for a database connection".
-                ## stmt is an "allocated thing [resource] used for a statement".
-    For the record, the Standard's usual names for env, dbc and stmt are
-    "allocated SQL-environment", "allocated SQL-connection" and "allocated
-    SQL-statement", respectively. We will always use the abbreviations because
-    they are what appear in sqlcli.h, and in all programs. Besides, we believe
-    it's crazy to call a stmt a statement -- a stmt is a RESOURCE; a statement is
-    a STRING. Let's not confuse the peanut with the shell. As it happens, the
-    sqlcli.h header file has "typedef"s for SQLHENV and the other handles: they're
-    all 32-bit integers. Other important typedefs are SQLINTEGER ("long int"),
-    SQLSMALLINT ("short int"), SQLCHAR ("char") and SQLRETURN ("short int", used
-    for return codes only). Using, say, "SQLINTEGER x" in a program rather than
-    "long int x" helps make it clear that "x" will see use in an SQL function.
-          ## [Note 3]: Setup functions. The bare minimum procedure involves making
-    an env, making a dbc, connecting using the dbc and making a stmt. Notice the
-    &s in the program code: these are "output" parameters ("output" from the DBMS
-    point of view). They're passed by address because the DBMS fills in the values for them.
-          ## [Note 4]: Meat. The only actual SQL-language statement in our program
-    is a string argument for a CLI function call. This is the actual database work.
-          ## [Note 5]: Tear-down functions. In a reverse of the setup procedure,
-    we call functions for destroying a stmt, disconnecting using the dbc,
-    destroying the dbc and destroying the env. Notice that every function call
-    used a handle -- that's normal. Doubtless the DBMS is merely malloc'ing a bit
-    of memory for each of our "allocated things", but we can't access the fields
-    directly. Instead, we use a henv or a hdbc or a hstmt.
+This sample program has all the necessary CLI ingredients. It will take
+several pages to say how they all work, but the main points are noted in the
+code as follows:
+      ## [Note 1]: Include the SQL/CLI header file. The standard name is
+"sqlcli.h" but you might see this statement -- include "sql.h" -- instead. The
+header file has the prototypes of all the CLI functions and #defines for all
+the constants. The function names begin with SQL and the constant names begin
+with SQL_ -- that's the convention in C programs. You can program standard SQL
+without following this convention, but it seems reasonable to follow it.
+      ## [Note 2]: Variable declarations. The convention this time is: h
+stands for handle -- so a henv is a handle of an env, a hdbc is a handle of a
+dbc and a hstmt is a handle of a stmt. And now, since those abbreviated words
+will appear many times in the next 200 pages, we'd advise you to memorize
+them:
+            ## env is an "allocated thing [resource] used for an environment".
+            ## dbc is an "allocated thing [resource] used for a database connection".
+            ## stmt is an "allocated thing [resource] used for a statement".
+For the record, the Standard's usual names for env, dbc and stmt are
+"allocated SQL-environment", "allocated SQL-connection" and "allocated
+SQL-statement", respectively. We will always use the abbreviations because
+they are what appear in sqlcli.h, and in all programs. Besides, we believe
+it's crazy to call a stmt a statement -- a stmt is a RESOURCE; a statement is
+a STRING. Let's not confuse the peanut with the shell. As it happens, the
+sqlcli.h header file has "typedef"s for SQLHENV and the other handles: they're
+all 32-bit integers. Other important typedefs are SQLINTEGER ("long int"),
+SQLSMALLINT ("short int"), SQLCHAR ("char") and SQLRETURN ("short int", used
+for return codes only). Using, say, "SQLINTEGER x" in a program rather than
+"long int x" helps make it clear that "x" will see use in an SQL function.
+      ## [Note 3]: Setup functions. The bare minimum procedure involves making
+an env, making a dbc, connecting using the dbc and making a stmt. Notice the
+&s in the program code: these are "output" parameters ("output" from the DBMS
+point of view). They're passed by address because the DBMS fills in the values for them.
+      ## [Note 4]: Meat. The only actual SQL-language statement in our program
+is a string argument for a CLI function call. This is the actual database work.
+      ## [Note 5]: Tear-down functions. In a reverse of the setup procedure,
+we call functions for destroying a stmt, disconnecting using the dbc,
+destroying the dbc and destroying the env. Notice that every function call
+used a handle -- that's normal. Doubtless the DBMS is merely malloc'ing a bit
+of memory for each of our "allocated things", but we can't access the fields
+directly. Instead, we use a henv or a hdbc or a hstmt.
 
 SQLCHAR, SQLINTEGER and other typedefs
 ======================================
 
 ::
 
-    Here are the type definitions in the sqlcli.h header file. We use these names for declarations of C variables in all our examples.
+Here are the type definitions in the sqlcli.h header file. We use these names for declarations of C variables in all our examples.
 
-    typedef unsigned char  SQLCHAR;      /* 8-bit-octet strings */
-    typedef long int       SQLINTEGER;   /* 32-bit, signed */
-    typedef short int      SQLSMALLINT;  /* 16-bit, signed */
-    typedef float          SQLREAL;      /* see heading: IEEE */
-    typedef double         SQLDOUBLE;    /* see heading: IEEE */
-    typedef void*          SQLPOINTER;   /* pointer, untyped */
-    typedef long int       SQLHENV;      /* 32-bit env handle */
-    typedef long int       SQLHDBC;      /* 32-bit dbc handle */
-    typedef long int       SQLHSTMT;     /* 32-bit hstmt handle */
-    typedef long int       SQLHDESC;     /* 32-bit desc handle */
+typedef unsigned char  SQLCHAR;      /* 8-bit-octet strings */
+typedef long int       SQLINTEGER;   /* 32-bit, signed */
+typedef short int      SQLSMALLINT;  /* 16-bit, signed */
+typedef float          SQLREAL;      /* see heading: IEEE */
+typedef double         SQLDOUBLE;    /* see heading: IEEE */
+typedef void*          SQLPOINTER;   /* pointer, untyped */
+typedef long int       SQLHENV;      /* 32-bit env handle */
+typedef long int       SQLHDBC;      /* 32-bit dbc handle */
+typedef long int       SQLHSTMT;     /* 32-bit hstmt handle */
+typedef long int       SQLHDESC;     /* 32-bit desc handle */
 
-    Note: In the ODBC 3.0 header file, SQLHENV and SQLHDBC and SQLHSTMT and
-    SQLHDESC are all "typedef void*" instead of "typedef long int". In older
-    versions of the ODBC header file, the names were HENV, HDBC, HSTMT, etc.
+Note: In the ODBC 3.0 header file, SQLHENV and SQLHDBC and SQLHSTMT and
+SQLHDESC are all "typedef void*" instead of "typedef long int". In older
+versions of the ODBC header file, the names were HENV, HDBC, HSTMT, etc.
 
 SQLRETURN
 =========
 
 ::
 
-    All CLI functions return a 16-bit value. We refer to this value as the SQLRETURN value because sqlcli.h contains this line:
+All CLI functions return a 16-bit value. We refer to this value as the SQLRETURN value because sqlcli.h contains this line:
 
-      typedef SQLSMALLINT SQLRETURN;
+  typedef SQLSMALLINT SQLRETURN;
 
-    In standard SQL there are only six possible SQLRETURN values:
-          ## -2 "invalid handle".
-          ## -1 "error".
-          ## 0 "success".
-          ## 1 "success with info".
-          ## 99 "need data".
-          ## 100 "no data".
+In standard SQL there are only six possible SQLRETURN values:
+      ## -2 "invalid handle".
+      ## -1 "error".
+      ## 0 "success".
+      ## 1 "success with info".
+      ## 99 "need data".
+      ## 100 "no data".
 
-    Programs should check these values, but for space reasons we leave SQLRETURN out of many of our examples.
+Programs should check these values, but for space reasons we leave SQLRETURN out of many of our examples.
 
 Handle relationships
 ====================
 
 ::
 
-    A handle is a 32-bit integer which can be used as a unique identifier of a
-    "resource". The following chart shows all the resources which have handles.
-    The relationships between resources are either optional ("zero-to-many" --
-    shown with double arrows) or mandatory (either "one-to-one" or "zero-to-one" -- shown with single arrows).
+A handle is a 32-bit integer which can be used as a unique identifier of a
+"resource". The following chart shows all the resources which have handles.
+The relationships between resources are either optional ("zero-to-many" --
+shown with double arrows) or mandatory (either "one-to-one" or "zero-to-one" -- shown with single arrows).
 
-    env
-    ||
-    vv
-    dbc --------------->
-    ||                 ||
-    ||                 vv
-    ||                 desc
-    vv
-    stmt---->------->------->
-    |       |       |       |
-    v       v       v       v
-    ARD     APD     IRD     IPD
-    (desc)  (desc)  (desc)  (desc)
+env
+||
+vv
+dbc --------------->
+||                 ||
+||                 vv
+||                 desc
+vv
+stmt---->------->------->
+|       |       |       |
+v       v       v       v
+ARD     APD     IRD     IPD
+(desc)  (desc)  (desc)  (desc)
 
 How to run example programs
 ===========================
 
 ::
 
-    This book contains several example programs that we use to illustrate the
-    SQL/CLI. Each example program is also included on the CD that came with this
-    book, numbered in order of appearance (for example the "example C program"
-    shown earlier is example1.c). To try out any of the example programs, follow these steps.
+This book contains several example programs that we use to illustrate the
+SQL/CLI. Each example program is also included on the CD that came with this
+book, numbered in order of appearance (for example the "example C program"
+shown earlier is example1.c). To try out any of the example programs, follow these steps.
 
-    If you use Microsoft Windows 3.x:
-          ## Copy these files from the CD to your working directory: OCELOT16.DLL, OCELOT16.LIB, SQLCLI.H and the C program file.
-          ## Using a standard-C package, compile and link. For example, this is a sequence for Borland C++ version 3.1 (with the MS-DOS command line):
-    path=c:\borlandc\bin;c:\borlandc\lib;c:\borlandc\include
-    bcc /I\borlandc\include /L\borlandc\lib /W /M /N /ml example1.c ocelot16.lib
-          ## Run the program from the MS-DOS command line.
+If you use Microsoft Windows 3.x:
+      ## Copy these files from the CD to your working directory: OCELOT16.DLL, OCELOT16.LIB, SQLCLI.H and the C program file.
+      ## Using a standard-C package, compile and link. For example, this is a sequence for Borland C++ version 3.1 (with the MS-DOS command line):
+path=c:\borlandc\bin;c:\borlandc\lib;c:\borlandc\include
+bcc /I\borlandc\include /L\borlandc\lib /W /M /N /ml example1.c ocelot16.lib
+      ## Run the program from the MS-DOS command line.
 
-    If you use Microsoft Windows 95:
-          ## Copy these files from the diskette to your working directory: OCELOT32.DLL, OCELOT32.LIB, SQLCLI.H and the C program file.
-          ## Using a standard-C package, compile and link. For example, this is a sequence for Symantec C++ version 7.0 (with the MS-DOS command line):
-    path=c:\sc\bin;c:\sc\lib;c:\sc\include
-    sc /I\sc\include /WA /g /mn /s /L/M example1.c kernel32.lib ocelot32.lib
-          ## Run the program from the MS-DOS command line.
+If you use Microsoft Windows 95:
+      ## Copy these files from the diskette to your working directory: OCELOT32.DLL, OCELOT32.LIB, SQLCLI.H and the C program file.
+      ## Using a standard-C package, compile and link. For example, this is a sequence for Symantec C++ version 7.0 (with the MS-DOS command line):
+path=c:\sc\bin;c:\sc\lib;c:\sc\include
+sc /I\sc\include /WA /g /mn /s /L/M example1.c kernel32.lib ocelot32.lib
+      ## Run the program from the MS-DOS command line.
 
-    Recommendation: Add your own screen-display statements so you'll see the
-    values of program variables when you run the program. If there's a CLI
-    function that you want to get experience with, put it into your own program,
-    link with the library supplied with this book, and run. As well as being good
-    practice, this will help you learn what is NOT standard SQL, since we
-    deliberately kept out "implementation-defined" features when we wrote this DBMS.
+Recommendation: Add your own screen-display statements so you'll see the
+values of program variables when you run the program. If there's a CLI
+function that you want to get experience with, put it into your own program,
+link with the library supplied with this book, and run. As well as being good
+practice, this will help you learn what is NOT standard SQL, since we
+deliberately kept out "implementation-defined" features when we wrote this DBMS.
 
 "Standard SQL CLI" equals "Core ODBC API"
 =========================================
 
 ::
 
-    History: Microsoft published the ODBC 1.0 specification in 1992. It became
-    popular. Soon there were supporting interfaces for all the major DBMSs that
-    worked under Microsoft Windows. ODBC became a de facto standard specification
-    for calling SQL from host programs without a precompiler. The ISO Standard CLI
-    came out in 1995. The influence of ODBC on the standard CLI is apparent in
-    almost every routine. Indeed, it sometimes is hard to understand the official
-    Standard document without studying Microsoft's ODBC manual too. On its part,
-    Microsoft made major changes in ODBC 3.0 (1998). They added several new
-    functions and deprecated several old ones, in order to get closer to the SQL
-    Standard. Microsoft's ODBC 3.0 manual makes these claims:
+History: Microsoft published the ODBC 1.0 specification in 1992. It became
+popular. Soon there were supporting interfaces for all the major DBMSs that
+worked under Microsoft Windows. ODBC became a de facto standard specification
+for calling SQL from host programs without a precompiler. The ISO Standard CLI
+came out in 1995. The influence of ODBC on the standard CLI is apparent in
+almost every routine. Indeed, it sometimes is hard to understand the official
+Standard document without studying Microsoft's ODBC manual too. On its part,
+Microsoft made major changes in ODBC 3.0 (1998). They added several new
+functions and deprecated several old ones, in order to get closer to the SQL
+Standard. Microsoft's ODBC 3.0 manual makes these claims:
 
-    "ODBC aligns with the following specifications and standards that deal with the Call-Level Interface (CLI). (ODBC's features are a superset of each of these standards.)
-      -- The X/Open CAE Specification "Data Management: SQL Call-Level Interface (CLI)
-      -- ISO/IEC 9075-3:1995 (E) Call-Level Interface (SQL/CLI)
+"ODBC aligns with the following specifications and standards that deal with the Call-Level Interface (CLI). (ODBC's features are a superset of each of these standards.)
+  -- The X/Open CAE Specification "Data Management: SQL Call-Level Interface (CLI)
+  -- ISO/IEC 9075-3:1995 (E) Call-Level Interface (SQL/CLI)
 
-    As a result of this alignment, the following are true:
-      -- An application written to the X/Open and ISO CLI specifications will work
-    with an ODBC 3.0 driver or a standards-compliant driver when it is compiled
-    with the ODBC 3.0 header files and linked with ODBC 3.0 libraries, and when it
-    gains access to the driver through the ODBC 3.0 Driver Manager.
-      -- A driver written to the X/Open and ISO CLI specifications will work with
-    an ODBC 3.0 application or a standards-compliant application when it is
-    compiled with the ODBC 3.0 header files and linked with ODBC 3.0 libraries,
-    and when the application gains access to the driver through the ODBC 3.0 Driver Manager.
+As a result of this alignment, the following are true:
+  -- An application written to the X/Open and ISO CLI specifications will work
+with an ODBC 3.0 driver or a standards-compliant driver when it is compiled
+with the ODBC 3.0 header files and linked with ODBC 3.0 libraries, and when it
+gains access to the driver through the ODBC 3.0 Driver Manager.
+  -- A driver written to the X/Open and ISO CLI specifications will work with
+an ODBC 3.0 application or a standards-compliant application when it is
+compiled with the ODBC 3.0 header files and linked with ODBC 3.0 libraries,
+and when the application gains access to the driver through the ODBC 3.0 Driver Manager.
 
-    The Core interface conformance level encompasses all the features in the ISO
-    CLI and all the non-optional features in the X/Open CLI. Optional features of
-    the X/Open CLI appear in higher interface conformance levels. Because all ODBC
-    3.0 drivers are required to support the features in the Core interface
-    conformance level, the following are true:
-      -- An ODBC 3.0 driver will support all the features used by a standards-compliant application.
-      -- An ODBC 3.0 application using only the features in ISO CLI and the non-optional features of the X/Open CLI will work with any standards-compliant driver."
+The Core interface conformance level encompasses all the features in the ISO
+CLI and all the non-optional features in the X/Open CLI. Optional features of
+the X/Open CLI appear in higher interface conformance levels. Because all ODBC
+3.0 drivers are required to support the features in the Core interface
+conformance level, the following are true:
+  -- An ODBC 3.0 driver will support all the features used by a standards-compliant application.
+  -- An ODBC 3.0 application using only the features in ISO CLI and the non-optional features of the X/Open CLI will work with any standards-compliant driver."
 
-    Whoa! The SQL Standard CLI isn't quite as close to Core ODBC as Microsoft is
-    suggesting. There are a few incompatibilities in names, there are two
-    differences in prototype definitions (of SQLColumnAttr and SQLGetInfo) and
-    ODBC's default behaviour for "commits" is sui generis. But we'll note those
-    bugs as we step on them. Once you know what they are, you'll be able to adjust.
+Whoa! The SQL Standard CLI isn't quite as close to Core ODBC as Microsoft is
+suggesting. There are a few incompatibilities in names, there are two
+differences in prototype definitions (of SQLColumnAttr and SQLGetInfo) and
+ODBC's default behaviour for "commits" is sui generis. But we'll note those
+bugs as we step on them. Once you know what they are, you'll be able to adjust.
 
-    Since this is a book on the SQL Standard, our chapters on the CLI won't show
-    you the various extra features that appear in ODBC but not in the standard
-    CLI. And we note only once -- now -- that any feature which is marked "SQL3" is a feature of the standard CLI but not necessarily of ODBC.
+Since this is a book on the SQL Standard, our chapters on the CLI won't show
+you the various extra features that appear in ODBC but not in the standard
+CLI. And we note only once -- now -- that any feature which is marked "SQL3" is a feature of the standard CLI but not necessarily of ODBC.
 
 How Each CLI Function Will Be Described
 =======================================
 
 ::
 
-    In these chapters, we will describe each CLI function separately. We've put
-    them in order according to this rule: if we can't describe A without knowing
-    about B, then B should come before A. This means that some tedious minor
-    functions precede some important ones, but the advantage is that you can read
-    from front to back. Better to slog, rather than jump around.
+In these chapters, we will describe each CLI function separately. We've put
+them in order according to this rule: if we can't describe A without knowing
+about B, then B should come before A. This means that some tedious minor
+functions precede some important ones, but the advantage is that you can read
+from front to back. Better to slog, rather than jump around.
 
-    The structure of each CLI-function description is semi-rigid. You can expect
-    to find these things, in this order:
-          ## Function prototype. This is the prototype as it appears in the header
-    file, sqlcli.h. It gives a quick idea of what the function's name is and what
-    <data type>s the parameters have. There is a comment beside each parameter
-    indicating whether it's an "input" parameter (its value goes from the
-    application to the DBMS) or an "output" parameter (its value goes from the DBMS to the application).
-          ## Job. A one-sentence description of what the function is for. This may
-    be followed by an indication of whether the function is essential or not.
-    Several functions are obsolete or redundant, so you can skip the details on
-    your first pass through these chapters.
-          ## Algorithm. Exactly what does the DBMS do with this function? This
-    section is in a sort of pseudocode. We're trying to make the instructions
-    readable, but we won't spare you from mind-numbing (but necessary) details.
-          ## Notes. Whatever strikes us as worthy of remark about a function.
-          ## Example. A code snippet written in C. Usually the example will be an
-    incomplete program, with ... to indicate that we haven't repeated stuff which
-    doesn't advance the story. Most commonly, we leave out the "setup" and "tear-
-    down" phases illustrated in the example program shown at the beginning of this chapter.
-          ## ODBC. Anything that relates specifically to ODBC, but not to the
-    standard CLI. If a standard CLI procedure doesn't exactly match the ODBC spec,
-    it gets noted here. If ODBC has a truly significant feature that is not in the standard CLI, we mention it curtly.
+The structure of each CLI-function description is semi-rigid. You can expect
+to find these things, in this order:
+      ## Function prototype. This is the prototype as it appears in the header
+file, sqlcli.h. It gives a quick idea of what the function's name is and what
+<data type>s the parameters have. There is a comment beside each parameter
+indicating whether it's an "input" parameter (its value goes from the
+application to the DBMS) or an "output" parameter (its value goes from the DBMS to the application).
+      ## Job. A one-sentence description of what the function is for. This may
+be followed by an indication of whether the function is essential or not.
+Several functions are obsolete or redundant, so you can skip the details on
+your first pass through these chapters.
+      ## Algorithm. Exactly what does the DBMS do with this function? This
+section is in a sort of pseudocode. We're trying to make the instructions
+readable, but we won't spare you from mind-numbing (but necessary) details.
+      ## Notes. Whatever strikes us as worthy of remark about a function.
+      ## Example. A code snippet written in C. Usually the example will be an
+incomplete program, with ... to indicate that we haven't repeated stuff which
+doesn't advance the story. Most commonly, we leave out the "setup" and "tear-
+down" phases illustrated in the example program shown at the beginning of this chapter.
+      ## ODBC. Anything that relates specifically to ODBC, but not to the
+standard CLI. If a standard CLI procedure doesn't exactly match the ODBC spec,
+it gets noted here. If ODBC has a truly significant feature that is not in the standard CLI, we mention it curtly.
 
-    Having said that, let's get on with the descriptions. Here's a quick list of
-    the 62 standard CLI functions:
+Having said that, let's get on with the descriptions. Here's a quick list of
+the 62 standard CLI functions:
 
-    NAME                 CATEGORY     FUNCTION
-    SQLAllocConnect      dbc          Obsolescent: Make a dbc
-    SQLAllocEnv          env          Obsolescent: Make an env
-    SQLAllocHandle       dbc,env,stmt Essential: Make env, dbc, stmt or desc
-    SQLAllocStmt         stmt         Obsolescent: Make a stmt
-    SQLBindCol           desc         Useful: Associate Column descriptor to stmt
-    SQLBindParameter     desc         Useful: Associate parameter to stmt
-    SQLCancel            D parameters Minor: Stop unfinished statement execution
-    SQLCloseCursor       Cursors      Essential: Close cursor
-    SQLColAttribute      desc         Useful: Get info re result set structure
-    SQLColumnPrivileges  Catalog      Junk: Get metadata re Column privileges
-    SQLColumns           Catalog      Junk: Get metadata re Columns
-    SQLConnect           dbc          Essential: Connect to SQL-server/database
-    SQLCopyDesc          desc         Minor: Make copy of descriptor
-    SQLDataSources       general      Minor: List available servers
-    SQLDescribeCol       desc         Useful: Get info re result set structure
-    SQLDisconnect        dbc          Essential: Disconnect SQL-server/database
-    SQLEndTran           Statements   Essential: Commit or Rollback
-    SQLError             Diagnostics  Obsolete: Get diagnostics information
-    SQLExecDirect        Statements   Useful: Prepare + Execute a statement
-    SQLExecute           Statements   Essential: Execute a prepared statement
-    SQLFetch             Cursors      Useful: Bring in next result-set row
-    SQLFetchScroll       Cursors      Essential: Bring in any result-set row
-    SQLForeignKeys       Catalog      Junk: Get metadata re foreign keys
-    SQLFreeConnect       dbc          Obsolescent: Destroy dbc
-    SQLFreeEnv           env          Obsolescent: Destroy env
-    SQLFreeHandle        Handles      Essential: Destroy env, dbc, stmt or desc
-    SQLFreeStmt          stmt         Obsolescent: Destroy stmt and other things
-    SQLGetConnectAttr    dbc          Useless: Get attribute of dbc
-    SQLGetCursorName     Cursors      Minor: Get Cursor name
-    SQLGetData           desc         Useful: Get value from result set
-    SQLGetDescField      desc         Essential: Get 1 desc field
-    SQLGetDescRec        desc         Useful: Get 7 desc fields
-    SQLGetDiagField      Diagnostics  Essential: Get diagnostics information
-    SQLGetDiagRec        Diagnostics  Useful:  Get diagnostics information
-    SQLGetEnvAttr        env          Minor: Get attribute of env
-    SQLGetFunctions      general      Minor: List CLI functions supported
-    SQLGetInfo           general      Essential: Get attribute of dbc etc.
-    SQLGetLength         locator      Minor: Length of CLOB/BLOB
-    SQLGetParamData      desc         Minor: Get data from procedure parameters
-    SQLGetPosition       locator      Minor: Indicate substring start position
-    SQLGetStmtAttr       stmt         Essential: Get attribute of stmt
-    SQLGetSubstring      locator      Minor: Get portion of CLOB/BLOB
-    SQLGetTypeInfo       Catalog      Junk: Get metadata re data types
-    SQLMoreResults       Cursors      Minor: See if more result sets
-    SQLNumResultCols     desc         Useful: Get selected-Column count
-    SQLParamData         D parameters Minor: For passing data piecemeal
-    SQLParameters        Catalog      Junk: Get metadata re parameters
-    SQLPrepare           Statements   Essential: Prepare a statement
-    SQLPrimaryKeys       Catalog      Junk: Get metadata re primary keys
-    SQLPutData           D parameters Minor: For passing data piecemeal
-    SQLRoutinePrivileges Catalog      Junk: Get metadata re Privileges
-    SQLRoutines          Catalog      Junk: Get metadata re routines
-    SQLRowCount          Diagnostics  Useful:  Get affected-rows count
-    SQLSetConnectAttr    dbc          Useless: Change dbc attribute
-    SQLSetCursorName     Cursors      Essential: Change Cursor name
-    SQLSetDescField      desc         Essential:  Change 1 desc field
-    SQLSetDescRec        desc         Useful: Change 7 desc fields
-    SQLSetEnvAttr        env          Useless: Change env attribute
-    SQLSetStmtAttr       stmt         Useful: Change stmt attribute
-    SQLSpecialColumns    Catalog      Junk: Get metadata re search Columns
-    SQLTablePrivileges   Catalog      Junk: Get metadata re Table Privileges
-    SQLTables            Catalog      Junk: Get metadata re Tables
+NAME                 CATEGORY     FUNCTION
+SQLAllocConnect      dbc          Obsolescent: Make a dbc
+SQLAllocEnv          env          Obsolescent: Make an env
+SQLAllocHandle       dbc,env,stmt Essential: Make env, dbc, stmt or desc
+SQLAllocStmt         stmt         Obsolescent: Make a stmt
+SQLBindCol           desc         Useful: Associate Column descriptor to stmt
+SQLBindParameter     desc         Useful: Associate parameter to stmt
+SQLCancel            D parameters Minor: Stop unfinished statement execution
+SQLCloseCursor       Cursors      Essential: Close cursor
+SQLColAttribute      desc         Useful: Get info re result set structure
+SQLColumnPrivileges  Catalog      Junk: Get metadata re Column privileges
+SQLColumns           Catalog      Junk: Get metadata re Columns
+SQLConnect           dbc          Essential: Connect to SQL-server/database
+SQLCopyDesc          desc         Minor: Make copy of descriptor
+SQLDataSources       general      Minor: List available servers
+SQLDescribeCol       desc         Useful: Get info re result set structure
+SQLDisconnect        dbc          Essential: Disconnect SQL-server/database
+SQLEndTran           Statements   Essential: Commit or Rollback
+SQLError             Diagnostics  Obsolete: Get diagnostics information
+SQLExecDirect        Statements   Useful: Prepare + Execute a statement
+SQLExecute           Statements   Essential: Execute a prepared statement
+SQLFetch             Cursors      Useful: Bring in next result-set row
+SQLFetchScroll       Cursors      Essential: Bring in any result-set row
+SQLForeignKeys       Catalog      Junk: Get metadata re foreign keys
+SQLFreeConnect       dbc          Obsolescent: Destroy dbc
+SQLFreeEnv           env          Obsolescent: Destroy env
+SQLFreeHandle        Handles      Essential: Destroy env, dbc, stmt or desc
+SQLFreeStmt          stmt         Obsolescent: Destroy stmt and other things
+SQLGetConnectAttr    dbc          Useless: Get attribute of dbc
+SQLGetCursorName     Cursors      Minor: Get Cursor name
+SQLGetData           desc         Useful: Get value from result set
+SQLGetDescField      desc         Essential: Get 1 desc field
+SQLGetDescRec        desc         Useful: Get 7 desc fields
+SQLGetDiagField      Diagnostics  Essential: Get diagnostics information
+SQLGetDiagRec        Diagnostics  Useful:  Get diagnostics information
+SQLGetEnvAttr        env          Minor: Get attribute of env
+SQLGetFunctions      general      Minor: List CLI functions supported
+SQLGetInfo           general      Essential: Get attribute of dbc etc.
+SQLGetLength         locator      Minor: Length of CLOB/BLOB
+SQLGetParamData      desc         Minor: Get data from procedure parameters
+SQLGetPosition       locator      Minor: Indicate substring start position
+SQLGetStmtAttr       stmt         Essential: Get attribute of stmt
+SQLGetSubstring      locator      Minor: Get portion of CLOB/BLOB
+SQLGetTypeInfo       Catalog      Junk: Get metadata re data types
+SQLMoreResults       Cursors      Minor: See if more result sets
+SQLNumResultCols     desc         Useful: Get selected-Column count
+SQLParamData         D parameters Minor: For passing data piecemeal
+SQLParameters        Catalog      Junk: Get metadata re parameters
+SQLPrepare           Statements   Essential: Prepare a statement
+SQLPrimaryKeys       Catalog      Junk: Get metadata re primary keys
+SQLPutData           D parameters Minor: For passing data piecemeal
+SQLRoutinePrivileges Catalog      Junk: Get metadata re Privileges
+SQLRoutines          Catalog      Junk: Get metadata re routines
+SQLRowCount          Diagnostics  Useful:  Get affected-rows count
+SQLSetConnectAttr    dbc          Useless: Change dbc attribute
+SQLSetCursorName     Cursors      Essential: Change Cursor name
+SQLSetDescField      desc         Essential:  Change 1 desc field
+SQLSetDescRec        desc         Useful: Change 7 desc fields
+SQLSetEnvAttr        env          Useless: Change env attribute
+SQLSetStmtAttr       stmt         Useful: Change stmt attribute
+SQLSpecialColumns    Catalog      Junk: Get metadata re search Columns
+SQLTablePrivileges   Catalog      Junk: Get metadata re Table Privileges
+SQLTables            Catalog      Junk: Get metadata re Tables
 
-    And that concludes our brief introduction to the CLI. Before we begin
-    describing each of the functions in this list in detail, though, we'll show
-    you a sample function description, using a common CLI function subroutine -- CharacterStringRetrieval.
+And that concludes our brief introduction to the CLI. Before we begin
+describing each of the functions in this list in detail, though, we'll show
+you a sample function description, using a common CLI function subroutine -- CharacterStringRetrieval.
 
 CharacterStringRetrieval
 ========================
 
 ::
 
-    Function Prototype:
-      void CharacterStringRetrieval (
-        SQLCHAR *Target,                  /* CHAR* output */
-        SQLCHAR *Source,                  /* CHAR* input */
-        SQLINTEGER MaxTargetOctetLength,  /* 32-bit output */
-        SQLINTEGER *SourceOctetLength     /* 32-bit output */
-        );
+Function Prototype:
+  void CharacterStringRetrieval (
+    SQLCHAR *Target,                  /* CHAR* output */
+    SQLCHAR *Source,                  /* CHAR* input */
+    SQLINTEGER MaxTargetOctetLength,  /* 32-bit output */
+    SQLINTEGER *SourceOctetLength     /* 32-bit output */
+    );
 
-    Job:
-    The common subroutine for Character String Retrieval appears in 24 CLI
-    functions. You don't directly call it, but you see the effects. We thought
-    this would be a  good way to introduce the format we use for CLI function
-    descriptions.
+Job:
+The common subroutine for Character String Retrieval appears in 24 CLI
+functions. You don't directly call it, but you see the effects. We thought
+this would be a  good way to introduce the format we use for CLI function
+descriptions.
 
-    Algorithm:
-          If (MaxTargetOctetLength <= 0)
-            return error: HY090 CLI-specific condition-invalid string length or buffer length
-          If (SourceOctetLength is not a null pointer)
-            /* We set *SourceOctetLength = the size of the source string, even if we don't actually copy the entire source to target. */
-            Set *ReturnedOctetLength = strlen (Value)
-          If (we don't use null-termination in this environment)
-            /* In COBOL or FORTRAN you wouldn't expect null-termination, since strings don't end with a '\0' in those languages. But we never take this path. */
-          Else
-            /* In C, and also in Pascal, strings end with '\0'. We'll assume null-termination then. But now you're aware that it's a characteristic of the host language we're using, not a requirement of standard SQL. */
-            If (we're using WideChar i.e. 16 bits per character)
-              sizeof(null-terminator) = 2
-            Else sizeof(null-terminator) = 1
-            Set # of octets to copy = MaxTargetOctetLength-sizeof(null-terminator)
-            If (# of octets to copy < 0)
-              /* Put out '\0' if possible, but there's no room for copying */
-            Else
-              If (# of octets to copy > strlen(Source))
-                Set # of octets to copy = strlen(source)
-                Copy:
-                  Set # of octets to copy=strlen(Source) - sizeof(null-terminator)
-                  From: Source
-                  To: Target
-              Append null-terminator to Target.
-            If (strlen(Target) < Strlen(Source)
-              warning - string data, right truncation
+Algorithm:
+      If (MaxTargetOctetLength <= 0)
+        return error: HY090 CLI-specific condition-invalid string length or buffer length
+      If (SourceOctetLength is not a null pointer)
+        /* We set *SourceOctetLength = the size of the source string, even if we don't actually copy the entire source to target. */
+        Set *ReturnedOctetLength = strlen (Value)
+      If (we don't use null-termination in this environment)
+        /* In COBOL or FORTRAN you wouldn't expect null-termination, since strings don't end with a '\0' in those languages. But we never take this path. */
+      Else
+        /* In C, and also in Pascal, strings end with '\0'. We'll assume null-termination then. But now you're aware that it's a characteristic of the host language we're using, not a requirement of standard SQL. */
+        If (we're using WideChar i.e. 16 bits per character)
+          sizeof(null-terminator) = 2
+        Else sizeof(null-terminator) = 1
+        Set # of octets to copy = MaxTargetOctetLength-sizeof(null-terminator)
+        If (# of octets to copy < 0)
+          /* Put out '\0' if possible, but there's no room for copying */
+        Else
+          If (# of octets to copy > strlen(Source))
+            Set # of octets to copy = strlen(source)
+            Copy:
+              Set # of octets to copy=strlen(Source) - sizeof(null-terminator)
+              From: Source
+              To: Target
+          Append null-terminator to Target.
+        If (strlen(Target) < Strlen(Source)
+          warning - string data, right truncation
 
-    Notes:
-          ## The idea is simply to copy the *Source string to the *Target string,
-    but there's a safeguard against overflowing *Target (that's why we pass
-    MaxTargetOctetLength) and there's a place to store the original size (that's
-    why we pass *ReturnedOctetLength).
-          ## The *Target string will always be null-terminated, unless TargetOctetLength=0.
-          ## There are variations of this routine where ...OctetLength is 16-bit.
-          ## There is a slight variation of this routine for BLOB retrieval: it works the same way, but ignores anything to do with null terminators.
-          ## CharacterStringRetrieval(target,source,max,&sourcelength) is expressible using the standard-C <string.h> function strxfrm: sourcelength = strxfrm(target,source,max);
+Notes:
+      ## The idea is simply to copy the *Source string to the *Target string,
+but there's a safeguard against overflowing *Target (that's why we pass
+MaxTargetOctetLength) and there's a place to store the original size (that's
+why we pass *ReturnedOctetLength).
+      ## The *Target string will always be null-terminated, unless TargetOctetLength=0.
+      ## There are variations of this routine where ...OctetLength is 16-bit.
+      ## There is a slight variation of this routine for BLOB retrieval: it works the same way, but ignores anything to do with null terminators.
+      ## CharacterStringRetrieval(target,source,max,&sourcelength) is expressible using the standard-C <string.h> function strxfrm: sourcelength = strxfrm(target,source,max);
 
-    Example:
-          / * SPECIMEN ONLY -- you don't really want to call this function */
-          #include "sqlcli.h"     /* includes definitions of SQL... stuff */
-          SQLCHAR target[100];    /* SQLCHAR is 8-bit ISO if Windows98 */
-          SQLINTEGER returnsize;  /* SQLINTEGER is always 32-bit signed */
-          ...
-          CharacterStringRetrieval(target,"ABC",5,&returnsize);
-          /* Now target has: ABC\0 and returnsize = 5. */
-          ...
-          CharacterStringRetrieval(target,"ABC",3,&returnsize);
-          /* Now target has: AB\0 and returnsize = 2. */
+Example:
+      / * SPECIMEN ONLY -- you don't really want to call this function */
+      #include "sqlcli.h"     /* includes definitions of SQL... stuff */
+      SQLCHAR target[100];    /* SQLCHAR is 8-bit ISO if Windows98 */
+      SQLINTEGER returnsize;  /* SQLINTEGER is always 32-bit signed */
+      ...
+      CharacterStringRetrieval(target,"ABC",5,&returnsize);
+      /* Now target has: ABC\0 and returnsize = 5. */
+      ...
+      CharacterStringRetrieval(target,"ABC",3,&returnsize);
+      /* Now target has: AB\0 and returnsize = 2. */
 
-    ODBC: In ODBC 1.0's documentation there was some contradictory information
-    about the workings of Character String Retrieval, but everything is settled now.
+ODBC: In ODBC 1.0's documentation there was some contradictory information
+about the workings of Character String Retrieval, but everything is settled now.

@@ -6,368 +6,368 @@ Chapter 41 -- SQL/CLI: env Functions
 
 ::
 
-    In this chapter, we'll describe the first essential CLI resource: the env. For
-    CLI programs, the env is the all-encompassing context area -- all CLI programs
-    begin by establishing an env. The env contains some information directly
-    ("attributes" and "diagnostics"), but what's important is that an env contains
-    zero or more dbcs (although there's no point in having an env without a dbc).
-    Here's a closeup view of an env:
+In this chapter, we'll describe the first essential CLI resource: the env. For
+CLI programs, the env is the all-encompassing context area -- all CLI programs
+begin by establishing an env. The env contains some information directly
+("attributes" and "diagnostics"), but what's important is that an env contains
+zero or more dbcs (although there's no point in having an env without a dbc).
+Here's a closeup view of an env:
 
-          ----------------------
-          - [env Attributes]   -
-          - [env Diagnostics]  -
-          ----------------------
-          | |
-          | |
-          v v
-          ... to dbcs
+      ----------------------
+      - [env Attributes]   -
+      - [env Diagnostics]  -
+      ----------------------
+      | |
+      | |
+      v v
+      ... to dbcs
 
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+:local:
 
 Null Termination
 ================
 
 ::
 
-    Traditionally, there have been three ways to define character strings:
-          ## They are fixed length. Example: a COBOL PIC X(5) variable.
-          ## They are variable length and a separate variable tells us the size.
-    Example: the 16-bit octet-length -- SIZE% -- in a BASIC string var$, or the
-    8-bit octet-length which is the first byte of a Turbo Pascal string.
-          ## They are variable length and the end is marked by a termination code.
-    Example: the 8-bit byte = '\0' which ends strings in C programs. This code,
-    which in a wide-character string would be a 16-bit word 0x0000, is the null
-    terminator. Inprise Pascal (Delphi) uses the same convention for PChar variables.
+Traditionally, there have been three ways to define character strings:
+      ## They are fixed length. Example: a COBOL PIC X(5) variable.
+      ## They are variable length and a separate variable tells us the size.
+Example: the 16-bit octet-length -- SIZE% -- in a BASIC string var$, or the
+8-bit octet-length which is the first byte of a Turbo Pascal string.
+      ## They are variable length and the end is marked by a termination code.
+Example: the 8-bit byte = '\0' which ends strings in C programs. This code,
+which in a wide-character string would be a 16-bit word 0x0000, is the null
+terminator. Inprise Pascal (Delphi) uses the same convention for PChar variables.
 
-    We've assumed that any DBMS which supports C/Pascal interfaces  will go with
-    null termination. That affects the CLI in only one way: you can receive
-    null-terminated strings from the DBMS whenever Character String Retrieval is
-    called for. Going the other way -- passing null-terminated strings to the DBMS
-    -- is legal regardless of the setting of NULL TERMINATION. That's because you
-    indicate null termination of input strings using SQL_NTS for "size".
+We've assumed that any DBMS which supports C/Pascal interfaces  will go with
+null termination. That affects the CLI in only one way: you can receive
+null-terminated strings from the DBMS whenever Character String Retrieval is
+called for. Going the other way -- passing null-terminated strings to the DBMS
+-- is legal regardless of the setting of NULL TERMINATION. That's because you
+indicate null termination of input strings using SQL_NTS for "size".
 
-    Sixteen of the CLI functions accept an input-string parameter. In these
-    functions, the parameter immediately following the input-string parameter is
-    the "input-string length" -- for example:
+Sixteen of the CLI functions accept an input-string parameter. In these
+functions, the parameter immediately following the input-string parameter is
+the "input-string length" -- for example:
 
-       <function name> (... input_string, input_string_length);
+   <function name> (... input_string, input_string_length);
 
-    The input length should be the number of octets in the input string, not
-    including the null termination octet(s). However, you can pass SQL_NTS (-3)
-    instead -- this stands for "null terminated string" -- and let the DBMS
-    calculate the string size. Remember, though, that programs which pass SQL_NTS
-    are many nanoseconds slower than programs which pass an absolute length.
+The input length should be the number of octets in the input string, not
+including the null termination octet(s). However, you can pass SQL_NTS (-3)
+instead -- this stands for "null terminated string" -- and let the DBMS
+calculate the string size. Remember, though, that programs which pass SQL_NTS
+are many nanoseconds slower than programs which pass an absolute length.
 
-    There are six CLI functions for creating envs, dropping envs, getting env
-    attributes and setting env attributes. Their descriptions follow.
+There are six CLI functions for creating envs, dropping envs, getting env
+attributes and setting env attributes. Their descriptions follow.
 
 SQLAllocHandle(SQL_HANDLE_ENV,...)
 ==================================
 
 ::
 
-    Function Prototype:
-      SQLRETURN SQLAllocHandle(
-        SQLSMALLINT HandleType,         /* 16-bit input = SQL_HANDLE_ENV */
-        SQLINTEGER InputHandle,         /* 32-bit input */
-        SQLINTEGER *OutputHandle        /* pointer to 32-bit output, a henv */
-        );
+Function Prototype:
+  SQLRETURN SQLAllocHandle(
+    SQLSMALLINT HandleType,         /* 16-bit input = SQL_HANDLE_ENV */
+    SQLINTEGER InputHandle,         /* 32-bit input */
+    SQLINTEGER *OutputHandle        /* pointer to 32-bit output, a henv */
+    );
 
-    Job:
-    Allocate an env.
+Job:
+Allocate an env.
 
-    ## How to make an env
-    Usually the first SQL-related instruction is the call to make an env:
+## How to make an env
+Usually the first SQL-related instruction is the call to make an env:
 
-    #include "sqlcli.h"
-    SQLHENV     henv;                   /* declare a henv, name it: henv */
-    SQLRETURN   sqlreturn;              /* code returned by SQL function */
-    ...
-      sqlreturn = SQLAllocHandle(SQL_HANDLE_ENV,SQL_NULL_HANDLE,&henv);
-      ...
+#include "sqlcli.h"
+SQLHENV     henv;                   /* declare a henv, name it: henv */
+SQLRETURN   sqlreturn;              /* code returned by SQL function */
+...
+  sqlreturn = SQLAllocHandle(SQL_HANDLE_ENV,SQL_NULL_HANDLE,&henv);
+  ...
 
-    The first parameter (HandleType) is SQL_HANDLE_ENV.
+The first parameter (HandleType) is SQL_HANDLE_ENV.
 
-    The second parameter (InputHandle) doesn't matter here. As a style note: we
-    follow a convention that "if the parameter value doesn't matter then use a
-    constant containing the word NULL". This convention helps make it clear that
-    the value we're passing has no significance.
+The second parameter (InputHandle) doesn't matter here. As a style note: we
+follow a convention that "if the parameter value doesn't matter then use a
+constant containing the word NULL". This convention helps make it clear that
+the value we're passing has no significance.
 
-    The third parameter (*OutputHandle) must be an address of an environment
-    handle. As explained before, we prefer to call an environment handle a "henv".
-    But use a descriptive name for your program variable if you have one.
+The third parameter (*OutputHandle) must be an address of an environment
+handle. As explained before, we prefer to call an environment handle a "henv".
+But use a descriptive name for your program variable if you have one.
 
-    If the function succeeds: you have a new env. Keep the henv, you'll need it
-    later for input to other functions.
+If the function succeeds: you have a new env. Keep the henv, you'll need it
+later for input to other functions.
 
-    ## Testing for error returns
-    [Obscure Rule] Error-testing is a bit unusual because the DBMS may put
-    something into OutputHandle even if the function fails. This annotated code
-    snippet shows the scenarios:
+## Testing for error returns
+[Obscure Rule] Error-testing is a bit unusual because the DBMS may put
+something into OutputHandle even if the function fails. This annotated code
+snippet shows the scenarios:
 
-    sqlreturn = SQLAllocHandle(SQL_ALLOC_ENV,SQL_HANDLE_NULL,&henv);
-    if (sqlreturn < 0) {
-      /* There was an error so SQLAllocHandle returned a negative value. */
-      if (sqlreturn == SQL_NULL_HANDLE) {               /* SQL_NULL_HANDLE=-2 */
-        /* SQL_HANDLE_ENV is not a valid code -- an "impossible" error */ }
-      else {
-        /* sqlreturn must be SQL_ERROR (-1), the only other possibility */
-        if (&henv==0)
-          /* The problem is "invalid use of null pointer" -- the last parameter -- OutputHandle -- was zero. This error too is "impossible". */
-        if (henv<>SQL_NULL_HENV) {
-          /* The DBMS has placed a "skeleton env handle" in henv. It's not good for much, but you can use henv to get an error message with the SQLGetDiagRec function. */ }
-        else {
-          /* The DBMS has placed zero in henv. There was an error, there is no skeleton env handle to get error messages with. You'll have to guess that there wasn't enough memory. */ } }
+sqlreturn = SQLAllocHandle(SQL_ALLOC_ENV,SQL_HANDLE_NULL,&henv);
+if (sqlreturn < 0) {
+  /* There was an error so SQLAllocHandle returned a negative value. */
+  if (sqlreturn == SQL_NULL_HANDLE) {               /* SQL_NULL_HANDLE=-2 */
+    /* SQL_HANDLE_ENV is not a valid code -- an "impossible" error */ }
+  else {
+    /* sqlreturn must be SQL_ERROR (-1), the only other possibility */
+    if (&henv==0)
+      /* The problem is "invalid use of null pointer" -- the last parameter -- OutputHandle -- was zero. This error too is "impossible". */
+    if (henv<>SQL_NULL_HENV) {
+      /* The DBMS has placed a "skeleton env handle" in henv. It's not good for much, but you can use henv to get an error message with the SQLGetDiagRec function. */ }
     else {
-      /* There was no error. */ }
+      /* The DBMS has placed zero in henv. There was an error, there is no skeleton env handle to get error messages with. You'll have to guess that there wasn't enough memory. */ } }
+else {
+  /* There was no error. */ }
 
-    There are several other possible errors/exception conditions that the
-    SQLAllocHandle function might "raise". If they occur, the function will return
-    a negative number: -2 (SQL_INVALID_HANDLE) or -1 (SQL_ERROR). For more
-    detailed information, look up the SQLSTATE codes beginning with HY, HY001 or
-    HY014 in our chapter on SQL/CLI diagnostics.
+There are several other possible errors/exception conditions that the
+SQLAllocHandle function might "raise". If they occur, the function will return
+a negative number: -2 (SQL_INVALID_HANDLE) or -1 (SQL_ERROR). For more
+detailed information, look up the SQLSTATE codes beginning with HY, HY001 or
+HY014 in our chapter on SQL/CLI diagnostics.
 
-    Algorithm:
-    If (HandleType == SQL_HANDLE_ENV) {
-      The DBMS allocates an object in memory. The DBMS creates a 32-bit handle for this object, its unique identifier. The DBMS puts the handle in the memory location addressed by OutputHandle. }
+Algorithm:
+If (HandleType == SQL_HANDLE_ENV) {
+  The DBMS allocates an object in memory. The DBMS creates a 32-bit handle for this object, its unique identifier. The DBMS puts the handle in the memory location addressed by OutputHandle. }
 
-    Notes:
-          ## This is one of several SQLAllocHandle variants. The HandleType input
-    parameter may contain any one of:
-                ## (implementation-defined)  <  1
-                ## SQL_HANDLE_ENV               1  /* handle of an env */
-                ## SQL_HANDLE_DBC               2  /* handle of a dbc */
-                ## SQL_HANDLE_HSTMT             3  /* handle of a stmt */
-                ## SQL_HANDLE_DESC              4  /* handle of a desc */
-                ## (implementation-defined)  >100
-    In discussions of other CLI functions, we will usually ignore the
-    "implementation-defined" possibilities.
+Notes:
+      ## This is one of several SQLAllocHandle variants. The HandleType input
+parameter may contain any one of:
+            ## (implementation-defined)  <  1
+            ## SQL_HANDLE_ENV               1  /* handle of an env */
+            ## SQL_HANDLE_DBC               2  /* handle of a dbc */
+            ## SQL_HANDLE_HSTMT             3  /* handle of a stmt */
+            ## SQL_HANDLE_DESC              4  /* handle of a desc */
+            ## (implementation-defined)  >100
+In discussions of other CLI functions, we will usually ignore the
+"implementation-defined" possibilities.
 
-    ODBC: The SQLAllocHandle function is new in ODBC 3.0. Error information will
-    not be available until you call the "connect" function.
+ODBC: The SQLAllocHandle function is new in ODBC 3.0. Error information will
+not be available until you call the "connect" function.
 
 SQLAllocEnv
 ===========
 
 ::
 
-    Function prototype:
-      SQLRETURN SQLAllocEnv(
-        SQLHENV *henv                   /* pointer to 32-bit output, a henv */
-        );
+Function prototype:
+  SQLRETURN SQLAllocEnv(
+    SQLHENV *henv                   /* pointer to 32-bit output, a henv */
+    );
 
-    Job:
-    Make an env.
+Job:
+Make an env.
 
-    Algorithm:
-    sqlreturn = SQLAllocEnv(&henv);
-    is the same as
-    sqlreturn = SQLAllocHandle(SQL_HANDLE_ENV,SQL_NULL_HANDLE,&henv);
+Algorithm:
+sqlreturn = SQLAllocEnv(&henv);
+is the same as
+sqlreturn = SQLAllocHandle(SQL_HANDLE_ENV,SQL_NULL_HANDLE,&henv);
 
-    Notes:
-          ## Implicit Calls
-    In the algorithm description, the words "is the same as" mean that, in effect,
-    the DBMS calls SQLAllocHandle when you call SQLAllocEnv. So you have called
-    SQLAllocHandle indirectly, or -- as the Standard puts it -- "implicitly". For
-    purposes of interpreting the somewhat legalistic Standard, it makes absolutely
-    no difference whether you perform an operation explicitly or implicitly.
-          ## Obsolescent Handle Functions
-    SQLAllocEnv is one of six functions -- SQLAllocEnv, SQLFreeEnv,
-    SQLAllocConnect, SQLFreeConnect, SQLAllocStmt, SQLFreeStmt - which are
-    nowadays, mostly redundant. They are a legacy of the days when there were only
-    three kinds of resources: env, dbc and stmt. Mostly, you will see them in
-    programs written for early versions of ODBC. The Standard does not "deprecate"
-    these functions, so we may assume that they will continue to be part of
-    standard SQL for the indefinite future. However, their presence will make a
-    program look old-fashioned. The only exception is SQLFreeStmt, which has a few
-    useful options.
+Notes:
+      ## Implicit Calls
+In the algorithm description, the words "is the same as" mean that, in effect,
+the DBMS calls SQLAllocHandle when you call SQLAllocEnv. So you have called
+SQLAllocHandle indirectly, or -- as the Standard puts it -- "implicitly". For
+purposes of interpreting the somewhat legalistic Standard, it makes absolutely
+no difference whether you perform an operation explicitly or implicitly.
+      ## Obsolescent Handle Functions
+SQLAllocEnv is one of six functions -- SQLAllocEnv, SQLFreeEnv,
+SQLAllocConnect, SQLFreeConnect, SQLAllocStmt, SQLFreeStmt - which are
+nowadays, mostly redundant. They are a legacy of the days when there were only
+three kinds of resources: env, dbc and stmt. Mostly, you will see them in
+programs written for early versions of ODBC. The Standard does not "deprecate"
+these functions, so we may assume that they will continue to be part of
+standard SQL for the indefinite future. However, their presence will make a
+program look old-fashioned. The only exception is SQLFreeStmt, which has a few
+useful options.
 
-    Example:
-          #include "sqlcli.h"
-          SQLHENV     henv;
-          SQLRETURN   sqlreturn;
-          ...
-          sqlreturn = SQLAllocEnv(&henv);
-          if (sqlreturn == SQL_ERROR) {
-            printf("Error: could not make an env.\n");
-            exit(1); }
+Example:
+      #include "sqlcli.h"
+      SQLHENV     henv;
+      SQLRETURN   sqlreturn;
+      ...
+      sqlreturn = SQLAllocEnv(&henv);
+      if (sqlreturn == SQL_ERROR) {
+        printf("Error: could not make an env.\n");
+        exit(1); }
 
-    ODBC: The SQLAllocEnv routine has been in ODBC since version 1.0. The ODBC 3.0
-    manual deprecates it, suggesting that users should switch to using SQLAllocHandle(SQL_HANDLE_ENV,...).
+ODBC: The SQLAllocEnv routine has been in ODBC since version 1.0. The ODBC 3.0
+manual deprecates it, suggesting that users should switch to using SQLAllocHandle(SQL_HANDLE_ENV,...).
 
 SQLGetEnvAttr
 =============
 
 ::
 
-    Function Prototype:
-      SQLRETURN  SQLGetEnvAttr(
-        SQLHENV henv,                   /* 32-bit input */
-        SQLINTEGER Attribute,           /* 32-bit input */
-        SQLPOINTER Value,               /* ANY* pointer to output */
-        SQLINTEGER BufferLength,        /* 32-bit input */
-        SQLINTEGER *StringLength);      /* 32-bit pointer to output */
+Function Prototype:
+  SQLRETURN  SQLGetEnvAttr(
+    SQLHENV henv,                   /* 32-bit input */
+    SQLINTEGER Attribute,           /* 32-bit input */
+    SQLPOINTER Value,               /* ANY* pointer to output */
+    SQLINTEGER BufferLength,        /* 32-bit input */
+    SQLINTEGER *StringLength);      /* 32-bit pointer to output */
 
-    Job:
-    Get an env attribute. At the moment there is only one standard env attribute:
-    a flag saying whether strings are null-terminated. The flag has this #define in sqlcli.h:
+Job:
+Get an env attribute. At the moment there is only one standard env attribute:
+a flag saying whether strings are null-terminated. The flag has this #define in sqlcli.h:
 
-    #define SQL_ATTR_OUTPUT_NTS 10001 /* NULL TERMINATION env attribute */
+#define SQL_ATTR_OUTPUT_NTS 10001 /* NULL TERMINATION env attribute */
 
-    Algorithm:
-    If (henv is not a henv or env is a skeleton env)
-       return with error: CLI-specific condition - invalid handle
-       Empty env's diagnostics area.
-       If (Attribute <> SQL_ATTR_OUTPUT_NTS)
-          return with error: HY092 CLI-specific condition-invalid attribute identifier
-          Set *Value = env's NULL TERMINATION env attribute
-          /* This value is 1 (TRUE) if the DBMS uses null termination; it is 0 (FALSE) if not. */
+Algorithm:
+If (henv is not a henv or env is a skeleton env)
+   return with error: CLI-specific condition - invalid handle
+   Empty env's diagnostics area.
+   If (Attribute <> SQL_ATTR_OUTPUT_NTS)
+      return with error: HY092 CLI-specific condition-invalid attribute identifier
+      Set *Value = env's NULL TERMINATION env attribute
+      /* This value is 1 (TRUE) if the DBMS uses null termination; it is 0 (FALSE) if not. */
 
-    Notes:
-          ## The BufferLength and StringLength parameters are unused. They're
-    there in case a future edition of the SQL Standard requires more information.
-    Or, as with all functions, there is a chance that your particular DBMS stores
-    attribute information that the Standard doesn't officially require.
+Notes:
+      ## The BufferLength and StringLength parameters are unused. They're
+there in case a future edition of the SQL Standard requires more information.
+Or, as with all functions, there is a chance that your particular DBMS stores
+attribute information that the Standard doesn't officially require.
 
-    Example:
-      #include "sqlcli.h"
-      SQLHENV    henv;
-      SQLINTEGER attribute;
-      ...
-      SQLGetEnvAttr(henv,SQL_ATTR_OUTPUT_NTS,&attribute,NULL,NULL);
+Example:
+  #include "sqlcli.h"
+  SQLHENV    henv;
+  SQLINTEGER attribute;
+  ...
+  SQLGetEnvAttr(henv,SQL_ATTR_OUTPUT_NTS,&attribute,NULL,NULL);
 
-    ODBC: The SQLGetEnvAttr function is new in ODBC 3.0. There are also a few
-    other env options which are specific to ODBC.
+ODBC: The SQLGetEnvAttr function is new in ODBC 3.0. There are also a few
+other env options which are specific to ODBC.
 
 SQLSetEnvAttr
 =============
 
 ::
 
-    Function Prototype:
-      SQLRETURN  SQLSetEnvAttr(
-        SQLHENV henv,             /* 32-bit input -- env handle */
-        SQLINTEGER Attribute,     /* 32-bit input */
-        SQLPOINTER Value,         /* ANY* input */
-        SQLINTEGER StringLength   /* 32-bit input */
-        );
+Function Prototype:
+  SQLRETURN  SQLSetEnvAttr(
+    SQLHENV henv,             /* 32-bit input -- env handle */
+    SQLINTEGER Attribute,     /* 32-bit input */
+    SQLPOINTER Value,         /* ANY* input */
+    SQLINTEGER StringLength   /* 32-bit input */
+    );
 
-    Job:
-    Set an env attribute. At the moment there is only one standard env attribute:
-    whether output strings are null-terminated -- see the discussion of the
-    SQLGetEnvAttr function for some detailed remarks on the subject of Null
-    Termination. It is probably sufficient to know that you do not want to change
-    this attribute if you program in C or Pascal.
+Job:
+Set an env attribute. At the moment there is only one standard env attribute:
+whether output strings are null-terminated -- see the discussion of the
+SQLGetEnvAttr function for some detailed remarks on the subject of Null
+Termination. It is probably sufficient to know that you do not want to change
+this attribute if you program in C or Pascal.
 
-    Algorithm:
-    If (henv is not a henv) or (env is skeleton env)
-      return with error: CLI-specific condition-invalid handle
-    Empty the env's diagnostics area.
-    If (there is a dbc in this env)
-      /* You should call SQLSetEnvAttr before calling SQLAllocHandle(SQL_HANDLE_DBC,...) */
-      return with error: HY011 CLI-specific condition-attribute cannot be set now
-    If (Attribute <> SQL_ATTR_OUTPUT_NTS)
-      return with error: HY092 CLI-specific condition-invalid attribute identifier
-    If (Attribute == SQL_ATTR_OUTPUT_NTS)
-    /* in sqlcli.h there is a line: "#define 10001 SQL_ATTR_OUTPUT_NTS" */
-      If (*Value == TRUE) then set env's NULL TERMINATION attribute = TRUE.
-      Else If (*Value == FALSE) then set NULL TERMINATION attribute = FALSE.
-      Else return with error: HY024 CLI-specific condition-invalid attribute value
+Algorithm:
+If (henv is not a henv) or (env is skeleton env)
+  return with error: CLI-specific condition-invalid handle
+Empty the env's diagnostics area.
+If (there is a dbc in this env)
+  /* You should call SQLSetEnvAttr before calling SQLAllocHandle(SQL_HANDLE_DBC,...) */
+  return with error: HY011 CLI-specific condition-attribute cannot be set now
+If (Attribute <> SQL_ATTR_OUTPUT_NTS)
+  return with error: HY092 CLI-specific condition-invalid attribute identifier
+If (Attribute == SQL_ATTR_OUTPUT_NTS)
+/* in sqlcli.h there is a line: "#define 10001 SQL_ATTR_OUTPUT_NTS" */
+  If (*Value == TRUE) then set env's NULL TERMINATION attribute = TRUE.
+  Else If (*Value == FALSE) then set NULL TERMINATION attribute = FALSE.
+  Else return with error: HY024 CLI-specific condition-invalid attribute value
 
-    Notes:
-          ## There might be some other, implementation-defined, env attributes.
-    That is why there is a StringLength parameter -- in case there is an
-    implementation-defined attribute which is represented as a character string.
+Notes:
+      ## There might be some other, implementation-defined, env attributes.
+That is why there is a StringLength parameter -- in case there is an
+implementation-defined attribute which is represented as a character string.
 
-    Example:
-    #include "sqlcli.h"
-    SQLHENV     henv;
-    SQLINTEGER  Value=1;
-    void main ()
-    {
-      if (SQLAllocHandle(SQL_HANDLE_ENV,SQL_NULL_HANDLE,&henv)<0) {
-        printf("Error: can't create the env\n");
-        exit(1); }
-      if (SQLSetEnvAttr(henv,SQL_ATTR_OUTPUT_NTS,&Value,NULL)<0) {
-        printf("Error: can't set the NULL TERMINATION env attribute\n");
-        exit(1); }
-      exit(0); }
+Example:
+#include "sqlcli.h"
+SQLHENV     henv;
+SQLINTEGER  Value=1;
+void main ()
+{
+  if (SQLAllocHandle(SQL_HANDLE_ENV,SQL_NULL_HANDLE,&henv)<0) {
+    printf("Error: can't create the env\n");
+    exit(1); }
+  if (SQLSetEnvAttr(henv,SQL_ATTR_OUTPUT_NTS,&Value,NULL)<0) {
+    printf("Error: can't set the NULL TERMINATION env attribute\n");
+    exit(1); }
+  exit(0); }
 
-    ODBC: The SQLSetEnvAttr function is new in ODBC 3.0. It is impossible to
-    change the NULL TERMINATION env attribute. There are other attributes. For
-    example, to explicitly state that your application is written for ODBC version
-    3.0, say:  version = SQL_OV_ODBC3;        /* 00000003L */
-               SQLSetEnvAttr(henv,SQL_ATTR_ODBC_VERSION,&version,NULL);
+ODBC: The SQLSetEnvAttr function is new in ODBC 3.0. It is impossible to
+change the NULL TERMINATION env attribute. There are other attributes. For
+example, to explicitly state that your application is written for ODBC version
+3.0, say:  version = SQL_OV_ODBC3;        /* 00000003L */
+           SQLSetEnvAttr(henv,SQL_ATTR_ODBC_VERSION,&version,NULL);
 
 SQLFreeHandle(SQL_HANDLE_ENV,...)
 =================================
 
 ::
 
-    Function Prototype:
-      SQLRETURN SQLFreeHandle(
-        SQLSMALLINT HandleType,   /* 16-bit input */
-        SQLINTEGER Handle         /* 32-bit input (must be a henv) */
-        );
+Function Prototype:
+  SQLRETURN SQLFreeHandle(
+    SQLSMALLINT HandleType,   /* 16-bit input */
+    SQLINTEGER Handle         /* 32-bit input (must be a henv) */
+    );
 
-    Job:
-    Destroy an env. This is the reverse of the SQLAllocHandle(SQL_HANDLE_ENV,...) function.
+Job:
+Destroy an env. This is the reverse of the SQLAllocHandle(SQL_HANDLE_ENV,...) function.
 
-    Algorithm:
-    If (Handle is not a henv)
-      return error: CLI-specific condition-invalid handle
-    Empty the env's diagnostics area.
-    If (there is a dbc associated with the env)
-      return error: HY010 CLI-specific condition-function sequence error
-    Deallocate env and anything associated with it, such as RAM.
-    The handle is now invalid.
+Algorithm:
+If (Handle is not a henv)
+  return error: CLI-specific condition-invalid handle
+Empty the env's diagnostics area.
+If (there is a dbc associated with the env)
+  return error: HY010 CLI-specific condition-function sequence error
+Deallocate env and anything associated with it, such as RAM.
+The handle is now invalid.
 
-    Notes:
-          ## This is usually the last function call in a CLI program.
+Notes:
+      ## This is usually the last function call in a CLI program.
 
-    Example:
-          #include "sqlcli.h"
-          SQLHENV     henv;
-          ...
-          SQLFreeHandle(SQL_HANDLE_ENV,henv);
+Example:
+      #include "sqlcli.h"
+      SQLHENV     henv;
+      ...
+      SQLFreeHandle(SQL_HANDLE_ENV,henv);
 
-    ODBC: The SQLFreeHandle function is new in ODBC 3.0.
+ODBC: The SQLFreeHandle function is new in ODBC 3.0.
 
 SQLFreeEnv
 ==========
 
 ::
 
-    Function Prototype:
-      SQLRETURN SQLFreeEnv(
-        SQLHENV henv                    /* 32-bit input */
-        );
+Function Prototype:
+  SQLRETURN SQLFreeEnv(
+    SQLHENV henv                    /* 32-bit input */
+    );
 
-    Job:
-    Destroy an env. This is the reverse of the SQLAllocEnv function. SQLFreeEnv is
-    redundant.
+Job:
+Destroy an env. This is the reverse of the SQLAllocEnv function. SQLFreeEnv is
+redundant.
 
-    Algorithm:
-    sqlreturn = SQLFreeEnv(henv);
-    is the same thing as
-    sqlreturn = SQLFreeHandle(SQL_HANDLE_ENV,henv);
+Algorithm:
+sqlreturn = SQLFreeEnv(henv);
+is the same thing as
+sqlreturn = SQLFreeHandle(SQL_HANDLE_ENV,henv);
 
-    Notes:
-          ## The Standard does not say that the SQLFreeEnv function is deprecated. All DBMSs should support it.
+Notes:
+      ## The Standard does not say that the SQLFreeEnv function is deprecated. All DBMSs should support it.
 
-    Example:
-          #include "sqlcli.h"
-          SQLHENV     henv;
-          ...
-          SQLAllocEnv(&henv);
-          ...
-          SQLFreeEnv(henv);
-          /* henv is now an invalid handle */
-          ...
+Example:
+      #include "sqlcli.h"
+      SQLHENV     henv;
+      ...
+      SQLAllocEnv(&henv);
+      ...
+      SQLFreeEnv(henv);
+      /* henv is now an invalid handle */
+      ...
 
-    ODBC: The SQLFreeEnv function has been in ODBC since version 1.0. The ODBC 3 manual deprecates it, suggesting that users should switch to using SQLFreeHandle(SQL_HANDLE_ENV,...).
+ODBC: The SQLFreeEnv function has been in ODBC since version 1.0. The ODBC 3 manual deprecates it, suggesting that users should switch to using SQLFreeHandle(SQL_HANDLE_ENV,...).
 
-    And that's it for the env functions. In the next chapter, we'll take a look at the dbc functions.
+And that's it for the env functions. In the next chapter, we'll take a look at the dbc functions.

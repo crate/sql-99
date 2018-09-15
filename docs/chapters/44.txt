@@ -6,477 +6,477 @@ Chapter 44 -- SQL/CLI Statement Functions
 
 ::
 
-    Of the 62 CLI functions, only three actually handle what we know as "SQL
-    statements". There are two steps in SQL statement handling: the "prepare" step
-    and the "execute" step. You can do these steps separately, using the
-    SQLPrepare and SQLExecute functions or you can roll them together and just use
-    the SQLExecDirect function. The following flowchart shows the steps involved:
+Of the 62 CLI functions, only three actually handle what we know as "SQL
+statements". There are two steps in SQL statement handling: the "prepare" step
+and the "execute" step. You can do these steps separately, using the
+SQLPrepare and SQLExecute functions or you can roll them together and just use
+the SQLExecDirect function. The following flowchart shows the steps involved:
 
-          [[ SQL statement ]]
+      [[ SQL statement ]]
+      |
+      |
+      |     -
+      >   -   -
+        -       -               ----------------
+      -  Is the  -              -              -
+     - statement - ---> no ---> - Return error -
+      -  valid?  -              - diagnostics  -
+        -       -               -              -
+          -   -                 ----------------
+            -
+           |
+           |               PREPARE PHASE
+           v
+          yes
+           |
+           |
+           v
+      -----------------------------
+      - Make "Prepared statement" -
+      - associated with stmt      -
+      -----------------------------
           |
           |
-          |     -
-          >   -   -
-            -       -               ----------------
-          -  Is the  -              -              -
-         - statement - ---> no ---> - Return error -
-          -  valid?  -              - diagnostics  -
-            -       -               -              -
-              -   -                 ----------------
-                -
-               |
-               |               PREPARE PHASE
-               v
-              yes
-               |
-               |
-               v
-          -----------------------------
-          - Make "Prepared statement" -
-          - associated with stmt      -
-          -----------------------------
-              |
-              |
-              v
-          ------------------------------
-          - Execute prepared statement -        EXECUTE PHASE
-          ------------------------------
-              |
-              |
-              v
-               -
-              -   -
-            -       -
-          -  Is the  -              --------
-         - statement - ---> no ---> - done -
-          - a query? -              --------
-            -       -
-              -   -
-                -
-               |
-               |
-               v
-              yes
-               |
-               |
-               v
-          ------------------------------------
-          - associate Cursor with result set -
-          ------------------------------------
-               |
-               v
-          --------
-          - done -
-          --------
+          v
+      ------------------------------
+      - Execute prepared statement -        EXECUTE PHASE
+      ------------------------------
+          |
+          |
+          v
+           -
+          -   -
+        -       -
+      -  Is the  -              --------
+     - statement - ---> no ---> - done -
+      - a query? -              --------
+        -       -
+          -   -
+            -
+           |
+           |
+           v
+          yes
+           |
+           |
+           v
+      ------------------------------------
+      - associate Cursor with result set -
+      ------------------------------------
+           |
+           v
+      --------
+      - done -
+      --------
 
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+:local:
 
 Preparable SQL statements
 =========================
 
 ::
 
-    Some SQL statements are not preparable. Here's the list of all possibilities, showing whether the SQL statement can be prepared.
+Some SQL statements are not preparable. Here's the list of all possibilities, showing whether the SQL statement can be prepared.
 
-    SQL STATEMENT         SQL STATEMENT CLASS  PREPARABLE?
-    ALTER                 Schema               yes
-    CALL                  control              yes
-    CLOSE                 data                 NO
-    COMMIT                transaction          NO    [Note 2]
-    CONNECT               Connection           NO    [Note 1]
-    CREATE                Schema               yes
-    DELETE                data change          yes
-    DISCONNECT            Connection           NO    [Note 1]
-    DROP                  Schema               yes
-    FETCH                 data                 NO
-    GET DIAGNOSTICS       diagnostics          NO
-    GRANT                 Schema               yes
-    INSERT                data change          yes
-    OPEN                  data                 NO
-    RELEASE SAVEPOINT     transaction          yes
-    RETURN                control              yes
-    REVOKE                Schema               yes
-    ROLLBACK              transaction          NO    [Note 2]
-    SAVEPOINT             transaction          yes
-    SELECT with no INTO   query                yes
-    SELECT with INTO      query                NO
-    SET CONNECTION        Connection           NO    [Note 1]
-    SET CONSTRAINTS MODE  transaction          yes
-    SET LOCAL TIME ZONE   SQL-session          yes
-    SET ROLE              SQL-session          yes
-    SET SESSION           SQL-session          yes
-    SET TRANSACTION       transaction          yes
-    START TRANSACTION     transaction          yes
-    UPDATE                data change          yes
+SQL STATEMENT         SQL STATEMENT CLASS  PREPARABLE?
+ALTER                 Schema               yes
+CALL                  control              yes
+CLOSE                 data                 NO
+COMMIT                transaction          NO    [Note 2]
+CONNECT               Connection           NO    [Note 1]
+CREATE                Schema               yes
+DELETE                data change          yes
+DISCONNECT            Connection           NO    [Note 1]
+DROP                  Schema               yes
+FETCH                 data                 NO
+GET DIAGNOSTICS       diagnostics          NO
+GRANT                 Schema               yes
+INSERT                data change          yes
+OPEN                  data                 NO
+RELEASE SAVEPOINT     transaction          yes
+RETURN                control              yes
+REVOKE                Schema               yes
+ROLLBACK              transaction          NO    [Note 2]
+SAVEPOINT             transaction          yes
+SELECT with no INTO   query                yes
+SELECT with INTO      query                NO
+SET CONNECTION        Connection           NO    [Note 1]
+SET CONSTRAINTS MODE  transaction          yes
+SET LOCAL TIME ZONE   SQL-session          yes
+SET ROLE              SQL-session          yes
+SET SESSION           SQL-session          yes
+SET TRANSACTION       transaction          yes
+START TRANSACTION     transaction          yes
+UPDATE                data change          yes
 
-    Notes: The "preparable statements" for embedded SQL are as above, except:
-          ## [Note 1] Connection statements are "directly executable" with embedded SQL, but not preparable.
-          ## [Note 2] COMMIT and ROLLBACK are "preparable" with embedded SQL.
+Notes: The "preparable statements" for embedded SQL are as above, except:
+      ## [Note 1] Connection statements are "directly executable" with embedded SQL, but not preparable.
+      ## [Note 2] COMMIT and ROLLBACK are "preparable" with embedded SQL.
 
-    There are some SQL statements which you may use in other contexts (such as
-    embedded SQL or SQL/PSM), but their use is inappropriate with the CLI because
-    their functionality is included in special function calls which require a henv
-    or hdbc as the input handle --  and the SQLPrepare function requires a hstmt.
-    For such SQL statements there will usually be an analogous CLI function. For
-    example: CONNECT and DISCONNECT statements are not preparable, but there are
-    SQLConnect and SQLDisconnect functions; GET DIAGNOSTICS is not preparable but
-    there are SQLGetDiag... functions; COMMIT and ROLLBACK are not preparable but
-    there is an SQLEndTran ("end transaction") function.
+There are some SQL statements which you may use in other contexts (such as
+embedded SQL or SQL/PSM), but their use is inappropriate with the CLI because
+their functionality is included in special function calls which require a henv
+or hdbc as the input handle --  and the SQLPrepare function requires a hstmt.
+For such SQL statements there will usually be an analogous CLI function. For
+example: CONNECT and DISCONNECT statements are not preparable, but there are
+SQLConnect and SQLDisconnect functions; GET DIAGNOSTICS is not preparable but
+there are SQLGetDiag... functions; COMMIT and ROLLBACK are not preparable but
+there is an SQLEndTran ("end transaction") function.
 
 SQLPrepare
 ==========
 
 ::
 
-    Function Prototype:
-      SQLRETURN SQLPrepare(
-        SQLHSTMT hstmt,           /* 32-bit input */
-        SQLCHAR *StatementText,   /* pointer to CHAR* input = SQL statement */
-        SQLINTEGER TextLength     /* 32-bit input */
-        );
+Function Prototype:
+  SQLRETURN SQLPrepare(
+    SQLHSTMT hstmt,           /* 32-bit input */
+    SQLCHAR *StatementText,   /* pointer to CHAR* input = SQL statement */
+    SQLINTEGER TextLength     /* 32-bit input */
+    );
 
-    Job:
-    Check a SQL statement for syntax or access errors. If all is well, make this
-    string the "prepared SQL statement" associated with stmt. It is then ready to execute.
+Job:
+Check a SQL statement for syntax or access errors. If all is well, make this
+string the "prepared SQL statement" associated with stmt. It is then ready to execute.
 
-    Algorithm:
-          If (there is an open Cursor associated with stmt)
-            /* You must close Cursor before re-using the stmt */
-            return error: 24000 - invalid Cursor state -
-          Get the string using StatementText and TextLength. This is a typical
-    example of a pass of a character string, except that TextLength is an integer
-    rather than a smallint. TextLength may be SQL_NTS.
-          If the TextLength value doesn't make sense:
-            return error: HY090 CLI-specific condition-invalid string length or buffer length
-          If (the string contains "DELETE|UPDATE ... WHERE CURRENT OF ...")
-            If (Cursor is not the name of a Cursor associated with another stmt of the same dbc)
-              return error: 34000 invalid Cursor name
-            /* Note the word "another" -- don't use positioned UPDATE|DELETE with the same stmt you executed the SELECT with */
-          If (statement violates a format rule, syntax rule, or access rule)
-          Or (statement is not a preparable statement)
-          Or (statement is a <simple comment>)
-          Or (statement has a ? parameter marker in an invalid position)
-            return error: (exact error depends on the nature of the violation)
-                          (often 42000 Syntax error or access rule violation)
+Algorithm:
+      If (there is an open Cursor associated with stmt)
+        /* You must close Cursor before re-using the stmt */
+        return error: 24000 - invalid Cursor state -
+      Get the string using StatementText and TextLength. This is a typical
+example of a pass of a character string, except that TextLength is an integer
+rather than a smallint. TextLength may be SQL_NTS.
+      If the TextLength value doesn't make sense:
+        return error: HY090 CLI-specific condition-invalid string length or buffer length
+      If (the string contains "DELETE|UPDATE ... WHERE CURRENT OF ...")
+        If (Cursor is not the name of a Cursor associated with another stmt of the same dbc)
+          return error: 34000 invalid Cursor name
+        /* Note the word "another" -- don't use positioned UPDATE|DELETE with the same stmt you executed the SELECT with */
+      If (statement violates a format rule, syntax rule, or access rule)
+      Or (statement is not a preparable statement)
+      Or (statement is a <simple comment>)
+      Or (statement has a ? parameter marker in an invalid position)
+        return error: (exact error depends on the nature of the violation)
+                      (often 42000 Syntax error or access rule violation)
 
-          Determine the data types of the ? parameter markers.
-          /* An example of a ? in an invalid position is: SELECT -? FROM t; */
-          Destroy some things which are associated with stmt, left over from
-          the last time we called SQLPrepare for the same stmt:
-                -- the "prepared statement", and
-                -- the "Cursor" (if any).
-          /* Leftovers exist because stmts are re-usable objects. */
-          Note: destroying a Cursor can have a cascading effect: if there is
-          another prepared statement that references that Cursor (e.g. DELETE
-          FROM t WHERE CURRENT OF <Cursor name>), it too is destroyed.
-          Note: destroying a Cursor does not imply destroying the Cursor name.
+      Determine the data types of the ? parameter markers.
+      /* An example of a ? in an invalid position is: SELECT -? FROM t; */
+      Destroy some things which are associated with stmt, left over from
+      the last time we called SQLPrepare for the same stmt:
+            -- the "prepared statement", and
+            -- the "Cursor" (if any).
+      /* Leftovers exist because stmts are re-usable objects. */
+      Note: destroying a Cursor can have a cascading effect: if there is
+      another prepared statement that references that Cursor (e.g. DELETE
+      FROM t WHERE CURRENT OF <Cursor name>), it too is destroyed.
+      Note: destroying a Cursor does not imply destroying the Cursor name.
 
-          Now we have "prepared". The statement is called a "prepared statement".
+      Now we have "prepared". The statement is called a "prepared statement".
 
-          If (prepared statement is a SELECT)
-            /* The prepared SELECT statement is called the "select source". */
-            If (there is no Cursor name) (as set by SQLSetCursorName)
-              Set Cursor name = an implementation-dependent identifier beginning
-              with the letters SQL_CUR or SQLCUR.
+      If (prepared statement is a SELECT)
+        /* The prepared SELECT statement is called the "select source". */
+        If (there is no Cursor name) (as set by SQLSetCursorName)
+          Set Cursor name = an implementation-dependent identifier beginning
+          with the letters SQL_CUR or SQLCUR.
 
-    Notes:
-          ## You can process SQL statements in two separate phases using the
-    SQLPrepare and SQLExecute functions. Usually, you would want to do the two
-    phases separately if the SQL statement appeared in a loop -- you'd call
-    SQLPrepare before entering the loop, and you'd call SQLExecute within the
-    loop. That way, you'd only be preparing once, but executing many times. If you
-    used the alternative -- SQLExecDirect -- you'd be preparing and executing with
-    every iteration of the loop.
-          ## The prepare and execute phases of SQL resemble the compile and
-    execute phases of most computer languages. If we were going to make a
-    distinction between preparing and compiling, we would point out that: (a)
-    preparing fails if an SQL statement refers to an inaccessible Table, but
-    compiling does not fail if a file is unavailable at compile time; and (b)
-    compiling results in executable code, but preparing results only in a
-    descriptive "plan" which needs some interpretation at run time. Such, at
-    least, is the state of SQL today. There are no true SQL compilers.
-          ## If SQLPrepare finds an error, the stmt's state is unchanged. A SQL
-    statement that was previously prepared continues to be "live". For example:
+Notes:
+      ## You can process SQL statements in two separate phases using the
+SQLPrepare and SQLExecute functions. Usually, you would want to do the two
+phases separately if the SQL statement appeared in a loop -- you'd call
+SQLPrepare before entering the loop, and you'd call SQLExecute within the
+loop. That way, you'd only be preparing once, but executing many times. If you
+used the alternative -- SQLExecDirect -- you'd be preparing and executing with
+every iteration of the loop.
+      ## The prepare and execute phases of SQL resemble the compile and
+execute phases of most computer languages. If we were going to make a
+distinction between preparing and compiling, we would point out that: (a)
+preparing fails if an SQL statement refers to an inaccessible Table, but
+compiling does not fail if a file is unavailable at compile time; and (b)
+compiling results in executable code, but preparing results only in a
+descriptive "plan" which needs some interpretation at run time. Such, at
+least, is the state of SQL today. There are no true SQL compilers.
+      ## If SQLPrepare finds an error, the stmt's state is unchanged. A SQL
+statement that was previously prepared continues to be "live". For example:
 
-       SQLPrepare(hstmt,"UPDATE t SET t_column = t_column + 1;",SQL_NTS);
-       SQLExecute(hstmt);
-       SQLPrepare(hstmt,"SELCT * FROM t;",SQL_NTS); /* sic-"SELCT" */
-       SQLExecute(hstmt);
+   SQLPrepare(hstmt,"UPDATE t SET t_column = t_column + 1;",SQL_NTS);
+   SQLExecute(hstmt);
+   SQLPrepare(hstmt,"SELCT * FROM t;",SQL_NTS); /* sic-"SELCT" */
+   SQLExecute(hstmt);
 
-    The second SQLPrepare won't work because "SELCT" is bad SQL syntax -- but what
-    happens to the SQLExecute that follows it? Answer: it executes the "UPDATE t
-    ..." statement a second time. Silly, eh? Well it wouldn't happen if we had
-    made sure to check what the SQLPrepare call returned.
-          ## Some DBMSs do nothing during SQLPrepare. They defer even syntax
-    checking until SQLExecute time. You have to be ready for such non-standard
-    behaviour: do not assume that an SQL statement is grammatical until it's been executed.
-          ## There is no "UnPrepare" function. Instead, prepared statements are removed by:
-                ## Calling SQLPrepare again for the same stmt.
-                ## Calling SQLFreeStmt(...,SQL_REALLOCATE).
-                ## Cascade effects -- for example, if the prepared statement depends on a Cursor which is destroyed.
-                ## (Usually) calling SQLEndTran (the "transaction-end" function
-    which is used instead of COMMIT or ROLLBACK). It is best to assume that SQL
-    statements need re-preparing after transaction end, though some DBMSs preserve
-    prepared statements. You can find out what your DBMS does by calling the
-    SQLGetInfo function. (In any case, if a Cursor is holdable, its result set
-    survives if the termination is with COMMIT.)
-          ## In standard SQL, the SQL statement does not have to end with a semicolon.
+The second SQLPrepare won't work because "SELCT" is bad SQL syntax -- but what
+happens to the SQLExecute that follows it? Answer: it executes the "UPDATE t
+..." statement a second time. Silly, eh? Well it wouldn't happen if we had
+made sure to check what the SQLPrepare call returned.
+      ## Some DBMSs do nothing during SQLPrepare. They defer even syntax
+checking until SQLExecute time. You have to be ready for such non-standard
+behaviour: do not assume that an SQL statement is grammatical until it's been executed.
+      ## There is no "UnPrepare" function. Instead, prepared statements are removed by:
+            ## Calling SQLPrepare again for the same stmt.
+            ## Calling SQLFreeStmt(...,SQL_REALLOCATE).
+            ## Cascade effects -- for example, if the prepared statement depends on a Cursor which is destroyed.
+            ## (Usually) calling SQLEndTran (the "transaction-end" function
+which is used instead of COMMIT or ROLLBACK). It is best to assume that SQL
+statements need re-preparing after transaction end, though some DBMSs preserve
+prepared statements. You can find out what your DBMS does by calling the
+SQLGetInfo function. (In any case, if a Cursor is holdable, its result set
+survives if the termination is with COMMIT.)
+      ## In standard SQL, the SQL statement does not have to end with a semicolon.
 
-    Example:
-      #include "sqlcli.h"
-      SQLHSTMT hstmt;
-      ...
-      SQLPrepare(hstmt,"DELETE FROM t",SQL_NTS);
-      /* Now we need to call SQLExecute. */
+Example:
+  #include "sqlcli.h"
+  SQLHSTMT hstmt;
+  ...
+  SQLPrepare(hstmt,"DELETE FROM t",SQL_NTS);
+  /* Now we need to call SQLExecute. */
 
-    ODBC: The SQLPrepare function has been part of ODBC since ODBC version 1.0.
+ODBC: The SQLPrepare function has been part of ODBC since ODBC version 1.0.
 
 SQLExecute
 ==========
 
 ::
 
-    Function Prototype:
-      SQLRETURN SQLExecute(
-        SQLHSTMT hstmt                        /* 32-bit input */
-        );
+Function Prototype:
+  SQLRETURN SQLExecute(
+    SQLHSTMT hstmt                        /* 32-bit input */
+    );
 
-    Job:
-    Execute a prepared SQL statement. You must do an SQLPrepare first.
+Job:
+Execute a prepared SQL statement. You must do an SQLPrepare first.
 
-    Algorithm:
-          If (SQLPrepare has not been performed for this stmt)
-            return error: HY010 CLI-specific condition-function sequence error
-          If (there is an open Cursor associated with this stmt)
-            /* This would happen if you don't close the Cursor after the last
-               execution of a SELECT statement; see SQLCloseCursor */
-            return error: 24000 Invalid Cursor state -
-          If (there are input parameters)
-            Get parameter addresses and do appropriate "casting" (described in our chapter on SQL/CLI desc functions)
-          Execute the prepared statement. It is now the "executed statement".
-          If (the statement was SELECT)
-            Set up a Cursor (described in our chapter on SQL/CLI Cursor functions)
-            Change the row descriptors (described in our chapter on SQL/CLI desc functions)
-          If (there are output parameters)
-            Get parameter addresses and do appropriate "casting"
-          Change the Diagnostics Area
+Algorithm:
+      If (SQLPrepare has not been performed for this stmt)
+        return error: HY010 CLI-specific condition-function sequence error
+      If (there is an open Cursor associated with this stmt)
+        /* This would happen if you don't close the Cursor after the last
+           execution of a SELECT statement; see SQLCloseCursor */
+        return error: 24000 Invalid Cursor state -
+      If (there are input parameters)
+        Get parameter addresses and do appropriate "casting" (described in our chapter on SQL/CLI desc functions)
+      Execute the prepared statement. It is now the "executed statement".
+      If (the statement was SELECT)
+        Set up a Cursor (described in our chapter on SQL/CLI Cursor functions)
+        Change the row descriptors (described in our chapter on SQL/CLI desc functions)
+      If (there are output parameters)
+        Get parameter addresses and do appropriate "casting"
+      Change the Diagnostics Area
 
-    Since there are many possible SQL statements, the range of possible problem
-    conditions is wide -- see especially the SQLSTATE errors in class 22000 (data
-    exception) and class 23000 (integrity constraint violation) in our chapter on
-    SQL/CLI diagnostics. Watch also for warnings and even "No data" conditions
-    (for example, execution of "UPDATE Table_1 SET column_1 = 0;" will result in
-    SQLSTATE 02000 "Data not found" if there are no rows in TABLE_1).
+Since there are many possible SQL statements, the range of possible problem
+conditions is wide -- see especially the SQLSTATE errors in class 22000 (data
+exception) and class 23000 (integrity constraint violation) in our chapter on
+SQL/CLI diagnostics. Watch also for warnings and even "No data" conditions
+(for example, execution of "UPDATE Table_1 SET column_1 = 0;" will result in
+SQLSTATE 02000 "Data not found" if there are no rows in TABLE_1).
 
-    Notes:
-          ## Calls to SQLExecute always follow calls to SQLPrepare (for the same stmt), but other function calls may intervene.
+Notes:
+      ## Calls to SQLExecute always follow calls to SQLPrepare (for the same stmt), but other function calls may intervene.
 
-    Example:
-    In this example we prepare and execute two SQL statements. We use two
-    different stmts, so that we can get all the preparing done before we start executing.
+Example:
+In this example we prepare and execute two SQL statements. We use two
+different stmts, so that we can get all the preparing done before we start executing.
 
-      #include "sqlcli.h"
-      ...
-      SQLHSTMT hstmt1, hstmt2;
-      ...
-      SQLPrepare(hstmt1,"INSERT INTO t VALUES (1)",SQL_NTS);
-      SQLPrepare(hstmt2,"INSERT INTO t VALUES (2)",SQL_NTS);
-      ...
-      SQLExecute(hstmt1);
-      SQLExecute(hstmt2);
+  #include "sqlcli.h"
+  ...
+  SQLHSTMT hstmt1, hstmt2;
+  ...
+  SQLPrepare(hstmt1,"INSERT INTO t VALUES (1)",SQL_NTS);
+  SQLPrepare(hstmt2,"INSERT INTO t VALUES (2)",SQL_NTS);
+  ...
+  SQLExecute(hstmt1);
+  SQLExecute(hstmt2);
 
-    ODBC: The SQLExecute function has been around since ODBC 1.0.
+ODBC: The SQLExecute function has been around since ODBC 1.0.
 
 SQLExecDirect
 =============
 
 ::
 
-    Function Prototype:
-      SQLRETURN  SQLExecDirect(
-        SQLHSTMT hstmt,                 /* 32-bit input -- statement handle */
-        SQLCHAR *StatementText,         /* CHAR* input */
-        SQLINTEGER TextLength           /* 32-bit input */
-        );
+Function Prototype:
+  SQLRETURN  SQLExecDirect(
+    SQLHSTMT hstmt,                 /* 32-bit input -- statement handle */
+    SQLCHAR *StatementText,         /* CHAR* input */
+    SQLINTEGER TextLength           /* 32-bit input */
+    );
 
-    Job:
-    Prepare and execute an SQL statement.
+Job:
+Prepare and execute an SQL statement.
 
-    Algorithm:
-    SQLRETURN = SQLExecDirect(hstmt,"text",text-length);
-    is the same as
-    SQLRETURN = SQLPrepare(hstmt,"text",text-length);
-    if (sqlreturn <> SQL_ERROR && sqlreturn <> SQL_INVALID_HANDLE) {
-       sqlreturn = SQLExecute(hstmt); }
+Algorithm:
+SQLRETURN = SQLExecDirect(hstmt,"text",text-length);
+is the same as
+SQLRETURN = SQLPrepare(hstmt,"text",text-length);
+if (sqlreturn <> SQL_ERROR && sqlreturn <> SQL_INVALID_HANDLE) {
+   sqlreturn = SQLExecute(hstmt); }
 
-    Notes:
-          ## Technically, SQLExecDirect is redundant: you can do the same thing by
-    calling SQLPrepare and SQLExecute. But programmers prefer to use SQLExecDirect
-    for SQL statements that will only be prepared and executed once.
-          ## Since SQLExecDirect includes a "prepare" step, it follows that
-    non-preparable SQL statements cannot be arguments of SQLExecDirect. Such
-    statements include CONNECT, DISCONNECT, COMMIT, ROLLBACK -- refer to the list
-    of "Preparable and Non-Preparable SQL Statements", shown earlier.
-          ## Does the size of a string include the null terminator?
-                ## If you are passing a string's octet length: NO. For example:
+Notes:
+      ## Technically, SQLExecDirect is redundant: you can do the same thing by
+calling SQLPrepare and SQLExecute. But programmers prefer to use SQLExecDirect
+for SQL statements that will only be prepared and executed once.
+      ## Since SQLExecDirect includes a "prepare" step, it follows that
+non-preparable SQL statements cannot be arguments of SQLExecDirect. Such
+statements include CONNECT, DISCONNECT, COMMIT, ROLLBACK -- refer to the list
+of "Preparable and Non-Preparable SQL Statements", shown earlier.
+      ## Does the size of a string include the null terminator?
+            ## If you are passing a string's octet length: NO. For example:
 
-       SQLExecDirect(hstmt,"abcd",4);
+   SQLExecDirect(hstmt,"abcd",4);
 
-                ## If you are passing (maximum) target octet length: YES. For example:
+            ## If you are passing (maximum) target octet length: YES. For example:
 
-       char x[8];
-       ...
-       SQLGetCursorName(hstmt,x,8,&strlen_or_ind);
+   char x[8];
+   ...
+   SQLGetCursorName(hstmt,x,8,&strlen_or_ind);
 
-                ## If the DBMS is returning the (actual) target octet length: NO. Using the previous example: if a null-terminated string "abcd\0" is returned, then strlen_or_ind will equal 4.
-                ## If the string is a BIT or BINARY string: NO.
+            ## If the DBMS is returning the (actual) target octet length: NO. Using the previous example: if a null-terminated string "abcd\0" is returned, then strlen_or_ind will equal 4.
+            ## If the string is a BIT or BINARY string: NO.
 
-    Example:
-    Take a value at run time, incorporate it in an SQL statement. This is how you
-    can pass a parameter value without using a desc function.
+Example:
+Take a value at run time, incorporate it in an SQL statement. This is how you
+can pass a parameter value without using a desc function.
 
-      #include "sqlcli.h"
-      ...
-      void measurement_update (float measurement, SQLHSTMT hstmt)
-      {
-        int len;
-        SQLCHAR statement[50];
-        len = sprintf(statement, "UPDATE t SET measurement = %f", measurement);
-        SQLExecDirect(hstmt, update_statement, len); }
+  #include "sqlcli.h"
+  ...
+  void measurement_update (float measurement, SQLHSTMT hstmt)
+  {
+    int len;
+    SQLCHAR statement[50];
+    len = sprintf(statement, "UPDATE t SET measurement = %f", measurement);
+    SQLExecDirect(hstmt, update_statement, len); }
 
-    EXAMPLE3.C: basic "Interactive SQL" program
-    If you want to put together a program that accepts SQL statements from the
-    keyboard and displays results on the screen, this is the skeletal arrangement:
+EXAMPLE3.C: basic "Interactive SQL" program
+If you want to put together a program that accepts SQL statements from the
+keyboard and displays results on the screen, this is the skeletal arrangement:
 
-      #include "sqlcli.h"
-      ...
-      SQLAllocHandle(); SQLAllocHandle(); SQLConnect(); SQLAllocHandle();
-      ...
-      for (;;)
-        printf("Type in an SQL statement, O user: \n");
-        gets(user_statement);
-        if (SQLExecDirect(StatementHandle,user_statement,SQL_NTS)>=0) {
-          printf("OK\n"); }
-        else {
-          printf("Error\n"); }
-      ...
-      SQLFreeHandle(); SQLDisconnect(); SQLFreeHandle(); SQLFreeHandle();
+  #include "sqlcli.h"
+  ...
+  SQLAllocHandle(); SQLAllocHandle(); SQLConnect(); SQLAllocHandle();
+  ...
+  for (;;)
+    printf("Type in an SQL statement, O user: \n");
+    gets(user_statement);
+    if (SQLExecDirect(StatementHandle,user_statement,SQL_NTS)>=0) {
+      printf("OK\n"); }
+    else {
+      printf("Error\n"); }
+  ...
+  SQLFreeHandle(); SQLDisconnect(); SQLFreeHandle(); SQLFreeHandle();
 
-    In this code, notice how SQLExecDirect is fundamental -- it's the only CLI
-    function that must be called for every iteration of the loop. In later
-    examples, we'll show you other things that are necessary here (e.g.: how to
-    exit from the loop, what to do with errors and how queries need special handling).
+In this code, notice how SQLExecDirect is fundamental -- it's the only CLI
+function that must be called for every iteration of the loop. In later
+examples, we'll show you other things that are necessary here (e.g.: how to
+exit from the loop, what to do with errors and how queries need special handling).
 
-    ODBC: The SQLExecDirect function has been around since ODBC 1.0.
+ODBC: The SQLExecDirect function has been around since ODBC 1.0.
 
 SQLEndTran
 ==========
 
 ::
 
-    Function Prototype:
-      SQLRETURN SQLEndTran(
-        SQLSMALLINT HandleType,         /* 16-bit input */
-        SQLINTEGER Handle,              /* 32-bit input */
-        SQLSMALLINT CompletionType      /* 16-bit input */
-        );
+Function Prototype:
+  SQLRETURN SQLEndTran(
+    SQLSMALLINT HandleType,         /* 16-bit input */
+    SQLINTEGER Handle,              /* 32-bit input */
+    SQLSMALLINT CompletionType      /* 16-bit input */
+    );
 
-    Job:
-    End a transaction, either with COMMIT or with ROLLBACK. SQLEndTran is not a
-    "statement" function, but we believe that it fits in this chapter because it's
-    used to COMMIT or ROLLBACK the results of SQL statements that have been
-    processed with SQLExecute or SQLExecDirect.
+Job:
+End a transaction, either with COMMIT or with ROLLBACK. SQLEndTran is not a
+"statement" function, but we believe that it fits in this chapter because it's
+used to COMMIT or ROLLBACK the results of SQL statements that have been
+processed with SQLExecute or SQLExecDirect.
 
-    Algorithm:
-          If (HandleType is not one of: SQL_HANDLE_ENV, SQL_HANDLE_DBC, SQL_HANDLE_STMT)
-            return error: CLI-specific condition-invalid handle
-          If (HandleType == SQL_HANDLE_STMT)
-            If (Handle is not a hstmt)
-              return error: HY092 CLI-specific condition-invalid attribute identifier
-               The COMMIT/ROLLBACK will be done for the dbc associated with this stmt
-          If (HandleType == SQL_HANDLE_DBC)
-            If (Handle is not a hdbc)
-              return error: HY092 CLI-specific condition-invalid attribute identifier
-            The dbc's diagnostics area is emptied.
-               The COMMIT/ROLLBACK will be done for the specified dbc
-          If (HandleType == SQL_HANDLE_DESC)
-            If (Handle is not a hdesc)
-              return error: HY092 CLI-specific condition-invalid attribute identifier
-               The COMMIT/ROLLBACK will be done for the dbc associated with this desc
-          If (HandleType == SQL_HANDLE_ENV)
-            If (Handle is not a henv, or env is a skeleton env)
-              return error: HY092 CLI-specific condition-invalid attribute identifier
-               The COMMIT/ROLLBACK will be done for all dbcs associated with this env
-          If (CompletionType is not either COMMIT (0) or ROLLBACK (1))
-            return error: HY012 CLI-specific condition-invalid transaction operation code
-          If (the current transaction is part of an encompassing transaction)
-            If (transaction control is not controlled by this DBMS alone)
-              return error: 2D000 Invalid transaction termination -
-          /* The rest of the algorithm might iterate several times if the
-             Handle is a henv, and there are multiple active dbcs */
-          For (each stmt in the dbc)
-            If (a deferred parameter number is associated with the stmt)
-              return error: HY010 CLI-specific condition-function sequence error
-          For each stmt in the dbc:
-            If (there is a non-holdable Cursor associated with the stmt)
-              Close the Cursor and destroy its copy of the select source
-              Remove any associated fetched row
-          If (CompletionType == SQL_COMMIT (0))
-            Commit.
-            /* The usual "commit" operations happen, as described in the
-               Transactions chapter. For example: if a temporary Table was
-               created with the ON COMMIT DELETE [ROWS] option, all its rows
-               are deleted. Warning: checking of deferred Constraints might result
-                in: 40002 Transaction rollback-integrity constraint violation */
-            If (any other error prevents commitment now)
-              /* For example, writing to disk causes a "disk full" error */
-              return error: 40??? Transaction rollback-implementation-defined subclass value
-          If (CompletionType == SQL_ROLLBACK)
-            Rollback.
-            /* The usual "rollback" operations happen, as described in the Transactions chapter. */
-          The transaction is now terminated.
+Algorithm:
+      If (HandleType is not one of: SQL_HANDLE_ENV, SQL_HANDLE_DBC, SQL_HANDLE_STMT)
+        return error: CLI-specific condition-invalid handle
+      If (HandleType == SQL_HANDLE_STMT)
+        If (Handle is not a hstmt)
+          return error: HY092 CLI-specific condition-invalid attribute identifier
+           The COMMIT/ROLLBACK will be done for the dbc associated with this stmt
+      If (HandleType == SQL_HANDLE_DBC)
+        If (Handle is not a hdbc)
+          return error: HY092 CLI-specific condition-invalid attribute identifier
+        The dbc's diagnostics area is emptied.
+           The COMMIT/ROLLBACK will be done for the specified dbc
+      If (HandleType == SQL_HANDLE_DESC)
+        If (Handle is not a hdesc)
+          return error: HY092 CLI-specific condition-invalid attribute identifier
+           The COMMIT/ROLLBACK will be done for the dbc associated with this desc
+      If (HandleType == SQL_HANDLE_ENV)
+        If (Handle is not a henv, or env is a skeleton env)
+          return error: HY092 CLI-specific condition-invalid attribute identifier
+           The COMMIT/ROLLBACK will be done for all dbcs associated with this env
+      If (CompletionType is not either COMMIT (0) or ROLLBACK (1))
+        return error: HY012 CLI-specific condition-invalid transaction operation code
+      If (the current transaction is part of an encompassing transaction)
+        If (transaction control is not controlled by this DBMS alone)
+          return error: 2D000 Invalid transaction termination -
+      /* The rest of the algorithm might iterate several times if the
+         Handle is a henv, and there are multiple active dbcs */
+      For (each stmt in the dbc)
+        If (a deferred parameter number is associated with the stmt)
+          return error: HY010 CLI-specific condition-function sequence error
+      For each stmt in the dbc:
+        If (there is a non-holdable Cursor associated with the stmt)
+          Close the Cursor and destroy its copy of the select source
+          Remove any associated fetched row
+      If (CompletionType == SQL_COMMIT (0))
+        Commit.
+        /* The usual "commit" operations happen, as described in the
+           Transactions chapter. For example: if a temporary Table was
+           created with the ON COMMIT DELETE [ROWS] option, all its rows
+           are deleted. Warning: checking of deferred Constraints might result
+            in: 40002 Transaction rollback-integrity constraint violation */
+        If (any other error prevents commitment now)
+          /* For example, writing to disk causes a "disk full" error */
+          return error: 40??? Transaction rollback-implementation-defined subclass value
+      If (CompletionType == SQL_ROLLBACK)
+        Rollback.
+        /* The usual "rollback" operations happen, as described in the Transactions chapter. */
+      The transaction is now terminated.
 
-    Notes about the algorithm:
-          ## See the SQLSTATE error codes HY010, HY092 and 40002 in our chapter on
-    SQL/CLI diagnostics. Pay particular attention to 40002, which implies that
-    ROLLBACK occurred when you asked for COMMIT.
-          ## Since COMMIT and ROLLBACK are non-preparable SQL statements, the
-    correct way to end a transaction is to call SQLEndTran. Some DBMSs accept
-    SQLExecDirect(hstmt,"COMMIT;",SQL_NTS); anyway, but it's not legal according
-    to the SQL Standard and you can't be sure exactly what will happen.
-          ## It is not clear why one would pass a hstmt or hdesc to SQLEndTran.
-    These are new (SQL3) options. The safe thing is to use only hdbc or henv for the handle.
-          ## When there is only one env and one dbc, the convention is to use the
-    henv for this function:
+Notes about the algorithm:
+      ## See the SQLSTATE error codes HY010, HY092 and 40002 in our chapter on
+SQL/CLI diagnostics. Pay particular attention to 40002, which implies that
+ROLLBACK occurred when you asked for COMMIT.
+      ## Since COMMIT and ROLLBACK are non-preparable SQL statements, the
+correct way to end a transaction is to call SQLEndTran. Some DBMSs accept
+SQLExecDirect(hstmt,"COMMIT;",SQL_NTS); anyway, but it's not legal according
+to the SQL Standard and you can't be sure exactly what will happen.
+      ## It is not clear why one would pass a hstmt or hdesc to SQLEndTran.
+These are new (SQL3) options. The safe thing is to use only hdbc or henv for the handle.
+      ## When there is only one env and one dbc, the convention is to use the
+henv for this function:
 
-       SQLEndTran(SQL_HANDLE_ENV,henv,SQL_COMMIT)
+   SQLEndTran(SQL_HANDLE_ENV,henv,SQL_COMMIT)
 
-          ## Have a look at our chapter on transactions before you try to use
-    SQLEndTran.
+      ## Have a look at our chapter on transactions before you try to use
+SQLEndTran.
 
-    Example:
-      #include "sqlcli.h"
-      SQLHDBC hdbc;
-      SQLHSTMT hstmt;
-      ...
-      SQLAllocHandle(SQL_HANDLE_STMT,hdbc,&hstmt);
-      /* Do an SQL statement using a stmt associated with dbc */
-      SQLExecDirect(hstmt,"INSERT INTO t1 SELECT * FROM t2",SQL_NTS);
-      /* Commit the statement results using the dbc */
-      SQLEndTran(SQL_HANDLE_DBC,hdbc,SQL_COMMIT);
+Example:
+  #include "sqlcli.h"
+  SQLHDBC hdbc;
+  SQLHSTMT hstmt;
+  ...
+  SQLAllocHandle(SQL_HANDLE_STMT,hdbc,&hstmt);
+  /* Do an SQL statement using a stmt associated with dbc */
+  SQLExecDirect(hstmt,"INSERT INTO t1 SELECT * FROM t2",SQL_NTS);
+  /* Commit the statement results using the dbc */
+  SQLEndTran(SQL_HANDLE_DBC,hdbc,SQL_COMMIT);
 
-    ODBC: The SQLEndTran function was added in ODBC 3.0, but there was a
-    nearly-equivalent function in ODBC 2.0 (SQLTransact). With ODBC, if the
-    HandleType value is not SQL_HANDLE_ENV or SQL_HANDLE_DBC, the return is HY092
-    (invalid attribute/option identifier), rather than "invalid handle".
+ODBC: The SQLEndTran function was added in ODBC 3.0, but there was a
+nearly-equivalent function in ODBC 2.0 (SQLTransact). With ODBC, if the
+HandleType value is not SQL_HANDLE_ENV or SQL_HANDLE_DBC, the return is HY092
+(invalid attribute/option identifier), rather than "invalid handle".
 
-    With ODBC, the default behaviour is "autocommit" (i.e.: perform an automatic
-    "commit" after every SQL statement), so SQLEndTran has nothing to do. THIS IS
-    A MAJOR DIFFERENCE BETWEEN ODBC AND STANDARD SQL. The suggested way to resolve
-    it is to call an ODBC function which turns the "autocommit" flag off:
-    SQLSetConnectAttr(hdbc,SQL_ATTR_AUTOCOMMIT,SQL_AUTOCOMMIT_OFF);
+With ODBC, the default behaviour is "autocommit" (i.e.: perform an automatic
+"commit" after every SQL statement), so SQLEndTran has nothing to do. THIS IS
+A MAJOR DIFFERENCE BETWEEN ODBC AND STANDARD SQL. The suggested way to resolve
+it is to call an ODBC function which turns the "autocommit" flag off:
+SQLSetConnectAttr(hdbc,SQL_ATTR_AUTOCOMMIT,SQL_AUTOCOMMIT_OFF);
 
-    And that's it for the statement functions. In the next chapter, we'll take a look at the Cursor functions.
+And that's it for the statement functions. In the next chapter, we'll take a look at the Cursor functions.

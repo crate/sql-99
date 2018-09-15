@@ -6,422 +6,422 @@ Chapter 11 -- Row types
 
 ::
 
-    [Obscure Rule] applies for this entire chapter.
+[Obscure Rule] applies for this entire chapter.
 
-    In SQL, a <row type> is a row of data: a composite constructed SQL <data
-    type>. A row in a Table is an instance of a <row type> and every row of the
-    same Table has the same type -- the intent is to provide a <data type> that
-    can represent the rows of a Table, so that complete rows can be stored in
-    variables, passed as arguments to routines and returned by functions.
+In SQL, a <row type> is a row of data: a composite constructed SQL <data
+type>. A row in a Table is an instance of a <row type> and every row of the
+same Table has the same type -- the intent is to provide a <data type> that
+can represent the rows of a Table, so that complete rows can be stored in
+variables, passed as arguments to routines and returned by functions.
 
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+:local:
 
 Row <data type>s
 ================
 
 ::
 
-    A <row type> is defined by a descriptor that contains three pieces of information:
-          ## The <data type>'s name: ROW.
-          ## The <data type>'s degree: the number of Fields that belong to the row.
-          ## A descriptor for every Field that belongs to the row. The Field
-    descriptor contains the name of the Field, the Field's ordinal position in the
-    <row type>, the Field's <data type> and nullability attribute (or, if the
-    Field is based on a Domain, the name of that Domain), the Field's Character
-    set and default Collation (for character string <data type>s) and the Field's
-    <reference scope check> (for <reference type>s).
+A <row type> is defined by a descriptor that contains three pieces of information:
+      ## The <data type>'s name: ROW.
+      ## The <data type>'s degree: the number of Fields that belong to the row.
+      ## A descriptor for every Field that belongs to the row. The Field
+descriptor contains the name of the Field, the Field's ordinal position in the
+<row type>, the Field's <data type> and nullability attribute (or, if the
+Field is based on a Domain, the name of that Domain), the Field's Character
+set and default Collation (for character string <data type>s) and the Field's
+<reference scope check> (for <reference type>s).
 
-    ROW:
-    The required syntax for a <row type> specification is:
+ROW:
+The required syntax for a <row type> specification is:
 
-    <row type> ::=
-    ROW (<Field definition> [ {,<Field definition>}... ])
+<row type> ::=
+ROW (<Field definition> [ {,<Field definition>}... ])
 
-       <Field definition> ::=
-       <Field name> {<data type> | <Domain name>}
-          [ <reference scope check> ]
-          [ COLLATE <Collation name> ]
+   <Field definition> ::=
+   <Field name> {<data type> | <Domain name>}
+      [ <reference scope check> ]
+      [ COLLATE <Collation name> ]
 
-    A <row type> specification defines a row of data: it consists of a sequence of
-    one or more parenthesized {<Field name>,<data type>} pairs, known as Fields.
-    The degree of a row is the number of Fields it contains. A value of a row
-    consists of one value for each of its Fields, while a value of a Field is a
-    value of the Field's <data type>. Each Field in a row must have a unique name.
-    Here is an example of a <row type> specification:
+A <row type> specification defines a row of data: it consists of a sequence of
+one or more parenthesized {<Field name>,<data type>} pairs, known as Fields.
+The degree of a row is the number of Fields it contains. A value of a row
+consists of one value for each of its Fields, while a value of a Field is a
+value of the Field's <data type>. Each Field in a row must have a unique name.
+Here is an example of a <row type> specification:
 
-       ROW (field_1 INT, field_2 DATE, field_3 INTERVAL(4) YEAR)
+   ROW (field_1 INT, field_2 DATE, field_3 INTERVAL(4) YEAR)
 
-    A <Field name> identifies a Field and is either a <regular identifier> or a
-    <delimited identifier> that is unique (for all Fields and Columns) within the
-    Table it belongs to. You can define a Field's <data type> either by putting a
-    <data type> specification after <Field name> or by putting a <Domain name>
-    after the <Field name>. (The <data type> of a Field can be any type other than
-    a <reference type> -- in particular, it can itself be a <row type>.) For
-    example, consider this SQL statement, which creates a Domain, called DOMAIN_1,
-    whose defined <data type> is DATE:
+A <Field name> identifies a Field and is either a <regular identifier> or a
+<delimited identifier> that is unique (for all Fields and Columns) within the
+Table it belongs to. You can define a Field's <data type> either by putting a
+<data type> specification after <Field name> or by putting a <Domain name>
+after the <Field name>. (The <data type> of a Field can be any type other than
+a <reference type> -- in particular, it can itself be a <row type>.) For
+example, consider this SQL statement, which creates a Domain, called DOMAIN_1,
+whose defined <data type> is DATE:
 
-       CREATE DOMAIN Domain_1 AS DATE;
+   CREATE DOMAIN Domain_1 AS DATE;
 
-    Based on this definition, these two <row type> specifications are equivalent -- both define a row with one Field (called FIELD_1) whose defined <data type> is DATE:
+Based on this definition, these two <row type> specifications are equivalent -- both define a row with one Field (called FIELD_1) whose defined <data type> is DATE:
 
-       ROW (field_1 DATE)
+   ROW (field_1 DATE)
 
-       ROW (field_1 domain_1)
+   ROW (field_1 domain_1)
 
-    [Obscure Rule] If the <data type> of a Field is CHAR, VARCHAR or CLOB, the
-    Character set that the Field's values must belong to is determined as follows:
-          ## If the <Field definition> contains a <data type> specification that
-    includes a CHARACTER SET clause, the Field's Character set is the Character
-    set named. Your current <AuthorizationID> must have the USAGE Privilege on that Character set.
-          ## If the <Field definition> does not include a <data type>
-    specification, but the Field is based on a Domain whose definition includes a
-    CHARACTER SET clause, the Field's Character set is the Character set named.
-          ## If the <Field definition> does not include any CHARACTER SET clause
-    at all -- either through a <data type> specification or through a Domain
-    definition -- the Field's Character set is the Character set named in the
-    DEFAULT CHARACTER SET clause of the CREATE SCHEMA statement that defines the Schema that the Field belongs to.
+[Obscure Rule] If the <data type> of a Field is CHAR, VARCHAR or CLOB, the
+Character set that the Field's values must belong to is determined as follows:
+      ## If the <Field definition> contains a <data type> specification that
+includes a CHARACTER SET clause, the Field's Character set is the Character
+set named. Your current <AuthorizationID> must have the USAGE Privilege on that Character set.
+      ## If the <Field definition> does not include a <data type>
+specification, but the Field is based on a Domain whose definition includes a
+CHARACTER SET clause, the Field's Character set is the Character set named.
+      ## If the <Field definition> does not include any CHARACTER SET clause
+at all -- either through a <data type> specification or through a Domain
+definition -- the Field's Character set is the Character set named in the
+DEFAULT CHARACTER SET clause of the CREATE SCHEMA statement that defines the Schema that the Field belongs to.
 
-    For example, the effect of these two SQL statements:
+For example, the effect of these two SQL statements:
 
-       CREATE SCHEMA bob AUTHORIZATION bob
-          DEFAULT CHARACTER SET INFORMATION_SCHEMA.LATIN1;
+   CREATE SCHEMA bob AUTHORIZATION bob
+      DEFAULT CHARACTER SET INFORMATION_SCHEMA.LATIN1;
 
-       CREATE TABLE Table_1 (
-          column_1 ROW(
-             field_1 CHAR(10),
-             field_2 INT));
+   CREATE TABLE Table_1 (
+      column_1 ROW(
+         field_1 CHAR(10),
+         field_2 INT));
 
-    is to create a Table in Schema BOB. The Table has a Column with a ROW <data
-    type>, containing two Fields. The character string Field's set of valid values
-    are fixed length character strings, exactly 10 characters long, all of whose
-    characters must be found in the INFORMATION_SCHEMA.LATIN1 Character set -- the
-    Schema's default Character set. The effect of these two SQL statements:
+is to create a Table in Schema BOB. The Table has a Column with a ROW <data
+type>, containing two Fields. The character string Field's set of valid values
+are fixed length character strings, exactly 10 characters long, all of whose
+characters must be found in the INFORMATION_SCHEMA.LATIN1 Character set -- the
+Schema's default Character set. The effect of these two SQL statements:
 
-       CREATE SCHEMA bob AUTHORIZATION bob
-          DEFAULT CHARACTER SET INFORMATION_SCHEMA.LATIN1;
+   CREATE SCHEMA bob AUTHORIZATION bob
+      DEFAULT CHARACTER SET INFORMATION_SCHEMA.LATIN1;
 
-       CREATE TABLE Table_1 (
-          column_1 ROW(
-             field_1 CHAR(10) CHARACTER SET INFORMATION_SCHEMA.SQL_CHARACTER,
-             field_2 INT));
+   CREATE TABLE Table_1 (
+      column_1 ROW(
+         field_1 CHAR(10) CHARACTER SET INFORMATION_SCHEMA.SQL_CHARACTER,
+         field_2 INT));
 
-    is to create the same Table with one difference: this time, the character
-    string Field's values must consist only of characters found in the
-    INFORMATION_SCHEMA.SQL_CHARACTER Character set -- the explicit Character set
-    specification in CREATE TABLE constrains the Field's set of values. The
-    Schema's default Character set does not.
+is to create the same Table with one difference: this time, the character
+string Field's values must consist only of characters found in the
+INFORMATION_SCHEMA.SQL_CHARACTER Character set -- the explicit Character set
+specification in CREATE TABLE constrains the Field's set of values. The
+Schema's default Character set does not.
 
-    [Obscure Rule] If the <data type> of a Field is CHAR, VARCHAR, CLOB, NCHAR,
-    NCHAR VARYING or NCLOB, and your <Field definition> does not include a COLLATE
-    clause, the Field has a coercibility attribute of COERCIBLE -- but if your
-    <Field definition> includes a COLLATE clause, the Field has a coercibility
-    attribute of IMPLICIT. In either case, the Field's default Collation is determined as follows:
-          ## If the <Field definition> includes a COLLATE clause, the Field's
-    default Collation is the Collation named. Your current <AuthorizationID> must
-    have the USAGE Privilege on that Collation.
-          ## If the <Field definition> does not include a COLLATE clause, but does
-    contain a <data type> specification that includes a COLLATE clause, the
-    Field's default Collation is the Collation named. Your current
-    <AuthorizationID> must have the USAGE Privilege on that Collation.
-          ## If the <Field definition> does not include a COLLATE clause, but the
-    Field is based on a Domain whose definition includes a COLLATE clause, the
-    Field's default Collation is the Collation named.
-          ## If the <Field definition> does not include any COLLATE clause at all
-    -- either explicitly, through a <data type> specification or through a Domain
-    definition -- the Field's default Collation is the default Collation of the Field's Character set.
+[Obscure Rule] If the <data type> of a Field is CHAR, VARCHAR, CLOB, NCHAR,
+NCHAR VARYING or NCLOB, and your <Field definition> does not include a COLLATE
+clause, the Field has a coercibility attribute of COERCIBLE -- but if your
+<Field definition> includes a COLLATE clause, the Field has a coercibility
+attribute of IMPLICIT. In either case, the Field's default Collation is determined as follows:
+      ## If the <Field definition> includes a COLLATE clause, the Field's
+default Collation is the Collation named. Your current <AuthorizationID> must
+have the USAGE Privilege on that Collation.
+      ## If the <Field definition> does not include a COLLATE clause, but does
+contain a <data type> specification that includes a COLLATE clause, the
+Field's default Collation is the Collation named. Your current
+<AuthorizationID> must have the USAGE Privilege on that Collation.
+      ## If the <Field definition> does not include a COLLATE clause, but the
+Field is based on a Domain whose definition includes a COLLATE clause, the
+Field's default Collation is the Collation named.
+      ## If the <Field definition> does not include any COLLATE clause at all
+-- either explicitly, through a <data type> specification or through a Domain
+definition -- the Field's default Collation is the default Collation of the Field's Character set.
 
-    [Obscure Rule] Although a <row type> specification may not include a Field
-    with a <reference type> as its <data type>, it is possible to have a row with
-    such a Field because a row of a Table and a row of a query result are both
-    considered to be <row type>s as well. In such cases, if the <data type> of a
-    Field is REF(UDT), your current <AuthorizationID> must have the USAGE
-    Privilege on that UDT. If the <data type> of a Field includes REF with a
-    <scope clause>, your <Field definition> must also include a <reference scope
-    check> clause, to indicate whether references are to be checked or not (don't
-    add a <reference scope check> clause under any other circumstances). In this
-    case, you may also add the optional <reference scope check action> clause, to
-    indicate the action to be taken when the Field is the subject of a DELETE
-    statement. If you omit the <reference scope check action> clause, it defaults to ON DELETE RESTRICT.
-          ## If a Field is defined with REFERENCES ARE CHECKED, and a <scope
-    clause> naming one or more Tables is included in the <Field definition>, then
-    there is an implied DEFERRABLE INITIALLY IMMEDIATE Constraint on the Field
-    which checks that the Field's values are also found in the corresponding Field
-    of the system generated Column of each Table named in the <scope clause>. In
-    this case, if the <reference scope check action> is SET NULL then, prior to
-    deleting any rows from the Table that owns this Field, your DBMS will (a)
-    execute a SET CONSTRAINT statement that sets the implied Constraint's
-    constraint check time to DEFERRED, (b) DELETE the rows as required, (c) set
-    the value of the system generated Column in each Table named in the <scope
-    clause> to NULL, for each row that matched the deleted rows and (d) execute a
-    SET CONSTRAINT statement that sets the implied Constraint's constraint check time to IMMEDIATE.
-          ## [Obscure Rule] If the <data type> of a Field in a row is a UDT, then
-    the current <AuthorizationID> must have the USAGE Privilege on that UDT.
-          ## A <row type> is a subtype of a <data type> if (a) both are <row
-    type>s with the same degree and (b) for every pair of corresponding <Field
-    definition>s, the <Field name>s are the same and the <data type> of the Field
-    in the first <row type> is a supertype of the <data type> of the Field in the second <row type>.
+[Obscure Rule] Although a <row type> specification may not include a Field
+with a <reference type> as its <data type>, it is possible to have a row with
+such a Field because a row of a Table and a row of a query result are both
+considered to be <row type>s as well. In such cases, if the <data type> of a
+Field is REF(UDT), your current <AuthorizationID> must have the USAGE
+Privilege on that UDT. If the <data type> of a Field includes REF with a
+<scope clause>, your <Field definition> must also include a <reference scope
+check> clause, to indicate whether references are to be checked or not (don't
+add a <reference scope check> clause under any other circumstances). In this
+case, you may also add the optional <reference scope check action> clause, to
+indicate the action to be taken when the Field is the subject of a DELETE
+statement. If you omit the <reference scope check action> clause, it defaults to ON DELETE RESTRICT.
+      ## If a Field is defined with REFERENCES ARE CHECKED, and a <scope
+clause> naming one or more Tables is included in the <Field definition>, then
+there is an implied DEFERRABLE INITIALLY IMMEDIATE Constraint on the Field
+which checks that the Field's values are also found in the corresponding Field
+of the system generated Column of each Table named in the <scope clause>. In
+this case, if the <reference scope check action> is SET NULL then, prior to
+deleting any rows from the Table that owns this Field, your DBMS will (a)
+execute a SET CONSTRAINT statement that sets the implied Constraint's
+constraint check time to DEFERRED, (b) DELETE the rows as required, (c) set
+the value of the system generated Column in each Table named in the <scope
+clause> to NULL, for each row that matched the deleted rows and (d) execute a
+SET CONSTRAINT statement that sets the implied Constraint's constraint check time to IMMEDIATE.
+      ## [Obscure Rule] If the <data type> of a Field in a row is a UDT, then
+the current <AuthorizationID> must have the USAGE Privilege on that UDT.
+      ## A <row type> is a subtype of a <data type> if (a) both are <row
+type>s with the same degree and (b) for every pair of corresponding <Field
+definition>s, the <Field name>s are the same and the <data type> of the Field
+in the first <row type> is a supertype of the <data type> of the Field in the second <row type>.
 
-    <row reference>:
-    A <row reference> returns a row. The required syntax for a <row reference> is:
+<row reference>:
+A <row reference> returns a row. The required syntax for a <row reference> is:
 
-    <row reference> ::=
-    ROW {<Table name> | <query name> | <Correlation name>}
+<row reference> ::=
+ROW {<Table name> | <query name> | <Correlation name>}
 
-    A row of data values belonging to a Table (or a query result, which is also a
-    Table) is also considered to be a <row type>. In a Table, each Column of a
-    data row corresponds to a Field of the <row type>: the Column and Field have
-    the same ordinal positions in the Table and <row type>, respectively. A <row
-    reference> allows you to access a specific row of a Table or a query result.
-    Here is an example of a <row reference> that would return a row of a Table named TABLE_1:
+A row of data values belonging to a Table (or a query result, which is also a
+Table) is also considered to be a <row type>. In a Table, each Column of a
+data row corresponds to a Field of the <row type>: the Column and Field have
+the same ordinal positions in the Table and <row type>, respectively. A <row
+reference> allows you to access a specific row of a Table or a query result.
+Here is an example of a <row reference> that would return a row of a Table named TABLE_1:
 
-       ROW(Table_1)
+   ROW(Table_1)
 
-    <Field reference>:
-    A <Field reference> returns a Field of a row. The required syntax for a <Field reference> is:
+<Field reference>:
+A <Field reference> returns a Field of a row. The required syntax for a <Field reference> is:
 
-    <Field reference> ::=
-    row_argument.<Field name>
+<Field reference> ::=
+row_argument.<Field name>
 
-    A <Field reference> allows you to access a specific Field of a row. It
-    operates on two arguments: the first must evaluate to a <row type> and the
-    second must be the name of a Field belonging to that row. If the value of
-    "row_argument" is NULL, then the specified Field is also NULL. If
-    "row_argument" has a non-null value, the value of the Field reference is the
-    value of the specified Field in "row_argument". Here is an example of a <Field
-    reference> that would return the value of a Field named FIELD_1 that belongs
-    to a row of TABLE_1:
+A <Field reference> allows you to access a specific Field of a row. It
+operates on two arguments: the first must evaluate to a <row type> and the
+second must be the name of a Field belonging to that row. If the value of
+"row_argument" is NULL, then the specified Field is also NULL. If
+"row_argument" has a non-null value, the value of the Field reference is the
+value of the specified Field in "row_argument". Here is an example of a <Field
+reference> that would return the value of a Field named FIELD_1 that belongs
+to a row of TABLE_1:
 
-       ROW(Table_1).field_1
+   ROW(Table_1).field_1
 
-    <row value constructor>:
-    An <row value constructor> is used to construct a row of data. The required syntax for a <row value constructor> is:
+<row value constructor>:
+An <row value constructor> is used to construct a row of data. The required syntax for a <row value constructor> is:
 
-    <row value constructor> ::=
-    element_expression |
-    [ ROW ] (element_expression [ {,element_expression}... ]) |
-    ( <query expression> )
+<row value constructor> ::=
+element_expression |
+[ ROW ] (element_expression [ {,element_expression}... ]) |
+( <query expression> )
 
-       element_expression ::=
-       element_expression |
-       NULL |
-       ARRAY[] |
-       ARRAY??(??) |
-       DEFAULT
+   element_expression ::=
+   element_expression |
+   NULL |
+   ARRAY[] |
+   ARRAY??(??) |
+   DEFAULT
 
-    A <row value constructor> allows you to assign values to the Fields of a row,
-    using either a list of element_expressions of the result of a subquery. An
-    "element_expression" may be any expression that evaluates to a scalar value
-    with a <data type> that is assignable to the corresponding Field's <data
-    type>. A subquery -- ( <query expression> ) -- is discussed in our chapter on
-    complex queries. The result is a row whose n-th Field value is the value of
-    the n-th element_expression (or whose value is the value of the subquery) you
-    specify. If your "element_expression" is NULL, the corresponding Field is
-    assigned the null value. If your "element_expression" is ARRAY[] or
-    ARRAY??(??), the corresponding Field is assigned an empty array. If your
-    "element_expression" is DEFAULT, the corresponding Field is assigned its
-    default value. Here is an example of a <row value constructor>:
+A <row value constructor> allows you to assign values to the Fields of a row,
+using either a list of element_expressions of the result of a subquery. An
+"element_expression" may be any expression that evaluates to a scalar value
+with a <data type> that is assignable to the corresponding Field's <data
+type>. A subquery -- ( <query expression> ) -- is discussed in our chapter on
+complex queries. The result is a row whose n-th Field value is the value of
+the n-th element_expression (or whose value is the value of the subquery) you
+specify. If your "element_expression" is NULL, the corresponding Field is
+assigned the null value. If your "element_expression" is ARRAY[] or
+ARRAY??(??), the corresponding Field is assigned an empty array. If your
+"element_expression" is DEFAULT, the corresponding Field is assigned its
+default value. Here is an example of a <row value constructor>:
 
-       ROW ('hello',567,DATE '1994-07-15',NULL,DEFAULT,ARRAY[])
+   ROW ('hello',567,DATE '1994-07-15',NULL,DEFAULT,ARRAY[])
 
-    This example constructs a row with six Fields. The first Field has a character
-    string value of 'hello', the second has a numeric value of '567', the third
-    has a date value of '1994-07-15', the fourth has a null value, the fifth has a
-    value that is the fifth Field's default value and the sixth has a value that
-    is an empty array. This <row value constructor> would be valid for this <row type> specification:
+This example constructs a row with six Fields. The first Field has a character
+string value of 'hello', the second has a numeric value of '567', the third
+has a date value of '1994-07-15', the fourth has a null value, the fifth has a
+value that is the fifth Field's default value and the sixth has a value that
+is an empty array. This <row value constructor> would be valid for this <row type> specification:
 
-       ROW (
-         field_1 CHAR(5),
-         field_2 SMALLINT,
-         field_3 DATE,
-         field_4 BIT(4),
-         field_5 domain_1,
-         field_6 INT ARRAY[4])
+   ROW (
+     field_1 CHAR(5),
+     field_2 SMALLINT,
+     field_3 DATE,
+     field_4 BIT(4),
+     field_5 domain_1,
+     field_6 INT ARRAY[4])
 
-    A <row value constructor> serves the same purpose for a row as a <literal>
-    does for a predefined <data type>. It has the same format as the <row type>'s
-    ROW specification -- that is, ROW( ) -- but instead of a series of <Field
-    definition>s inside the size delimiters, it contains comma-delimited values of
-    the correct <data type> for each Field. For example, if your <row type> specification is:
+A <row value constructor> serves the same purpose for a row as a <literal>
+does for a predefined <data type>. It has the same format as the <row type>'s
+ROW specification -- that is, ROW( ) -- but instead of a series of <Field
+definition>s inside the size delimiters, it contains comma-delimited values of
+the correct <data type> for each Field. For example, if your <row type> specification is:
 
-       ROW (field_1 INT, field_2 CHAR(5), field_3 BIT(4))
+   ROW (field_1 INT, field_2 CHAR(5), field_3 BIT(4))
 
-    a valid <row value constructor> would be:
+a valid <row value constructor> would be:
 
-       ROW(20,'hello',B'1011')
+   ROW(20,'hello',B'1011')
 
-    If you construct a row with a subquery, the row takes on the <data type> of
-    the subquery's result. An empty subquery result constructs a one-Field row
-    whose value is NULL. A non-empty subquery result constructs a one-Field row
-    whose value is the subquery result.
+If you construct a row with a subquery, the row takes on the <data type> of
+the subquery's result. An empty subquery result constructs a one-Field row
+whose value is NULL. A non-empty subquery result constructs a one-Field row
+whose value is the subquery result.
 
-    If you want to restrict your code to Core SQL, don't use the ROW <data type>
-    or <row reference>s and <Field reference>s and, when using a <row value
-    constructor>, don't use ARRAY[] or ARRAY??(??) as an "element_expression",
-    don't construct a row with more than one Field, don't use the ROW <keyword> in
-    front of your element_expression and don't use a subquery to construct your row.
+If you want to restrict your code to Core SQL, don't use the ROW <data type>
+or <row reference>s and <Field reference>s and, when using a <row value
+constructor>, don't use ARRAY[] or ARRAY??(??) as an "element_expression",
+don't construct a row with more than one Field, don't use the ROW <keyword> in
+front of your element_expression and don't use a subquery to construct your row.
 
 Row Operations
 ==============
 
 ::
 
-    A row is compatible with, and comparable to, any row with compatible Fields --
-    that is, rows are mutually comparable and mutually assignable only if they
-    have the same number of Fields and each corresponding pair of Fields are
-    mutually comparable and mutually assignable. Rows may not be directly compared
-    with, or directly assigned to, any other <data type> class, though implicit
-    type conversions of their Fields can occur in expressions, SELECTs, INSERTs,
-    DELETEs and UPDATEs. Explicit row type conversions are not possible.
+A row is compatible with, and comparable to, any row with compatible Fields --
+that is, rows are mutually comparable and mutually assignable only if they
+have the same number of Fields and each corresponding pair of Fields are
+mutually comparable and mutually assignable. Rows may not be directly compared
+with, or directly assigned to, any other <data type> class, though implicit
+type conversions of their Fields can occur in expressions, SELECTs, INSERTs,
+DELETEs and UPDATEs. Explicit row type conversions are not possible.
 
-    Assignment:
-    In SQL, when a <row type> is assigned to a <row type> target, the assignment
-    is done one Field at a time -- that is, the source's first Field value is
-    assigned to the target's first Field, the source's second Field value is
-    assigned to the target's second Field, and so on. Assignment of a <row type>
-    to another <row type> is possible only if (a) both <row type>s have the same
-    number of Fields and (b) each corresponding pair of Fields have <data type>s
-    that are mutually assignable.
+Assignment:
+In SQL, when a <row type> is assigned to a <row type> target, the assignment
+is done one Field at a time -- that is, the source's first Field value is
+assigned to the target's first Field, the source's second Field value is
+assigned to the target's second Field, and so on. Assignment of a <row type>
+to another <row type> is possible only if (a) both <row type>s have the same
+number of Fields and (b) each corresponding pair of Fields have <data type>s
+that are mutually assignable.
 
-    [Obscure Rule] Since only SQL accepts null values, if your source is NULL,
-    then your target's value is not changed. Instead, your DBMS will set its
-    indicator parameter to -1, to indicate that an assignment of the null value
-    was attempted. If your target doesn't have an indicator parameter, the
-    assignment will fail: your DBMS will return the SQLSTATE error 22002 "data
-    exception-null value, no indicator parameter". Going the other way, there are
-    two ways to assign a null value to an SQL-data target. Within SQL, you can use
-    the <keyword> NULL in an INSERT or an UPDATE statement to indicate that the
-    target should be set to NULL; that is, if your source is NULL, your DBMS will
-    set your target to NULL. Outside of SQL, if your source has an indicator
-    parameter that is set to -1, your DBMS will set your target to NULL
-    (regardless of the value of the source). (An indicator parameter with a value
-    less than -1 will cause an error: your DBMS will return the SQLSTATE error
-    22010 "data exception-invalid indicator parameter value".) We'll talk more
-    about indicator parameters in our chapters on SQL binding styles.
+[Obscure Rule] Since only SQL accepts null values, if your source is NULL,
+then your target's value is not changed. Instead, your DBMS will set its
+indicator parameter to -1, to indicate that an assignment of the null value
+was attempted. If your target doesn't have an indicator parameter, the
+assignment will fail: your DBMS will return the SQLSTATE error 22002 "data
+exception-null value, no indicator parameter". Going the other way, there are
+two ways to assign a null value to an SQL-data target. Within SQL, you can use
+the <keyword> NULL in an INSERT or an UPDATE statement to indicate that the
+target should be set to NULL; that is, if your source is NULL, your DBMS will
+set your target to NULL. Outside of SQL, if your source has an indicator
+parameter that is set to -1, your DBMS will set your target to NULL
+(regardless of the value of the source). (An indicator parameter with a value
+less than -1 will cause an error: your DBMS will return the SQLSTATE error
+22010 "data exception-invalid indicator parameter value".) We'll talk more
+about indicator parameters in our chapters on SQL binding styles.
 
-    Comparison:
-    SQL provides the usual scalar comparison operators -- = and <> and < and <=
-    and > and >= -- to perform operations on rows. All of them will be familiar;
-    there are equivalent operators in other computer languages. Two rows are
-    comparable if (a) both have the same number of Fields and (b) each
-    corresponding pair of Fields have <data type>s that are mutually comparable.
-    During comparison, the Fields of the comparands are compared pairwise in Field
-    order -- that is, the first Field of the first row is compared to the first
-    Field of the second row, the second Field of the first row is compared to the
-    second Field of the second row, and so on. The two rows are equal if (a) they
-    both have the same number of Fields and (b) each pair of Fields are equal. If
-    any of the comparands are NULL, the result of the operation is UNKNOWN. For
-    example:
+Comparison:
+SQL provides the usual scalar comparison operators -- = and <> and < and <=
+and > and >= -- to perform operations on rows. All of them will be familiar;
+there are equivalent operators in other computer languages. Two rows are
+comparable if (a) both have the same number of Fields and (b) each
+corresponding pair of Fields have <data type>s that are mutually comparable.
+During comparison, the Fields of the comparands are compared pairwise in Field
+order -- that is, the first Field of the first row is compared to the first
+Field of the second row, the second Field of the first row is compared to the
+second Field of the second row, and so on. The two rows are equal if (a) they
+both have the same number of Fields and (b) each pair of Fields are equal. If
+any of the comparands are NULL, the result of the operation is UNKNOWN. For
+example:
 
-       ROW(20,'hello',B'1011' <> ROW(12,'goodbye','B'1011')
+   ROW(20,'hello',B'1011' <> ROW(12,'goodbye','B'1011')
 
-    returns TRUE.
+returns TRUE.
 
-    ROW(20,'hello') = ROW(NULL,'hello')
+ROW(20,'hello') = ROW(NULL,'hello')
 
-    returns UNKNOWN.
+returns UNKNOWN.
 
-    SQL also provides three quantifiers -- ALL, SOME, ANY -- which you can use
-    along with a comparison operator to compare a row value with the collection of
-    values returned by a <table subquery>. Place the quantifier after the
-    comparison operator, immediately before the <table subquery>. For example:
+SQL also provides three quantifiers -- ALL, SOME, ANY -- which you can use
+along with a comparison operator to compare a row value with the collection of
+values returned by a <table subquery>. Place the quantifier after the
+comparison operator, immediately before the <table subquery>. For example:
 
-       SELECT row_column
-       FROM   Table_1
-       WHERE  row_column < ALL (
-          SELECT row_column
-          FROM   Table_2);
+   SELECT row_column
+   FROM   Table_1
+   WHERE  row_column < ALL (
+      SELECT row_column
+      FROM   Table_2);
 
-    ALL returns TRUE either (a) if the collection is an empty set (i.e.: if it
-    contains zero rows) or (b) if the comparison operator returns TRUE for every
-    value in the collection. ALL returns FALSE if the comparison operator returns
-    FALSE for at least one value in the collection.
+ALL returns TRUE either (a) if the collection is an empty set (i.e.: if it
+contains zero rows) or (b) if the comparison operator returns TRUE for every
+value in the collection. ALL returns FALSE if the comparison operator returns
+FALSE for at least one value in the collection.
 
-    SOME and ANY are synonyms. They return TRUE if the comparison operator returns
-    TRUE for at least one value in the collection. They return FALSE either (a) if
-    the collection is an empty set or (b) if the comparison operator returns FALSE
-    for every value in the collection. (The search condition "= ANY (collection)"
-    is equivalent to "IN (collection)".)
+SOME and ANY are synonyms. They return TRUE if the comparison operator returns
+TRUE for at least one value in the collection. They return FALSE either (a) if
+the collection is an empty set or (b) if the comparison operator returns FALSE
+for every value in the collection. (The search condition "= ANY (collection)"
+is equivalent to "IN (collection)".)
 
-    Other Operations:
-    With SQL, you have several other operations that you can perform on <row type>s.
+Other Operations:
+With SQL, you have several other operations that you can perform on <row type>s.
 
-    ## Scalar functions
-    All of SQL's scalar functions return a row with one Field: its value is the
-    result of the function. We discuss the scalar functions in our other <data
-    type> chapters and won't repeat the information here.
+## Scalar functions
+All of SQL's scalar functions return a row with one Field: its value is the
+result of the function. We discuss the scalar functions in our other <data
+type> chapters and won't repeat the information here.
 
-    ## Set functions
-    SQL provides three set functions that operate on a <row type>: COUNT(*), COUNT
-    and GROUPING. Since none of these operate exclusively with row arguments, we
-    won't discuss them here; look for them in our chapter on set functions.
+## Set functions
+SQL provides three set functions that operate on a <row type>: COUNT(*), COUNT
+and GROUPING. Since none of these operate exclusively with row arguments, we
+won't discuss them here; look for them in our chapter on set functions.
 
-    ## Predicates
-    In addition to the comparison operators, SQL provides twelve other predicates
-    that operate on rows: the <between predicate>, the <in predicate>, the <like
-    predicate>, the <null predicate>, the <exists predicate>, the <unique
-    predicate>, the <match predicate>, the <overlaps predicate>, the <similar
-    predicate>, the <quantified predicate>, the <distinct predicate> and the <type
-    predicate>. Each will return a boolean value: either TRUE, FALSE or UNKNOWN.
-    Look for the <like predicate> and the <similar predicate> in our chapter on
-    character strings, the <overlaps predicate> in our chapter on temporal values,
-    the <type predicate> in our chapter on UDTs and the rest in our chapters on
-    search conditions.
+## Predicates
+In addition to the comparison operators, SQL provides twelve other predicates
+that operate on rows: the <between predicate>, the <in predicate>, the <like
+predicate>, the <null predicate>, the <exists predicate>, the <unique
+predicate>, the <match predicate>, the <overlaps predicate>, the <similar
+predicate>, the <quantified predicate>, the <distinct predicate> and the <type
+predicate>. Each will return a boolean value: either TRUE, FALSE or UNKNOWN.
+Look for the <like predicate> and the <similar predicate> in our chapter on
+character strings, the <overlaps predicate> in our chapter on temporal values,
+the <type predicate> in our chapter on UDTs and the rest in our chapters on
+search conditions.
 
 Comprehensive Example
 =====================
 
 ::
 
-    Now that we've described SQL's <row type>, let's look at some example SQL statements that put it to use.
+Now that we've described SQL's <row type>, let's look at some example SQL statements that put it to use.
 
-    Here is an SQL statement that creates a Table with three Columns, the third of which is a <row type>:
+Here is an SQL statement that creates a Table with three Columns, the third of which is a <row type>:
 
-       CREATE TABLE Lineage (
-         name CHAR(5),
-         status CHAR(10),
-         last_litter ROW(dog CHAR(5),mated DATE,pups SMALLINT));
+   CREATE TABLE Lineage (
+     name CHAR(5),
+     status CHAR(10),
+     last_litter ROW(dog CHAR(5),mated DATE,pups SMALLINT));
 
-    In this Table definition, ROW(...) indicates that the LAST_LITTER Column is a
-    <row type> with three Fields.
+In this Table definition, ROW(...) indicates that the LAST_LITTER Column is a
+<row type> with three Fields.
 
-    This SQL statement adds a row to the LINEAGE Table:
+This SQL statement adds a row to the LINEAGE Table:
 
-       INSERT INTO TABLE Lineage (
-         name,
-         status,
-         last_litter)
-       VALUES (
-         'Spot',                               -- name
-         'Field Dog',                          -- status
-         ROW('Fido',DATE '1994-07-15',6));     -- last_litter
+   INSERT INTO TABLE Lineage (
+     name,
+     status,
+     last_litter)
+   VALUES (
+     'Spot',                               -- name
+     'Field Dog',                          -- status
+     ROW('Fido',DATE '1994-07-15',6));     -- last_litter
 
-    In this INSERT statement, ROW('Fido',DATE '1994-07-15',6) is a <row value
-    constructor> that specifies the values for the three Fields of the LAST_LITTER Column <row type>.
+In this INSERT statement, ROW('Fido',DATE '1994-07-15',6) is a <row value
+constructor> that specifies the values for the three Fields of the LAST_LITTER Column <row type>.
 
-    A Field of a <row type> can be updated using a <Field reference>. For example,
-    this SQL statement would change the rows in the LINEAGE Table by updating the
-    third Field of every LAST_LITTER value:
+A Field of a <row type> can be updated using a <Field reference>. For example,
+this SQL statement would change the rows in the LINEAGE Table by updating the
+third Field of every LAST_LITTER value:
 
-       UPDATE Lineage SET
-         last_litter.pups = 5;
+   UPDATE Lineage SET
+     last_litter.pups = 5;
 
-    This example uses a <numeric literal> to change the value of LAST_LITTER's
-    third Field. The result is that the third Field contains the number '5' and
-    the other Fields are unchanged. We could have achieved the same result by
-    assigning a <row value constructor> to the LAST_LITTER Column as a whole, as in this example:
+This example uses a <numeric literal> to change the value of LAST_LITTER's
+third Field. The result is that the third Field contains the number '5' and
+the other Fields are unchanged. We could have achieved the same result by
+assigning a <row value constructor> to the LAST_LITTER Column as a whole, as in this example:
 
-       UPDATE Lineage SET
-         last_litter = ROW('Fido',DATE '1994-07-15',5);
+   UPDATE Lineage SET
+     last_litter = ROW('Fido',DATE '1994-07-15',5);
 
-    Here is an example of a query on the LINEAGE Table:
+Here is an example of a query on the LINEAGE Table:
 
-       SELECT name, status, last_litter
-       FROM   Lineage
-       WHERE  last_litter.dog = 'Fido';
+   SELECT name, status, last_litter
+   FROM   Lineage
+   WHERE  last_litter.dog = 'Fido';
 
-    In this SELECT statement, the LAST_LITTER Column is referred to as a whole in
-    the <select list>, but only the value of its first Field is referred to in the
-    WHERE clause. The result is the entire row we inserted earlier.
+In this SELECT statement, the LAST_LITTER Column is referred to as a whole in
+the <select list>, but only the value of its first Field is referred to in the
+WHERE clause. The result is the entire row we inserted earlier.

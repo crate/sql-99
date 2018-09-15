@@ -6,374 +6,374 @@ Chapter 49 -- SQL/CLI: Deferred Parameter Functions
 
 ::
 
-    This short chapter describes an option for passing input parameters after
-    execution begins. [Obscure Rule] applies for the whole thing.
+This short chapter describes an option for passing input parameters after
+execution begins. [Obscure Rule] applies for the whole thing.
 
-    The concept behind deferred parameters is illustrated by these two flow
-    charts:
+The concept behind deferred parameters is illustrated by these two flow
+charts:
 
-    Processing immediate parameters    Processing Deferred parameters
+Processing immediate parameters    Processing Deferred parameters
 
-    --------------------               --------------
-    - SQLBindParameter -               - SQLExecute -
-    --------------------               --------------
-            |                                |
-    ----------------                        / \
-    - SQLExecute  -                        /   \
-    ----------------                      /need \ yes --------------
-                                         / data? \___ - SQLParam   -
-                                         \      /     - +          -
-                                           \  /       - SQLPutData -
-                                            |         --------------
-                                            | no
-                                       --------------------------
-                                       - SQLExecute (continued) -
-                                       --------------------------
+--------------------               --------------
+- SQLBindParameter -               - SQLExecute -
+--------------------               --------------
+        |                                |
+----------------                        / \
+- SQLExecute  -                        /   \
+----------------                      /need \ yes --------------
+                                     / data? \___ - SQLParam   -
+                                     \      /     - +          -
+                                       \  /       - SQLPutData -
+                                        |         --------------
+                                        | no
+                                   --------------------------
+                                   - SQLExecute (continued) -
+                                   --------------------------
 
-    Briefly stated: in the immediate-parameter situation all necessary information
-    is supplied before SQL statement execution begins; in the deferred-parameter
-    situation the execution is interrupted and the host supplies the missing
-    information by calling SQLParam and SQLPutData.
+Briefly stated: in the immediate-parameter situation all necessary information
+is supplied before SQL statement execution begins; in the deferred-parameter
+situation the execution is interrupted and the host supplies the missing
+information by calling SQLParam and SQLPutData.
 
-    Programmers can survive with immediate parameters alone. Indeed, in all the
-    previous chapters we have assumed that deferred parameters won't happen -- had
-    we allowed for them, we would have had to do some things differently.
+Programmers can survive with immediate parameters alone. Indeed, in all the
+previous chapters we have assumed that deferred parameters won't happen -- had
+we allowed for them, we would have had to do some things differently.
 
-    The reasons for use of deferred parameters are:
-          ## Long strings can be passed a piece at a time. This was an important
-    thing in the days of 16-bit operating systems, when the maximum string size
-    was effectively limited by the segment size.
-          ## Microsoft uses deferred parameters in ODBC examples and test
-    programs.
+The reasons for use of deferred parameters are:
+      ## Long strings can be passed a piece at a time. This was an important
+thing in the days of 16-bit operating systems, when the maximum string size
+was effectively limited by the segment size.
+      ## Microsoft uses deferred parameters in ODBC examples and test
+programs.
 
-    These are the days of 32-bit operating systems. Passing large buffers is no
-    longer a problem. However, deferred parameters are still part of the standard
-    SQL CLI. You might see them in legacy code, or in some exotic applications
-    (for example, packet transfers). You will not see deferred parameters in
-    embedded SQL or PSM applications.
+These are the days of 32-bit operating systems. Passing large buffers is no
+longer a problem. However, deferred parameters are still part of the standard
+SQL CLI. You might see them in legacy code, or in some exotic applications
+(for example, packet transfers). You will not see deferred parameters in
+embedded SQL or PSM applications.
 
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+:local:
 
 How to pass deferred parameters
 ===============================
 
 ::
 
-    The mechanism for passing deferred parameters involves a package of signals
-    and functions:
-          ## Setting the last parameter = SQL_DATA_AT_EXEC (-2). Technically:
+The mechanism for passing deferred parameters involves a package of signals
+and functions:
+      ## Setting the last parameter = SQL_DATA_AT_EXEC (-2). Technically:
 
-    Set *(APD.IDA[n].SQL_DESC_OCTET_LENGTH_POINTER) = -2
+Set *(APD.IDA[n].SQL_DESC_OCTET_LENGTH_POINTER) = -2
 
-    For example:
-    #include "sqlcli.h"
-    SQLHSTMT hstmt;
-    SQLHDESC hdesc;
-    SQLINTEGER dp = SQL_DATA_AT_EXEC;
-    ...
-    SQLGetStmtAttr(hstmt,SQL_ATTR_IMP_PARAM_DESC,&hdesc,NULL,NULL);
-    SQLSetDescField(hdesc,1,SQL_DESC_OCTET_LENGTH_POINTER,&dp,NULL);
+For example:
+#include "sqlcli.h"
+SQLHSTMT hstmt;
+SQLHDESC hdesc;
+SQLINTEGER dp = SQL_DATA_AT_EXEC;
+...
+SQLGetStmtAttr(hstmt,SQL_ATTR_IMP_PARAM_DESC,&hdesc,NULL,NULL);
+SQLSetDescField(hdesc,1,SQL_DESC_OCTET_LENGTH_POINTER,&dp,NULL);
 
-          ## Looking for SQL_NEED_DATA after SQLExecDirect or SQLExecDirect -- for
-    example:
+      ## Looking for SQL_NEED_DATA after SQLExecDirect or SQLExecDirect -- for
+example:
 
-    sqlreturn = SQLExecute(hstmt);
-    if (sqlreturn == SQL_NEED_DATA) /* deferred parameter seen ... */
+sqlreturn = SQLExecute(hstmt);
+if (sqlreturn == SQL_NEED_DATA) /* deferred parameter seen ... */
 
-          ## Looping -- calling SQLParamData for each parameter and calling
-    SQLPutData for each piece of data in each parameter.
+      ## Looping -- calling SQLParamData for each parameter and calling
+SQLPutData for each piece of data in each parameter.
 
-    The two CLI functions needed for deferred parameter support are SQLParamData
-    and SQLPutData; their descriptions follow. We'll also describe SQLCancel in
-    this chapter -- it might be used to cancel functions which are waiting for
-    deferred parameters (hence its inclusion here), but might have unrelated uses
-    as well.
+The two CLI functions needed for deferred parameter support are SQLParamData
+and SQLPutData; their descriptions follow. We'll also describe SQLCancel in
+this chapter -- it might be used to cancel functions which are waiting for
+deferred parameters (hence its inclusion here), but might have unrelated uses
+as well.
 
 SQLParamData
 ============
 
 ::
 
-    Function Prototype:
-      SQLRETURN SQLParamData(
-        SQLHSTMT hstmt,                /* 32-bit input */
-        SQLPOINTER *Value              /* pointer to ANY* output */
-        );
+Function Prototype:
+  SQLRETURN SQLParamData(
+    SQLHSTMT hstmt,                /* 32-bit input */
+    SQLPOINTER *Value              /* pointer to ANY* output */
+    );
 
-    Job:
-    Check whether a deferred parameter value is needed. If so: interrupt; if not:
-    continue with previously-interrupted statement execution.
+Job:
+Check whether a deferred parameter value is needed. If so: interrupt; if not:
+continue with previously-interrupted statement execution.
 
-    Algorithm:
-      If (no deferred parameter number is associated with stmt)
-        return error: HY010 CLI-specific condition-function sequence error
-      /* A "deferred parameter" is an APD.IDA for which DEFERRED is true.
-         DEFERRED is true if:
-          *(APD.IDA[n].SQL_DESC_OCTET_POINTER) == SQL_DATA_AT_EXEC, i.e. -2. */
-      If there is a deferred parameter, but no deferred parameter value:
-        /* i.e.: if we have not already gotten the value in a prior call
-           to SQLParamData */
-        If (APD.IDA[n].SQL_DESC_DATA_POINTER is not a null pointer)
-          return error: HY010 CLI-specific condition-function sequence error
-        Set data-pointer value = Value (temporarily, for SQLPutData to see)
-        return exception: HY(no subclass) CLI-specific condition-dynamic parameter
-    value needed
-      /* Since there are no [more] deferred parameter values, execution can
-         proceed. Restart the SQLExecute or SQLExecDirect process which was
-         interrupted when deferred parameters were encountered. */
+Algorithm:
+  If (no deferred parameter number is associated with stmt)
+    return error: HY010 CLI-specific condition-function sequence error
+  /* A "deferred parameter" is an APD.IDA for which DEFERRED is true.
+     DEFERRED is true if:
+      *(APD.IDA[n].SQL_DESC_OCTET_POINTER) == SQL_DATA_AT_EXEC, i.e. -2. */
+  If there is a deferred parameter, but no deferred parameter value:
+    /* i.e.: if we have not already gotten the value in a prior call
+       to SQLParamData */
+    If (APD.IDA[n].SQL_DESC_DATA_POINTER is not a null pointer)
+      return error: HY010 CLI-specific condition-function sequence error
+    Set data-pointer value = Value (temporarily, for SQLPutData to see)
+    return exception: HY(no subclass) CLI-specific condition-dynamic parameter
+value needed
+  /* Since there are no [more] deferred parameter values, execution can
+     proceed. Restart the SQLExecute or SQLExecDirect process which was
+     interrupted when deferred parameters were encountered. */
 
-    Notes:
-          ## SQLParam is needed if SQLExecute or SQLExecDirect returns
-    SQL_NEED_DATA (+99). In its turn, SQLParam causes a further generation of
-    SQL_NEED_DATA (if there are more parameters to process), or else it finishes
-    off the execution that began with SQLExecute or SQLExecDirect.
-          ## If SQL_NEED_DATA has been returned, the deferred parameter must be
-    dealt with. You will get an error if you attempt to call any of these
-    functions -- SQLCopyDesc, SQLFreeHandle, SQLEndTran, SQLDisconnect,
-    SQLGetDescField, SQLGetDescRec, SQLSetDescField, SQLSetDescRec -- using the
-    same hstmt, or using a hdesc associated with the deferred parameter. A stmt
-    with a deferred parameter is considered to be "active". An active stmt may be
-    cancelled (with the SQLCancel function), but the only recommended action is to
-    call SQLParam.
-          ## SQL_NEED_DATA is a positive value (+99). Therefore, if you use
-    deferred parameters, you must not use the blithe code we've used in our
-    examples so far:
+Notes:
+      ## SQLParam is needed if SQLExecute or SQLExecDirect returns
+SQL_NEED_DATA (+99). In its turn, SQLParam causes a further generation of
+SQL_NEED_DATA (if there are more parameters to process), or else it finishes
+off the execution that began with SQLExecute or SQLExecDirect.
+      ## If SQL_NEED_DATA has been returned, the deferred parameter must be
+dealt with. You will get an error if you attempt to call any of these
+functions -- SQLCopyDesc, SQLFreeHandle, SQLEndTran, SQLDisconnect,
+SQLGetDescField, SQLGetDescRec, SQLSetDescField, SQLSetDescRec -- using the
+same hstmt, or using a hdesc associated with the deferred parameter. A stmt
+with a deferred parameter is considered to be "active". An active stmt may be
+cancelled (with the SQLCancel function), but the only recommended action is to
+call SQLParam.
+      ## SQL_NEED_DATA is a positive value (+99). Therefore, if you use
+deferred parameters, you must not use the blithe code we've used in our
+examples so far:
 
-       if (sqlreturn < 0) /* error */
-       if (sqlreturn >= 0) /* all's well, must be warning or success */
+   if (sqlreturn < 0) /* error */
+   if (sqlreturn >= 0) /* all's well, must be warning or success */
 
-    As we said earlier, some of your operating assumptions must change if this
-    option is used.
-          ## Do not confuse SQLParamData with SQLGetParamData.
+As we said earlier, some of your operating assumptions must change if this
+option is used.
+      ## Do not confuse SQLParamData with SQLGetParamData.
 
-    Example:
-    See next section, on SQLPutData.
+Example:
+See next section, on SQLPutData.
 
-    ODBC: SQLParamData has been around since ODBC 1.0.
+ODBC: SQLParamData has been around since ODBC 1.0.
 
 SQLPutData
 ==========
 
 ::
 
-    Function Prototype:
-     SQLRETURN SQLPutData (
-       SQLHSTMT hstmt,             /* 32-bit input */
-       SQLPOINTER Data,            /* pointer to ANY* input */
-       SQLINTEGER StrLen_Or_Ind     /* pointer to indicator|octet-length */
-       );
+Function Prototype:
+ SQLRETURN SQLPutData (
+   SQLHSTMT hstmt,             /* 32-bit input */
+   SQLPOINTER Data,            /* pointer to ANY* input */
+   SQLINTEGER StrLen_Or_Ind     /* pointer to indicator|octet-length */
+   );
 
-    Algorithm:
-      If (there is no deferred parameter associated with stmt)
-        return error: HY010 CLI-specific condition-function sequence error
-      If (there is no SQL_DESC_DATA_POINTER value)
-        /* the data-pointer value should have been supplied by SQLBindParameter */
-        return error: HY010 CLI-specific condition-function sequence error
-      /* At this point, we have enough data (via the current APD fields plus
-         the Data and StrLen_Or_Ind parameters) to complete the input parameter
-         description. For details of what input-parameter description process
-         looks like, see SQLBindParameter. */
+Algorithm:
+  If (there is no deferred parameter associated with stmt)
+    return error: HY010 CLI-specific condition-function sequence error
+  If (there is no SQL_DESC_DATA_POINTER value)
+    /* the data-pointer value should have been supplied by SQLBindParameter */
+    return error: HY010 CLI-specific condition-function sequence error
+  /* At this point, we have enough data (via the current APD fields plus
+     the Data and StrLen_Or_Ind parameters) to complete the input parameter
+     description. For details of what input-parameter description process
+     looks like, see SQLBindParameter. */
 
-    Notes:
-          ## SQLPutData is used only in association with SQLParamData.
-          ## SQLPutData can be used repeatedly if (for a long character or binary
-    string) the data must be supplied in pieces.
-          ## Nullness trumps deferrability. If there's an indicator and it's -1
-    (SQL_NULL_DATA), then the parameter passed is NULL -- there is no deferring.
+Notes:
+      ## SQLPutData is used only in association with SQLParamData.
+      ## SQLPutData can be used repeatedly if (for a long character or binary
+string) the data must be supplied in pieces.
+      ## Nullness trumps deferrability. If there's an indicator and it's -1
+(SQL_NULL_DATA), then the parameter passed is NULL -- there is no deferring.
 
-    Example:
-    In the following example, we will pass "CHAR(4)" parameters in four separate
-    pieces, one character at a time. This is absurdly small -- usually pieces are
-    at least 2 kilobytes -- but it illustrates the method nicely. Try to imagine
-    that the data is input from some large file, or pipeline. The algorithm works
-    like this:
-          ## Application initializes in the usual way.
-          ## Application prepares an INSERT statement.
-          ## Applications calls SQLBindParameter for two "SQL_DATA_AT_EXEC"
-    parameters. The application identifies the parameters as #1 and #2 -- later,
-    those values will be retrieved by SQLParamData. Thus the values identify which
-    parameter is being processed.
-          ## Application calls SQLExecute for the prepared INSERT statement. DBMS
-    returns SQL_NEED_DATA because "SQL_DATA_AT_EXEC" parameters exist.
-          ## Application calls SQLParamData. DBMS returns SQL_NEED_DATA because
-    "SQL_DATA_AT_EXEC" parameters exist. DBMS also fills in the parameter number
-    -- #1 -- from SQLBindParameter pass. Loop:
-                ## Application calls SQLPutData for the next piece.
-                ## Loop ends when the application has no more pieces.
-          ## Application calls SQLParamdata again. DBMS returns SQL_SUCCESS
-    because there are no more parameters to process.
-          ## Application cleans up in the usual way.
+Example:
+In the following example, we will pass "CHAR(4)" parameters in four separate
+pieces, one character at a time. This is absurdly small -- usually pieces are
+at least 2 kilobytes -- but it illustrates the method nicely. Try to imagine
+that the data is input from some large file, or pipeline. The algorithm works
+like this:
+      ## Application initializes in the usual way.
+      ## Application prepares an INSERT statement.
+      ## Applications calls SQLBindParameter for two "SQL_DATA_AT_EXEC"
+parameters. The application identifies the parameters as #1 and #2 -- later,
+those values will be retrieved by SQLParamData. Thus the values identify which
+parameter is being processed.
+      ## Application calls SQLExecute for the prepared INSERT statement. DBMS
+returns SQL_NEED_DATA because "SQL_DATA_AT_EXEC" parameters exist.
+      ## Application calls SQLParamData. DBMS returns SQL_NEED_DATA because
+"SQL_DATA_AT_EXEC" parameters exist. DBMS also fills in the parameter number
+-- #1 -- from SQLBindParameter pass. Loop:
+            ## Application calls SQLPutData for the next piece.
+            ## Loop ends when the application has no more pieces.
+      ## Application calls SQLParamdata again. DBMS returns SQL_SUCCESS
+because there are no more parameters to process.
+      ## Application cleans up in the usual way.
 
-    #include <stdio.h>
-    #include <string.h>
-    #include "sqlcli.h"
+#include <stdio.h>
+#include <string.h>
+#include "sqlcli.h"
 
-    #define MAX_DATA_LENGTH 1
+#define MAX_DATA_LENGTH 1
 
-    void main ()
-    {
-    SQLHENV     henv;
-    SQLHDBC     hdbc;
-    SQLHSTMT    hstmt;
-    SQLRETURN   rc;
-    SQLCHAR     OutData[1];
-    SQLCHAR     InData[]="abcd";
-    SQLSMALLINT Param1 = 1, Param2 = 2;
-    SQLINTEGER  Param1Length, Param2Length;
-    SQLPOINTER  pToken;
-    int         offset;
+void main ()
+{
+SQLHENV     henv;
+SQLHDBC     hdbc;
+SQLHSTMT    hstmt;
+SQLRETURN   rc;
+SQLCHAR     OutData[1];
+SQLCHAR     InData[]="abcd";
+SQLSMALLINT Param1 = 1, Param2 = 2;
+SQLINTEGER  Param1Length, Param2Length;
+SQLPOINTER  pToken;
+int         offset;
 
-      SQLAllocHandle(SQL_HANDLE_ENV,SQL_NULL_HANDLE,&henv);
-      SQLAllocHandle(SQL_HANDLE_DBC,henv,&hdbc);
-      rc=SQLConnect(hdbc,"OCELOT",SQL_NTS,"OCELOT",SQL_NTS,"",SQL_NTS);
-      SQLAllocHandle(SQL_HANDLE_STMT,hdbc,&hstmt);
+  SQLAllocHandle(SQL_HANDLE_ENV,SQL_NULL_HANDLE,&henv);
+  SQLAllocHandle(SQL_HANDLE_DBC,henv,&hdbc);
+  rc=SQLConnect(hdbc,"OCELOT",SQL_NTS,"OCELOT",SQL_NTS,"",SQL_NTS);
+  SQLAllocHandle(SQL_HANDLE_STMT,hdbc,&hstmt);
 
-      rc=SQLExecDirect(
-       hstmt,"CREATE TABLE Tests(big_col_1 CHAR(4),big_col_2 CHAR(4))",SQL_NTS);
+  rc=SQLExecDirect(
+   hstmt,"CREATE TABLE Tests(big_col_1 CHAR(4),big_col_2 CHAR(4))",SQL_NTS);
 
-      rc=SQLPrepare(
-       hstmt,"INSERT INTO Tests(big_col_1,big_col_2) VALUES(?,?)",SQL_NTS);
+  rc=SQLPrepare(
+   hstmt,"INSERT INTO Tests(big_col_1,big_col_2) VALUES(?,?)",SQL_NTS);
 
-      /* There are two Columns. There are two ?s. There will be two parameters.
-         Bind them with SQLBindParameter. Don't pass a buffer address (which is
-         what you would usually do). Instead, pass 1 and 2 (Param1 contains 1
-         and Param2 contains 2.) */
+  /* There are two Columns. There are two ?s. There will be two parameters.
+     Bind them with SQLBindParameter. Don't pass a buffer address (which is
+     what you would usually do). Instead, pass 1 and 2 (Param1 contains 1
+     and Param2 contains 2.) */
 
-      SQLBindParameter(
-       hstmt,1,SQL_PARAM_MODE_IN,SQL_CHAR,SQL_CHAR,4,0,&Param1,
-       MAX_DATA_LENGTH,&Param1Length);
-      SQLBindParameter(
-       hstmt,2,SQL_PARAM_MODE_IN,SQL_CHAR,SQL_CHAR,4,0,&Param2,
-       MAX_DATA_LENGTH,&Param2Length);
+  SQLBindParameter(
+   hstmt,1,SQL_PARAM_MODE_IN,SQL_CHAR,SQL_CHAR,4,0,&Param1,
+   MAX_DATA_LENGTH,&Param1Length);
+  SQLBindParameter(
+   hstmt,2,SQL_PARAM_MODE_IN,SQL_CHAR,SQL_CHAR,4,0,&Param2,
+   MAX_DATA_LENGTH,&Param2Length);
 
-      /* Set Param1Length and Param2Length = SQL_DATA_AT_EXEC; the DBMS will see
-         this because we passed addresses of Param1Length and Param2Length. */
+  /* Set Param1Length and Param2Length = SQL_DATA_AT_EXEC; the DBMS will see
+     this because we passed addresses of Param1Length and Param2Length. */
 
-      Param1Length = Param2Length = SQL_DATA_AT_EXEC;
+  Param1Length = Param2Length = SQL_DATA_AT_EXEC;
 
-      rc=SQLExecute(hstmt);
+  rc=SQLExecute(hstmt);
 
-      /* For data-at-execution parameters, call SQLParamData to get the */
-      /* parameter number set by SQLBindParameter. Call InitUserData.   */
-      /* Call GetUserData and SQLPutData repeatedly to get and put all  */
-      /* data for the parameter. Call SQLParamData to finish processing */
-      /* this parameter and start processing the next parameter.        */
+  /* For data-at-execution parameters, call SQLParamData to get the */
+  /* parameter number set by SQLBindParameter. Call InitUserData.   */
+  /* Call GetUserData and SQLPutData repeatedly to get and put all  */
+  /* data for the parameter. Call SQLParamData to finish processing */
+  /* this parameter and start processing the next parameter.        */
 
-      while (rc ==  SQL_NEED_DATA) {
-        rc = SQLParamData(hstmt,&pToken);
-        if (rc ==  SQL_NEED_DATA) {
-          for (offset=0;offset<=3;++offset) {              /* "Initialize" */
-            OutData[0] = InData[offset];                  /* "Get" */
-            SQLPutData(hstmt,OutData,1); } } }            /* "Put" */
+  while (rc ==  SQL_NEED_DATA) {
+    rc = SQLParamData(hstmt,&pToken);
+    if (rc ==  SQL_NEED_DATA) {
+      for (offset=0;offset<=3;++offset) {              /* "Initialize" */
+        OutData[0] = InData[offset];                  /* "Get" */
+        SQLPutData(hstmt,OutData,1); } } }            /* "Put" */
 
-      SQLEndTran(SQL_HANDLE_DBC,hdbc,SQL_COMMIT);         /* commit */
+  SQLEndTran(SQL_HANDLE_DBC,hdbc,SQL_COMMIT);         /* commit */
 
-      SQLFreeHandle(SQL_HANDLE_STMT,hstmt);               /* cleanup + exit */
-      SQLDisconnect(hdbc);
-      SQLFreeHandle(SQL_HANDLE_DBC,hdbc);
-      SQLFreeHandle(SQL_HANDLE_ENV,henv); }
+  SQLFreeHandle(SQL_HANDLE_STMT,hstmt);               /* cleanup + exit */
+  SQLDisconnect(hdbc);
+  SQLFreeHandle(SQL_HANDLE_DBC,hdbc);
+  SQLFreeHandle(SQL_HANDLE_ENV,henv); }
 
-    ODBC: SQLPutData has been around since ODBC 1.0.
+ODBC: SQLPutData has been around since ODBC 1.0.
 
 SQLCancel
 =========
 
 ::
 
-    Function Prototype:
-      SQLRETURN SQLCancel(
-        SQLHSTMT hstmt                        /* 32-bit input */
-        );
+Function Prototype:
+  SQLRETURN SQLCancel(
+    SQLHSTMT hstmt                        /* 32-bit input */
+    );
 
-    Job:
-    (Try to) stop a currently-executing function.
+Job:
+(Try to) stop a currently-executing function.
 
-    There are two things that "currently-executing" might mean:
-          ## Scenario #1: The hstmt is associated with a deferred parameter.
-          ## Scenario #2: A routine associated with the stmt might be running
-    "concurrently". For example, in an MS-Windows environment, you might call a
-    CLI function in one thread, but now you're in another thread, and the function
-    is still running. You know what the stmt handle is and you want to stop the
-    function.
+There are two things that "currently-executing" might mean:
+      ## Scenario #1: The hstmt is associated with a deferred parameter.
+      ## Scenario #2: A routine associated with the stmt might be running
+"concurrently". For example, in an MS-Windows environment, you might call a
+CLI function in one thread, but now you're in another thread, and the function
+is still running. You know what the stmt handle is and you want to stop the
+function.
 
-    Algorithm:
+Algorithm:
 
-    For scenario #1
-    Clear the diagnostics area.
-    Disassociate the statement source and parameter number from the stmt.
-    It is now possible to call SQLEndTran, SQLDisconnect, SQLFreeHandle, etc. --
-    otherwise, you would have to fill in the deferred-parameter values. See the
-    description of deferred parameters.
+For scenario #1
+Clear the diagnostics area.
+Disassociate the statement source and parameter number from the stmt.
+It is now possible to call SQLEndTran, SQLDisconnect, SQLFreeHandle, etc. --
+otherwise, you would have to fill in the deferred-parameter values. See the
+description of deferred parameters.
 
-    For scenario #2
-    The server receives the request to cancel.
-    The server tries to cancel.
-    If (cancel fails)
-      /* Reasons for failure might be: communication problem, or the
-         function is doing a "commit" (which can't be interrupted). */
-      return error: HY018: CLI-Specific condition-Server declined the cancellation
-    request
-    If (cancel succeeds)
-      The server returns: okay.
-      The cancelled routine can leave diagnostics behind, if it was running
-      asynchronously. (However, in ODBC, a routine which was cancelled from
-      another thread will leave no diagnostics behind.)
+For scenario #2
+The server receives the request to cancel.
+The server tries to cancel.
+If (cancel fails)
+  /* Reasons for failure might be: communication problem, or the
+     function is doing a "commit" (which can't be interrupted). */
+  return error: HY018: CLI-Specific condition-Server declined the cancellation
+request
+If (cancel succeeds)
+  The server returns: okay.
+  The cancelled routine can leave diagnostics behind, if it was running
+  asynchronously. (However, in ODBC, a routine which was cancelled from
+  another thread will leave no diagnostics behind.)
 
-    Notes:
-          ## A "successful completion" of this function doesn't mean much; it only
-    means that the server has seen and accepted the request to cancel. More
-    significant is the return that the cancelled function returns: HY008
-    CLI-specific condition-operation cancelled.
-          ## We believe that SQLCancel is used most frequently for the situation
-    described as "Scenario #1". For the situation described as "Scenario #2",
-    there is heavy dependence on operating-system features so it is not possible
-    to specify exactly how SQLCancel works in standard SQL.
-          ## The cancelled routine might have already done some diagnostics and
-    the diagnostics area is not cleared. Other than that, a cancelled routine
-    leaves no effect.
+Notes:
+      ## A "successful completion" of this function doesn't mean much; it only
+means that the server has seen and accepted the request to cancel. More
+significant is the return that the cancelled function returns: HY008
+CLI-specific condition-operation cancelled.
+      ## We believe that SQLCancel is used most frequently for the situation
+described as "Scenario #1". For the situation described as "Scenario #2",
+there is heavy dependence on operating-system features so it is not possible
+to specify exactly how SQLCancel works in standard SQL.
+      ## The cancelled routine might have already done some diagnostics and
+the diagnostics area is not cleared. Other than that, a cancelled routine
+leaves no effect.
 
-    Example:
-    This example shows the use of SQLCancel against an active process with
-    deferred parameters.
+Example:
+This example shows the use of SQLCancel against an active process with
+deferred parameters.
 
-       #include "sqlcli.h"
-       SQLHSTMT hstmt;
-       ...
-       if (SQLExecute(hstmt) == SQL_NEED_DATA) {
-         SQLCancel(hstmt); }
+   #include "sqlcli.h"
+   SQLHSTMT hstmt;
+   ...
+   if (SQLExecute(hstmt) == SQL_NEED_DATA) {
+     SQLCancel(hstmt); }
 
-    This example shows the use of SQLCancel against an asynchronous process on
-    another thread. It works like this: suppose you are shutting down, and there
-    is some asynch/other-thread function that you've given up on. To make sure you
-    are cancelling, you have to check two things: did SQLCancel work? (that tells
-    you that the server accepts the request to cancel), and did the cancelled
-    function fail? (that tells you that the server succeeded in cancelling).
+This example shows the use of SQLCancel against an asynchronous process on
+another thread. It works like this: suppose you are shutting down, and there
+is some asynch/other-thread function that you've given up on. To make sure you
+are cancelling, you have to check two things: did SQLCancel work? (that tells
+you that the server accepts the request to cancel), and did the cancelled
+function fail? (that tells you that the server succeeded in cancelling).
 
-          /* Start asynch/other-thread/waiting function */
-          ...
-          Call <function> again, using the same hstmt.
+      /* Start asynch/other-thread/waiting function */
+      ...
+      Call <function> again, using the same hstmt.
+      If (SQL_STILL_EXECUTING) {
+        Call SQLCancel.
+        If ("00000" i.e. "successful completion") {
+          /* !! Do not assume the routine is cancelled !! */
+          Call <function> again.
           If (SQL_STILL_EXECUTING) {
-            Call SQLCancel.
-            If ("00000" i.e. "successful completion") {
-              /* !! Do not assume the routine is cancelled !! */
-              Call <function> again.
-              If (SQL_STILL_EXECUTING) {
-                /* Cancellation request has not yet succeeded. Wait. */
-                /* loop here */
-              If (SQL_ERROR and "HY008" i.e. "operation cancelled") {
-                /* The cancellation is complete. The statement is over. */
-              If (anything else) {
-                /* Probably the function finished normally, i.e. the */
-                /* SQLCancel arrived too late. The statement is over. */
+            /* Cancellation request has not yet succeeded. Wait. */
+            /* loop here */
+          If (SQL_ERROR and "HY008" i.e. "operation cancelled") {
+            /* The cancellation is complete. The statement is over. */
+          If (anything else) {
+            /* Probably the function finished normally, i.e. the */
+            /* SQLCancel arrived too late. The statement is over. */
 
-    ODBC: The SQLCancel function has been around since ODBC 1.0. In ODBC 2.x,
-    SQLCancel(StatementHandle) was precisely the same as
-    SQLFreeStmt(StatementHandle,SQL_CLOSE) if there was no asynch running. That is
-    no longer so! If you want to close a Cursor, with ODBC 3.x or with the
-    standard CLI, you must use SQLCloseCursor (hstmt).
+ODBC: The SQLCancel function has been around since ODBC 1.0. In ODBC 2.x,
+SQLCancel(StatementHandle) was precisely the same as
+SQLFreeStmt(StatementHandle,SQL_CLOSE) if there was no asynch running. That is
+no longer so! If you want to close a Cursor, with ODBC 3.x or with the
+standard CLI, you must use SQLCloseCursor (hstmt).
 
-    And that's it for the CLI deferred parameter functions. In the next chapter,
-    we'll take a look at the locator functions.
+And that's it for the CLI deferred parameter functions. In the next chapter,
+we'll take a look at the locator functions.

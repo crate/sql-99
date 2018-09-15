@@ -6,1214 +6,1214 @@ Chapter 15 -- SQL Authorizationid
 
 ::
 
-    In this chapter, we'll describe SQL <AuthorizationID>s in detail, and show you the syntax to use to create, alter and destroy them.
+In this chapter, we'll describe SQL <AuthorizationID>s in detail, and show you the syntax to use to create, alter and destroy them.
 
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+:local:
 
 <AuthorizationID>
 =================
 
 ::
 
-    A Cluster may contain zero or more <AuthorizationID>s. An SQL
-    <AuthorizationID>, or Authorization Identifier, is a character string which
-    identifies a user or a Role -- and the set of Privileges belonging to that
-    user or Role. (A user is either an actual person or an application program
-    that has access to SQL-data.) Thus, an <AuthorizationID> is not only an
-    <identifier>, but an SQL Object in its own right. <AuthorizationID>s are
-    dependent on some Cluster -- the <AuthorizationID> must be unique within the
-    Cluster the <AuthorizationID> belongs to -- and are created, dropped and
-    mapped to real users using implementation-defined methods. The Objects that
-    may belong to an <AuthorizationID> are called Privileges; they depend on some
-    <AuthorizationID>. An <AuthorizationID> may have the use of zero or more Privileges.
+A Cluster may contain zero or more <AuthorizationID>s. An SQL
+<AuthorizationID>, or Authorization Identifier, is a character string which
+identifies a user or a Role -- and the set of Privileges belonging to that
+user or Role. (A user is either an actual person or an application program
+that has access to SQL-data.) Thus, an <AuthorizationID> is not only an
+<identifier>, but an SQL Object in its own right. <AuthorizationID>s are
+dependent on some Cluster -- the <AuthorizationID> must be unique within the
+Cluster the <AuthorizationID> belongs to -- and are created, dropped and
+mapped to real users using implementation-defined methods. The Objects that
+may belong to an <AuthorizationID> are called Privileges; they depend on some
+<AuthorizationID>. An <AuthorizationID> may have the use of zero or more Privileges.
 
-    Role:
-    Large organization may have hordes of users with the same Privileges on the
-    same Objects. For instance, circulation assistants are all allowed to do the
-    circulation process. In SQL-92, the solutions were unsatisfactory:
-          ## If each circulation assistant had a different <AuthorizationID>, then
-    there were too many Objects in the Catalog and granting/revoking was a major chore.
-          ## If all circulation assistants had the same <AuthorizationID>, some
-    other method had to be devised so that one could distinguish which assistant really did what.
+Role:
+Large organization may have hordes of users with the same Privileges on the
+same Objects. For instance, circulation assistants are all allowed to do the
+circulation process. In SQL-92, the solutions were unsatisfactory:
+      ## If each circulation assistant had a different <AuthorizationID>, then
+there were too many Objects in the Catalog and granting/revoking was a major chore.
+      ## If all circulation assistants had the same <AuthorizationID>, some
+other method had to be devised so that one could distinguish which assistant really did what.
 
-    In SQL3 there is a major improvement: Roles. An SQL Role is a named bundle of
-    zero or more Privileges. Granting a Role to an <AuthorizationID> allows that
-    <AuthorizationID> to use every Privilege granted to that Role. There is a
-    many-to-many relationship between user <AuthorizationID>s and Roles: a user
-    may be granted the use of many Roles and the use of the same Role may be
-    granted to many user <AuthorizationID>s. The use of a Role may also be granted to another Role.
+In SQL3 there is a major improvement: Roles. An SQL Role is a named bundle of
+zero or more Privileges. Granting a Role to an <AuthorizationID> allows that
+<AuthorizationID> to use every Privilege granted to that Role. There is a
+many-to-many relationship between user <AuthorizationID>s and Roles: a user
+may be granted the use of many Roles and the use of the same Role may be
+granted to many user <AuthorizationID>s. The use of a Role may also be granted to another Role.
 
-    An <AuthorizationID> is defined by a descriptor that contains three pieces of information:
-          ## The <AuthorizationID> string itself.
-          ## Whether the <AuthorizationID> identifies a user or a Role.
-          ## A Privilege descriptor for every Privilege granted to the
-    <AuthorizationID>. At any point in time, an <AuthorizationID> has the use of
-    every Privilege granted to PUBLIC, every Privilege directly granted to that
-    <AuthorizationID> and every Privilege granted to every Role that has been
-    granted to that <AuthorizationID>. (Since a Role may be granted to another
-    Role, all dependent Role Privileges are also available to the <AuthorizationID>.
+An <AuthorizationID> is defined by a descriptor that contains three pieces of information:
+      ## The <AuthorizationID> string itself.
+      ## Whether the <AuthorizationID> identifies a user or a Role.
+      ## A Privilege descriptor for every Privilege granted to the
+<AuthorizationID>. At any point in time, an <AuthorizationID> has the use of
+every Privilege granted to PUBLIC, every Privilege directly granted to that
+<AuthorizationID> and every Privilege granted to every Role that has been
+granted to that <AuthorizationID>. (Since a Role may be granted to another
+Role, all dependent Role Privileges are also available to the <AuthorizationID>.
 
-    [NON-PORTABLE] SQL does not include any CREATE AUTHID, MAP AUTHID or DROP
-    AUTHID statements. The methods you'll use with your DBMS to create and drop
-    <AuthorizationID>s and to identify the real-life user an <AuthorizationID>
-    represents are non-standard because the SQL Standard requires implementors to
-    define how an <AuthorizationID> comes into being, how it may be destroyed, how
-    it maps to users of SQL-data and what constitutes a valid <AuthorizationID>.
-          [OCELOT Implementation] The OCELOT DBMS that comes with this book
-    "creates" an <AuthorizationID> automatically when it is used in a CONNECT
-    statement, a CREATE SCHEMA statement, a MODULE statement, a SET SESSION
-    AUTHORIZATION statement or a GRANT statement. <AuthorizationID>s are "dropped"
-    if they own no Objects and all their Privileges have been revoked.
+[NON-PORTABLE] SQL does not include any CREATE AUTHID, MAP AUTHID or DROP
+AUTHID statements. The methods you'll use with your DBMS to create and drop
+<AuthorizationID>s and to identify the real-life user an <AuthorizationID>
+represents are non-standard because the SQL Standard requires implementors to
+define how an <AuthorizationID> comes into being, how it may be destroyed, how
+it maps to users of SQL-data and what constitutes a valid <AuthorizationID>.
+      [OCELOT Implementation] The OCELOT DBMS that comes with this book
+"creates" an <AuthorizationID> automatically when it is used in a CONNECT
+statement, a CREATE SCHEMA statement, a MODULE statement, a SET SESSION
+AUTHORIZATION statement or a GRANT statement. <AuthorizationID>s are "dropped"
+if they own no Objects and all their Privileges have been revoked.
 
-    The SQL Standard identifies six types of <AuthorizationID>:
-          ## The SQL-session <AuthorizationID> is the user <AuthorizationID> for
-    an SQL-session. Initially, it is the user <AuthorizationID> that started a
-    given SQL-session and is determined from the USER clause of the CONNECT
-    statement. The SQL-session <AuthorizationID> may never be NULL -- if the
-    CONNECT ... USER clause names a Role instead of a user <AuthorizationID>, the
-    SQL-session <AuthorizationID> is set to a default value by your DBMS. You can
-    change the SQL-session <AuthorizationID> with the SET SESSION AUTHORIZATION
-    statement. The user function SESSION_USER returns the value of the current
-    SQL-session <AuthorizationID>.
-          ## The context of an SQL-session includes its current user and its
-    current Role: together, they determine the Privileges available to execute SQL
-    statements in the SQL-session and one of them is always the "current
-    <AuthorizationID>". Either one of current user or current Role may be NULL at
-    any time, but they may not both be NULL at the same time -- the non-null
-    identifier is the SQL-session's current <AuthorizationID>. At the beginning of
-    every SQL-session, the current user is set to the value of the SQL-session
-    <AuthorizationID> and the current Role is set to the Role that started the
-    SQL-session -- it is determined from the CONNECT statement: if CONNECT ...
-    USER specifies a <Role name>, the Role identified by that <Role name> becomes
-    the current Role; otherwise, the current Role is NULL. You can change the
-    current role with the SET ROLE statement. The equivalent user functions
-    CURRENT_USER and USER return the value of the current user <AuthorizationID>.
-    The user function CURRENT_ROLE returns the value of the current Role <AuthorizationID>.
-          ## The Module <AuthorizationID> is the owner of a given Module and is
-    the current <AuthorizationID> when the Module's SQL procedures are executed.
-    The Module <AuthorizationID> may either be specifically identified (in the
-    MODULE statement) or it will default to the current SQL-session <AuthorizationID>.
-          ## The Schema <AuthorizationID> is the owner of a given Schema and may
-    either be specifically identified (in the CREATE SCHEMA statement) or it will
-    default to the current Module <AuthorizationID>, if there is one. If the
-    Module you're running doesn't have an explicit owner either, the Schema
-    <AuthorizationID> defaults to the current SQL-session <AuthorizationID>.
-          ## The current <AuthorizationID> is the <AuthorizationID> whose
-    Privileges are checked prior to the execution of an SQL statement. If the
-    current <AuthorizationID> doesn't have the required Privilege to perform an
-    operation on SQL-data, the SQL statement will fail. For direct SQL, the
-    SQL-session <AuthorizationID> is always the current <AuthorizationID>.
+The SQL Standard identifies six types of <AuthorizationID>:
+      ## The SQL-session <AuthorizationID> is the user <AuthorizationID> for
+an SQL-session. Initially, it is the user <AuthorizationID> that started a
+given SQL-session and is determined from the USER clause of the CONNECT
+statement. The SQL-session <AuthorizationID> may never be NULL -- if the
+CONNECT ... USER clause names a Role instead of a user <AuthorizationID>, the
+SQL-session <AuthorizationID> is set to a default value by your DBMS. You can
+change the SQL-session <AuthorizationID> with the SET SESSION AUTHORIZATION
+statement. The user function SESSION_USER returns the value of the current
+SQL-session <AuthorizationID>.
+      ## The context of an SQL-session includes its current user and its
+current Role: together, they determine the Privileges available to execute SQL
+statements in the SQL-session and one of them is always the "current
+<AuthorizationID>". Either one of current user or current Role may be NULL at
+any time, but they may not both be NULL at the same time -- the non-null
+identifier is the SQL-session's current <AuthorizationID>. At the beginning of
+every SQL-session, the current user is set to the value of the SQL-session
+<AuthorizationID> and the current Role is set to the Role that started the
+SQL-session -- it is determined from the CONNECT statement: if CONNECT ...
+USER specifies a <Role name>, the Role identified by that <Role name> becomes
+the current Role; otherwise, the current Role is NULL. You can change the
+current role with the SET ROLE statement. The equivalent user functions
+CURRENT_USER and USER return the value of the current user <AuthorizationID>.
+The user function CURRENT_ROLE returns the value of the current Role <AuthorizationID>.
+      ## The Module <AuthorizationID> is the owner of a given Module and is
+the current <AuthorizationID> when the Module's SQL procedures are executed.
+The Module <AuthorizationID> may either be specifically identified (in the
+MODULE statement) or it will default to the current SQL-session <AuthorizationID>.
+      ## The Schema <AuthorizationID> is the owner of a given Schema and may
+either be specifically identified (in the CREATE SCHEMA statement) or it will
+default to the current Module <AuthorizationID>, if there is one. If the
+Module you're running doesn't have an explicit owner either, the Schema
+<AuthorizationID> defaults to the current SQL-session <AuthorizationID>.
+      ## The current <AuthorizationID> is the <AuthorizationID> whose
+Privileges are checked prior to the execution of an SQL statement. If the
+current <AuthorizationID> doesn't have the required Privilege to perform an
+operation on SQL-data, the SQL statement will fail. For direct SQL, the
+SQL-session <AuthorizationID> is always the current <AuthorizationID>.
 
-    To create a Role and grant its use to an initial <AuthorizationID>, use the
-    CREATE ROLE statement. To destroy a Role, use the DROP ROLE statement. To
-    grant Privileges to a user or a Role, or to grant the use of a Role to an
-    <AuthorizationID>, use the GRANT statement. To revoke Privileges from a user
-    or a Role, or to revoke the use of a Role from an <AuthorizationID>, use the
-    REVOKE statement or the DROP ROLE statement. To change the current SQL-session
-    <AuthorizationID>, use the SET SESSION AUTHORIZATION statement. And to change
-    the current Role, use the SET ROLE statement.
+To create a Role and grant its use to an initial <AuthorizationID>, use the
+CREATE ROLE statement. To destroy a Role, use the DROP ROLE statement. To
+grant Privileges to a user or a Role, or to grant the use of a Role to an
+<AuthorizationID>, use the GRANT statement. To revoke Privileges from a user
+or a Role, or to revoke the use of a Role from an <AuthorizationID>, use the
+REVOKE statement or the DROP ROLE statement. To change the current SQL-session
+<AuthorizationID>, use the SET SESSION AUTHORIZATION statement. And to change
+the current Role, use the SET ROLE statement.
 
-    If you want to restrict your code to Core SQL, don't use Roles at all.
+If you want to restrict your code to Core SQL, don't use Roles at all.
 
-    <AuthorizationID>s and Role names:
-    An <AuthorizationID> identifies a user or a Role. A <Role name> identifies a Role. The required syntax for an <AuthorizationID> or <Role name> is:
+<AuthorizationID>s and Role names:
+An <AuthorizationID> identifies a user or a Role. A <Role name> identifies a Role. The required syntax for an <AuthorizationID> or <Role name> is:
 
-    <AuthorizationID> ::=
-    user name | <Role name>
+<AuthorizationID> ::=
+user name | <Role name>
 
-    An <AuthorizationID> is a <regular identifier> or a <delimited identifier>, no
-    more than 128 octets long, that is unique (for all <AuthorizationID>s and
-    Roles) within the Cluster it belongs to. Typically, an <AuthorizationID> is a
-    Christian name (e.g.: BOB or SAM, identifying a user) or a department name
-    (e.g.: DOCUMENTATION, identifying a Role) and, most often, has a one-to-one
-    relationship to some user (i.e.: each user has only one <AuthorizationID>).
+An <AuthorizationID> is a <regular identifier> or a <delimited identifier>, no
+more than 128 octets long, that is unique (for all <AuthorizationID>s and
+Roles) within the Cluster it belongs to. Typically, an <AuthorizationID> is a
+Christian name (e.g.: BOB or SAM, identifying a user) or a department name
+(e.g.: DOCUMENTATION, identifying a Role) and, most often, has a one-to-one
+relationship to some user (i.e.: each user has only one <AuthorizationID>).
 
-    The <regular identifier> -- PUBLIC -- is a valid <AuthorizationID> only in the
-    GRANT statement and the REVOKE statement. PUBLIC is the SQL special grantee,
-    used as an "all-purpose" grantee, to enable system-wide Privileges to be
-    granted to and/or revoked from all current and future <AuthorizationID>s with
-    a single SQL statement. Every <AuthorizationID> always has the use of every
-    Privilege granted to PUBLIC. The <delimited identifier> -- "PUBLIC" -- is never a valid <AuthorizationID>.
+The <regular identifier> -- PUBLIC -- is a valid <AuthorizationID> only in the
+GRANT statement and the REVOKE statement. PUBLIC is the SQL special grantee,
+used as an "all-purpose" grantee, to enable system-wide Privileges to be
+granted to and/or revoked from all current and future <AuthorizationID>s with
+a single SQL statement. Every <AuthorizationID> always has the use of every
+Privilege granted to PUBLIC. The <delimited identifier> -- "PUBLIC" -- is never a valid <AuthorizationID>.
 
-    The <delimited identifier> -- "_SYSTEM" -- is a valid <AuthorizationID> only
-    when you're looking at INFORMATION_SCHEMA. "_SYSTEM" is the SQL special
-    grantor, used (by your DBMS) as an "all-purpose" grantor, to enable
-    Object-wide Privileges to be granted to an <AuthorizationID> that creates an
-    Object, or to revoke cascading, system-wide Privileges from an
-    <AuthorizationID> that drops an Object. (In the case of a DROP, "_SYSTEM" is
-    also the grantee that revokes all related Privileges from all other <AuthorizationID>s.)
+The <delimited identifier> -- "_SYSTEM" -- is a valid <AuthorizationID> only
+when you're looking at INFORMATION_SCHEMA. "_SYSTEM" is the SQL special
+grantor, used (by your DBMS) as an "all-purpose" grantor, to enable
+Object-wide Privileges to be granted to an <AuthorizationID> that creates an
+Object, or to revoke cascading, system-wide Privileges from an
+<AuthorizationID> that drops an Object. (In the case of a DROP, "_SYSTEM" is
+also the grantee that revokes all related Privileges from all other <AuthorizationID>s.)
 
-    [NON-PORTABLE] Except for the cases (PUBLIC, "PUBLIC", "_SYSTEM") noted
-    earlier, what your DBMS will recognize as a valid <AuthorizationID> is non-
-    standard because the SQL Standard requires implementors to define what a valid <AuthorizationID> is.
-          [OCELOT Implementation] The OCELOT DBMS that comes with this book will accept any SQL_TEXT <identifier> as an <AuthorizationID>.
+[NON-PORTABLE] Except for the cases (PUBLIC, "PUBLIC", "_SYSTEM") noted
+earlier, what your DBMS will recognize as a valid <AuthorizationID> is non-
+standard because the SQL Standard requires implementors to define what a valid <AuthorizationID> is.
+      [OCELOT Implementation] The OCELOT DBMS that comes with this book will accept any SQL_TEXT <identifier> as an <AuthorizationID>.
 
 CREATE ROLE statement
 =====================
 
 ::
 
-    The CREATE ROLE statement defines new Role. The required syntax for the CREATE ROLE statement is:
+The CREATE ROLE statement defines new Role. The required syntax for the CREATE ROLE statement is:
 
-    CREATE ROLE <Role name> [ WITH ADMIN <grantor> ]
+CREATE ROLE <Role name> [ WITH ADMIN <grantor> ]
 
-       <grantor> ::= CURRENT_USER | CURRENT_ROLE
+   <grantor> ::= CURRENT_USER | CURRENT_ROLE
 
-    The CREATE ROLE statement specifically defines an <AuthorizationID> to be a
-    Role, rather than a user: this is necessary since otherwise your DBMS could
-    mistake <Role name> for a user name which appears in similar contexts. <Role
-    name> is an <AuthorizationID> that is unique within your SQL-environment and
-    CREATE ROLE automatically grants the use of the new Role to the current
-    <AuthorizationID> WITH ADMIN OPTION (that is, the current <AuthorizationID>
-    gets the use of the new Role and may pass this use on to others).
+The CREATE ROLE statement specifically defines an <AuthorizationID> to be a
+Role, rather than a user: this is necessary since otherwise your DBMS could
+mistake <Role name> for a user name which appears in similar contexts. <Role
+name> is an <AuthorizationID> that is unique within your SQL-environment and
+CREATE ROLE automatically grants the use of the new Role to the current
+<AuthorizationID> WITH ADMIN OPTION (that is, the current <AuthorizationID>
+gets the use of the new Role and may pass this use on to others).
 
-    [NON-PORTABLE] Whether you can use CREATE ROLE is non-standard because the SQL
-    Standard requires implementors to define what Privilege (if any) is needed to execute CREATE ROLE.
+[NON-PORTABLE] Whether you can use CREATE ROLE is non-standard because the SQL
+Standard requires implementors to define what Privilege (if any) is needed to execute CREATE ROLE.
 
-    The optional WITH ADMIN clause decides which <AuthorizationID> (either the
-    current user or the current Role) gets the use of this Role: CURRENT_USER is
-    the <AuthorizationID> of the current user and CURRENT_ROLE is the
-    <AuthorizationID> of the current Role. If you omit the clause, it defaults to
-    WITH ADMIN CURRENT_USER -- but if CURRENT_USER is NULL, the clause defaults to
-    WITH ADMIN CURRENT_ROLE. If you specify WITH ADMIN CURRENT_USER and the
-    current <AuthorizationID> is a <Role name>, or if you specify WITH ADMIN
-    CURRENT_ROLE and the current <Role name> is NULL, the GRANT statement will
-    fail: your DBMS will return the SQLSTATE error 0L000 "invalid grantor". Here are two examples:
+The optional WITH ADMIN clause decides which <AuthorizationID> (either the
+current user or the current Role) gets the use of this Role: CURRENT_USER is
+the <AuthorizationID> of the current user and CURRENT_ROLE is the
+<AuthorizationID> of the current Role. If you omit the clause, it defaults to
+WITH ADMIN CURRENT_USER -- but if CURRENT_USER is NULL, the clause defaults to
+WITH ADMIN CURRENT_ROLE. If you specify WITH ADMIN CURRENT_USER and the
+current <AuthorizationID> is a <Role name>, or if you specify WITH ADMIN
+CURRENT_ROLE and the current <Role name> is NULL, the GRANT statement will
+fail: your DBMS will return the SQLSTATE error 0L000 "invalid grantor". Here are two examples:
 
-       CREATE ROLE assistants_role WITH ADMIN CURRENT_USER;
-       -- creates a Role, identified by the <AuthorizationID> ASSISTANTS_ROLE, for the current user
+   CREATE ROLE assistants_role WITH ADMIN CURRENT_USER;
+   -- creates a Role, identified by the <AuthorizationID> ASSISTANTS_ROLE, for the current user
 
-       CREATE ROLE assistants_role WITH ADMIN CURRENT_ROLE;
-       -- creates a Role, identified by the <AuthorizationID> ASSISTANTS_ROLE, for the current Role
+   CREATE ROLE assistants_role WITH ADMIN CURRENT_ROLE;
+   -- creates a Role, identified by the <AuthorizationID> ASSISTANTS_ROLE, for the current Role
 
-    If you want to restrict your code to Core SQL, don't use the CREATE ROLE statement.
+If you want to restrict your code to Core SQL, don't use the CREATE ROLE statement.
 
 Privilege
 =========
 
 ::
 
-    An SQL Privilege allows an <AuthorizationID> to perform a given action on a
-    specific Table, Column, Domain, Character set, Collation, Translation,
-    Trigger, SQL-invoked routine or UDT. Privileges are dependent on some
-    <AuthorizationID> or Role, are created and granted with the GRANT statement
-    and are destroyed with the REVOKE statement and the DROP ROLE statement. A
-    Privilege is defined by a descriptor that contains five pieces of information:
-          ## The name of the Object that the Privilege acts on.
-          ## The <AuthorizationID> that granted the Privilege.
-          ## The <AuthorizationID> that may use the Privilege.
-          ## The action (either INSERT, UPDATE, DELETE, SELECT, REFERENCES, USAGE, UNDER, TRIGGER or EXECUTE) that may be taken on the specified Object.
-          ## Whether the Privilege is grantable by the grantee.
+An SQL Privilege allows an <AuthorizationID> to perform a given action on a
+specific Table, Column, Domain, Character set, Collation, Translation,
+Trigger, SQL-invoked routine or UDT. Privileges are dependent on some
+<AuthorizationID> or Role, are created and granted with the GRANT statement
+and are destroyed with the REVOKE statement and the DROP ROLE statement. A
+Privilege is defined by a descriptor that contains five pieces of information:
+      ## The name of the Object that the Privilege acts on.
+      ## The <AuthorizationID> that granted the Privilege.
+      ## The <AuthorizationID> that may use the Privilege.
+      ## The action (either INSERT, UPDATE, DELETE, SELECT, REFERENCES, USAGE, UNDER, TRIGGER or EXECUTE) that may be taken on the specified Object.
+      ## Whether the Privilege is grantable by the grantee.
 
-    <privileges>:
-    The required syntax for a Privilege specification is:
+<privileges>:
+The required syntax for a Privilege specification is:
 
-    <privileges> ::=
-    <object privileges> ON <Object name>
+<privileges> ::=
+<object privileges> ON <Object name>
 
-       <Object name> ::=
-       [ TABLE ] <Table name> |
-       DOMAIN <Domain name>  |
-       CHARACTER SET <Character set name> |
-       COLLATION <Collation name> |
-       TRANSLATION <Translation name> |
-       TYPE <UDT name> |
-       <specific routine designator>
+   <Object name> ::=
+   [ TABLE ] <Table name> |
+   DOMAIN <Domain name>  |
+   CHARACTER SET <Character set name> |
+   COLLATION <Collation name> |
+   TRANSLATION <Translation name> |
+   TYPE <UDT name> |
+   <specific routine designator>
 
-       <object privileges> ::=
-       ALL PRIVILEGES |
-       <action> [ {,<action>}... ]
+   <object privileges> ::=
+   ALL PRIVILEGES |
+   <action> [ {,<action>}... ]
 
-          <action> ::=
-          DELETE |
-          SELECT [ (<Column name> [ {,<Column name>} ... ]) ] |
-          INSERT [ (<Column name> [ {,<Column name>} ... ]) ] |
-          UPDATE [ (<Column name> [ {,<Column name>} ... ]) ] |
-          REFERENCES [ (<Column name> [ {,<Column name>} ... ]) ] |
-          TRIGGER |
-          UNDER |
-          USAGE |
-          EXECUTE
+      <action> ::=
+      DELETE |
+      SELECT [ (<Column name> [ {,<Column name>} ... ]) ] |
+      INSERT [ (<Column name> [ {,<Column name>} ... ]) ] |
+      UPDATE [ (<Column name> [ {,<Column name>} ... ]) ] |
+      REFERENCES [ (<Column name> [ {,<Column name>} ... ]) ] |
+      TRIGGER |
+      UNDER |
+      USAGE |
+      EXECUTE
 
-    The Privilege specification specifies one or more Privileges for a specific Object. Not all Privileges are valid for every Object.
+The Privilege specification specifies one or more Privileges for a specific Object. Not all Privileges are valid for every Object.
 
-    ALL PRIVILEGES is a shorthand: it means every Privilege the grantor has on
-    "<Object name>". If "<Object name>" identifies a temporary Table, ALL
-    PRIVILEGES is the only valid Privilege specification. Here's an example:
+ALL PRIVILEGES is a shorthand: it means every Privilege the grantor has on
+"<Object name>". If "<Object name>" identifies a temporary Table, ALL
+PRIVILEGES is the only valid Privilege specification. Here's an example:
 
-       ALL PRIVILEGES ON TABLE Table_1
+   ALL PRIVILEGES ON TABLE Table_1
 
-    In theory, you could substitute ALL PRIVILEGES for USAGE or EXECUTE, but
-    there's never a good reason to do so. Traditionally, ALL PRIVILEGES
-    substitutes for the combination of Table Privileges: SELECT, INSERT, UPDATE,
-    DELETE and perhaps TRIGGER or REFERENCES. The closest analogous construct is
-    the * in "SELECT * ...", then. And similar objections to using it apply:
-          ## You can't tell by reading the SQL code what Privileges are in fact being granted.
-          ## Because ALL PRIVILEGES is a shorthand, it might mean something different the next time you use it (because somebody might have in the interim granted additional Privileges to the current user).
-          ## If the current user has only one Privilege, you will not be warned that all the other potentially applicable Privileges are not being granted.
-    You should prefer to be explicit about what you're granting: if you depend on
-    a complex system of defaults you'll miss something. These considerations don't
-    apply to temporary Tables since, for them, ALL PRIVILEGES really does mean all
-    of: SELECT, INSERT, UPDATE, DELETE, TRIGGER, REFERENCES.
+In theory, you could substitute ALL PRIVILEGES for USAGE or EXECUTE, but
+there's never a good reason to do so. Traditionally, ALL PRIVILEGES
+substitutes for the combination of Table Privileges: SELECT, INSERT, UPDATE,
+DELETE and perhaps TRIGGER or REFERENCES. The closest analogous construct is
+the * in "SELECT * ...", then. And similar objections to using it apply:
+      ## You can't tell by reading the SQL code what Privileges are in fact being granted.
+      ## Because ALL PRIVILEGES is a shorthand, it might mean something different the next time you use it (because somebody might have in the interim granted additional Privileges to the current user).
+      ## If the current user has only one Privilege, you will not be warned that all the other potentially applicable Privileges are not being granted.
+You should prefer to be explicit about what you're granting: if you depend on
+a complex system of defaults you'll miss something. These considerations don't
+apply to temporary Tables since, for them, ALL PRIVILEGES really does mean all
+of: SELECT, INSERT, UPDATE, DELETE, TRIGGER, REFERENCES.
 
-    A SELECT, INSERT, UPDATE, REFERENCES, DELETE or TRIGGER Privilege is called a
-    Table Privilege: it allows the specified action on the entire Table named in
-    the Privilege's descriptor -- including on any Columns that are subsequently
-    added to that Table. You may not grant the TRIGGER Table Privilege on anything
-    but a Base table. You may not grant the other Table Privileges on a declared
-    LOCAL TEMPORARY Table, or on any other Object. Note that the <keyword> TABLE
-    is noise; it may be omitted from the Privilege specification. Here are two equivalent examples:
+A SELECT, INSERT, UPDATE, REFERENCES, DELETE or TRIGGER Privilege is called a
+Table Privilege: it allows the specified action on the entire Table named in
+the Privilege's descriptor -- including on any Columns that are subsequently
+added to that Table. You may not grant the TRIGGER Table Privilege on anything
+but a Base table. You may not grant the other Table Privileges on a declared
+LOCAL TEMPORARY Table, or on any other Object. Note that the <keyword> TABLE
+is noise; it may be omitted from the Privilege specification. Here are two equivalent examples:
 
-       DELETE ON TABLE Table_1
+   DELETE ON TABLE Table_1
 
-       DELETE ON Table_1
+   DELETE ON Table_1
 
-    Both of these Privilege specifications define a Privilege that deletes rows
-    from TABLE_1. Here's an example of a Privilege specification that defines a
-    Privilege that selects values from every Column of TABLE_1:
+Both of these Privilege specifications define a Privilege that deletes rows
+from TABLE_1. Here's an example of a Privilege specification that defines a
+Privilege that selects values from every Column of TABLE_1:
 
-       SELECT ON TABLE Table_1
+   SELECT ON TABLE Table_1
 
-    And here's an example of a Privilege specification that defines a Privilege that enables a Trigger to operate on every Column of TABLE_1:
+And here's an example of a Privilege specification that defines a Privilege that enables a Trigger to operate on every Column of TABLE_1:
 
-       TRIGGER ON TABLE Table_1
+   TRIGGER ON TABLE Table_1
 
-    A SELECT(<Column name> list), INSERT(<Column name> list), UPDATE(<Column name>
-    list) or REFERENCES(<Column name> list) is called a Column Privilege: it
-    allows the specified action only on the Columns actually named when the
-    Privilege is granted. You may not grant Column Privileges on the Columns of a
-    declared LOCAL TEMPORARY Table or on any other Object. Again, the <keyword>
-    TABLE is noise; it may be omitted from the Privilege specification. Here are two equivalent examples:
+A SELECT(<Column name> list), INSERT(<Column name> list), UPDATE(<Column name>
+list) or REFERENCES(<Column name> list) is called a Column Privilege: it
+allows the specified action only on the Columns actually named when the
+Privilege is granted. You may not grant Column Privileges on the Columns of a
+declared LOCAL TEMPORARY Table or on any other Object. Again, the <keyword>
+TABLE is noise; it may be omitted from the Privilege specification. Here are two equivalent examples:
 
-       UPDATE(column_1,column_3) ON TABLE Table_1
+   UPDATE(column_1,column_3) ON TABLE Table_1
 
-       UPDATE(column_1,column_3) ON Table_1
+   UPDATE(column_1,column_3) ON Table_1
 
-    Both of these Privilege specifications define a Privilege that updates the
-    values of TABLE_1.COLUMN_1 and TABLE_1.COLUMN_3. Here's an example of a
-    Privilege specification that defines a Privilege that inserts values into TABLE_1.COLUMN_2:
+Both of these Privilege specifications define a Privilege that updates the
+values of TABLE_1.COLUMN_1 and TABLE_1.COLUMN_3. Here's an example of a
+Privilege specification that defines a Privilege that inserts values into TABLE_1.COLUMN_2:
 
-       INSERT(column_2) ON TABLE Table_1
+   INSERT(column_2) ON TABLE Table_1
 
-    And here's an example of a Privilege specification that defines a Privilege
-    that enables TABLE_1.COLUMN_3 to be named in a Constraint or Assertion definition:
+And here's an example of a Privilege specification that defines a Privilege
+that enables TABLE_1.COLUMN_3 to be named in a Constraint or Assertion definition:
 
-       REFERENCES(column_3) ON TABLE Table_1
+   REFERENCES(column_3) ON TABLE Table_1
 
-    Every Privilege you have on a Table that is the basis for an updatable View is
-    also granted to you on that View. For example, if you have the INSERT and
-    SELECT Privileges on a Table and create an updatable View based on that Table,
-    you will also have the INSERT and SELECT Privileges on the View. If your Table
-    Privileges are grantable Privileges, your Privileges on the View will also be grantable.
+Every Privilege you have on a Table that is the basis for an updatable View is
+also granted to you on that View. For example, if you have the INSERT and
+SELECT Privileges on a Table and create an updatable View based on that Table,
+you will also have the INSERT and SELECT Privileges on the View. If your Table
+Privileges are grantable Privileges, your Privileges on the View will also be grantable.
 
-    An UNDER Privilege is called an UNDER Privilege: it allows that action on the
-    UDT named in the Privilege's descriptor. The <UDT name> may either identify a
-    structured type or it may specify a <Table name>. You may not grant an UNDER
-    Privilege on any other Object. Here's an example:
+An UNDER Privilege is called an UNDER Privilege: it allows that action on the
+UDT named in the Privilege's descriptor. The <UDT name> may either identify a
+structured type or it may specify a <Table name>. You may not grant an UNDER
+Privilege on any other Object. Here's an example:
 
-       UNDER ON TYPE bob.bob_udt
+   UNDER ON TYPE bob.bob_udt
 
-    A USAGE Privilege is called a USAGE Privilege: it allows the use of the
-    Domain, UDT, Character set, Collation or Translation named in the Privilege's
-    descriptor. You may not grant a USAGE Privilege on any other Object. Here's two examples:
+A USAGE Privilege is called a USAGE Privilege: it allows the use of the
+Domain, UDT, Character set, Collation or Translation named in the Privilege's
+descriptor. You may not grant a USAGE Privilege on any other Object. Here's two examples:
 
-       USAGE ON DOMAIN domain_1
+   USAGE ON DOMAIN domain_1
 
-       USAGE ON CHARACTER SET bob.charset_1
+   USAGE ON CHARACTER SET bob.charset_1
 
-    When a Catalog is "created", your DBMS grants the USAGE Privilege on all
-    INFORMATION_SCHEMA Character sets, Collations and Translations to PUBLIC WITH
-    GRANT OPTION, so you always have the use of those Objects. If for some reason
-    you should ever create a new character-related Object, do the same -- there is
-    no point being secretive here.
+When a Catalog is "created", your DBMS grants the USAGE Privilege on all
+INFORMATION_SCHEMA Character sets, Collations and Translations to PUBLIC WITH
+GRANT OPTION, so you always have the use of those Objects. If for some reason
+you should ever create a new character-related Object, do the same -- there is
+no point being secretive here.
 
-    An EXECUTE Privilege is called an EXECUTE Privilege: it allows the SQL-invoked
-    routine named in the Privilege's descriptor to be executed. You may not grant
-    an EXECUTE Privilege on any other Object. Here's an example:
+An EXECUTE Privilege is called an EXECUTE Privilege: it allows the SQL-invoked
+routine named in the Privilege's descriptor to be executed. You may not grant
+an EXECUTE Privilege on any other Object. Here's an example:
 
-       EXECUTE ON SPECIFIC ROUTINE some_routine
+   EXECUTE ON SPECIFIC ROUTINE some_routine
 
-    (We define <specific routine designator> in our chapter on UDTs.)
+(We define <specific routine designator> in our chapter on UDTs.)
 
-    Note that if two Privileges are identical except that one is a grantable
-    Privilege and the other is not, the grantable Privilege takes precedence and
-    both Privileges are set to grantable Privileges. Your DBMS will then eliminate
-    the redundant duplicate Privilege.
+Note that if two Privileges are identical except that one is a grantable
+Privilege and the other is not, the grantable Privilege takes precedence and
+both Privileges are set to grantable Privileges. Your DBMS will then eliminate
+the redundant duplicate Privilege.
 
-    If you want to restrict your code to Core SQL, don't specify the UNDER
-    Privilege, don't specify the SELECT Privilege as a Column Privilege (that is,
-    with a <Column name> list) and don't specify the INSERT Privilege as a Column Privilege.
+If you want to restrict your code to Core SQL, don't specify the UNDER
+Privilege, don't specify the SELECT Privilege as a Column Privilege (that is,
+with a <Column name> list) and don't specify the INSERT Privilege as a Column Privilege.
 
 GRANT statement
 ===============
 
 ::
 
-    The GRANT statement defines both Privilege grants and Role authorizations and
-    so has two different syntaxes. The first is identified as the <grant privilege
-    statement> and the second as the <grant role statement>.
+The GRANT statement defines both Privilege grants and Role authorizations and
+so has two different syntaxes. The first is identified as the <grant privilege
+statement> and the second as the <grant role statement>.
 
-    <grant privilege statement>:
-    The required syntax for the <grant privilege statement> form of the GRANT statement is:
+<grant privilege statement>:
+The required syntax for the <grant privilege statement> form of the GRANT statement is:
 
-    <grant privilege statement> ::=
-    GRANT <privileges> TO <grantee> [ {,<grantee>}... ] [ WITH GRANT OPTION ]
-    [ FROM <grantor> ]
+<grant privilege statement> ::=
+GRANT <privileges> TO <grantee> [ {,<grantee>}... ] [ WITH GRANT OPTION ]
+[ FROM <grantor> ]
 
-       <grantee> ::= PUBLIC | <AuthorizationID>
+   <grantee> ::= PUBLIC | <AuthorizationID>
 
-       <grantor> ::= CURRENT_USER | CURRENT_ROLE
+   <grantor> ::= CURRENT_USER | CURRENT_ROLE
 
-    The <grant privilege statement> grants one or more Privileges on a given
-    Object to one or more grantees, including (possibly) PUBLIC. The grantor of
-    the Privileges must, of course, hold those Privileges as grantable Privileges.
+The <grant privilege statement> grants one or more Privileges on a given
+Object to one or more grantees, including (possibly) PUBLIC. The grantor of
+the Privileges must, of course, hold those Privileges as grantable Privileges.
 
-    We've already shown you the syntax for the <privileges> Privilege
-    specification; it's used exactly that way in this form of the GRANT statement.
-    Here are some examples:
+We've already shown you the syntax for the <privileges> Privilege
+specification; it's used exactly that way in this form of the GRANT statement.
+Here are some examples:
 
-       GRANT SELECT ON TABLE Table_1 TO PUBLIC;
+   GRANT SELECT ON TABLE Table_1 TO PUBLIC;
 
-       GRANT INSERT(column_1,column_5) ON Table_1 TO sam;
+   GRANT INSERT(column_1,column_5) ON Table_1 TO sam;
 
-       GRANT ALL PRIVILEGES ON TABLE Table_1 TO PUBLIC, bob, sam;
+   GRANT ALL PRIVILEGES ON TABLE Table_1 TO PUBLIC, bob, sam;
 
-       GRANT USAGE ON DOMAIN domain_1 TO bob;
+   GRANT USAGE ON DOMAIN domain_1 TO bob;
 
-       GRANT EXECUTE ON SPECIFIC ROUTINE some_routine TO sam;
+   GRANT EXECUTE ON SPECIFIC ROUTINE some_routine TO sam;
 
-    If your <grantee> is PUBLIC, you're granting the Privilege to a list of
-    <grantee>s that contains all of the <AuthorizationID>s in the Cluster -- now
-    and in the future. If your <grantee> is one or more <AuthorizationID>s, you're
-    granting the Privilege only to those <AuthorizationID>s. (Remember that an
-    <AuthorizationID> may identify either a user or a Role.)
+If your <grantee> is PUBLIC, you're granting the Privilege to a list of
+<grantee>s that contains all of the <AuthorizationID>s in the Cluster -- now
+and in the future. If your <grantee> is one or more <AuthorizationID>s, you're
+granting the Privilege only to those <AuthorizationID>s. (Remember that an
+<AuthorizationID> may identify either a user or a Role.)
 
-    When you grant a SELECT, UPDATE or REFERENCES Table Privilege on a Base table that has subtables, the effect is two-fold:
-          ## The specified Privilege is granted on every Column of the Base table named.
-          ## The specified Privilege is also granted on the inherited Column(s) of each of that Base table's subtables.
+When you grant a SELECT, UPDATE or REFERENCES Table Privilege on a Base table that has subtables, the effect is two-fold:
+      ## The specified Privilege is granted on every Column of the Base table named.
+      ## The specified Privilege is also granted on the inherited Column(s) of each of that Base table's subtables.
 
-    The optional FROM clause names the grantor of the Privileges: CURRENT_USER is
-    the <AuthorizationID> of the current user and CURRENT_ROLE is the
-    <AuthorizationID> of the current Role. If you omit the clause, it defaults to
-    FROM CURRENT_USER -- but if CURRENT_USER is NULL, the clause defaults to FROM
-    CURRENT_ROLE. If you specify FROM CURRENT_USER and the current
-    <AuthorizationID> is a <Role name>, or if you specify FROM CURRENT_ROLE and
-    the current <Role name> is NULL, the GRANT statement will fail: your DBMS will
-    return the SQLSTATE error 0L000 "invalid grantor". Here are two examples:
+The optional FROM clause names the grantor of the Privileges: CURRENT_USER is
+the <AuthorizationID> of the current user and CURRENT_ROLE is the
+<AuthorizationID> of the current Role. If you omit the clause, it defaults to
+FROM CURRENT_USER -- but if CURRENT_USER is NULL, the clause defaults to FROM
+CURRENT_ROLE. If you specify FROM CURRENT_USER and the current
+<AuthorizationID> is a <Role name>, or if you specify FROM CURRENT_ROLE and
+the current <Role name> is NULL, the GRANT statement will fail: your DBMS will
+return the SQLSTATE error 0L000 "invalid grantor". Here are two examples:
 
-       GRANT UPDATE(column_1,column_5) ON Table_1 TO sam FROM CURRENT_USER;
+   GRANT UPDATE(column_1,column_5) ON Table_1 TO sam FROM CURRENT_USER;
 
-       GRANT DELETE ON Table_1 TO PUBLIC FROM CURRENT_ROLE;
+   GRANT DELETE ON Table_1 TO PUBLIC FROM CURRENT_ROLE;
 
-    The optional WITH GRANT OPTION clause defines a grantable Privilege: one that
-    the grantee may, in turn, grant to other <AuthorizationID>s. If you omit the
-    clause, the grantee will not be able to pass the Privilege on to others. Here are two examples:
+The optional WITH GRANT OPTION clause defines a grantable Privilege: one that
+the grantee may, in turn, grant to other <AuthorizationID>s. If you omit the
+clause, the grantee will not be able to pass the Privilege on to others. Here are two examples:
 
-       GRANT REFERENCES(column_4,column_5) ON Table_1 WITH GRANT OPTION
-          TO bob,sam FROM CURRENT_USER;
+   GRANT REFERENCES(column_4,column_5) ON Table_1 WITH GRANT OPTION
+      TO bob,sam FROM CURRENT_USER;
 
-       GRANT TRIGGER Table_1 WITH GRANT OPTION
-          TO PUBLIC FROM CURRENT_ROLE;
+   GRANT TRIGGER Table_1 WITH GRANT OPTION
+      TO PUBLIC FROM CURRENT_ROLE;
 
-    If the GRANT statement isn't able to successfully create a Privilege
-    descriptor for every one of its Privilege specifications, your DBMS will
-    return the SQLSTATE warning 01007 "warning-privilege not granted".
+If the GRANT statement isn't able to successfully create a Privilege
+descriptor for every one of its Privilege specifications, your DBMS will
+return the SQLSTATE warning 01007 "warning-privilege not granted".
 
-    If you want to restrict your code to Core SQL, don't use the FROM <grantor> clause with the GRANT statement.
+If you want to restrict your code to Core SQL, don't use the FROM <grantor> clause with the GRANT statement.
 
-    <grant role statement>:
-    The required syntax for the <grant role statement> form of the GRANT statement is:
+<grant role statement>:
+The required syntax for the <grant role statement> form of the GRANT statement is:
 
-    <grant role statement> ::=
-    GRANT <Role name> [ {,<Role name>}... ] TO <grantee> [ {,<grantee>}... ]
-    [ WITH ADMIN OPTION ]
-    [ FROM <grantor> ]
+<grant role statement> ::=
+GRANT <Role name> [ {,<Role name>}... ] TO <grantee> [ {,<grantee>}... ]
+[ WITH ADMIN OPTION ]
+[ FROM <grantor> ]
 
-       <grantee> ::= PUBLIC | <AuthorizationID>
+   <grantee> ::= PUBLIC | <AuthorizationID>
 
-       <grantor> ::= CURRENT_USER | CURRENT_ROLE
+   <grantor> ::= CURRENT_USER | CURRENT_ROLE
 
-    The <grant role statement> grants the use of one or more Roles to one or more
-    grantees, including (possibly) PUBLIC. The grantor of the Roles must, of
-    course, hold those Roles as grantable Roles (that is, WITH ADMIN OPTION).
-    <Role name> must be an <AuthorizationID> that identifies a Role.
+The <grant role statement> grants the use of one or more Roles to one or more
+grantees, including (possibly) PUBLIC. The grantor of the Roles must, of
+course, hold those Roles as grantable Roles (that is, WITH ADMIN OPTION).
+<Role name> must be an <AuthorizationID> that identifies a Role.
 
-    If your <grantee> is PUBLIC, you're granting the use of <Role name> to a list
-    of <grantee>s that contains all of the <AuthorizationID>s in the Cluster --
-    now and in the future. If your <grantee> is one or more <AuthorizationID>s,
-    you're granting the use of the Role only to those <AuthorizationID>s. Keep in
-    mind that an <AuthorizationID> may identify either a user or a Role -- this
-    means you can grant the use of a Role not only to a user, but to another Role.
-    Be careful with this last option: SQL doesn't allow you to grant the use of a
-    Role to a Role that already has the use of that Role -- that is, no cycles of
-    Role grants are allowed. Note that if two Role grants are identical except
-    that one is a grantable Role and the other is not, the grantable Role takes
-    precedence and both Roles are set to grantable Roles. Your DBMS will then
-    eliminate the redundant duplicate Role grant.
+If your <grantee> is PUBLIC, you're granting the use of <Role name> to a list
+of <grantee>s that contains all of the <AuthorizationID>s in the Cluster --
+now and in the future. If your <grantee> is one or more <AuthorizationID>s,
+you're granting the use of the Role only to those <AuthorizationID>s. Keep in
+mind that an <AuthorizationID> may identify either a user or a Role -- this
+means you can grant the use of a Role not only to a user, but to another Role.
+Be careful with this last option: SQL doesn't allow you to grant the use of a
+Role to a Role that already has the use of that Role -- that is, no cycles of
+Role grants are allowed. Note that if two Role grants are identical except
+that one is a grantable Role and the other is not, the grantable Role takes
+precedence and both Roles are set to grantable Roles. Your DBMS will then
+eliminate the redundant duplicate Role grant.
 
-    The optional FROM clause names the grantor of the Roles: CURRENT_USER is the
-    <AuthorizationID> of the current user and CURRENT_ROLE is the
-    <AuthorizationID> of the current Role. If you omit the clause, it defaults to
-    FROM CURRENT_USER -- but if CURRENT_USER is NULL, the clause defaults to FROM
-    CURRENT_ROLE. If you specify FROM CURRENT_USER and the current
-    <AuthorizationID> is a <Role name>, or if you specify FROM CURRENT_ROLE and
-    the current <Role name> is NULL, the GRANT statement will fail: your DBMS will
-    return the SQLSTATE error 0L000 "invalid grantor". For example, in this SQL
-    statement, the current user is granting the use of the ASSISTANTS_ROLE Role to every <AuthorizationID>:
+The optional FROM clause names the grantor of the Roles: CURRENT_USER is the
+<AuthorizationID> of the current user and CURRENT_ROLE is the
+<AuthorizationID> of the current Role. If you omit the clause, it defaults to
+FROM CURRENT_USER -- but if CURRENT_USER is NULL, the clause defaults to FROM
+CURRENT_ROLE. If you specify FROM CURRENT_USER and the current
+<AuthorizationID> is a <Role name>, or if you specify FROM CURRENT_ROLE and
+the current <Role name> is NULL, the GRANT statement will fail: your DBMS will
+return the SQLSTATE error 0L000 "invalid grantor". For example, in this SQL
+statement, the current user is granting the use of the ASSISTANTS_ROLE Role to every <AuthorizationID>:
 
-       GRANT assistants_role TO PUBLIC FROM CURRENT_USER;
+   GRANT assistants_role TO PUBLIC FROM CURRENT_USER;
 
-    In this SQL statement, the current Role is granting the use of the ASSISTANTS_ROLE and the BOSSES_ROLE Role to the "bob" and "joe" <AuthorizationID>s:
+In this SQL statement, the current Role is granting the use of the ASSISTANTS_ROLE and the BOSSES_ROLE Role to the "bob" and "joe" <AuthorizationID>s:
 
-       GRANT assistants_role, bosses_role TO bob, joe FROM CURRENT_ROLE;
+   GRANT assistants_role, bosses_role TO bob, joe FROM CURRENT_ROLE;
 
-    The optional WITH ADMIN OPTION clause defines a grantable Role: one that the
-    grantee may, in turn, grant the use of to other <AuthorizationID>s. If you
-    omit the clause, the grantee will not be able to pass the use of the Role on
-    to others. Here are two examples:
+The optional WITH ADMIN OPTION clause defines a grantable Role: one that the
+grantee may, in turn, grant the use of to other <AuthorizationID>s. If you
+omit the clause, the grantee will not be able to pass the use of the Role on
+to others. Here are two examples:
 
-       GRANT assistants_role TO PUBLIC FROM CURRENT_USER WITH ADMIN OPTION;
+   GRANT assistants_role TO PUBLIC FROM CURRENT_USER WITH ADMIN OPTION;
 
-       GRANT assistants_role, bosses_role TO bob, joe
-         FROM CURRENT_ROLE WITH ADMIN OPTION;
+   GRANT assistants_role, bosses_role TO bob, joe
+     FROM CURRENT_ROLE WITH ADMIN OPTION;
 
-    If you want to restrict your code to Core SQL, don't use the <grant role
-    statement> form of the GRANT statement and don't grant any grantable
-    Privileges on your Objects to others users -- Core SQL only allows the owner
-    of an Object to hold a grantable Privilege.
+If you want to restrict your code to Core SQL, don't use the <grant role
+statement> form of the GRANT statement and don't grant any grantable
+Privileges on your Objects to others users -- Core SQL only allows the owner
+of an Object to hold a grantable Privilege.
 
 Data Control
 ============
 
 ::
 
-    You need explicit permission to perform any action on any SQL Object. SQL's
-    security system is discretionary (meaning that your rights vary depending on
-    the action and on the Object). If you try to violate security, what usually
-    happens is an error message. It's not a sophisticated system, but there is
-    some complexity when we get into details and definitions. Here's a simple GRANT statement:
-
-       GRANT INSERT                           -- action
-         ON  Books                            -- Object
-         TO  joe;                             -- user
-
-    After this SQL statement is executed, the user named "joe" will be able to use
-    the INSERT statement on the Table named "Books". SQL's security system boils
-    down to this: you can let people access data with GRANT statements, or you can
-    refuse to do so. The combination {action plus Object} is a Privilege. The
-    action is usually a verb, the Object is usually a Table and the user is usually a person.
-
-    Action and Object:
-    What action is possible depends on what the Object is. Here is a chart of the
-    Object types which can be in GRANT statements, and the applicable actions for them:
-
-    OBJECT              ACTION(S)
-    Base table          SELECT, INSERT, UPDATE, DELETE, TRIGGER, REFERENCES
-    View                SELECT, INSERT, UPDATE, DELETE, REFERENCES
-    Column              SELECT, INSERT, UPDATE, REFERENCES
-    Domain              USAGE
-    Character Set       USAGE
-    Collation           USAGE
-    Translation         USAGE
-    SQL-invoked routine EXECUTE
-    UDT                 UNDER
-
-    Except for USAGE, the GRANT actions correspond to verbs that are used in SQL statements, for example:
-
-       UPDATE Integer_Tables SET
-          integer_1 = CAST('1' AS INFORMATION_SCHEMA.CARDINAL_NUMBER);
-
-    For this SQL statement to be possible, the current <AuthorizationID> must have these Privileges:
-          ## The UPDATE Privilege on Table INTEGER_TABLES and/or the UPDATE Privilege on Column INTEGER_TABLES.INTEGER_1.
-          ## The USAGE Privilege on Domain INFORMATION_SCHEMA.CARDINAL_NUMBER.
-
-    User:
-    A user is an <AuthorizationID>. It's important to remember that users are
-    outside the "database" -- the effect is that <AuthorizationID>s are
-    unqualified names, that there are no CREATE USER / DROP user statements in
-    standard SQL and that some important questions depend on your operating
-    system. An easy way to appreciate this is to remember that "joe" is still
-    "joe" even if you switch to a different Schema in a different Catalog. Other points about users:
-          ## All DBMS operations are done on behalf of some user.
-          ## All Objects are owned by some user.
-          ## Users may be people ("Sam Brown" / "Joe") or jobs ("VP Marketing" / "Tellers") or departments ("Acquisitions" / "Front Office") or robots ("Consolidate Report program", "Internet spider"). DBMSs can't distinguish between these categories.
-
-    In a security context, we're concerned with the user's authorization to ask for certain acts to be performed. That's where the GRANT statement comes in.
-
-    Owners:
-    Consider this SQL statement:
-
-       CREATE SCHEMA Sally_Schema AUTHORIZATION Sally
-          CREATE Table Sally_Dates (date_1 DATE, date_2 DATE);
-
-    (The question "who may execute a CREATE SCHEMA statement?" is a tough one.
-    It's implementor-defined, which might mean "anybody at all", but more likely
-    means "some special database administrator who exists when you first install
-    the DBMS". Though the question is important, it rarely is going to come up.)
-
-    In this example, a user named Sally is the owner of SALLY_SCHEMA. Therefore,
-    by definition, Sally is the owner of all Objects within that Schema -- right
-    now, this includes Table SALLY_DATES and the Columns DATE_1 and DATE_2.
-    ** TRAP: You'll often hear that the "owner of a Table" is "the user who
-    created the Table". Technically that's wrong. Suppose another user, Joe, was
-    able to create a Table and store it in Sally's schema:
-
-       CREATE Table Sally_Schema.Joe_Dates (
-          date_1 DATE, date_2 DATE);
-
-    Joe is the creator of Table JOE_DATES -- but the owner is Sally, because Sally
-    owns the Schema. The distinction between creators and owners is trivial for
-    SQL-92 users because it is illegal to create Objects in a Schema that you
-    don't own. It is legal in SQL3, though -- so don't let old definitions mix you up.
-
-    As the Schema owner, Sally now has the power to CREATE, ALTER or DROP all
-    Objects in the Schema. Sally alone has this power -- she cannot delegate it --
-    so a Schema owner's CREATE/ALTER/DROP power is a right, not a Privilege. This
-    power exists, but we will not trouble with it further because it does not
-    involve the GRANT statement.
-
-    Sally also has a full set of all Privileges that apply for each Object in her
-    Schema. For example, Sally has the USAGE Privilege for all of her Schema's
-    Domains, Character sets, Collation and Translations and she has SELECT,
-    UPDATE, INSERT, DELETE, REFERENCES and TRIGGER Table Privileges for all of her
-    Schema's Base Tables. Sally's set of Privileges stems automatically from her
-    ownership of the Schema. Technically it is considered that she was "granted"
-    these powers by a pseudo-user named "_SYSTEM", but for practical purposes she
-    is the ultimate authority. She cannot lose her right to do these operations.
-    She can, however, pass on any or all of her Privileges to any other user. This
-    ability is called the GRANT OPTION, because Sally has the option of granting
-    the Privileges she holds. Sally also may pass on the grant option itself.
-
-    GRANTs on Tables:
-    Let's follow what a DBMS does with a GRANT statement, using a series of
-    examples based on SALLY_SCHEMA. Here's a GRANT statement for that Schema
-    (assume Sally is the current <AuthorizationID>):
-
-       GRANT SELECT, INSERT ON Sally_Dates TO joe WITH GRANT OPTION;
-
-    Given this SQL statement, a DBMS acts as follows:
-          ## It determines that Sally owns the Schema, therefore she has a full
-    set of Privileges on Table SALLY_DATES. There is no need to find a Privilege
-    descriptor to see whether she may grant Privileges.
-          ## It determines that Joe does not exist, so it silently creates a user
-    named Joe. Even if Joe has not made his existence known before, that would be
-    no reason to believe he does not exist. (We're making some assumptions here
-    for the sake of the example. This would be the usual case, but your DBMS might
-    require you to execute some form of (non-standard) CREATE USER statement or it
-    may have some operating-system dependent check on whether Joe exists.)
-          ## It creates these six new Privilege descriptors:
-
-    GRANTOR GRANTEE OBJECT  NAME         ACTION   GRANT_OPTION
-    Sally   Joe     Table   Sally_Dates  SELECT   YES
-    Sally   Joe     Table   Sally_Dates  INSERT   YES
-    Sally   Joe     Column  date_1       SELECT   YES
-    Sally   Joe     Column  date_1       INSERT   YES
-    Sally   Joe     Column  date_2       SELECT   YES
-    Sally   Joe     Column  date_2       INSERT   YES
+You need explicit permission to perform any action on any SQL Object. SQL's
+security system is discretionary (meaning that your rights vary depending on
+the action and on the Object). If you try to violate security, what usually
+happens is an error message. It's not a sophisticated system, but there is
+some complexity when we get into details and definitions. Here's a simple GRANT statement:
+
+   GRANT INSERT                           -- action
+     ON  Books                            -- Object
+     TO  joe;                             -- user
+
+After this SQL statement is executed, the user named "joe" will be able to use
+the INSERT statement on the Table named "Books". SQL's security system boils
+down to this: you can let people access data with GRANT statements, or you can
+refuse to do so. The combination {action plus Object} is a Privilege. The
+action is usually a verb, the Object is usually a Table and the user is usually a person.
+
+Action and Object:
+What action is possible depends on what the Object is. Here is a chart of the
+Object types which can be in GRANT statements, and the applicable actions for them:
+
+OBJECT              ACTION(S)
+Base table          SELECT, INSERT, UPDATE, DELETE, TRIGGER, REFERENCES
+View                SELECT, INSERT, UPDATE, DELETE, REFERENCES
+Column              SELECT, INSERT, UPDATE, REFERENCES
+Domain              USAGE
+Character Set       USAGE
+Collation           USAGE
+Translation         USAGE
+SQL-invoked routine EXECUTE
+UDT                 UNDER
+
+Except for USAGE, the GRANT actions correspond to verbs that are used in SQL statements, for example:
+
+   UPDATE Integer_Tables SET
+      integer_1 = CAST('1' AS INFORMATION_SCHEMA.CARDINAL_NUMBER);
+
+For this SQL statement to be possible, the current <AuthorizationID> must have these Privileges:
+      ## The UPDATE Privilege on Table INTEGER_TABLES and/or the UPDATE Privilege on Column INTEGER_TABLES.INTEGER_1.
+      ## The USAGE Privilege on Domain INFORMATION_SCHEMA.CARDINAL_NUMBER.
+
+User:
+A user is an <AuthorizationID>. It's important to remember that users are
+outside the "database" -- the effect is that <AuthorizationID>s are
+unqualified names, that there are no CREATE USER / DROP user statements in
+standard SQL and that some important questions depend on your operating
+system. An easy way to appreciate this is to remember that "joe" is still
+"joe" even if you switch to a different Schema in a different Catalog. Other points about users:
+      ## All DBMS operations are done on behalf of some user.
+      ## All Objects are owned by some user.
+      ## Users may be people ("Sam Brown" / "Joe") or jobs ("VP Marketing" / "Tellers") or departments ("Acquisitions" / "Front Office") or robots ("Consolidate Report program", "Internet spider"). DBMSs can't distinguish between these categories.
+
+In a security context, we're concerned with the user's authorization to ask for certain acts to be performed. That's where the GRANT statement comes in.
+
+Owners:
+Consider this SQL statement:
+
+   CREATE SCHEMA Sally_Schema AUTHORIZATION Sally
+      CREATE Table Sally_Dates (date_1 DATE, date_2 DATE);
+
+(The question "who may execute a CREATE SCHEMA statement?" is a tough one.
+It's implementor-defined, which might mean "anybody at all", but more likely
+means "some special database administrator who exists when you first install
+the DBMS". Though the question is important, it rarely is going to come up.)
+
+In this example, a user named Sally is the owner of SALLY_SCHEMA. Therefore,
+by definition, Sally is the owner of all Objects within that Schema -- right
+now, this includes Table SALLY_DATES and the Columns DATE_1 and DATE_2.
+** TRAP: You'll often hear that the "owner of a Table" is "the user who
+created the Table". Technically that's wrong. Suppose another user, Joe, was
+able to create a Table and store it in Sally's schema:
+
+   CREATE Table Sally_Schema.Joe_Dates (
+      date_1 DATE, date_2 DATE);
+
+Joe is the creator of Table JOE_DATES -- but the owner is Sally, because Sally
+owns the Schema. The distinction between creators and owners is trivial for
+SQL-92 users because it is illegal to create Objects in a Schema that you
+don't own. It is legal in SQL3, though -- so don't let old definitions mix you up.
+
+As the Schema owner, Sally now has the power to CREATE, ALTER or DROP all
+Objects in the Schema. Sally alone has this power -- she cannot delegate it --
+so a Schema owner's CREATE/ALTER/DROP power is a right, not a Privilege. This
+power exists, but we will not trouble with it further because it does not
+involve the GRANT statement.
+
+Sally also has a full set of all Privileges that apply for each Object in her
+Schema. For example, Sally has the USAGE Privilege for all of her Schema's
+Domains, Character sets, Collation and Translations and she has SELECT,
+UPDATE, INSERT, DELETE, REFERENCES and TRIGGER Table Privileges for all of her
+Schema's Base Tables. Sally's set of Privileges stems automatically from her
+ownership of the Schema. Technically it is considered that she was "granted"
+these powers by a pseudo-user named "_SYSTEM", but for practical purposes she
+is the ultimate authority. She cannot lose her right to do these operations.
+She can, however, pass on any or all of her Privileges to any other user. This
+ability is called the GRANT OPTION, because Sally has the option of granting
+the Privileges she holds. Sally also may pass on the grant option itself.
+
+GRANTs on Tables:
+Let's follow what a DBMS does with a GRANT statement, using a series of
+examples based on SALLY_SCHEMA. Here's a GRANT statement for that Schema
+(assume Sally is the current <AuthorizationID>):
+
+   GRANT SELECT, INSERT ON Sally_Dates TO joe WITH GRANT OPTION;
+
+Given this SQL statement, a DBMS acts as follows:
+      ## It determines that Sally owns the Schema, therefore she has a full
+set of Privileges on Table SALLY_DATES. There is no need to find a Privilege
+descriptor to see whether she may grant Privileges.
+      ## It determines that Joe does not exist, so it silently creates a user
+named Joe. Even if Joe has not made his existence known before, that would be
+no reason to believe he does not exist. (We're making some assumptions here
+for the sake of the example. This would be the usual case, but your DBMS might
+require you to execute some form of (non-standard) CREATE USER statement or it
+may have some operating-system dependent check on whether Joe exists.)
+      ## It creates these six new Privilege descriptors:
+
+GRANTOR GRANTEE OBJECT  NAME         ACTION   GRANT_OPTION
+Sally   Joe     Table   Sally_Dates  SELECT   YES
+Sally   Joe     Table   Sally_Dates  INSERT   YES
+Sally   Joe     Column  date_1       SELECT   YES
+Sally   Joe     Column  date_1       INSERT   YES
+Sally   Joe     Column  date_2       SELECT   YES
+Sally   Joe     Column  date_2       INSERT   YES
 
-    The four "Column Privilege" descriptors may surprise you a bit since the GRANT
-    statement syntax doesn't include COLUMN as an Object. But since it does allow
-    Column Privileges to be defined, the effect is that a GRANT on a Table
-    creates, not only a Privilege descriptor for that Table, but also a Privilege
-    descriptor for every applicable Column of that Table.
+The four "Column Privilege" descriptors may surprise you a bit since the GRANT
+statement syntax doesn't include COLUMN as an Object. But since it does allow
+Column Privileges to be defined, the effect is that a GRANT on a Table
+creates, not only a Privilege descriptor for that Table, but also a Privilege
+descriptor for every applicable Column of that Table.
 
-    Now, suppose that time passes and the current <AuthorizationID> becomes Joe, who executes this GRANT statement:
+Now, suppose that time passes and the current <AuthorizationID> becomes Joe, who executes this GRANT statement:
 
-       GRANT INSERT, UPDATE ON Sally_Dates TO Sam;
+   GRANT INSERT, UPDATE ON Sally_Dates TO Sam;
 
-    Given this SQL statement, a DBMS acts as follows:
-          ## It determines that Joe does not own the Schema, so it looks through
-    the Privilege descriptors to see if there are any where grantee = 'Joe',
-    Object = 'Table', Name = 'Sally_Dates' and grant_option = YES. It finds INSERT
-    Privileges but it does not find UPDATE Privileges, so it returns the SQLSTATE
-    warning 01007 "warning-privilege not granted" and it creates these three new
-    Privilege descriptors:
+Given this SQL statement, a DBMS acts as follows:
+      ## It determines that Joe does not own the Schema, so it looks through
+the Privilege descriptors to see if there are any where grantee = 'Joe',
+Object = 'Table', Name = 'Sally_Dates' and grant_option = YES. It finds INSERT
+Privileges but it does not find UPDATE Privileges, so it returns the SQLSTATE
+warning 01007 "warning-privilege not granted" and it creates these three new
+Privilege descriptors:
 
-    GRANTOR GRANTEE OBJECT  NAME        ACTION   GRANT_OPTION
-    Joe     Sam     Table   Sally_Dates INSERT   NO
-    Joe     Sam     Column  date_1      INSERT   NO
-    Joe     Sam     Column  date_2      INSERT   NO
+GRANTOR GRANTEE OBJECT  NAME        ACTION   GRANT_OPTION
+Joe     Sam     Table   Sally_Dates INSERT   NO
+Joe     Sam     Column  date_1      INSERT   NO
+Joe     Sam     Column  date_2      INSERT   NO
 
-    More time passes and Sally is once again the current <AuthorizationID>. She does this:
+More time passes and Sally is once again the current <AuthorizationID>. She does this:
 
-       GRANT INSERT ON Sally_Dates TO Sam;
+   GRANT INSERT ON Sally_Dates TO Sam;
 
-       GRANT INSERT(date_1) ON Sally_Dates TO bob;
+   GRANT INSERT(date_1) ON Sally_Dates TO bob;
 
-    Given this SQL statement, a DBMS acts as follows:
-          ## Once again it sees that Sally owns the Schema and so has full Privileges, all grantable.
-          ## It creates these five new Privilege descriptors:
+Given this SQL statement, a DBMS acts as follows:
+      ## Once again it sees that Sally owns the Schema and so has full Privileges, all grantable.
+      ## It creates these five new Privilege descriptors:
 
-    GRANTOR GRANTEE OBJECT  NAME        ACTION   GRANT_OPTION
-    Sally   Sam     Table   Sally_Dates INSERT   NO
-    Sally   Sam     Column  date_1      INSERT   NO
-    Sally   Sam     Column  date_2      INSERT   NO
-    Sally   Bob     Table   Sally_Dates INSERT   NO
-    Sally   Bob     Column  date_1      INSERT   NO
+GRANTOR GRANTEE OBJECT  NAME        ACTION   GRANT_OPTION
+Sally   Sam     Table   Sally_Dates INSERT   NO
+Sally   Sam     Column  date_1      INSERT   NO
+Sally   Sam     Column  date_2      INSERT   NO
+Sally   Bob     Table   Sally_Dates INSERT   NO
+Sally   Bob     Column  date_1      INSERT   NO
 
-    These Privilege descriptors for Same are not duplicates of the ones that were
-    created earlier, when Joe granted Sam the same Privileges, therefore the DBMS
-    makes new Privilege descriptors. Later, however, Sally repeats this GRANT:
+These Privilege descriptors for Same are not duplicates of the ones that were
+created earlier, when Joe granted Sam the same Privileges, therefore the DBMS
+makes new Privilege descriptors. Later, however, Sally repeats this GRANT:
 
-       GRANT INSERT ON Sally_Dates TO Sam;
+   GRANT INSERT ON Sally_Dates TO Sam;
 
-    In this final case, nothing happens: there are already Privilege descriptors
-    with the same {grantor, grantee, Object, name, action} and duplicates will not
-    be added to INFORMATION_SCHEMA. Your DBMS will return "okay" after creating zero new rows.
+In this final case, nothing happens: there are already Privilege descriptors
+with the same {grantor, grantee, Object, name, action} and duplicates will not
+be added to INFORMATION_SCHEMA. Your DBMS will return "okay" after creating zero new rows.
 
-    A related example -- trivial but worth making because older SQL books describe
-    it incorrectly -- concerns the question: what if the last example had
-    contained the WITH GRANT OPTION clause? In that case, the grant_option field
-    for the last two Privilege descriptors would have been changed from NO to YES.
+A related example -- trivial but worth making because older SQL books describe
+it incorrectly -- concerns the question: what if the last example had
+contained the WITH GRANT OPTION clause? In that case, the grant_option field
+for the last two Privilege descriptors would have been changed from NO to YES.
 
-    In the end, we have fourteen new Privilege descriptors. Sally has the same
-    powers of ownership as before, Joe can INSERT INTO Sally_Dates or SELECT FROM
-    Sally_Dates, Sam can INSERT INTO Sally_Dates and Bob can INSERT INTO
-    Sally_Dates.date_1. Joe's Privileges are WITH GRANT OPTION, Sam's and Bob's
-    are not. We have been at some pains to show that the result is both Table and
-    Column Privilege descriptors, and no two Privilege descriptors can be exact
-    duplicates. There can, however, be considerable overlap, as is seen by the
-    fact that Sam has two sets of INSERT Privileges on the same Object -- one with
-    grantee=Sally and the other with grantee=Joe.
+In the end, we have fourteen new Privilege descriptors. Sally has the same
+powers of ownership as before, Joe can INSERT INTO Sally_Dates or SELECT FROM
+Sally_Dates, Sam can INSERT INTO Sally_Dates and Bob can INSERT INTO
+Sally_Dates.date_1. Joe's Privileges are WITH GRANT OPTION, Sam's and Bob's
+are not. We have been at some pains to show that the result is both Table and
+Column Privilege descriptors, and no two Privilege descriptors can be exact
+duplicates. There can, however, be considerable overlap, as is seen by the
+fact that Sam has two sets of INSERT Privileges on the same Object -- one with
+grantee=Sally and the other with grantee=Joe.
 
-    ** TRAP: it is a delusion to believe that Bob may now execute this SQL statement:
+** TRAP: it is a delusion to believe that Bob may now execute this SQL statement:
 
-       INSERT INTO Sally_Dates (date_1) VALUES (CURRENT_DATE);
+   INSERT INTO Sally_Dates (date_1) VALUES (CURRENT_DATE);
 
-    because to do this, Bob needs the INSERT Privilege for both Column DATE_1 and
-    Column DATE_2 -- INSERT statements create whole rows. So it's useless to
-    "GRANT INSERT(Column-list)" unless (a) you expect that somebody else will
-    grant access on the other Columns or (b) your (Column-list) contains the names
-    of all Columns in the Table, but you don't want to just "GRANT INSERT ON
-    <Table name>" because that would give access not only to all Columns currently
-    in the Table, but to all Columns which will ever be in the Table (including
-    Columns added by future ALTER TABLE statements).
+because to do this, Bob needs the INSERT Privilege for both Column DATE_1 and
+Column DATE_2 -- INSERT statements create whole rows. So it's useless to
+"GRANT INSERT(Column-list)" unless (a) you expect that somebody else will
+grant access on the other Columns or (b) your (Column-list) contains the names
+of all Columns in the Table, but you don't want to just "GRANT INSERT ON
+<Table name>" because that would give access not only to all Columns currently
+in the Table, but to all Columns which will ever be in the Table (including
+Columns added by future ALTER TABLE statements).
 
-    If Sally does this:
+If Sally does this:
 
-       GRANT UPDATE(date_1) ON Sally_Dates TO Sam;
+   GRANT UPDATE(date_1) ON Sally_Dates TO Sam;
 
-    the effect is that Sam can do this:
+the effect is that Sam can do this:
 
-       UPDATE Sally_Dates SET date_1 = 'DATE '1994-07-15';
+   UPDATE Sally_Dates SET date_1 = 'DATE '1994-07-15';
 
-    but Sam can't do this:
+but Sam can't do this:
 
-       UPDATE Sally_Dates SET date_2 = 'DATE '1994-07-15';
+   UPDATE Sally_Dates SET date_2 = 'DATE '1994-07-15';
 
-    There are times when such fine-tuning of controls is desirable.
+There are times when such fine-tuning of controls is desirable.
 
-    If Sally does this:
+If Sally does this:
 
-       GRANT SELECT(date_1) ON Sally_Dates TO Sam;
+   GRANT SELECT(date_1) ON Sally_Dates TO Sam;
 
-    the effect is that Sam can do this:
+the effect is that Sam can do this:
 
-       SELECT date_1 FROM Sally_Dates;
+   SELECT date_1 FROM Sally_Dates;
 
-       SELECT COUNT(*) FROM Sally_Dates;
+   SELECT COUNT(*) FROM Sally_Dates;
 
-    but he can't specifically SELECT the second Column.
+but he can't specifically SELECT the second Column.
 
-    ** TRAP: If SELECT(Column-list) Privileges are granted, the recipients should
-    avoid using "SELECT * ...". The "SELECT * ..." statement will suddenly cease
-    to work for them if new Columns are added to the Table.
+** TRAP: If SELECT(Column-list) Privileges are granted, the recipients should
+avoid using "SELECT * ...". The "SELECT * ..." statement will suddenly cease
+to work for them if new Columns are added to the Table.
 
-    We would never recommend by-Column granting, without first looking at the alternative: granting on a View.
+We would never recommend by-Column granting, without first looking at the alternative: granting on a View.
 
-    GRANTs on Views:
-    By definition, a View is a Table. So the considerations specific to "GRANTs on
-    Views" have nothing to do with syntax -- the syntax is the same as for any
-    Table -- but with the effect. Specifically, let's see what would occur if Joe
-    owns a View of Table SALLY_DATES.
+GRANTs on Views:
+By definition, a View is a Table. So the considerations specific to "GRANTs on
+Views" have nothing to do with syntax -- the syntax is the same as for any
+Table -- but with the effect. Specifically, let's see what would occur if Joe
+owns a View of Table SALLY_DATES.
 
-    Joe cannot create anything in Sally's Schema -- only the Schema owner can
-    legally issue CREATE statements for Schema Objects -- so to make the example
-    possible we have to start by giving Joe his own Schema. It's convenient to
-    make Joe's View at the same time. Here's the SQL statement to do it:
+Joe cannot create anything in Sally's Schema -- only the Schema owner can
+legally issue CREATE statements for Schema Objects -- so to make the example
+possible we have to start by giving Joe his own Schema. It's convenient to
+make Joe's View at the same time. Here's the SQL statement to do it:
 
-       CREATE Schema Joe_Schema AUTHORIZATION Joe
-          CREATE View Joe_Views AS
-             SELECT date_1,date_2 FROM Sally_Schema.Sally_Dates;
+   CREATE Schema Joe_Schema AUTHORIZATION Joe
+      CREATE View Joe_Views AS
+         SELECT date_1,date_2 FROM Sally_Schema.Sally_Dates;
 
-    To do this, Joe will need the SELECT Privilege on the Columns of Table
-    SALLY_DATES in SALLY_SCHEMA -- we gave these to him earlier. Naturally, the
-    rules don't let Joe gain new Privileges by owning a View. He can DROP this
-    View (that's his power as an owner and he can SELECT FROM or INSERT INTO this
-    View (those are the grantable Privileges he holds on DALLY_DATES) -- and that's all. He cannot do this:
+To do this, Joe will need the SELECT Privilege on the Columns of Table
+SALLY_DATES in SALLY_SCHEMA -- we gave these to him earlier. Naturally, the
+rules don't let Joe gain new Privileges by owning a View. He can DROP this
+View (that's his power as an owner and he can SELECT FROM or INSERT INTO this
+View (those are the grantable Privileges he holds on DALLY_DATES) -- and that's all. He cannot do this:
 
-       UPDATE Joe_Views SET date_1 = CURRENT_DATE;
+   UPDATE Joe_Views SET date_1 = CURRENT_DATE;
 
-    because UPDATE is not a Privilege he holds on SALLY_DATES, and ultimately, an
-    UPDATE on the View will UPDATE the Table. Now assume that Joe creates another View:
+because UPDATE is not a Privilege he holds on SALLY_DATES, and ultimately, an
+UPDATE on the View will UPDATE the Table. Now assume that Joe creates another View:
 
-       CREATE View Joe_Views_2 AS
-          SELECT date_1 FROM Joe_Views WHERE date_1 > DATE '1994-01-03';
+   CREATE View Joe_Views_2 AS
+      SELECT date_1 FROM Joe_Views WHERE date_1 > DATE '1994-01-03';
 
-    and then does a GRANT to Sam:
+and then does a GRANT to Sam:
 
-       GRANT INSERT, SELECT ON Joe_Views_2 TO Sam;
+   GRANT INSERT, SELECT ON Joe_Views_2 TO Sam;
 
-    ... a beautiful example of why Views are useful for security systems. Here,
-    Joe has restricted Sam's access not only to a particular Column of a Table,
-    but to particular rows of that Table. He has done more than is possible with
-    by-Column granting -- and he has done it more cleanly.
+... a beautiful example of why Views are useful for security systems. Here,
+Joe has restricted Sam's access not only to a particular Column of a Table,
+but to particular rows of that Table. He has done more than is possible with
+by-Column granting -- and he has done it more cleanly.
 
-    GRANTs on Procedures:
-    The sad news is that the most useful GRANT of all is one that hardly anyone
-    can use yet. It depends on the existence of procedures, which are an SQL3
-    Object. Only GRANTs on procedures can bring us real-word examples like this:
+GRANTs on Procedures:
+The sad news is that the most useful GRANT of all is one that hardly anyone
+can use yet. It depends on the existence of procedures, which are an SQL3
+Object. Only GRANTs on procedures can bring us real-word examples like this:
 
-    Think of a bank. Tellers in the bank do not have Privileges on Tables, or on
-    Columns within Tables. If we give them UPDATE Privileges on customer accounts,
-    they'll be able to do anything at all to the accounts (too dangerous); if we
-    don't, they won't be able to do anything at all (too restrictive). What
-    everyone -- managers, tellers and customers -- wants is a Privilege that
-    allows a specific combination of operations. For example, let Joe transfer
-    money -- that is, let him withdraw from one account and deposit to another
-    account, provided that the  total of the transaction balances out to $0.00.
-    You could define this situation in a program using syntax like this:
+Think of a bank. Tellers in the bank do not have Privileges on Tables, or on
+Columns within Tables. If we give them UPDATE Privileges on customer accounts,
+they'll be able to do anything at all to the accounts (too dangerous); if we
+don't, they won't be able to do anything at all (too restrictive). What
+everyone -- managers, tellers and customers -- wants is a Privilege that
+allows a specific combination of operations. For example, let Joe transfer
+money -- that is, let him withdraw from one account and deposit to another
+account, provided that the  total of the transaction balances out to $0.00.
+You could define this situation in a program using syntax like this:
 
-       CREATE PROCEDURE Transfer_Procedure
-         ... INSERT
-         ... UPDATE
-         ... CHECK
-         ... CASE
-         ...;
+   CREATE PROCEDURE Transfer_Procedure
+     ... INSERT
+     ... UPDATE
+     ... CHECK
+     ... CASE
+     ...;
 
-    And then you could allow Joe to use the procedure with:
+And then you could allow Joe to use the procedure with:
 
-       GRANT EXECUTE ON Transfer_Procedure TO Joe;
+   GRANT EXECUTE ON Transfer_Procedure TO Joe;
 
-    Almost always, restricting based on an SQL verb (INSERT / UPDATE / DELETE) is
-    vague. Administrators of non-imaginary institutions would prefer finer tuning:
-    they want to restrict actions based on entire SQL statements or, more often,
-    on combinations of SQL statements. Since procedure granting will give them
-    that, eventually they'll throw away the old grants on Tables / Columns / Views, and GRANT EXECUTE will become the norm.
+Almost always, restricting based on an SQL verb (INSERT / UPDATE / DELETE) is
+vague. Administrators of non-imaginary institutions would prefer finer tuning:
+they want to restrict actions based on entire SQL statements or, more often,
+on combinations of SQL statements. Since procedure granting will give them
+that, eventually they'll throw away the old grants on Tables / Columns / Views, and GRANT EXECUTE will become the norm.
 
-    Constraints:
-    If a user names a Column within a Constraint or Assertion definition, that
-    means he/she/it REFERENCES the Column. (Don't be misled by the appearance of
-    the <keyword> REFERENCES in FOREIGN KEY Constraint definitions; in this
-    context we're talking about any kind of Constraint. And don't be misled by the
-    appearance of the <keyword> SELECT inside some complex CHECK Constraints; the
-    action here is REFERENCES so the SELECT Privilege is irrelevant for
-    Constraints.) Here's an example -- Sally (who owns the Table SALLY_DATES) may issue this GRANT statement:
+Constraints:
+If a user names a Column within a Constraint or Assertion definition, that
+means he/she/it REFERENCES the Column. (Don't be misled by the appearance of
+the <keyword> REFERENCES in FOREIGN KEY Constraint definitions; in this
+context we're talking about any kind of Constraint. And don't be misled by the
+appearance of the <keyword> SELECT inside some complex CHECK Constraints; the
+action here is REFERENCES so the SELECT Privilege is irrelevant for
+Constraints.) Here's an example -- Sally (who owns the Table SALLY_DATES) may issue this GRANT statement:
 
-       GRANT REFERENCES ON Sally_Dates TO Joe;
+   GRANT REFERENCES ON Sally_Dates TO Joe;
 
-    This means that Joe can now create a Constraint or Assertion that uses the Columns of SALLY_DATES -- for example:
+This means that Joe can now create a Constraint or Assertion that uses the Columns of SALLY_DATES -- for example:
 
-       CREATE ASSERTION joe_constraint CHECK (
-          Joe_Views.date_1 <> DATE '1999-12-31');
+   CREATE ASSERTION joe_constraint CHECK (
+      Joe_Views.date_1 <> DATE '1999-12-31');
 
-    Not only does this Assertion limit the values of JOE_VIEWS, it also limits the
-    values of SALLY_DATES, since that is the Table that the View is based on.
-    Obviously, Joe should not be able to set limits on Sally's data unless she
-    specifically allows him to -- thus, the REFERENCES Privilege.
+Not only does this Assertion limit the values of JOE_VIEWS, it also limits the
+values of SALLY_DATES, since that is the Table that the View is based on.
+Obviously, Joe should not be able to set limits on Sally's data unless she
+specifically allows him to -- thus, the REFERENCES Privilege.
 
 REVOKE statement
 ================
 
 ::
 
-    By the time we finish setting up a Catalog and granting appropriate Privileges
-    to our users, we probably have several thousand Privilege descriptors in
-    INFORMATION_SCHEMA -- more than the count for all other Schema Objects
-    combined. Maintaining them is made easier by the fact that when an Object is
-    dropped, the DBMS will silently destroy all associated Privilege descriptors.
-    That leaves only the problem: how do we adjust for the occasional necessity to
-    remove a Privilege descriptor due to a change in status of a particular user
-    (or Role)? The problem does not occur frequently, but can be mightily
-    cumbersome: the SQL Standard devotes about 40 pages to it. We have managed to
-    simplify the description somewhat, by focussing on the two "essentials" of the process:
-          ## What we are trying to do is reverse the effects of a GRANT statement, using a REVOKE statement -- the clauses of which have almost the same syntax as GRANT's clauses.
-          ## What we are really doing is deleting Privilege descriptor rows from INFORMATION SCHEMA.
+By the time we finish setting up a Catalog and granting appropriate Privileges
+to our users, we probably have several thousand Privilege descriptors in
+INFORMATION_SCHEMA -- more than the count for all other Schema Objects
+combined. Maintaining them is made easier by the fact that when an Object is
+dropped, the DBMS will silently destroy all associated Privilege descriptors.
+That leaves only the problem: how do we adjust for the occasional necessity to
+remove a Privilege descriptor due to a change in status of a particular user
+(or Role)? The problem does not occur frequently, but can be mightily
+cumbersome: the SQL Standard devotes about 40 pages to it. We have managed to
+simplify the description somewhat, by focussing on the two "essentials" of the process:
+      ## What we are trying to do is reverse the effects of a GRANT statement, using a REVOKE statement -- the clauses of which have almost the same syntax as GRANT's clauses.
+      ## What we are really doing is deleting Privilege descriptor rows from INFORMATION SCHEMA.
 
-    The REVOKE statement destroys both Privilege descriptors and Role
-    authorizations and so has two different syntaxes. The first is identified as
-    the <revoke privilege statement> and the second as the <revoke role
-    statement>. The required syntax for the REVOKE statement is:
+The REVOKE statement destroys both Privilege descriptors and Role
+authorizations and so has two different syntaxes. The first is identified as
+the <revoke privilege statement> and the second as the <revoke role
+statement>. The required syntax for the REVOKE statement is:
 
-    <revoke privilege statement> ::=
-    REVOKE [ GRANT OPTION FOR ] <privileges> FROM <grantee> [ {,<grantee>}... ]
-    [ FROM {CURRENT_USER | CURRENT_ROLE} ] {RESTRICT | CASCADE}
+<revoke privilege statement> ::=
+REVOKE [ GRANT OPTION FOR ] <privileges> FROM <grantee> [ {,<grantee>}... ]
+[ FROM {CURRENT_USER | CURRENT_ROLE} ] {RESTRICT | CASCADE}
 
-    <revoke role statement> ::=
-    REVOKE [ ADMIN OPTION FOR ] <Role name> [ {,<Role name>}... ]
-    FROM <grantee> [ {,<grantee>}... ]
-    [ FROM {CURRENT_USER | CURRENT_ROLE} ]
-    {RESTRICT | CASCADE}
+<revoke role statement> ::=
+REVOKE [ ADMIN OPTION FOR ] <Role name> [ {,<Role name>}... ]
+FROM <grantee> [ {,<grantee>}... ]
+[ FROM {CURRENT_USER | CURRENT_ROLE} ]
+{RESTRICT | CASCADE}
 
-       <grantee> ::= PUBLIC | <AuthorizationID>
+   <grantee> ::= PUBLIC | <AuthorizationID>
 
-    The <revoke privilege statement> revokes one or more Privileges on a given
-    Object from one or more grantees, including (possibly) PUBLIC, while the
-    <revoke role statement> revokes the use of one or more Roles from one or more
-    grantees. Only the grantor of the Privileges (or the Roles) may revoke them.
+The <revoke privilege statement> revokes one or more Privileges on a given
+Object from one or more grantees, including (possibly) PUBLIC, while the
+<revoke role statement> revokes the use of one or more Roles from one or more
+grantees. Only the grantor of the Privileges (or the Roles) may revoke them.
 
-    We've already shown you the syntax for the <privileges> Privilege
-    specification; it's used exactly that way in the <revoke privilege statement>
-    form of the REVOKE statement. Here are some examples:
+We've already shown you the syntax for the <privileges> Privilege
+specification; it's used exactly that way in the <revoke privilege statement>
+form of the REVOKE statement. Here are some examples:
 
-       REVOKE SELECT ON TABLE Table_1 FROM PUBLIC CASCADE;
+   REVOKE SELECT ON TABLE Table_1 FROM PUBLIC CASCADE;
 
-       REVOKE INSERT(column_1,column_5) ON Table_1 FROM sam CASCADE;
+   REVOKE INSERT(column_1,column_5) ON Table_1 FROM sam CASCADE;
 
-       REVOKE ALL PRIVILEGES ON TABLE Table_1 FROM PUBLIC CASCADE;
+   REVOKE ALL PRIVILEGES ON TABLE Table_1 FROM PUBLIC CASCADE;
 
-       REVOKE USAGE ON DOMAIN domain_1 FROM bob CASCADE;
+   REVOKE USAGE ON DOMAIN domain_1 FROM bob CASCADE;
 
-       REVOKE EXECUTE ON SPECIFIC ROUTINE some_routine FROM sam CASCADE;
+   REVOKE EXECUTE ON SPECIFIC ROUTINE some_routine FROM sam CASCADE;
 
-    And here's an example of the <revoke role statement> form of REVOKE:
+And here's an example of the <revoke role statement> form of REVOKE:
 
-       REVOKE assistants_role FROM PUBLIC CASCADE;
+   REVOKE assistants_role FROM PUBLIC CASCADE;
 
-    In both cases, if your <grantee> is PUBLIC, you're revoking the Privilege (or
-    the use of the Role) from a list of <grantee>s that contains all of the
-    <AuthorizationID>s in the Cluster. If your <grantee> is one or more
-    <AuthorizationID>s, you're revoking the Privilege (or the use of the Role)
-    only from those <AuthorizationID>s. (Remember that an <AuthorizationID> may
-    identify either a user or a Role.)
+In both cases, if your <grantee> is PUBLIC, you're revoking the Privilege (or
+the use of the Role) from a list of <grantee>s that contains all of the
+<AuthorizationID>s in the Cluster. If your <grantee> is one or more
+<AuthorizationID>s, you're revoking the Privilege (or the use of the Role)
+only from those <AuthorizationID>s. (Remember that an <AuthorizationID> may
+identify either a user or a Role.)
 
-    Remember that, for Tables, GRANT creates Privilege descriptors for both the
-    Table and its Columns. Well, when you REVOKE a Table Privilege, all by-Column
-    Privileges for that Table disappear too -- and, in the case of SELECT and
-    UPDATE and REFERENCES, the SELECT and/or UPDATE and/or REFERENCES Privilege on
-    all Columns inherited from that Table in each of its subtables also disappear.
-    The effect is a bit strange: when you revoke a Table Privilege, you lose the
-    Column Privilege (even if it was granted separately) and when you revoke a
-    Column Privilege, you lose that Column Privilege -- even if it resulted from a
-    Table Privilege GRANT.
+Remember that, for Tables, GRANT creates Privilege descriptors for both the
+Table and its Columns. Well, when you REVOKE a Table Privilege, all by-Column
+Privileges for that Table disappear too -- and, in the case of SELECT and
+UPDATE and REFERENCES, the SELECT and/or UPDATE and/or REFERENCES Privilege on
+all Columns inherited from that Table in each of its subtables also disappear.
+The effect is a bit strange: when you revoke a Table Privilege, you lose the
+Column Privilege (even if it was granted separately) and when you revoke a
+Column Privilege, you lose that Column Privilege -- even if it resulted from a
+Table Privilege GRANT.
 
-    The optional FROM clause names the grantor of the Privileges or the Role
-    you're revoking: CURRENT_USER is the <AuthorizationID> of the current user and
-    CURRENT_ROLE is the <AuthorizationID> of the current Role. If you omit the
-    clause, it defaults to FROM CURRENT_USER -- but if CURRENT_USER is NULL, the
-    clause defaults to FROM CURRENT_ROLE. If you specify FROM CURRENT_USER and the
-    current <AuthorizationID> is a <Role name>, or if you specify FROM
-    CURRENT_ROLE and the current <Role name> is NULL, the GRANT statement will
-    fail: your DBMS will return the SQLSTATE error 0L000 "invalid grantor". Here are two examples:
+The optional FROM clause names the grantor of the Privileges or the Role
+you're revoking: CURRENT_USER is the <AuthorizationID> of the current user and
+CURRENT_ROLE is the <AuthorizationID> of the current Role. If you omit the
+clause, it defaults to FROM CURRENT_USER -- but if CURRENT_USER is NULL, the
+clause defaults to FROM CURRENT_ROLE. If you specify FROM CURRENT_USER and the
+current <AuthorizationID> is a <Role name>, or if you specify FROM
+CURRENT_ROLE and the current <Role name> is NULL, the GRANT statement will
+fail: your DBMS will return the SQLSTATE error 0L000 "invalid grantor". Here are two examples:
 
-       REVOKE UPDATE ON Table_1 FROM sam FROM CURRENT_USER CASCADE;
-       -- revokes the UPDATE Privilege on TABLE_1 from Sam only if the current user granted that Privilege in the first place
+   REVOKE UPDATE ON Table_1 FROM sam FROM CURRENT_USER CASCADE;
+   -- revokes the UPDATE Privilege on TABLE_1 from Sam only if the current user granted that Privilege in the first place
 
-       REVOKE assistants_role FROM PUBLIC FROM CURRENT_ROLE CASCADE;
-      -- revokes the use of the ASSISTANTS_ROLE Role from PUBLIC only if the current Role granted the use of that Role in the first place
+   REVOKE assistants_role FROM PUBLIC FROM CURRENT_ROLE CASCADE;
+  -- revokes the use of the ASSISTANTS_ROLE Role from PUBLIC only if the current Role granted the use of that Role in the first place
 
-    The optional GRANT OPTION FOR (<revoke privilege statement>) and ADMIN OPTION
-    FOR (<revoke role statement>) clauses allow you to revoke only the
-    grantability of a Privilege or a Role. For example, consider these SQL statements:
+The optional GRANT OPTION FOR (<revoke privilege statement>) and ADMIN OPTION
+FOR (<revoke role statement>) clauses allow you to revoke only the
+grantability of a Privilege or a Role. For example, consider these SQL statements:
 
-       GRANT UPDATE ON TABLE Table_1 TO sam WITH GRANT OPTION;
+   GRANT UPDATE ON TABLE Table_1 TO sam WITH GRANT OPTION;
 
-       REVOKE GRANT OPTION FOR UPDATE ON Table_1 FROM sam CASCADE;
+   REVOKE GRANT OPTION FOR UPDATE ON Table_1 FROM sam CASCADE;
 
-    The first SQL statement allows Sam to update TABLE_1, and to pass this
-    Privilege on to others. The second SQL statement revokes the latter ability:
-    Sam can still update TABLE_1, but may no longer pass the Privilege on. Here's another example:
+The first SQL statement allows Sam to update TABLE_1, and to pass this
+Privilege on to others. The second SQL statement revokes the latter ability:
+Sam can still update TABLE_1, but may no longer pass the Privilege on. Here's another example:
 
-       GRANT assistants_role TO bob WITH ADMIN OPTION;
+   GRANT assistants_role TO bob WITH ADMIN OPTION;
 
-       REVOKE WITH ADMIN OPTION FOR assistants_role FROM bob CASCADE;
+   REVOKE WITH ADMIN OPTION FOR assistants_role FROM bob CASCADE;
 
-    The first SQL statement allows Bob to use all of the Privileges belonging to
-    the ASSISTANTS_ROLE Role, and to pass the use of this Role on to others. The
-    second SQL statement revokes the latter ability: Bob can still use the Role's
-    Privileges, but may no longer pass that use on.
+The first SQL statement allows Bob to use all of the Privileges belonging to
+the ASSISTANTS_ROLE Role, and to pass the use of this Role on to others. The
+second SQL statement revokes the latter ability: Bob can still use the Role's
+Privileges, but may no longer pass that use on.
 
-    The GRANT/ADMIN option clauses have another effect. Suppose that a user holds
-    a Privilege on a Table WITH GRANT OPTION, and does so, also with GRANT OPTION.
-    The second user can now do the same for a third user, and so on -- for example:
+The GRANT/ADMIN option clauses have another effect. Suppose that a user holds
+a Privilege on a Table WITH GRANT OPTION, and does so, also with GRANT OPTION.
+The second user can now do the same for a third user, and so on -- for example:
 
-       GRANT DELETE ON TABLE Sally_Dates TO joe WITH GRANT OPTION;
-       -- assume Sally does this
+   GRANT DELETE ON TABLE Sally_Dates TO joe WITH GRANT OPTION;
+   -- assume Sally does this
 
-       GRANT DELETE ON TABLE Sally_Dates TO sam WITH GRANT OPTION;
-       -- assume Joe does this
+   GRANT DELETE ON TABLE Sally_Dates TO sam WITH GRANT OPTION;
+   -- assume Joe does this
 
-       GRANT DELETE ON TABLE Sally_Dates TO bob WITH GRANT OPTION;
-       -- assume Sam does this
+   GRANT DELETE ON TABLE Sally_Dates TO bob WITH GRANT OPTION;
+   -- assume Sam does this
 
-    What should happen if Sally now does:
+What should happen if Sally now does:
 
-       REVOKE DELETE ON TABLE Sally_Dates FROM joe;
+   REVOKE DELETE ON TABLE Sally_Dates FROM joe;
 
-    Here, we've deliberately left off RESTRICT/CASCADE for the sake of the
-    example, so let's assume that the SQL statement works: Joe no longer has the
-    DELETE Privilege on SALLY_DATES. The Privileges handed down from Joe to Sam,
-    and from Sam to Bob, are now called "abandoned Privileges": they are dependent
-    on Joe's DELETE Privilege -- and Joe doesn't have it any more. This is where
-    the RESTRICT/CASCADE <keyword>s come in.
-          ## If your REVOKE statement specifies CASCADE, the REVOKE succeeds --
-    and it cascades down to revoke any Privileges that would otherwise be
-    abandoned. In our example, that means both Sam and Bob would no longer have
-    the DELETE Privilege on SALLY_DATES either.
-          ## If your REVOKE statement specifies RESTRICT, the REVOKE succeeds only
-    if the Privilege being revoked has no dependent Privileges. In our example,
-    that means the REVOKE statement would fail.
-    The same holds true for revoking the use of a Role.
+Here, we've deliberately left off RESTRICT/CASCADE for the sake of the
+example, so let's assume that the SQL statement works: Joe no longer has the
+DELETE Privilege on SALLY_DATES. The Privileges handed down from Joe to Sam,
+and from Sam to Bob, are now called "abandoned Privileges": they are dependent
+on Joe's DELETE Privilege -- and Joe doesn't have it any more. This is where
+the RESTRICT/CASCADE <keyword>s come in.
+      ## If your REVOKE statement specifies CASCADE, the REVOKE succeeds --
+and it cascades down to revoke any Privileges that would otherwise be
+abandoned. In our example, that means both Sam and Bob would no longer have
+the DELETE Privilege on SALLY_DATES either.
+      ## If your REVOKE statement specifies RESTRICT, the REVOKE succeeds only
+if the Privilege being revoked has no dependent Privileges. In our example,
+that means the REVOKE statement would fail.
+The same holds true for revoking the use of a Role.
 
-    Objects can also become "abandoned" when a Privilege or the use of a Role is
-    revoked. For example, remember that Joe holds the SELECT Privilege on
-    SALLY_DATES and, with this, was able to create his View, JOE_VIEWS. Now suppose Sally does this:
+Objects can also become "abandoned" when a Privilege or the use of a Role is
+revoked. For example, remember that Joe holds the SELECT Privilege on
+SALLY_DATES and, with this, was able to create his View, JOE_VIEWS. Now suppose Sally does this:
 
-       REVOKE SELECT ON Sally_Dates FROM joe CASCADE;
+   REVOKE SELECT ON Sally_Dates FROM joe CASCADE;
 
-    The effect is that, not only does Joe lose his ability to SELECT from
-    SALLY_DATES, but that JOE_VIEWS is dropped! The reason is that, in effect,
-    JOE_VIEWS is nothing but a SELECT that Joe does  from SALLY_DATES, and since
-    such SELECTs are no longer allowed, the View may no longer exist. If, on the
-    other hand, Sally does this:
+The effect is that, not only does Joe lose his ability to SELECT from
+SALLY_DATES, but that JOE_VIEWS is dropped! The reason is that, in effect,
+JOE_VIEWS is nothing but a SELECT that Joe does  from SALLY_DATES, and since
+such SELECTs are no longer allowed, the View may no longer exist. If, on the
+other hand, Sally does this:
 
-       REVOKE SELECT ON Sally_Dates FROM joe RESTRICT;
+   REVOKE SELECT ON Sally_Dates FROM joe RESTRICT;
 
-    the effect is that the REVOKE statement fails: Sally may not revoke Joe's
-    ability to SELECT from SALLY_DATES because this would mean that JOE_VIEWS
-    would be abandoned -- and this is not allowed. The same holds true for any
-    Object that anyone was able to create only because they held some required
-    Privilege (or were able to use a Role that held that Privilege): if REVOKE ...
-    RESTRICT is used, the statement will fail but if REVOKE ... CASCADE is used,
-    the statement will not only revoke but drop all Objects that would otherwise be abandoned.
+the effect is that the REVOKE statement fails: Sally may not revoke Joe's
+ability to SELECT from SALLY_DATES because this would mean that JOE_VIEWS
+would be abandoned -- and this is not allowed. The same holds true for any
+Object that anyone was able to create only because they held some required
+Privilege (or were able to use a Role that held that Privilege): if REVOKE ...
+RESTRICT is used, the statement will fail but if REVOKE ... CASCADE is used,
+the statement will not only revoke but drop all Objects that would otherwise be abandoned.
 
-    If the REVOKE statement isn't able to find a Privilege descriptor for every
-    one of its Privilege specifications, your DBMS will return the SQLSTATE warning 01006 "warning-privilege not revoked".
+If the REVOKE statement isn't able to find a Privilege descriptor for every
+one of its Privilege specifications, your DBMS will return the SQLSTATE warning 01006 "warning-privilege not revoked".
 
-    If you want to restrict your code to Core SQL, don't use the <revoke role
-    statement> form of the REVOKE statement and don't use REVOKE ... CASCADE or
-    the GRANT OPTION FOR clause. Also, when revoking, make sure that your current
-    <AuthorizationID> is the owner of the Schema that owns the Object you're revoking Privileges for.
+If you want to restrict your code to Core SQL, don't use the <revoke role
+statement> form of the REVOKE statement and don't use REVOKE ... CASCADE or
+the GRANT OPTION FOR clause. Also, when revoking, make sure that your current
+<AuthorizationID> is the owner of the Schema that owns the Object you're revoking Privileges for.
 
 DROP ROLE statement
 ===================
 
 ::
 
-    The DROP ROLE statement destroys a Role. The required syntax for the DROP ROLE statement is:
+The DROP ROLE statement destroys a Role. The required syntax for the DROP ROLE statement is:
 
-    DROP ROLE <Role name>
+DROP ROLE <Role name>
 
-    The <Role name> must identify an existing Role for which an enabled
-    <AuthorizationID> has the WITH ADMIN OPTION. That is, only an
-    <AuthorizationID> with the WITH ADMIN OPTION on a Role may drop it. The effect of DROP ROLE <Role name>, e.g.:
+The <Role name> must identify an existing Role for which an enabled
+<AuthorizationID> has the WITH ADMIN OPTION. That is, only an
+<AuthorizationID> with the WITH ADMIN OPTION on a Role may drop it. The effect of DROP ROLE <Role name>, e.g.:
 
-       DROP ROLE assistants_role;
+   DROP ROLE assistants_role;
 
-    is that the Role named ASSISTANTS_ROLE will be destroyed and that your DBMS
-    will also do this for every <AuthorizationID> that was granted use of the Role:
+is that the Role named ASSISTANTS_ROLE will be destroyed and that your DBMS
+will also do this for every <AuthorizationID> that was granted use of the Role:
 
-       REVOKE assistants_role FROM <AuthorizationID> RESTRICT;
+   REVOKE assistants_role FROM <AuthorizationID> RESTRICT;
 
-    If you want to restrict your code to Core SQL, don't use the DROP ROLE statement.
+If you want to restrict your code to Core SQL, don't use the DROP ROLE statement.
 
 What Privileges do I Have?
 ==========================
 
 ::
 
-    Earlier in this chapter, we said that every Privilege is defined by a
-    descriptor stored in INFORMATION_SCHEMA. You can thus find out what Privileges
-    you have by querying the appropriate Views therein (see our chapter on SQL
-    Catalogs). Each "Privilege descriptor" View includes Columns for grantor,
-    grantee, Object, <Object name> and is_grantable -- the basic Privilege
-    description stuff. You might think that this makes things fairly
-    straightforward -- but take note! There is deep trickiness implied by
-    simple-sounding questions like: may Joe may SELECT from SALLY_DATES?
+Earlier in this chapter, we said that every Privilege is defined by a
+descriptor stored in INFORMATION_SCHEMA. You can thus find out what Privileges
+you have by querying the appropriate Views therein (see our chapter on SQL
+Catalogs). Each "Privilege descriptor" View includes Columns for grantor,
+grantee, Object, <Object name> and is_grantable -- the basic Privilege
+description stuff. You might think that this makes things fairly
+straightforward -- but take note! There is deep trickiness implied by
+simple-sounding questions like: may Joe may SELECT from SALLY_DATES?
 
-    The first trickiness is that it is not enough to look for "Grantee = 'Joe'".
-    Joe may have a Privilege due to his ROLE, and at any rate, Joe is a member of
-    the PUBLIC. So when searching for Joe's Privileges, the conditions should
-    include "Grantee = 'PUBLIC' and Grantee = 'whatever Role Joe may be able to use'".
+The first trickiness is that it is not enough to look for "Grantee = 'Joe'".
+Joe may have a Privilege due to his ROLE, and at any rate, Joe is a member of
+the PUBLIC. So when searching for Joe's Privileges, the conditions should
+include "Grantee = 'PUBLIC' and Grantee = 'whatever Role Joe may be able to use'".
 
-    The second trickiness is that it is not enough to look for "Object =
-    'Sally_Dates' in the TABLE_PRIVILEGES View. Joe may have a Privilege on only
-    one Column, so you have to search the COLUMN_PRIVILEGES View too. And even if
-    you do find that Joe does have the SELECT Privilege, that might not be enough
-    -- he might also need separate USAGE Privileges for the UDT, the Character set
-    and the Collation associated with each Column in the Table. And even if you
-    find that Joe doesn't have the SELECT Privilege, the answer may be
-    insufficient -- he might have the SELECT Privilege on a View of the Table, or
-    he might be able to get all the data he needs using a procedure.
+The second trickiness is that it is not enough to look for "Object =
+'Sally_Dates' in the TABLE_PRIVILEGES View. Joe may have a Privilege on only
+one Column, so you have to search the COLUMN_PRIVILEGES View too. And even if
+you do find that Joe does have the SELECT Privilege, that might not be enough
+-- he might also need separate USAGE Privileges for the UDT, the Character set
+and the Collation associated with each Column in the Table. And even if you
+find that Joe doesn't have the SELECT Privilege, the answer may be
+insufficient -- he might have the SELECT Privilege on a View of the Table, or
+he might be able to get all the data he needs using a procedure.
 
-    ** TIP: Explain these trickinesses to other users at your site, then ask them
-    to observe these limits:
-          ## Number of by-Column GRANTs = 0.
-          ## Number of Roles = 1 (not including PUBLIC).
-          ## Number of Views = 1 per Table.
-          ## Number of USAGE GRANTs = 1 (that is, one GRANT only, to PUBLIC).
+** TIP: Explain these trickinesses to other users at your site, then ask them
+to observe these limits:
+      ## Number of by-Column GRANTs = 0.
+      ## Number of Roles = 1 (not including PUBLIC).
+      ## Number of Views = 1 per Table.
+      ## Number of USAGE GRANTs = 1 (that is, one GRANT only, to PUBLIC).
 
 Violating the security system
 =============================
 
 ::
 
-    Each of the following depends on a "hole" in the Standard SQL security wall.
-    Perhaps the vendor of your particular DBMS hasn't plugged the hole. What fun it would be to find out ...
+Each of the following depends on a "hole" in the Standard SQL security wall.
+Perhaps the vendor of your particular DBMS hasn't plugged the hole. What fun it would be to find out ...
 
-    If you have the SELECT Privilege WITH GRANT OPTION on a single Table: Suppose
-    the grantor of your Privilege is Sally. Why not reciprocate and GRANT your
-    Privilege back to her? The advantage is that later, if Sally tries to revoke
-    your Privilege and forgets to say CASCADE, she will fail because there is now
-    a chain of Privilege descriptors, terminating with her.
+If you have the SELECT Privilege WITH GRANT OPTION on a single Table: Suppose
+the grantor of your Privilege is Sally. Why not reciprocate and GRANT your
+Privilege back to her? The advantage is that later, if Sally tries to revoke
+your Privilege and forgets to say CASCADE, she will fail because there is now
+a chain of Privilege descriptors, terminating with her.
 
-    If your database is stored on a local microcomputer: The DBMS can't block your
-    access to the file -- usually its only line of defense is encryption or
-    proprietary formatting (Microsoft Access and dBASE IV use variations of this
-    defense). If you know what the Table and Column names are, you can go to
-    another computer and make a database with the same structure but different
-    data. Then copy your file over the legitimate one. This is a "cuckoo's egg" violation.
+If your database is stored on a local microcomputer: The DBMS can't block your
+access to the file -- usually its only line of defense is encryption or
+proprietary formatting (Microsoft Access and dBASE IV use variations of this
+defense). If you know what the Table and Column names are, you can go to
+another computer and make a database with the same structure but different
+data. Then copy your file over the legitimate one. This is a "cuckoo's egg" violation.
 
-    If your database is stored on a distant server: There's still a chance that
-    the client receives complete row copies for local filtering. Start a long
-    query, then turn your computer off. Start it up again and look for temporary
-    unclosed files, probably in the \windows\temp directory.
+If your database is stored on a distant server: There's still a chance that
+the client receives complete row copies for local filtering. Start a long
+query, then turn your computer off. Start it up again and look for temporary
+unclosed files, probably in the \windows\temp directory.
 
-    Here is a security hole that is opened up by the REFERENCES Privilege: Sally creates a Table --
+Here is a security hole that is opened up by the REFERENCES Privilege: Sally creates a Table --
 
-       CREATE TABLE Sally_1 ( column1 SMALLINT);
+   CREATE TABLE Sally_1 ( column1 SMALLINT);
 
-    Sally lets Joe reference her Table --
+Sally lets Joe reference her Table --
 
-       GRANT REFERENCES ON Sally_1 TO joe;
+   GRANT REFERENCES ON Sally_1 TO joe;
 
-    Joe creates a Table --
+Joe creates a Table --
 
-       CREATE TABLE Joe_1 (column_1 INT REFERENCES Sally_1);
+   CREATE TABLE Joe_1 (column_1 INT REFERENCES Sally_1);
 
-    Joe lets Sam update his Table --
+Joe lets Sam update his Table --
 
-       GRANT UPDATE ON Joe_1 to Sam;
+   GRANT UPDATE ON Joe_1 to Sam;
 
-    Now, even though Sam has no Privileges at all on Sally's Table, he can find out what's in it! All he has to do is:
+Now, even though Sam has no Privileges at all on Sally's Table, he can find out what's in it! All he has to do is:
 
-       UPDATE Joe_Schema.Joe_1 SET
-          column_1 = :x;
+   UPDATE Joe_Schema.Joe_1 SET
+      column_1 = :x;
 
-    in a loop, for "x" = all possible SMALLINT values. If, and only if, UPDATE succeeds, then the value of "x" is in Sally's Table.
+in a loop, for "x" = all possible SMALLINT values. If, and only if, UPDATE succeeds, then the value of "x" is in Sally's Table.
 
 User functions
 ==============
 
 ::
 
-    The SQL Standard defines four types of <AuthorizationID> whose values can be
-    obtained through the use of the scalar user functions USER, CURRENT_USER,
-    SESSION_USER, SYSTEM_USER and CURRENT_ROLE: each returns an SQL_TEXT character
-    string whose value represents an <AuthorizationID>.
+The SQL Standard defines four types of <AuthorizationID> whose values can be
+obtained through the use of the scalar user functions USER, CURRENT_USER,
+SESSION_USER, SYSTEM_USER and CURRENT_ROLE: each returns an SQL_TEXT character
+string whose value represents an <AuthorizationID>.
 
-    [NON-PORTABLE] The result of a user function is non-standard because the SQL
-    Standard requires implementors to define whether the result string is fixed
-    length or variable length and the result string's fixed length or maximum length (as applicable).
-          [OCELOT Implementation] The OCELOT DBMS that comes with this book has
-    each user function return a variable length SQL_TEXT string. The result has a maximum length of 128 octets.
+[NON-PORTABLE] The result of a user function is non-standard because the SQL
+Standard requires implementors to define whether the result string is fixed
+length or variable length and the result string's fixed length or maximum length (as applicable).
+      [OCELOT Implementation] The OCELOT DBMS that comes with this book has
+each user function return a variable length SQL_TEXT string. The result has a maximum length of 128 octets.
 
-    The required syntax for a user function is:
+The required syntax for a user function is:
 
-    user function ::=
-    USER |
-    CURRENT_USER |
-    SESSION_USER |
-    SYSTEM_USER |
-    CURRENT_ROLE
+user function ::=
+USER |
+CURRENT_USER |
+SESSION_USER |
+SYSTEM_USER |
+CURRENT_ROLE
 
-    A user function returns an SQL_TEXT character string with the COERCIBLE coercibility attribute.
+A user function returns an SQL_TEXT character string with the COERCIBLE coercibility attribute.
 
-    CURRENT_USER returns the <AuthorizationID> of the current user. This is either
-    the user specified in the CONNECT statement that began the SQL-session
-    (assuming it was a user, and not a Role that began the session) or a default
-    <AuthorizationID> set by your DBMS. CURRENT_USER will be NULL if the current
-    <AuthorizationID> is a <Role name>. USER is a synonym for CURRENT_USER that may be used in Core SQL.
+CURRENT_USER returns the <AuthorizationID> of the current user. This is either
+the user specified in the CONNECT statement that began the SQL-session
+(assuming it was a user, and not a Role that began the session) or a default
+<AuthorizationID> set by your DBMS. CURRENT_USER will be NULL if the current
+<AuthorizationID> is a <Role name>. USER is a synonym for CURRENT_USER that may be used in Core SQL.
 
-    CURRENT_ROLE returns the <AuthorizationID> of the current Role. This is either
-    the Role specified in the CONNECT statement that began the SQL-session
-    (assuming it was a Role, and not a user that began the session; otherwise
-    NULL) or the Role specified in the most recent SET ROLE statement issued for
-    the SQL-session. CURRENT_ROLE will be NULL if the current <AuthorizationID> is
-    a user, rather than a Role.
+CURRENT_ROLE returns the <AuthorizationID> of the current Role. This is either
+the Role specified in the CONNECT statement that began the SQL-session
+(assuming it was a Role, and not a user that began the session; otherwise
+NULL) or the Role specified in the most recent SET ROLE statement issued for
+the SQL-session. CURRENT_ROLE will be NULL if the current <AuthorizationID> is
+a user, rather than a Role.
 
-    SESSION_USER returns the <AuthorizationID> of the SQL-session user. This is
-    either the user specified in the CONNECT statement that began the SQL-session
-    (assuming it was a user, and not a Role that began the session; otherwise a
-    default <AuthorizationID> set by your DBMS) or the user specified in the most
-    recent SET SESSION AUTHORIZATION statement issued for the SQL-session. In most
-    cases, the SQL-session <AuthorizationID> is the same as the current <AuthorizationID>.
+SESSION_USER returns the <AuthorizationID> of the SQL-session user. This is
+either the user specified in the CONNECT statement that began the SQL-session
+(assuming it was a user, and not a Role that began the session; otherwise a
+default <AuthorizationID> set by your DBMS) or the user specified in the most
+recent SET SESSION AUTHORIZATION statement issued for the SQL-session. In most
+cases, the SQL-session <AuthorizationID> is the same as the current <AuthorizationID>.
 
-    [NON-PORTABLE] SYSTEM_USER returns an <AuthorizationID> that represents the
-    operating system user who executed the SQL-client Module that contains the
-    SYSTEM_USER function call and is thus non-standard because the SQL Standard
-    requires implementors to define their system user.
-          [OCELOT Implementation] The OCELOT DBMS that comes with this book has a SYSTEM_USER called OCELOT.
+[NON-PORTABLE] SYSTEM_USER returns an <AuthorizationID> that represents the
+operating system user who executed the SQL-client Module that contains the
+SYSTEM_USER function call and is thus non-standard because the SQL Standard
+requires implementors to define their system user.
+      [OCELOT Implementation] The OCELOT DBMS that comes with this book has a SYSTEM_USER called OCELOT.
 
-    The current <AuthorizationID> is the user or Role against which Privilege
-    checking is done to see whether an SQL operation is allowable. For example, prior to executing this SQL statement:
+The current <AuthorizationID> is the user or Role against which Privilege
+checking is done to see whether an SQL operation is allowable. For example, prior to executing this SQL statement:
 
-       SELECT * FROM Table_1;
+   SELECT * FROM Table_1;
 
-    your DBMS will check to see that the current <AuthorizationID> has the SELECT
-    Privilege on that Table. If the current <AuthorizationID> has the Privilege,
-    the SELECT is performed. If the current <AuthorizationID> does not have the
-    Privilege, the SELECT is disallowed.
+your DBMS will check to see that the current <AuthorizationID> has the SELECT
+Privilege on that Table. If the current <AuthorizationID> has the Privilege,
+the SELECT is performed. If the current <AuthorizationID> does not have the
+Privilege, the SELECT is disallowed.
 
-    The SQL-session <AuthorizationID> is the <AuthorizationID> that is used as the
-    default <AuthorizationID> whenever a SQL operation which requires an
-    <AuthorizationID> is not provided with an explicit <AuthorizationID>
-    specification. For example, when executing this SQL statement:
+The SQL-session <AuthorizationID> is the <AuthorizationID> that is used as the
+default <AuthorizationID> whenever a SQL operation which requires an
+<AuthorizationID> is not provided with an explicit <AuthorizationID>
+specification. For example, when executing this SQL statement:
 
-       CREATE SCHEMA bob;
+   CREATE SCHEMA bob;
 
-    your DBMS effectively executes this SQL statement:
+your DBMS effectively executes this SQL statement:
 
-       CREATE SCHEMA bob AUTHORIZATION SESSION_USER;
+   CREATE SCHEMA bob AUTHORIZATION SESSION_USER;
 
-    If you want to restrict your code to Core SQL, don't use CURRENT_USER, SESSION_USER, SYSTEM_USER or CURRENT_ROLE.
+If you want to restrict your code to Core SQL, don't use CURRENT_USER, SESSION_USER, SYSTEM_USER or CURRENT_ROLE.
 
 Dialects
 ========
 
 ::
 
-    Many vendors have added their own Privileges to the SQL Standard's set. For example:
-          ## IBM's DB2 has a SYSADM (system  administrator) who can CREATE and
-    DROP in any Schema, and who can create Schemas (one of the implementor-defined
-    areas in the Standard). Several other vendors also have similar "super user"
-    Privileges which are not associated with any particular Object.
-          ## Sybase has a CONNECT Privilege; other vendors allow connection by anyone, but new users can't do anything without further Privileges.
-          ## The most popular non-standard Privilege is GRANT ALTER (which sometimes allows users to both alter and drop Tables).
-          ## DBMSs which allow non-standard Objects allow non-standard Privileges
-    to go with them; thus GRANT INDEX is common, and DB2 also has access controls
-    for tablespaces and indexspaces (which are somewhat like "files").
+Many vendors have added their own Privileges to the SQL Standard's set. For example:
+      ## IBM's DB2 has a SYSADM (system  administrator) who can CREATE and
+DROP in any Schema, and who can create Schemas (one of the implementor-defined
+areas in the Standard). Several other vendors also have similar "super user"
+Privileges which are not associated with any particular Object.
+      ## Sybase has a CONNECT Privilege; other vendors allow connection by anyone, but new users can't do anything without further Privileges.
+      ## The most popular non-standard Privilege is GRANT ALTER (which sometimes allows users to both alter and drop Tables).
+      ## DBMSs which allow non-standard Objects allow non-standard Privileges
+to go with them; thus GRANT INDEX is common, and DB2 also has access controls
+for tablespaces and indexspaces (which are somewhat like "files").
 
-    On the other hand, older DBMSs may fail to support the REFERENCES Privilege.
-    They allow Constraints to be defined by anyone who has the appropriate SELECT Privileges instead.
+On the other hand, older DBMSs may fail to support the REFERENCES Privilege.
+They allow Constraints to be defined by anyone who has the appropriate SELECT Privileges instead.
 
-    A few SQL3 features are already fairly common. Sybase, Microsoft SQL Server
-    and Informix allow "GRANT SELECT (Column-name list) ...". Oracle has had a
-    CREATE ROLE statement since version 7.0; Sybase and Microsoft SQL Server also
-    allow Roles but they use non-standard terms and syntax.
+A few SQL3 features are already fairly common. Sybase, Microsoft SQL Server
+and Informix allow "GRANT SELECT (Column-name list) ...". Oracle has had a
+CREATE ROLE statement since version 7.0; Sybase and Microsoft SQL Server also
+allow Roles but they use non-standard terms and syntax.
 
-    As for syntax: the majority of DBMSs will let you specify more than just one
-    "Object" in both GRANT and REVOKE statements. This leads to ambiguities --
-    what is "GRANT UPDATE(column1) ON Tables_1, Tables_2" supposed to do? And is
-    it proper if the different Objects are in different Catalogs? And what if
-    different Privileges apply for different Objects? You're on safer ground if
-    you just ignore this sort of enhancement.
+As for syntax: the majority of DBMSs will let you specify more than just one
+"Object" in both GRANT and REVOKE statements. This leads to ambiguities --
+what is "GRANT UPDATE(column1) ON Tables_1, Tables_2" supposed to do? And is
+it proper if the different Objects are in different Catalogs? And what if
+different Privileges apply for different Objects? You're on safer ground if
+you just ignore this sort of enhancement.
 
-    The biggest variations involve the ways that the DBMS can identify and
-    acknowledge users. If your operating system has a list of valid users and
-    passwords (something you'll notice if you have to "log in" to your computer),
-    then your DBMS can get the user by querying the OS (Ingres, Informix and DB2
-    do this). Alternatively, or in addition, your DBMS might require you to supply
-    both a user ID and a password when you CONNECT (Oracle and Sybase do this). In
-    the former case, the user's name is probably limited to as few as eight
-    characters because the OS has more restrictions than the DBMS does. In the
-    latter case, there is probably a non-standard CREATE USER statement and a
-    "user" Object stored inside the database.
+The biggest variations involve the ways that the DBMS can identify and
+acknowledge users. If your operating system has a list of valid users and
+passwords (something you'll notice if you have to "log in" to your computer),
+then your DBMS can get the user by querying the OS (Ingres, Informix and DB2
+do this). Alternatively, or in addition, your DBMS might require you to supply
+both a user ID and a password when you CONNECT (Oracle and Sybase do this). In
+the former case, the user's name is probably limited to as few as eight
+characters because the OS has more restrictions than the DBMS does. In the
+latter case, there is probably a non-standard CREATE USER statement and a
+"user" Object stored inside the database.
 
-    Finally, you will see some DBMSs skimping on their obligation to store
-    Privilege descriptors for owners. A quick glance at the
-    INFORMATION_SCHEMA.COLUMN_PRIVILEGES View should tell you whether your DBMS is
-    one of these.
+Finally, you will see some DBMSs skimping on their obligation to store
+Privilege descriptors for owners. A quick glance at the
+INFORMATION_SCHEMA.COLUMN_PRIVILEGES View should tell you whether your DBMS is
+one of these.

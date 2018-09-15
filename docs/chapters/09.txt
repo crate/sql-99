@@ -6,427 +6,427 @@ Chapter 9 -- Boolean values
 
 ::
 
-    In SQL, a Boolean value -- either TRUE, FALSE or UNKNOWN -- is a truth value.
-    A Boolean value may be a <literal>, the value of a parameter or a host
-    language variable or the result of any expression or argument (including a
-    possibly qualified <Column name> or the result of an SQL predicate or search
-    condition) that evaluates to a truth value. Boolean values are stored in the
-    Boolean <data type>: BOOLEAN.
+In SQL, a Boolean value -- either TRUE, FALSE or UNKNOWN -- is a truth value.
+A Boolean value may be a <literal>, the value of a parameter or a host
+language variable or the result of any expression or argument (including a
+possibly qualified <Column name> or the result of an SQL predicate or search
+condition) that evaluates to a truth value. Boolean values are stored in the
+Boolean <data type>: BOOLEAN.
 
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+:local:
 
 <Boolean literal>s
 ==================
 
 ::
 
-    A <Boolean literal> is one of these three words:
-          ## TRUE
-          ## FALSE
-          ## UNKNOWN
-    Its <data type> is BOOLEAN. A <Boolean literal> of TRUE represents the truth
-    value TRUE, a <Boolean literal> of FALSE represents the truth value FALSE and
-    a <Boolean literal> of UNKNOWN represents the truth value UNKNOWN.
+A <Boolean literal> is one of these three words:
+      ## TRUE
+      ## FALSE
+      ## UNKNOWN
+Its <data type> is BOOLEAN. A <Boolean literal> of TRUE represents the truth
+value TRUE, a <Boolean literal> of FALSE represents the truth value FALSE and
+a <Boolean literal> of UNKNOWN represents the truth value UNKNOWN.
 
-    If you want to restrict your code to Core SQL, don't use <Boolean literal>s.
+If you want to restrict your code to Core SQL, don't use <Boolean literal>s.
 
 Boolean <data type>s
 ====================
 
 ::
 
-    A Boolean <data type> is defined by a descriptor that contains one piece of information:
-          ## The <data type>'s name: BOOLEAN.
+A Boolean <data type> is defined by a descriptor that contains one piece of information:
+      ## The <data type>'s name: BOOLEAN.
 
-    BOOLEAN:
-    The required syntax for a BOOLEAN <data type> specification is:
+BOOLEAN:
+The required syntax for a BOOLEAN <data type> specification is:
 
-    BOOLEAN <data type> ::=
-    BOOLEAN
+BOOLEAN <data type> ::=
+BOOLEAN
 
-    BOOLEAN defines a set of truth values: either TRUE, FALSE or UNKNOWN (as the null value).
+BOOLEAN defines a set of truth values: either TRUE, FALSE or UNKNOWN (as the null value).
 
-    The SQL Standard doesn't differentiate between BOOLEAN's null value (that is,
-    UNKNOWN) and the UNKNOWN truth value that is returned by an SQL predicate,
-    search condition or by any argument or expression that returns a Boolean value
-    -- it allows both to be used interchangeably to mean the same thing. Warning:
-    by saying that UNKNOWN and NULL are the same thing, one is saying that the
-    answers "I don't know" and "I know that the data is missing" are the same
-    thing. The drafters of the SQL Standard apparently forgot the distinction, and
-    they have been justly criticized for this error.
+The SQL Standard doesn't differentiate between BOOLEAN's null value (that is,
+UNKNOWN) and the UNKNOWN truth value that is returned by an SQL predicate,
+search condition or by any argument or expression that returns a Boolean value
+-- it allows both to be used interchangeably to mean the same thing. Warning:
+by saying that UNKNOWN and NULL are the same thing, one is saying that the
+answers "I don't know" and "I know that the data is missing" are the same
+thing. The drafters of the SQL Standard apparently forgot the distinction, and
+they have been justly criticized for this error.
 
-    If you want to restrict your code to Core SQL, don't define any BOOLEAN <data type>s.
+If you want to restrict your code to Core SQL, don't define any BOOLEAN <data type>s.
 
-    Now that we've described SQL's Boolean <data type>, let's look at some example
-    SQL statements that put it to use.
+Now that we've described SQL's Boolean <data type>, let's look at some example
+SQL statements that put it to use.
 
-    These SQL statements make a Table with three Boolean Columns, insert a row,
-    then search for a pair of equal Column values.
+These SQL statements make a Table with three Boolean Columns, insert a row,
+then search for a pair of equal Column values.
 
-       CREATE TABLE Logicals (
-          boolean_1 BOOLEAN,
-          boolean_2 BOOLEAN,
-          boolean_3 BOOLEAN);
+   CREATE TABLE Logicals (
+      boolean_1 BOOLEAN,
+      boolean_2 BOOLEAN,
+      boolean_3 BOOLEAN);
 
-       INSERT INTO Logicals (
-          boolean_1,
-          boolean_2,
-          boolean_3)
-       VALUES (TRUE,FALSE,UNKNOWN);
+   INSERT INTO Logicals (
+      boolean_1,
+      boolean_2,
+      boolean_3)
+   VALUES (TRUE,FALSE,UNKNOWN);
 
-       SELECT boolean_1
-       FROM   Logicals
-       WHERE  boolean_1 = boolean_3;
+   SELECT boolean_1
+   FROM   Logicals
+   WHERE  boolean_1 = boolean_3;
 
 Boolean Operations
 ==================
 
 ::
 
-    A Boolean value is compatible with, and comparable to, all other Boolean
-    values and all SQL truth values (for example, the truth values returned by an
-    SQL predicate) -- that is, all truth values are mutually comparable and
-    mutually assignable. Truth values may not be directly compared with, or
-    directly assigned to, any other <data type> class, though implicit type
-    conversions can occur in expressions, SELECTs, INSERTs, DELETEs and UPDATEs.
-    Explicit truth value type conversions can be forced with the CAST operator.
-
-    CAST:
-    In SQL, CAST is a scalar operator that converts a given scalar value to a
-    given scalar <data type>. The required syntax for the CAST operator is:
-
-    CAST (<cast operand> AS <cast target>)
-
-       <cast operand> ::= scalar_expression
-
-       <cast target> ::= <Domain name> | <data type>
-
-    The CAST operator converts values of a source <data type> into values of a
-    target <data type>, where each <data type> is an SQL pre-defined <data type>
-    (data conversions between UDTs are done with a user-defined cast). The source
-    <data type>, or <cast operand>, can be any expression that evaluates to a
-    single value. The target <data type>, or <cast target>, is either an SQL
-    predefined <data type> specification or the name of a Domain whose defined
-    <data type> is the SQL predefined <data type> that you want to convert the
-    value of "scalar_expression" into. (If you use CAST (... AS <Domain name>),
-    your current <AuthorizationID> must have the USAGE Privilege on that Domain.)
-
-    It isn't, of course, possible to convert the values of every <data type> into
-    the values of every other <data type>. For Boolean values, the rules are:
-          ## CAST (NULL AS <data type>) and CAST (Boolean_source_is_a_null_value AS <data type>)
-    both result in a CAST result of NULL.
-          ## You can CAST a Boolean source to these targets: fixed length
-    character string, variable length character string, CLOB, NCLOB and Boolean.
-    You can also CAST a Boolean source to a UDT target or a <reference type>
-    target if a user-defined cast exists for this purpose and your current
-    <AuthorizationID> has the EXECUTE Privilege on that user-defined cast.
-
-    When you CAST a Boolean value to a Boolean target, the result of the CAST is the source value.
-
-    When you CAST a Boolean value to a fixed length character string target, there are four possibilities:
-          ## The source value is TRUE and the fixed length of the target is at
-    least four characters. In this case, the result of the CAST is 'TRUE', padded
-    on the right with spaces, if necessary, to make it the exact fixed length of the target.
-          ## The source value is FALSE and the fixed length of the target is at
-    least five characters. In this case, the result of the CAST is 'FALSE', padded
-    on the right with spaces, if necessary, to make it the exact fixed length of the target.
-          ## The source value is UNKNOWN. As already stated, the result of the CAST is NULL.
-          ## The fixed length of the target is less than the length of the source
-    value. In this case, the CAST will fail: your DBMS will return the SQLSTATE
-    error 22018 "data exception-invalid character value for cast".
-
-    When you CAST a Boolean value to a variable length character string, CLOB or
-    NCLOB target, there are four possibilities:
-          ## The source value is TRUE and the maximum length of the target is at
-    least four characters. In this case, the result of the CAST is 'TRUE'.
-          ## The source value is FALSE and the fixed length of the target is at
-    least five characters. In this case, the result of the CAST is 'FALSE'.
-          ## The source value is UNKNOWN. As already stated, the result of the CAST is NULL.
-          ## The maximum length of the target is less than the length of the
-    source value. In this case, the CAST will fail: your DBMS will return the
-    SQLSTATE error 22018 "data exception-invalid character value for cast".
-
-    [Obscure Rule] The result of a CAST to a character string target has the
-    COERCIBLE coercibility attribute; its Collation is the default Collation for
-    the target's Character set.
-
-    When you CAST a Boolean value to a UDT or a <reference type> target, your DBMS
-    invokes the user defined cast routine, with the source value as the routine's
-    argument. The CAST result is the value returned by the user defined cast.
-
-    If you want to restrict your code to Core SQL, don't use <Domain name> as a
-    CAST target: CAST only to a <data type>.
-
-    Assignment:
-    In SQL, the TRUE and FALSE truth values may be assigned to any Boolean target
-    and the UNKNOWN truth value may be assigned to any Boolean target that isn't
-    constrained by a NOT NULL Constraint.
-
-    Comparison:
-    SQL provides the usual scalar comparison operators -- = and <> and < and <=
-    and > and >= -- to perform operations on truth values. All of them will be
-    familiar; there are equivalent operators in other computer languages. In SQL,
-    TRUE is greater than FALSE. If any of the comparands are the UNKNOWN truth
-    value or are NULL, the result of the operation is UNKNOWN. For example:
-
-       TRUE = {result is FALSE}
-
-    returns FALSE.
-
-       TRUE <> {result is NULL}
-
-    returns UNKNOWN.
-
-    SQL also provides three quantifiers -- ALL, SOME, ANY -- which you can use
-    along with a comparison operator to compare a truth value with the collection
-    of truth values returned by a <table subquery>. Place the quantifier after the
-    comparison operator, immediately before the <table subquery>. For example:
-
-       SELECT occurrence_boolean
-       FROM   Boolean_Example
-       WHERE  occurrence_boolean = ALL (
-          SELECT char_column
-          FROM   Table_1
-          WHERE  char_column LIKE '%e');
-
-    ALL returns TRUE either (a) if the collection is an empty set (i.e.: if it
-    contains zero rows) or (b) if the comparison operator returns TRUE for every
-    value in the collection. ALL returns FALSE if the comparison operator returns
-    FALSE for at least one value in the collection.
-
-    SOME and ANY are synonyms. They return TRUE if the comparison operator returns
-    TRUE for at least one value in the collection. They return FALSE either (a) if
-    the collection is an empty set or (b) if the comparison operator returns FALSE
-    for every value in the collection. (The search condition "= ANY (collection)"
-    is equivalent to "IN (collection)".)
-
-    Other Operations:
-    With SQL, you have several other operations that you can perform on truth
-    values, or on other values to get a truth value result.
-
-    ## Boolean operators
-    SQL provides the usual scalar Boolean operators -- AND and OR and NOT and IS -
-    - to perform operations on Boolean operands. Each returns a Boolean result, or
-    truth value. All of them will be familiar; there are equivalent operators in
-    other computer languages. If any of the operands are the UNKNOWN truth value
-    or are NULL, the result of the operation is UNKNOWN. Here is the syntax
-    allowed for Boolean expressions:
-
-    <boolean value expression> ::=
-    <boolean term> |
-    <boolean value expression> OR <boolean term>
-
-       <boolean term> ::=
-       [ NOT ] <boolean test> |
-       <boolean term> AND [ NOT ] <boolean test>
-
-          <boolean test> ::=
-          boolean_argument [ IS [ NOT ] {TRUE | FALSE | UNKNOWN} ]
-
-    A Boolean expression operates on one or more operands that evaluate to a truth
-    value -- that is, the "boolean_argument" shown in this syntax diagram is
-    either a <Boolean literal>, the value of a parameter or a host language
-    variable or the result of any expression or argument (including a possibly
-    qualified <Column name> or -- most often -- the result of an SQL predicate or
-    search condition) that evaluates to a truth value. The result is also a truth
-    value, derived by applying the given Boolean operator(s) to the
-    "boolean_argument" result.
+A Boolean value is compatible with, and comparable to, all other Boolean
+values and all SQL truth values (for example, the truth values returned by an
+SQL predicate) -- that is, all truth values are mutually comparable and
+mutually assignable. Truth values may not be directly compared with, or
+directly assigned to, any other <data type> class, though implicit type
+conversions can occur in expressions, SELECTs, INSERTs, DELETEs and UPDATEs.
+Explicit truth value type conversions can be forced with the CAST operator.
+
+CAST:
+In SQL, CAST is a scalar operator that converts a given scalar value to a
+given scalar <data type>. The required syntax for the CAST operator is:
+
+CAST (<cast operand> AS <cast target>)
+
+   <cast operand> ::= scalar_expression
+
+   <cast target> ::= <Domain name> | <data type>
+
+The CAST operator converts values of a source <data type> into values of a
+target <data type>, where each <data type> is an SQL pre-defined <data type>
+(data conversions between UDTs are done with a user-defined cast). The source
+<data type>, or <cast operand>, can be any expression that evaluates to a
+single value. The target <data type>, or <cast target>, is either an SQL
+predefined <data type> specification or the name of a Domain whose defined
+<data type> is the SQL predefined <data type> that you want to convert the
+value of "scalar_expression" into. (If you use CAST (... AS <Domain name>),
+your current <AuthorizationID> must have the USAGE Privilege on that Domain.)
+
+It isn't, of course, possible to convert the values of every <data type> into
+the values of every other <data type>. For Boolean values, the rules are:
+      ## CAST (NULL AS <data type>) and CAST (Boolean_source_is_a_null_value AS <data type>)
+both result in a CAST result of NULL.
+      ## You can CAST a Boolean source to these targets: fixed length
+character string, variable length character string, CLOB, NCLOB and Boolean.
+You can also CAST a Boolean source to a UDT target or a <reference type>
+target if a user-defined cast exists for this purpose and your current
+<AuthorizationID> has the EXECUTE Privilege on that user-defined cast.
+
+When you CAST a Boolean value to a Boolean target, the result of the CAST is the source value.
+
+When you CAST a Boolean value to a fixed length character string target, there are four possibilities:
+      ## The source value is TRUE and the fixed length of the target is at
+least four characters. In this case, the result of the CAST is 'TRUE', padded
+on the right with spaces, if necessary, to make it the exact fixed length of the target.
+      ## The source value is FALSE and the fixed length of the target is at
+least five characters. In this case, the result of the CAST is 'FALSE', padded
+on the right with spaces, if necessary, to make it the exact fixed length of the target.
+      ## The source value is UNKNOWN. As already stated, the result of the CAST is NULL.
+      ## The fixed length of the target is less than the length of the source
+value. In this case, the CAST will fail: your DBMS will return the SQLSTATE
+error 22018 "data exception-invalid character value for cast".
+
+When you CAST a Boolean value to a variable length character string, CLOB or
+NCLOB target, there are four possibilities:
+      ## The source value is TRUE and the maximum length of the target is at
+least four characters. In this case, the result of the CAST is 'TRUE'.
+      ## The source value is FALSE and the fixed length of the target is at
+least five characters. In this case, the result of the CAST is 'FALSE'.
+      ## The source value is UNKNOWN. As already stated, the result of the CAST is NULL.
+      ## The maximum length of the target is less than the length of the
+source value. In this case, the CAST will fail: your DBMS will return the
+SQLSTATE error 22018 "data exception-invalid character value for cast".
+
+[Obscure Rule] The result of a CAST to a character string target has the
+COERCIBLE coercibility attribute; its Collation is the default Collation for
+the target's Character set.
+
+When you CAST a Boolean value to a UDT or a <reference type> target, your DBMS
+invokes the user defined cast routine, with the source value as the routine's
+argument. The CAST result is the value returned by the user defined cast.
+
+If you want to restrict your code to Core SQL, don't use <Domain name> as a
+CAST target: CAST only to a <data type>.
+
+Assignment:
+In SQL, the TRUE and FALSE truth values may be assigned to any Boolean target
+and the UNKNOWN truth value may be assigned to any Boolean target that isn't
+constrained by a NOT NULL Constraint.
+
+Comparison:
+SQL provides the usual scalar comparison operators -- = and <> and < and <=
+and > and >= -- to perform operations on truth values. All of them will be
+familiar; there are equivalent operators in other computer languages. In SQL,
+TRUE is greater than FALSE. If any of the comparands are the UNKNOWN truth
+value or are NULL, the result of the operation is UNKNOWN. For example:
+
+   TRUE = {result is FALSE}
+
+returns FALSE.
+
+   TRUE <> {result is NULL}
+
+returns UNKNOWN.
+
+SQL also provides three quantifiers -- ALL, SOME, ANY -- which you can use
+along with a comparison operator to compare a truth value with the collection
+of truth values returned by a <table subquery>. Place the quantifier after the
+comparison operator, immediately before the <table subquery>. For example:
+
+   SELECT occurrence_boolean
+   FROM   Boolean_Example
+   WHERE  occurrence_boolean = ALL (
+      SELECT char_column
+      FROM   Table_1
+      WHERE  char_column LIKE '%e');
+
+ALL returns TRUE either (a) if the collection is an empty set (i.e.: if it
+contains zero rows) or (b) if the comparison operator returns TRUE for every
+value in the collection. ALL returns FALSE if the comparison operator returns
+FALSE for at least one value in the collection.
+
+SOME and ANY are synonyms. They return TRUE if the comparison operator returns
+TRUE for at least one value in the collection. They return FALSE either (a) if
+the collection is an empty set or (b) if the comparison operator returns FALSE
+for every value in the collection. (The search condition "= ANY (collection)"
+is equivalent to "IN (collection)".)
+
+Other Operations:
+With SQL, you have several other operations that you can perform on truth
+values, or on other values to get a truth value result.
+
+## Boolean operators
+SQL provides the usual scalar Boolean operators -- AND and OR and NOT and IS -
+- to perform operations on Boolean operands. Each returns a Boolean result, or
+truth value. All of them will be familiar; there are equivalent operators in
+other computer languages. If any of the operands are the UNKNOWN truth value
+or are NULL, the result of the operation is UNKNOWN. Here is the syntax
+allowed for Boolean expressions:
+
+<boolean value expression> ::=
+<boolean term> |
+<boolean value expression> OR <boolean term>
+
+   <boolean term> ::=
+   [ NOT ] <boolean test> |
+   <boolean term> AND [ NOT ] <boolean test>
+
+      <boolean test> ::=
+      boolean_argument [ IS [ NOT ] {TRUE | FALSE | UNKNOWN} ]
+
+A Boolean expression operates on one or more operands that evaluate to a truth
+value -- that is, the "boolean_argument" shown in this syntax diagram is
+either a <Boolean literal>, the value of a parameter or a host language
+variable or the result of any expression or argument (including a possibly
+qualified <Column name> or -- most often -- the result of an SQL predicate or
+search condition) that evaluates to a truth value. The result is also a truth
+value, derived by applying the given Boolean operator(s) to the
+"boolean_argument" result.
 
-    IS is a monadic Boolean operator. It tests for a condition: is the result of
-    the expression TRUE, is it FALSE or is it UNKNOWN? You use the <Boolean test>
-    to influence a search condition result, since its effect is to change a
-    Boolean value (which is TRUE or FALSE or UNKNOWN) to either TRUE or FALSE. For
-    example, consider these SQL statements, which create a Table that contains
-    four rows:
+IS is a monadic Boolean operator. It tests for a condition: is the result of
+the expression TRUE, is it FALSE or is it UNKNOWN? You use the <Boolean test>
+to influence a search condition result, since its effect is to change a
+Boolean value (which is TRUE or FALSE or UNKNOWN) to either TRUE or FALSE. For
+example, consider these SQL statements, which create a Table that contains
+four rows:
 
-       CREATE TABLE Boolean_Test (
-          column_1 SMALLINT);
+   CREATE TABLE Boolean_Test (
+      column_1 SMALLINT);
 
-       INSERT INTO Boolean_Test (column_1)
-       VALUES (5);
+   INSERT INTO Boolean_Test (column_1)
+   VALUES (5);
 
-       INSERT INTO Boolean_Test (column_1)
-       VALUES (NULL);
+   INSERT INTO Boolean_Test (column_1)
+   VALUES (NULL);
 
-       INSERT INTO Boolean_Test (column_1)
-       VALUES (0);
-
-       INSERT INTO Boolean_Test (column_1)
-       VALUES (10);
-
-    Row 1 of the Table BOOLEAN_TEST contains 5, row 2 contains NULL, row 3
-    contains 0 and row 4 contains 10. Normally, of course, a search for equality
-    doesn't find NULLs -- so the result of this SQL statement:
-
-       SELECT column_1
-       FROM   Boolean_Test
-       WHERE  column_1 = 5;
-
-    is row 1 and the result of this SQL statement:
-
-       SELECT column_1
-       FROM   Boolean_Test
-       WHERE  column_1 <> 5;
-
-    is row 3 and row 4. If you add a <Boolean test>, though, you can override the
-    comparison's usual result. Thus, the result of this SQL statement:
-
-       SELECT column_1
-       FROM   Boolean_Test
-       WHERE  (column_1 = 5 IS UNKNOWN);
-
-    is row 2 -- it returns the rows where the search condition is UNKNOWN, rather
-    than the rows where it is TRUE. The result of this SQL statement:
-
-       SELECT column_1
-       FROM   Boolean_Test
-       WHERE (column_1 = 5 IS FALSE);
-
-    is row 3 and row 4 -- it returns only the rows where the search condition is
-    FALSE. The result of this SQL statement:
-
-       SELECT column_1
-       FROM   Boolean_Test
-       WHERE (column_1 = 5 IS TRUE);
-
-    is row 1 -- it returns the rows where the search condition is TRUE. Since this
-    is the same result you'd get without the <Boolean test>, adding it is
-    redundant. Finally, the result of this SQL statement:
-
-       SELECT column_1
-       FROM   Boolean_Test
-       WHERE (column_1 = 5 IS NOT FALSE);
-
-    is row 1 and row 2 -- it returns the rows where the search condition is either
-    TRUE or UNKNOWN. Table 9-1 shows how the result of a Boolean IS operation is determined.
-
-    <<<INSERT CHAP9_T1.DOC HERE>>>
-
-    NOT is a monadic Boolean operator. It negates the result of a Boolean
-    expression (except in the case of NULLs) -- that is:
-          ## NOT ( TRUE ) returns FALSE.
-          ## NOT ( FALSE ) returns TRUE.
-          ## NOT ( UNKNOWN ) returns UNKNOWN.
-
-    AND is a dyadic Boolean operator. It increases the number of conditions that
-    must be met by a value to be included in a search: the result is TRUE only if
-    both conditions are TRUE. For example, the result of this SQL statement:
-
-       SELECT column_1
-       FROM   Boolean_Test
-       WHERE (column_1 > 0 AND column_1 < 10);
-
-    is row 1. Table 9-2 shows how the result of a Boolean AND operation is determined.
-
-    <<<INSERT CHAP9_T2.DOC HERE>>>
-
-    OR is a dyadic Boolean operator. It decreases the number of conditions that
-    must be met by a value to be included in a search: the result is TRUE if
-    either condition is TRUE. For example, the result of this SQL statement:
-
-       SELECT column_1
-       FROM   Boolean_Test
-       WHERE (column_1 > 0 OR column_1 < 10);
-
-    is row 1 and row 3. Table 9-3 shows how the result of a Boolean OR operation is determined.
-
-    <<<INSERT CHAP9_T3.DOC HERE>>>
-
-
-    The precedence of the Boolean operators and their effect on Boolean values is
-    as follows:
-
-       Precedence   Operator   Effect on Boolean value(s)
-       1.           IS         overrides normal result
-       2.           NOT        negates result
-       3.           AND        combines, with logical AND
-       4.           OR         combines, with logical inclusive OR
-
-    The precedence shown determines evaluation order, unless you use parentheses
-    to force a different order. Although SQL's three-valued logic can complicate
-    things if we use contrived and unlikely examples, the normal situation is
-    straightforward for any speaker of a human tongue. When we hear the English
-    expression "Martians are vicious and dishonest but not stupid", we know we
-    could search them with the SQL expression "x = 'vicious' AND x = 'dishonest'
-    AND x <> 'stupid'". The correct application of the Boolean operators turns out
-    to be an intuitive calculation for most people. The most common error is to
-    forget what the operator precedence is, and that can be corrected easily:
-    always use parentheses if the search condition contains two different Boolean operators.
-
-    If you want to restrict your code to Core SQL, don't use the optional truth
-    value Boolean test (i.e.: don't use the constructs "boolean_argument" IS TRUE,
-    "boolean_argument" IS FALSE or "boolean_argument" IS UNKNOWN) and don't use
-    "boolean_argument" unless it's an SQL predicate or it's enclosed in parentheses.
-
-    ## Scalar functions
-    SQL provides no scalar functions that return or operate on a Boolean value.
-
-    ## Set functions
-    SQL provides eight set functions that operate on Booleans: EVERY, ANY, SOME,
-    COUNT(*), COUNT, MAX, MIN and GROUPING. We'll discuss them all in our chapter
-    on set functions.
-
-    ## Predicates
-    Every SQL predicate returns a Boolean value. Since none of them operate
-    strictly on truth values, we won't discuss them here. Look for them in our
-    chapters on search conditions and the various other <data type>s.
-
-
-    Table 9-1:
-    Truth Values for the Boolean IS Operator
-
-    If a Boolean  ... and the     ... then the
-    value is:     operator is:    result is:
-    TRUE          IS TRUE         TRUE
-    TRUE          IS FALSE        FALSE
-    TRUE          IS UNKNOWN      FALSE
-    FALSE         IS TRUE         FALSE
-    FALSE         IS FALSE        TRUE
-    FALSE         IS UNKNOWN      FALSE
-    UNKNOWN       IS TRUE         FALSE
-    UNKNOWN       IS FALSE        FALSE
-    UNKNOWN       IS UNKNOWN      TRUE
-    TRUE          IS NOT TRUE     FALSE
-    TRUE          IS NOT FALSE    TRUE
-    TRUE          IS NOT UNKNOWN  TRUE
-    FALSE         IS NOT TRUE     TRUE
-    FALSE         IS NOT FALSE    FALSE
-    FALSE         IS NOT UNKNOWN  TRUE
-    UNKNOWN       IS NOT TRUE     TRUE
-    UNKNOWN       IS NOT FALSE    TRUE
-    UNKNOWN       IS NOT UNKNOWN  FALSE
-
-
-    Table 9-2:
-    Truth Values for the Boolean AND Operator
-
-    If the first        ... and the second   ... then the
-    Boolean value is:   Boolean value is:    result is:
-    TRUE                TRUE                 TRUE
-    TRUE                FALSE                FALSE
-    TRUE                UNKNOWN              UNKNOWN
-    FALSE               TRUE                 FALSE
-    FALSE               FALSE                FALSE
-    FALSE               UNKNOWN              FALSE
-    UNKNOWN             TRUE                 UNKNOWN
-    UNKNOWN             FALSE                FALSE
-    UNKNOWN             UNKNOWN              UNKNOWN
-
-
-    Table 9-3:
-    Truth Values for the Boolean OR Operator
-
-    If the first        ... and the second   ... then the
-    Boolean value is:   Boolean value is:    result is:
-    TRUE                TRUE                 TRUE
-    TRUE                FALSE                TRUE
-    TRUE                UNKNOWN              TRUE
-    FALSE               TRUE                 TRUE
-    FALSE               FALSE                FALSE
-    FALSE               UNKNOWN              UNKNOWN
-    UNKNOWN             TRUE                 TRUE
-    UNKNOWN             FALSE                UNKNOWN
-    UNKNOWN             UNKNOWN              UNKNOWN
+   INSERT INTO Boolean_Test (column_1)
+   VALUES (0);
+
+   INSERT INTO Boolean_Test (column_1)
+   VALUES (10);
+
+Row 1 of the Table BOOLEAN_TEST contains 5, row 2 contains NULL, row 3
+contains 0 and row 4 contains 10. Normally, of course, a search for equality
+doesn't find NULLs -- so the result of this SQL statement:
+
+   SELECT column_1
+   FROM   Boolean_Test
+   WHERE  column_1 = 5;
+
+is row 1 and the result of this SQL statement:
+
+   SELECT column_1
+   FROM   Boolean_Test
+   WHERE  column_1 <> 5;
+
+is row 3 and row 4. If you add a <Boolean test>, though, you can override the
+comparison's usual result. Thus, the result of this SQL statement:
+
+   SELECT column_1
+   FROM   Boolean_Test
+   WHERE  (column_1 = 5 IS UNKNOWN);
+
+is row 2 -- it returns the rows where the search condition is UNKNOWN, rather
+than the rows where it is TRUE. The result of this SQL statement:
+
+   SELECT column_1
+   FROM   Boolean_Test
+   WHERE (column_1 = 5 IS FALSE);
+
+is row 3 and row 4 -- it returns only the rows where the search condition is
+FALSE. The result of this SQL statement:
+
+   SELECT column_1
+   FROM   Boolean_Test
+   WHERE (column_1 = 5 IS TRUE);
+
+is row 1 -- it returns the rows where the search condition is TRUE. Since this
+is the same result you'd get without the <Boolean test>, adding it is
+redundant. Finally, the result of this SQL statement:
+
+   SELECT column_1
+   FROM   Boolean_Test
+   WHERE (column_1 = 5 IS NOT FALSE);
+
+is row 1 and row 2 -- it returns the rows where the search condition is either
+TRUE or UNKNOWN. Table 9-1 shows how the result of a Boolean IS operation is determined.
+
+<<<INSERT CHAP9_T1.DOC HERE>>>
+
+NOT is a monadic Boolean operator. It negates the result of a Boolean
+expression (except in the case of NULLs) -- that is:
+      ## NOT ( TRUE ) returns FALSE.
+      ## NOT ( FALSE ) returns TRUE.
+      ## NOT ( UNKNOWN ) returns UNKNOWN.
+
+AND is a dyadic Boolean operator. It increases the number of conditions that
+must be met by a value to be included in a search: the result is TRUE only if
+both conditions are TRUE. For example, the result of this SQL statement:
+
+   SELECT column_1
+   FROM   Boolean_Test
+   WHERE (column_1 > 0 AND column_1 < 10);
+
+is row 1. Table 9-2 shows how the result of a Boolean AND operation is determined.
+
+<<<INSERT CHAP9_T2.DOC HERE>>>
+
+OR is a dyadic Boolean operator. It decreases the number of conditions that
+must be met by a value to be included in a search: the result is TRUE if
+either condition is TRUE. For example, the result of this SQL statement:
+
+   SELECT column_1
+   FROM   Boolean_Test
+   WHERE (column_1 > 0 OR column_1 < 10);
+
+is row 1 and row 3. Table 9-3 shows how the result of a Boolean OR operation is determined.
+
+<<<INSERT CHAP9_T3.DOC HERE>>>
+
+
+The precedence of the Boolean operators and their effect on Boolean values is
+as follows:
+
+   Precedence   Operator   Effect on Boolean value(s)
+   1.           IS         overrides normal result
+   2.           NOT        negates result
+   3.           AND        combines, with logical AND
+   4.           OR         combines, with logical inclusive OR
+
+The precedence shown determines evaluation order, unless you use parentheses
+to force a different order. Although SQL's three-valued logic can complicate
+things if we use contrived and unlikely examples, the normal situation is
+straightforward for any speaker of a human tongue. When we hear the English
+expression "Martians are vicious and dishonest but not stupid", we know we
+could search them with the SQL expression "x = 'vicious' AND x = 'dishonest'
+AND x <> 'stupid'". The correct application of the Boolean operators turns out
+to be an intuitive calculation for most people. The most common error is to
+forget what the operator precedence is, and that can be corrected easily:
+always use parentheses if the search condition contains two different Boolean operators.
+
+If you want to restrict your code to Core SQL, don't use the optional truth
+value Boolean test (i.e.: don't use the constructs "boolean_argument" IS TRUE,
+"boolean_argument" IS FALSE or "boolean_argument" IS UNKNOWN) and don't use
+"boolean_argument" unless it's an SQL predicate or it's enclosed in parentheses.
+
+## Scalar functions
+SQL provides no scalar functions that return or operate on a Boolean value.
+
+## Set functions
+SQL provides eight set functions that operate on Booleans: EVERY, ANY, SOME,
+COUNT(*), COUNT, MAX, MIN and GROUPING. We'll discuss them all in our chapter
+on set functions.
+
+## Predicates
+Every SQL predicate returns a Boolean value. Since none of them operate
+strictly on truth values, we won't discuss them here. Look for them in our
+chapters on search conditions and the various other <data type>s.
+
+
+Table 9-1:
+Truth Values for the Boolean IS Operator
+
+If a Boolean  ... and the     ... then the
+value is:     operator is:    result is:
+TRUE          IS TRUE         TRUE
+TRUE          IS FALSE        FALSE
+TRUE          IS UNKNOWN      FALSE
+FALSE         IS TRUE         FALSE
+FALSE         IS FALSE        TRUE
+FALSE         IS UNKNOWN      FALSE
+UNKNOWN       IS TRUE         FALSE
+UNKNOWN       IS FALSE        FALSE
+UNKNOWN       IS UNKNOWN      TRUE
+TRUE          IS NOT TRUE     FALSE
+TRUE          IS NOT FALSE    TRUE
+TRUE          IS NOT UNKNOWN  TRUE
+FALSE         IS NOT TRUE     TRUE
+FALSE         IS NOT FALSE    FALSE
+FALSE         IS NOT UNKNOWN  TRUE
+UNKNOWN       IS NOT TRUE     TRUE
+UNKNOWN       IS NOT FALSE    TRUE
+UNKNOWN       IS NOT UNKNOWN  FALSE
+
+
+Table 9-2:
+Truth Values for the Boolean AND Operator
+
+If the first        ... and the second   ... then the
+Boolean value is:   Boolean value is:    result is:
+TRUE                TRUE                 TRUE
+TRUE                FALSE                FALSE
+TRUE                UNKNOWN              UNKNOWN
+FALSE               TRUE                 FALSE
+FALSE               FALSE                FALSE
+FALSE               UNKNOWN              FALSE
+UNKNOWN             TRUE                 UNKNOWN
+UNKNOWN             FALSE                FALSE
+UNKNOWN             UNKNOWN              UNKNOWN
+
+
+Table 9-3:
+Truth Values for the Boolean OR Operator
+
+If the first        ... and the second   ... then the
+Boolean value is:   Boolean value is:    result is:
+TRUE                TRUE                 TRUE
+TRUE                FALSE                TRUE
+TRUE                UNKNOWN              TRUE
+FALSE               TRUE                 TRUE
+FALSE               FALSE                FALSE
+FALSE               UNKNOWN              UNKNOWN
+UNKNOWN             TRUE                 TRUE
+UNKNOWN             FALSE                UNKNOWN
+UNKNOWN             UNKNOWN              UNKNOWN
