@@ -43,16 +43,20 @@ these concepts throughout this chapter.
 [Obscure Rule] applies for the rest of this section.
 
 The Gregorian Calendar:
+
 The SQL Standard says that all dates must be valid "according to the Gregorian
 calendar". Most people know the main rules:
-   ## Thirty days hath September, April, June and November, all the rest have
+
+## Thirty days hath September, April, June and November, all the rest have
 thirty-one, except (the rhyme scheme starts to fail here) February which has
 28 days, or 29 in a leap year.
-   ## A leap year occurs every four years.
+
+## A leap year occurs every four years.
 
 These first two rules are the rules of the Julian Calendar. Pope Gregory XIII
 added this exception in 1582:
-   ## A leap year does not occur at the end of a century, except every 400
+
+## A leap year does not occur at the end of a century, except every 400
 years. (That is: 1700, 1800, 1900, 2100, 2200 and 2300 are not leap years.)
 
 In a majority of practical situations it's only necessary to know what the
@@ -110,6 +114,7 @@ Julian day to a (proleptic Gregorian) DATE. Standard SQL DBMSs can't because
 they may only allow for dates starting with 0001 AD.
 
 Leap Seconds:
+
 The earth's revolutions are getting shorter: it goes round the sun about 0.5
 seconds faster than it did in 1900. We point this out for the sake of people
 who define "1 year" as "1 earth revolution period" -- that kind of year is
@@ -157,12 +162,14 @@ which uses leap seconds or fractional seconds is getting into magnitudes which
 are smaller than those tiny distinctions.
 
 Knowing what leap seconds are, we can move at last to their use in SQL:
-   ## First, the Standard requires a DBMS to extend the range of
+
+## First, the Standard requires a DBMS to extend the range of
 seconds-field values to "less than 62" (rather than "less than 60") and thus
 account for up to 2 positive leap seconds. (There is a GOTCHA here: leap
 seconds should always be for the last minute of a day, as in TIME '23:59:60',
 but the Standard allows erroneous values like TIME '12:34:60'.)
-   ## Second, because of leap seconds, it isn't possible to tell whether TIME
+
+## Second, because of leap seconds, it isn't possible to tell whether TIME
 '23:59:58' is two seconds before midnight, one second before midnight (leap
 seconds can be negative, though it has never happened) or as much as four
 seconds before midnight -- the information is simply not present in the syntax
@@ -171,6 +178,7 @@ carrying has uncertainty. Not surprisingly, the SQL Standard states that any
 expressions which involve leap-seconded TIMEs will show implementation-defined results.
 
 Time Zones:
+
 In 330 BC, a lunar eclipse was seen at Arbela around 3 AM and in Carthage
 around midnight. The ancient Greeks knew how eclipses worked so this was one
 proof that the earth is round (their other proofs were that the sun gets
@@ -201,18 +209,24 @@ operations are vital, you may want to define time and timestamp fields with
 the TIME WITH TIME ZONE and TIMESTAMP WITH TIME ZONE <data type>s.
 
 ## <time zone interval>
+
 The required syntax for a <time zone interval> is:
 
-<time zone interval> ::=
-{+ | -} HH:MM
+::
+
+    <time zone interval> ::=
+    {+ | -} HH:MM
 
 A <time zone interval> specifies a time or timestamp value's time zone offset
 from UTC. It has a <data type> of INTERVAL HOUR TO MINUTE.
-      ## "HH" is 2 digits (ranging from 0 to 13) representing the number of
+
+## "HH" is 2 digits (ranging from 0 to 13) representing the number of
 hours (called TIMEZONE_HOURs) in the time zone offset and "MM" is 2 digits
 (ranging from 0 to 59) representing the number of additional minutes (called
 TIMEZONE_MINUTEs) in the time zone offset. For example, this represents a
 <time zone interval> of 3 hours:
+
+::
 
    +3:00
 
@@ -231,6 +245,7 @@ zone interval> represents a time in the specified time zone.
 If you want to restrict your code to Core SQL, don't use <time zone interval>s.
 
 ## Time Zone Example
+
 Time zones start at zero longitude (the Prime Meridian), which goes through
 Greenwich, Britain. The time zones West Of Greenwich ("Wogs") are behind UTC
 because the earth rotates from west to east. Therefore, when it's 12:00 UTC
@@ -239,8 +254,10 @@ The time zones East Of Greenwich ("Eogs") are ahead of UTC, so when it's 12:00
 UTC it's already 5:30 PM in Dehli, India, and even later as we go east from
 there. Consider this timeline:
 
-+8:00       +5:00     +0:00       -2:00    -5:30
-Vancouver   Detroit   Greenwich   Moscow   Dehli
+::
+
+    +8:00       +5:00     +0:00       -2:00    -5:30
+    Vancouver   Detroit   Greenwich   Moscow   Dehli
 
 The numbers on the timeline indicate the time zones' offsets from UTC, in
 hours and minutes. (The math is somewhat counterintuitive, since the SQL
@@ -253,11 +270,15 @@ England (with a default time zone offset of +0:00) and one in Delhi, India
 (with a default time zone offset of -5:30). All three installations have
 access to this Table:
 
+::
+
    CREATE TABLE Time_Examples (
       Time_Local TIMESTAMP,
       Time_With_Time_Zone TIMESTAMP WITH TIME ZONE);
 
 A user at the London installation adds this row to the Table:
+
+::
 
    INSERT INTO Time_Examples (Time_Local, Time_With_Time_Zone)
    VALUES (TIMESTAMP '1995-07-15 07:30', TIMESTAMP '1995-07-15 07:30');
@@ -272,10 +293,12 @@ different values, in this case they all, in fact, represent the same absolute
 moment in time. If each user now does a SELECT on the Table, this is the
 result they'll see:
 
-TIME_LOCAL           TIME_WITH_TIME_ZONE
-1995-07-15 07:30:00  1995-07-14 23:30:30-8:00  -- in Vancouver
-1995-07-15 07:30:00  1995-07-15 07:30:00+0:00  -- in London
-1995-07-15 07:30:00  1995-07-15 13:00:00+5:30  -- in Dehli
+::
+
+    TIME_LOCAL           TIME_WITH_TIME_ZONE
+    1995-07-15 07:30:00  1995-07-14 23:30:30-8:00  -- in Vancouver
+    1995-07-15 07:30:00  1995-07-15 07:30:00+0:00  -- in London
+    1995-07-15 07:30:00  1995-07-15 13:00:00+5:30  -- in Dehli
 
 Note that the value in the TIME_LOCAL Column stays the same regardless of the
 installation: a time or timestamp without a <time zone interval> always means
@@ -286,39 +309,54 @@ the default time zone offset at each installation. In this example, the UTC
 time is equal to the London local time of '1995-07-15 07:30' -- i.e.: when the
 London user selects from the Table, the display shows:
 
+::
+
    '1995-07-15 07:30+00:00'
 
 to show that the local time is the same as the UTC time; that is, it must be
 offset by 0 hours and 0 minutes to a UTC time of:
 
+::
+
    '1995-07-15 07:30'
 
 When the Vancouver user does the same SELECT, however, the display shows:
+
+::
 
    '1995-07-14 23:30-08:00'
 
 to show that the local time is 8 hours less than the UTC time; that is, it
 must be offset by 8 hours and 0 minutes to a UTC time of:
 
+::
+
    '1995-07-15 07:30'
 
 And when the Delhi user does the same SELECT, the display shows:
+
+::
 
    '1995-07-15 13:00+05:30'
 
 to show that the local time is 5.5 hours greater than the UTC time; that is,
 it must be offset -5 hours and 30 minutes to a UTC time of:
 
+::
+
    '1995-07-15 07:30'
 
 ## Time Zone Offset Arithmetic
+
 Earlier we said that time zone offset arithmetic is somewhat counterintuitive
 -- here's a more detailed explanation. Recall that a time zone offset is the
 difference between local time and UTC time -- say, for example, 4 hours. Then:
-   ## In the case of a time zone that is 4 hours earlier than UTC (e.g.: 12:00
+
+## In the case of a time zone that is 4 hours earlier than UTC (e.g.: 12:00
 local is 16:00 UTC), the time zone offset is -04:00 (i.e.: local time is 4
 hours less than UTC time).
-   ## In the case of a time zone that is 4 hours later than UTC (e.g.: 16:00
+
+## In the case of a time zone that is 4 hours later than UTC (e.g.: 16:00
 UTC is 20:00 local), the time zone offset is +04:00 (i.e.: local time is 4
 hours plus UTC time).
 
@@ -334,21 +372,27 @@ A temporal <literal> is any temporal value in one of two categories: datetimes
 and intervals.
 
 Datetime <literal>s:
+
 A datetime <literal> is either a <date literal>, a <time literal> or a
 <timestamp literal>. Datetime <literal>s are constrained by the natural rules
 for dates and times according to the Gregorian calendar.
 
 ## <date literal>
+
 A <date literal> represents a date in the Gregorian calendar. The required syntax for a <date literal> is:
 
-<date literal> ::=
-DATE 'yyyy-mm-dd'
+::
+
+    <date literal> ::=
+    DATE 'yyyy-mm-dd'
 
 "yyyy" is 4 digits (ranging from 1 to 9999) representing a YEAR, "mm" is 2
 digits (ranging from 1 to 12) representing a MONTH in the specified year and
 "dd" is 2 digits (ranging from 1 to 31, depending on the month) representing a
 DAY of the specified month. For example, this <date literal> represents "July
 15, 1997":
+
+::
 
    DATE '1997-07-15'
 
@@ -358,10 +402,13 @@ The valid range of dates is from DATE '0001-01-01' (January 1, 1 AD) to DATE
 A <date literal>'s <data type> is DATE.
 
 ## <time literal>
+
 A <time literal> represents a time of day. The required syntax for a <time literal> is:
 
-<time literal> ::=
-TIME 'hh:mm:ss[.[nnnnnn]][ <time zone interval> ]'
+::
+
+    <time literal> ::=
+    TIME 'hh:mm:ss[.[nnnnnn]][ <time zone interval> ]'
 
 "hh" is 2 digits (ranging from 0 to 23) representing an HOUR on a 24 hour
 clock, "mm" is 2 digits (ranging from 0 to 59) representing a MINUTE within
@@ -369,6 +416,8 @@ the specified hour and "ss" is 2 digits (ranging from 0 to 61) representing a
 SECOND within the specified minute (SQL allows for the addition of up to 2
 "leap" seconds in a valid time). For example, this <time literal> represents
 "1:35:16 PM":
+
+::
 
    TIME '13:35:16'
 
@@ -378,6 +427,8 @@ this is the time value's fractional seconds precision. The minimum fractional
 seconds precision and the default fractional seconds precision are both zero.
 For example, these three <time literal>s all represent "1:35:16 PM":
 
+::
+
    TIME '13:35:16'
 
    TIME '13:35:16.'
@@ -386,13 +437,16 @@ For example, these three <time literal>s all represent "1:35:16 PM":
 
 This <time literal> represents "1:35:16 and one-hundredth of a second PM":
 
+::
+
    TIME '13:35:16.01'
 
 [NON-PORTABLE] The valid range of times must include, at a minimum, all times
 from TIME '00:00:00' to TIME '23:59:61.999999' but is non-standard because the
 SQL Standard requires implementors to define the maximum fractional seconds
 precision for time values.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book allows
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book allows
 <time literal>s to have a fractional seconds precision up to 6 digits long.
 This allows you to deal with times ranging from whole seconds to millionths of
 a second.
@@ -405,9 +459,13 @@ represents a time in the specified time zone. For example, this <time literal>
 represents "12:35 and 16.5 seconds AM" with a time zone offset of 3 hours and
 15 minutes (UTC '09:20:16.5):
 
+::
+
    TIME '12:35:16.5+03:15'
 
 This <time literal> represents the local time "12:35 and 16.5 seconds AM":
+
+::
 
    TIME '12:35:16.5'
 
@@ -415,9 +473,13 @@ A <time literal> without a <time zone interval> has a <data type> of
 TIME(fractional seconds precision), though it is compatible with the TIME and
 TIME WITH TIME ZONE <data type>s. For example, this <literal>:
 
+::
+
    TIME '13:35:16'
 
 has a <data type> of TIME and this <literal>:
+
+::
 
    TIME '13:35:16.01'
 
@@ -427,6 +489,8 @@ has a <data type> of TIME(2).
 of TIME(fractional seconds precision) WITH TIME ZONE, though it is compatible
 with the TIME and TIME WITH TIME ZONE <data type>s. For example, this <literal>:
 
+::
+
    TIME '13:35:16.5+10:30'
 
 has a <data type> of TIME(1) WITH TIME ZONE.
@@ -435,14 +499,19 @@ If you want to restrict your code to Core SQL, don't add a fractional seconds
 precision or a <time zone interval> to your time values.
 
 ## <timestamp literal>
+
 A <timestamp literal> represents a time of a given day. The required syntax for a <timestamp literal> is:
 
-<timestamp literal> ::=
-TIMESTAMP 'date value <space> time value'
+::
+
+    <timestamp literal> ::=
+    TIMESTAMP 'date value <space> time value'
 
 that is:
 
-TIMESTAMP 'yyyy-mm-dd hh:mm:ss[.[nnnnnn]][ <time zone interval> ]'
+::
+
+    TIMESTAMP 'yyyy-mm-dd hh:mm:ss[.[nnnnnn]][ <time zone interval> ]'
 
 As with dates, "yyyy" is 4 digits representing a YEAR, "mm" is 2 digits
 representing a MONTH in the specified year, "dd" is 2 digits representing a
@@ -453,10 +522,14 @@ specified minute and the optional ".nnnnnn" represents a fraction of a second
 within the specified second. For example, this <timestamp literal> represents
 "1:35:16 PM on July 15, 1997":
 
+::
+
    TIMESTAMP '1997-07-15 13:35:16'
 
 This <timestamp literal> represents "1:35:16 and one-hundredth of a second PM
 on July 15, 1997":
+
+::
 
    TIMESTAMP      '1997-07-15 13:35:16.01'
 
@@ -464,7 +537,8 @@ on July 15, 1997":
 timestamps from TIMESTAMP '0001-01-01 00:00:00' to TIMESTAMP '9999-12-31
 23:59:61.999999' but is non-standard because the SQL Standard requires
 implementors to define the maximum fractional seconds precision for timestamp values.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book allows
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book allows
 <timestamp literal>s to have a fractional seconds precision up to 6 digits
 long. This allows you to deal with timestamps whose time values range from
 whole seconds to millionths of a second.
@@ -477,9 +551,13 @@ literal> without a <time zone interval> has a <data type> of
 TIMESTAMP(fractional seconds precision), though it is compatible with the
 TIMESTAMP and TIMESTAMP WITH TIME ZONE <data type>s. For example, this <literal>:
 
+::
+
    TIMESTAMP '1997-07-15 13:35:16'
 
 has a <data type> of TIMESTAMP and this <literal>:
+
+::
 
    TIMESTAMP '1997-07-15 13:35:16.01'
 
@@ -489,6 +567,8 @@ has a <data type> of TIMESTAMP(2).
 type> of TIMESTAMP(fractional seconds precision) WITH TIME ZONE, though it is
 compatible with the TIMESTAMP and TIMESTAMP WITH TIME ZONE <data type>s. For example, this <literal>:
 
+::
+
    TIMESTAMP '1997-07-15 13:35:16.5+10:30'
 
 has a <data type> of TIMESTAMP(1) WITH TIME ZONE.
@@ -497,32 +577,36 @@ If you want to restrict your code to Core SQL, don't add a fractional seconds
 precision greater than 6 digits or a <time zone interval> to your timestamp values.
 
 Interval <literal>s:
+
 An <interval literal> is either a <year-month interval literal> or a <day-time
 interval literal>. The type of interval is determined by the <interval
 qualifier> that is part of the <interval literal>.
 
 ## <interval qualifier>:
+
 An <interval qualifier> defines the type (or precision) of an interval. The
 required syntax for an <interval qualifier> is:
 
-<interval qualifier> ::=
-start_datetime [ TO end_datetime ]
+::
 
-   start_datetime ::=
-   YEAR [ (leading precision) ] |
-   MONTH [ (leading precision) ] |
-   DAY [ (leading precision) ] |
-   HOUR [ (leading precision) ] |
-   MINUTE [ (leading precision) ] |
-   SECOND [ (leading precision [ ,fractional seconds precision ]) ]
+    <interval qualifier> ::=
+    start_datetime [ TO end_datetime ]
 
-end_datetime ::=
-   YEAR |
-   MONTH |
-   DAY |
-   HOUR |
-   MINUTE |
-   SECOND [ (fractional seconds precision) ])
+       start_datetime ::=
+       YEAR [ (leading precision) ] |
+       MONTH [ (leading precision) ] |
+       DAY [ (leading precision) ] |
+       HOUR [ (leading precision) ] |
+       MINUTE [ (leading precision) ] |
+       SECOND [ (leading precision [ ,fractional seconds precision ]) ]
+
+    end_datetime ::=
+       YEAR |
+       MONTH |
+       DAY |
+       HOUR |
+       MINUTE |
+       SECOND [ (fractional seconds precision) ])
 
 Both "start_datetime" and "end_datetime" may be either: YEAR, MONTH, DAY,
 HOUR, MINUTE or SECOND, providing that "start_datetime" is not less
@@ -537,12 +621,16 @@ The optional "start_datetime" leading precision, if specified, is an unsigned
 integer that defines the maximum number of digits allowed in the
 "start_datetime" value. For example, this "start_datetime":
 
+::
+
    MONTH(1)
 
 means that the month value may range from 0 to 9 months (up to 1 digit). The
 minimum "start_datetime" precision is 1. The default "start_datetime"
 precision is 2. For example, these two <interval qualifier>s both describe an
 interval that may contain from 0 to 99 seconds:
+
+::
 
    SECOND
 
@@ -551,7 +639,8 @@ interval that may contain from 0 to 99 seconds:
 [NON-PORTABLE] The maximum "start_datetime" leading precision may not be less
 than 2 digits but is non-standard because the SQL Standard requires
 implementors to define an <interval qualifier>'s maximum leading precision.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book allows
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book allows
 the leading precision of YEAR to range from 1 to 4 digits and allows the
 leading precision of MONTH, DAY, HOUR, MINUTE and SECOND to range from 0 to 2 digits.
 
@@ -564,11 +653,15 @@ after the decimal point. The optional fractional seconds precision for a
 integer that defines the number of digits in the SECOND value's fractional
 seconds portion. For example, this "start_datetime":
 
+::
+
    SECOND(2,3)
 
 means that the seconds value may range from 0 to 99.999 seconds (up to 2
 digits for the seconds value, followed by up to 3 digits for the fractional
 seconds value). This "end_datetime":
+
+::
 
    TO SECOND(3)
 
@@ -578,6 +671,8 @@ SECOND.) The minimum fractional seconds precision is 0. The default fractional
 seconds precision is 6. For example, these two "start_datetime"s both describe
 an interval that may contain from 0 to 99 seconds:
 
+::
+
    SECOND(2)
 
    SECOND(2,0)
@@ -585,15 +680,21 @@ an interval that may contain from 0 to 99 seconds:
 These two "start_datetime"s both describe an interval that may contain from 0
 to 99.999999 seconds:
 
+::
+
    SECOND
 
    SECOND(2,6)
 
 This "end_datetime" describes an interval that may contain from 0 to 99 seconds:
 
+::
+
    TO SECOND(0)
 
 And these two "end_datetime"s both describe an interval that may contain from 0 to 99.999999 seconds:
+
+::
 
    TO SECOND
 
@@ -603,7 +704,8 @@ And these two "end_datetime"s both describe an interval that may contain from 0 
 qualifier>'s "start_datetime" or "end_datetime" of SECOND may not be less than
 6 digits but is non-standard because the SQL Standard requires implementors to
 define an <interval qualifier>'s maximum fractional seconds precision.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book allows
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book allows
 the fractional seconds precision of SECOND to range from 0 to 6 digits.
 
 [Obscure Rule] Of two "start_datetime"s that are the same except for their
@@ -616,33 +718,41 @@ become relevant during assignments, comparisons and type conversions.
 This <interval qualifier> means that the YEAR value for the interval may be
 any 3 digit number, i.e.: the YEAR value may range from 0 to 999 years:
 
+::
+
    YEAR(3)
 
 Other examples of <interval qualifier>s include:
 
-YEAR               -- YEAR may range from 0 to 99
-YEAR(4) TO MONTH   -- YEAR may range from 0 to 9999,
-                      MONTH may range from 0 to 99
-SECOND             -- SECOND may range from 0 to 99
-SECOND(1)          -- SECOND may range from 0 to 9
-SECOND(1,3)        -- SECOND may range from 0.000 to 9.999
-HOUR TO SECOND     -- HOUR may range from 0 to 99,
-                      SECOND may range from 0.000000 to 99.999999
-HOUR TO SECOND(3)  -- HOUR may range from 0 to 99,
-                      SECOND may range from 0.000 to 99.999
+::
+
+    YEAR               -- YEAR may range from 0 to 99
+    YEAR(4) TO MONTH   -- YEAR may range from 0 to 9999,
+                          MONTH may range from 0 to 99
+    SECOND             -- SECOND may range from 0 to 99
+    SECOND(1)          -- SECOND may range from 0 to 9
+    SECOND(1,3)        -- SECOND may range from 0.000 to 9.999
+    HOUR TO SECOND     -- HOUR may range from 0 to 99,
+                          SECOND may range from 0.000000 to 99.999999
+    HOUR TO SECOND(3)  -- HOUR may range from 0 to 99,
+                          SECOND may range from 0.000 to 99.999
 
 If you want to restrict your code to Core SQL, don't use <interval qualifier>s.
 
 ## <interval literal>
+
 An <interval literal> represents a span of time and is either a <year-month
 literal> or a <day-time literal>.
 
 <year-month literal> --
+
 The required syntax for a <year-month literal> is:
 
-<year-month literal> ::=
-INTERVAL [ {+ | -} ]'yy' <interval qualifier> |
-INTERVAL [ {+ | -} ]'[ yy- ] mm' <interval qualifier>
+::
+
+    <year-month literal> ::=
+    INTERVAL [ {+ | -} ]'yy' <interval qualifier> |
+    INTERVAL [ {+ | -} ]'[ yy- ] mm' <interval qualifier>
 
 A <year-month literal> includes either YEAR, MONTH or both. It may not include
 the datetime fields DAY, HOUR, MINUTE or SECOND. Its <data type> is INTERVAL
@@ -653,14 +763,20 @@ interval. If you omit the sign, it defaults to + -- a positive interval. A
 negative <interval literal> can be written in one of two ways. For example,
 for the interval "minus (5 years 5 months)", you could write either:
 
+::
+
    INTERVAL -'05-05' YEAR TO MONTH
 
 or
+
+::
 
    INTERVAL '-05-05' YEAR TO MONTH
 
 that is, the minus sign can be either outside or inside the interval string.
 (In fact it can even be both, e.g.:
+
+::
 
    -'-05-05' YEAR TO MONTH
 
@@ -678,10 +794,14 @@ of explicit leading precisions.
 This <year-month literal> has a <data type> of INTERVAL YEAR and represents a
 time span of four years:
 
+::
+
    INTERVAL '4' YEAR
 
 These two <year-month literal>s have a <data type> of INTERVAL MONTH and both
 represent a negative time span of fifty months:
+
+::
 
    INTERVAL -'50' MONTH
 
@@ -693,18 +813,23 @@ month value or within the quotes.)
 This <year-month literal> has a <data type> of INTERVAL YEAR TO MONTH and
 represents a time span of four hundred years and 6 months:
 
+::
+
    INTERVAL '400-03' YEAR(3) TO MONTH
 
 (Note the minus sign between the year value and the month value.)
 
 <day-time literal> --
+
 The required syntax for a <day-time literal> is:
 
-<day-time literal> ::=
-INTERVAL [ {+ | -} ]'dd [ <space>hh [ :mm [ :ss ]]]' <interval qualifier>
-INTERVAL [ {+ | -} ]'hh [ :mm [ :ss [ .nn ]]]' <interval qualifier>
-INTERVAL [ {+ | -} ]'mm [ :ss [ .nn ]]' <interval qualifier>
-INTERVAL [ {+ | -} ]'ss [ .nn ]' <interval qualifier>
+::
+
+    <day-time literal> ::=
+    INTERVAL [ {+ | -} ]'dd [ <space>hh [ :mm [ :ss ]]]' <interval qualifier>
+    INTERVAL [ {+ | -} ]'hh [ :mm [ :ss [ .nn ]]]' <interval qualifier>
+    INTERVAL [ {+ | -} ]'mm [ :ss [ .nn ]]' <interval qualifier>
+    INTERVAL [ {+ | -} ]'ss [ .nn ]' <interval qualifier>
 
 A <day-time literal> includes either DAY, HOUR, MINUTE, SECOND or some
 contiguous subset of these fields. It may not include the datetime fields YEAR
@@ -727,30 +852,42 @@ seconds precisions.
 This <day-time literal> has a <data type> of INTERVAL DAY and represents a
 time span of 94 days:
 
+::
+
    INTERVAL '94' DAY
 
 This <day-time literal> has a <data type> of INTERVAL HOUR and represents a
 time span of 35 hours:
+
+::
 
    INTERVAL '35' HOUR(2)
 
 This <day-time literal> has a <data type> of INTERVAL MINUTE and represents a
 time span of 20 minutes:
 
+::
+
    INTERVAL '20' MINUTE
 
 This <day-time literal> has a <data type> of INTERVAL SECOND and represents a
 time span of 77 seconds (or 77.000000 seconds):
+
+::
 
    INTERVAL '77' SECOND(0)
 
 This <day-time literal> has a <data type> of INTERVAL SECOND and represents a
 time span of 142.999 seconds:
 
+::
+
    INTERVAL '142.999' SECOND(3,3)
 
 This <day-time literal> has a <data type> of INTERVAL DAY TO HOUR and
 represents a time span of forty days and 23 hours:
+
+::
 
    INTERVAL '40 23' DAY(2) TO HOUR
 
@@ -759,12 +896,16 @@ represents a time span of forty days and 23 hours:
 This <day-time literal> has a <data type> of INTERVAL DAY TO MINUTE and
 represents a time span of 45 days, 23 hours and 16 minutes:
 
+::
+
    INTERVAL '45 23:16' DAY TO MINUTE
 
 (Note the colon between the hour value and the minute value.)
 
 This <day-time literal> has a <data type> of INTERVAL DAY TO SECOND and
 represents a time span of 45 days, 23 hours, 16 minutes and 15 seconds:
+
+::
 
    INTERVAL '45 23:16:15' DAY TO SECOND(0)
 
@@ -773,6 +914,8 @@ represents a time span of 45 days, 23 hours, 16 minutes and 15 seconds:
 This <day-time literal> has a <data type> of INTERVAL DAY TO SECOND and
 represents a time span of 45 days, 23 hours, 16 minutes and 15.25 seconds:
 
+::
+
    INTERVAL '45 23:16:15.25' DAY TO SECOND(2)
 
 (Note the decimal point between the second value and the fractional second value.)
@@ -780,15 +923,21 @@ represents a time span of 45 days, 23 hours, 16 minutes and 15.25 seconds:
 This <day-time literal> has a <data type> of INTERVAL HOUR TO MINUTE and
 represents a time span of 23 hours and 16 minutes:
 
+::
+
    INTERVAL '23:16' HOUR TO MINUTE
 
 This <day-time literal> has a <data type> of INTERVAL HOUR TO SECOND and
 represents a time span of 23 hours, 16 minutes and 15.25 seconds:
 
+::
+
    INTERVAL '23:16:15.25' HOUR TO SECOND(2)
 
 This <day-time literal> has a <data type> of INTERVAL MINUTE TO SECOND and
 represents a time span of 16 minutes and 15.25 seconds:
+
+::
 
    INTERVAL '16:15.25' MINUTE TO SECOND(2)
 
@@ -800,17 +949,23 @@ Temporal <data type>s
 A temporal <data type> is either a datetime <data type> or an interval <data type>.
 
 Datetime <data type>s:
+
 A datetime <data type> is defined by a descriptor that contains two pieces of information:
-      ## The <data type>'s name: either DATE, TIME, TIME WITH TIME ZONE,
+
+## The <data type>'s name: either DATE, TIME, TIME WITH TIME ZONE,
 TIMESTAMP or TIMESTAMP WITH TIME ZONE.
-      ## The <data type>s fractional seconds precision (for TIME, TIME WITH
+
+## The <data type>s fractional seconds precision (for TIME, TIME WITH
 TIME ZONE, TIMESTAMP and TIMESTAMP WITH TIME ZONE types).
 
 ## DATE
+
 The required syntax for a DATE <data type> specification is:
 
-DATE <data type> ::=
-DATE
+::
+
+    DATE <data type> ::=
+    DATE
 
 DATE combines the datetime fields YEAR, MONTH and DAY; it defines a set of
 correctly formed values that represent any valid Gregorian calendar date
@@ -819,9 +974,13 @@ December 31, 9999 AD). It has a length of 10 SQL_TEXT characters.
 
 DATE expects dates to have the following form:
 
+::
+
    yyyy-mm-dd
 
 e.g.: this date represents "July 15, 1994":
+
+::
 
    1994-07-15
 
@@ -831,6 +990,8 @@ return the SQLSTATE error 22007 "data exception-invalid datetime format".
 
 Here is an example of DATE:
 
+::
+
    CREATE TABLE date_table_1 (
       start_date DATE);
 
@@ -838,10 +999,13 @@ Here is an example of DATE:
    VALUES (DATE '1996-01-01');
 
 ## TIME
+
 The required syntax for a TIME <data type> specification is:
 
-TIME <data type> ::=
-TIME [ (fractional seconds precision) ] [ WITHOUT TIME ZONE ]
+::
+
+    TIME <data type> ::=
+    TIME [ (fractional seconds precision) ] [ WITHOUT TIME ZONE ]
 
 TIME (or TIME WITHOUT TIME ZONE) combines the datetime fields HOUR, MINUTE and
 SECOND; it defines a set of correctly formed values that represent any valid
@@ -857,6 +1021,8 @@ default fractional seconds precision are both zero. For example, these two
 <data type> specifications both define a set of times with a fractional
 seconds precision of zero digits:
 
+::
+
    TIME
    -- would contain values like 13:30:22
 
@@ -866,6 +1032,8 @@ seconds precision of zero digits:
 This <data type> specification defines a set of times with a fractional
 seconds precision of two digits, i.e.: of one-hundredth of a second:
 
+::
+
    TIME(2)
    -- would contain values like 13:30:22.05
 
@@ -874,14 +1042,19 @@ less than 6 digits and (b) must be equal to the maximum allowed for the TIME
 WITH TIME ZONE, TIMESTAMP and TIMESTAMP WITH TIME ZONE <data type>s but is
 non-standard because the SQL Standard requires implementors to define TIME's
 maximum fractional seconds precision.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book allows
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book allows
 the fractional seconds precision of TIME to range from 0 to 6 digits.
 
 TIME expects times to have the following form:
 
+::
+
    hh:mm:ss[.nnnnnn]
 
 e.g.: these two times both represent "half past one, plus 22 seconds, PM":
+
+::
 
    13:30:22
 
@@ -889,10 +1062,14 @@ e.g.: these two times both represent "half past one, plus 22 seconds, PM":
 
 and this time represents "half past one, plus 22 and one-tenth seconds, PM":
 
+::
+
    13:30:22.10
 
 The actual length of a TIME depends on the fractional seconds precision. These
 two <data type> specifications have a length of 8 SQL_TEXT characters:
+
+::
 
    TIME
 
@@ -900,10 +1077,14 @@ two <data type> specifications have a length of 8 SQL_TEXT characters:
 
 This <data type> specification has a length of 10 SQL_TEXT characters:
 
+::
+
    TIME(1)
    -- 8 plus decimal point plus 1 digit in fractional seconds precision
 
 This <data type> specification has a length of 15 SQL_TEXT characters:
+
+::
 
    TIME(6)
 
@@ -911,6 +1092,8 @@ This <data type> specification has a length of 15 SQL_TEXT characters:
 zone offset of the SQL-session: it represents a local time.
 
 Here is an example of TIME:
+
+::
 
    CREATE TABLE time_table_1 (
       start_time_1 TIME,
@@ -930,12 +1113,15 @@ type>s with a fractional seconds precision and don't add the optional noise
 words WITHOUT TIME ZONE: use only TIME, never TIME(x) WITHOUT TIME ZONE.
 
 ## TIME WITH TIME ZONE
+
 [Obscure Rule] applies for this entire section.
 
 The required syntax for a TIME WITH TIME ZONE <data type> specification is:
 
-TIME WITH TIME ZONE <data type> ::=
-TIME [ (fractional seconds precision) ] WITH TIME ZONE
+::
+
+    TIME WITH TIME ZONE <data type> ::=
+    TIME [ (fractional seconds precision) ] WITH TIME ZONE
 
 TIME WITH TIME ZONE combines the datetime fields HOUR, MINUTE, SECOND,
 TIMEZONE_HOUR and TIMEZONE_MINUTE; it defines a set of correctly formed values
@@ -955,19 +1141,26 @@ ZONE (a) may not be less than 6 digits and (b) must be equal to the maximum
 allowed for the TIME, TIMESTAMP and TIMESTAMP WITH TIME ZONE <data type>s but
 is non-standard because the SQL Standard requires implementors to define TIME
 WITH TIME ZONE's maximum fractional seconds precision.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book allows
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book allows
 the fractional seconds precision of TIME WITH TIME ZONE to range from 0 to 6 digits.
 
 TIME WITH TIME ZONE expects times to have the following form:
+
+::
 
    hh:mm:ss[.nnnnnn ][{+|-}HH:MM ]
 
 e.g.: the following time represents "half past one, plus 22 seconds, PM" with a time zone offset of 2 and a half hours:
 
+::
+
    13:30:22+02:30
 
 The actual length of a TIME WITH TIME ZONE depends on the fractional seconds
 precision. These two <data type> specifications have a length of 14 SQL_TEXT characters:
+
+::
 
    TIME WITH TIME ZONE
 
@@ -975,10 +1168,14 @@ precision. These two <data type> specifications have a length of 14 SQL_TEXT cha
 
 This <data type> specification has a length of 16 SQL_TEXT characters:
 
+::
+
    TIME(1) WITH TIME ZONE
    -- 14 plus decimal point plus 1 digit in fractional seconds precision
 
 This <data type> specification has a length of 21 SQL_TEXT characters:
+
+::
 
    TIME(6) WITH TIME ZONE
 
@@ -990,14 +1187,18 @@ zone offset of the SQL-session: it represents a local time. The default time
 zone offset is the <time zone interval> specified in the most recent SET TIME
 ZONE statement issued during the SQL-session. If you haven't issued a SET TIME
 ZONE statement, the default time zone offset is your DBMS's initial default time zone offset.
-      ## [NON-PORTABLE] The default time zone offset is non-standard because
+
+## [NON-PORTABLE] The default time zone offset is non-standard because
 the SQL Standard requires implementors to define the initial default time zone
 offset for an SQL-session.
-            [OCELOT Implementation] The OCELOT DBMS that comes with this book
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book
 sets the SQL-session's initial default time zone offset to INTERVAL +'00:00'
 HOUR TO MINUTE -- this represents UTC.
 
 Here is an example of TIME WITH TIME ZONE:
+
+::
 
    CREATE TABLE time_table_2 (
       start_time_1 TIME WITH TIME ZONE,
@@ -1015,10 +1216,13 @@ Here is an example of TIME WITH TIME ZONE:
 If you want to restrict your code to Core SQL, don't use TIME WITH TIME ZONE <data type>s.
 
 ## TIMESTAMP
+
 The required syntax for a TIMESTAMP <data type> specification is:
 
-TIMESTAMP <data type> ::=
-TIMESTAMP [ (fractional seconds precision) ][ WITHOUT TIME ZONE ]
+::
+
+    TIMESTAMP <data type> ::=
+    TIMESTAMP [ (fractional seconds precision) ][ WITHOUT TIME ZONE ]
 
 TIMESTAMP (or TIMESTAMP WITHOUT TIME ZONE) combines the datetime fields YEAR,
 MONTH, DAY, HOUR, MINUTE and SECOND; it defines a set of correctly formed
@@ -1035,11 +1239,15 @@ SECOND datetime field. The minimum fractional seconds precision is zero. The
 default fractional seconds precision is 6. For example, this <data type>
 specification defines a set of timestamps with a fractional seconds precision of zero digits:
 
+::
+
    TIMESTAMP(0)
    -- would contain values like '1994-07-15 13:30:22'
 
 These two <data type> specifications both define a set of timestamps with a
 fractional seconds precision of 6 digits, i.e.: of one-millionth of a second:
+
+::
 
    TIMESTAMP
    -- would contain values like '1994-07-15 13:30:22.999999'
@@ -1052,7 +1260,8 @@ not be less than 6 digits and (b) must be equal to the maximum allowed for the
 TIME, TIME WITH TIME ZONE and TIMESTAMP WITH TIME ZONE <data type>s but is
 non-standard because the SQL Standard requires implementors to define
 TIMESTAMP's maximum fractional seconds precision.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book allows
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book allows
 the fractional seconds precision of TIMESTAMP to range from 0 to 6 digits.
 
 Any operation that attempts to make a TIMESTAMP <data type> contain a YEAR
@@ -1061,15 +1270,21 @@ return the SQLSTATE error 22007 "data exception-invalid datetime format".
 
 TIMESTAMP expects timestamps to have the following form:
 
+::
+
    yyyy-mm-dd hh:mm:ss[.nnnnnn]
 
 e.g.: these two timestamps both represent "half past one, plus 22 seconds, PM on July 15, 1994":
+
+::
 
    1994-07-15 13:30:22
 
    1994-07-15 13:30:22.00
 
 and this timestamp represents "half past one, plus 22 and one-tenth seconds, PM on July 15, 1994":
+
+::
 
    1994-07-15 13:30:22.10
 
@@ -1078,14 +1293,20 @@ Note the mandatory space between the date portion and the time portion of the ti
 The actual length of a TIMESTAMP depends on the fractional seconds precision.
 This <data type> specification has a length of 19 SQL_TEXT characters:
 
+::
+
    TIMESTAMP(0)
 
 This <data type> specification has a length of 21 SQL_TEXT characters:
+
+::
 
    TIMESTAMP(1)
    -- 19 plus decimal point plus 1 digit in fractional seconds precision
 
 These two <data type> specifications both have a length of 26 SQL_TEXT characters:
+
+::
 
    TIMESTAMP
 
@@ -1095,6 +1316,8 @@ These two <data type> specifications both have a length of 26 SQL_TEXT character
 time zone offset of the SQL-session: it represents a local timestamp.
 
 Here is an example of TIMESTAMP:
+
+::
 
    CREATE TABLE timestamp_table_1 (
       start_timestamp_1 TIMESTAMP,
@@ -1117,12 +1340,15 @@ arithmetic will be more meaningful, since any "carries" or "borrows" will show
 up in the results.
 
 ## TIMESTAMP WITH TIME ZONE
+
 [Obscure Rule] applies for this entire section.
 
 The required syntax for a TIMESTAMP WITH TIME ZONE <data type> specification is:
 
-TIMESTAMP WITH TIME ZONE <data type> ::=
-TIMESTAMP [ (fractional seconds precision) ] WITH TIME ZONE
+::
+
+    TIMESTAMP WITH TIME ZONE <data type> ::=
+    TIMESTAMP [ (fractional seconds precision) ] WITH TIME ZONE
 
 TIMESTAMP WITH TIME ZONE combines the datetime fields YEAR, MONTH, DAY, HOUR,
 MINUTE, SECOND, TIMEZONE_HOUR and TIMEZONE_MINUTE; it defines a set of
@@ -1144,7 +1370,8 @@ TIME ZONE (a) may not be less than 6 digits and (b) must be equal to the
 maximum allowed for the TIME, TIME WITH TIME ZONE and TIMESTAMP <data type>s
 but is non-standard because the SQL Standard requires implementors to define
 TIMESTAMP WITH TIME ZONE's maximum fractional seconds precision.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book allows
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book allows
 the fractional seconds precision of TIMESTAMP WITH TIME ZONE to range from 0 to 6 digits.
 
 Any operation that attempts to make a TIMESTAMP WITH TIME ZONE <data type>
@@ -1154,9 +1381,13 @@ datetime format".
 
 TIMESTAMP WITH TIME ZONE expects timestamps to have the following form:
 
+::
+
    yyyy-mm-dd hh:mm:ss[.nnnnnn ][{+|-}HH:MM ]
 
 e.g.: the following timestamps all represent "half past one, plus 22 seconds, PM on July 15, 1994" with a time zone offset of 2 and a half hours:
+
+::
 
    1994-07-15 13:30:22+02:30
 
@@ -1167,14 +1398,20 @@ e.g.: the following timestamps all represent "half past one, plus 22 seconds, PM
 The actual length of a TIMESTAMP WITH TIME ZONE depends on the fractional
 seconds precision. This <data type> specification has a length of 25 SQL_TEXT characters:
 
+::
+
    TIMESTAMP(0) WITH TIME ZONE
 
 This <data type> specification has a length of 27 SQL_TEXT characters:
+
+::
 
    TIMESTAMP(1) WITH TIME ZONE
    -- 25 plus decimal point plus 1 digit in fractional seconds precision
 
 These two <data type> specifications both have a length of 32 SQL_TEXT characters:
+
+::
 
    TIMESTAMP WITH TIME ZONE
 
@@ -1189,14 +1426,18 @@ timestamp. The default time zone offset is the <time zone interval> specified
 in the most recent SET TIME ZONE statement issued during the SQL-session. If
 you haven't issued a SET TIME ZONE statement, the default time zone offset is
 your DBMS's initial default time zone offset.
-      ## [NON-PORTABLE] The default time zone offset is non-standard because
+
+## [NON-PORTABLE] The default time zone offset is non-standard because
 the SQL Standard requires implementors to define the initial default time zone
 offset for an SQL-session.
-            [OCELOT Implementation] The OCELOT DBMS that comes with this book
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book
 sets the SQL-session's initial default time zone offset to INTERVAL +'00:00'
 HOUR TO MINUTE -- this represents UTC.
 
 Here is an example of TIMESTAMP WITH TIME ZONE:
+
+::
 
    CREATE TABLE timestamp_table_2 (
       start_timestamp_1 TIMESTAMP WITH TIME ZONE,
@@ -1211,15 +1452,21 @@ If you want to restrict your code to Core SQL, don't use TIMESTAMP WITH TIME
 ZONE <data type>s.
 
 Interval <data type>s:
+
 An interval <data type> is defined by a descriptor that contains two pieces of information:
-      ## The <data type>'s name: INTERVAL.
-      ## The <data type>s <interval qualifier>, which specifies the type of interval and the precision of the interval's set of valid values.
+
+## The <data type>'s name: INTERVAL.
+
+## The <data type>s <interval qualifier>, which specifies the type of interval and the precision of the interval's set of valid values.
 
 ## INTERVAL
+
 The required syntax for an INTERVAL <data type> specification is:
 
-INTERVAL <data type> ::=
-INTERVAL <interval qualifier>
+::
+
+    INTERVAL <data type> ::=
+    INTERVAL <interval qualifier>
 
 INTERVAL is a span of time; it defines a set of correctly formed values that
 represent any span of time compatible with the <interval qualifier>. It
@@ -1229,6 +1476,8 @@ it is a day-time interval. It has a length of at least 1 SQL_TEXT character.
 
 A year-month INTERVAL combines one or more of the datetime fields YEAR and
 MONTH in the <interval qualifier>. The possible definitions are thus:
+
+::
 
    INTERVAL YEAR [ (leading precision) ]
 
@@ -1244,15 +1493,21 @@ only from 0 to 11.
 
 INTERVAL YEAR expects intervals to have the following form:
 
+::
+
    'y[...]'
 
 e.g.: '20' represents a span of 20 years. INTERVAL YEAR has a length of
 "leading precision" SQL_TEXT characters. For example, this <data type>
 specification has a length of 4 SQL_TEXT characters:
 
+::
+
    INTERVAL YEAR(4)
 
 INTERVAL MONTH expects intervals to have the following form:
+
+::
 
    'm[...]'
 
@@ -1260,11 +1515,15 @@ e.g.: '15' represents a span of 15 months. INTERVAL MONTH has a length of
 "leading precision" SQL_TEXT characters. For example, this <data type>
 specification has a length of 2 SQL_TEXT characters:
 
+::
+
    INTERVAL MONTH
 
 (The default precision is 2 digits.)
 
 INTERVAL YEAR TO MONTH expects intervals to have the following form:
+
+::
 
    'y[...]-mm'
 
@@ -1272,10 +1531,14 @@ e.g.: '20-03' represents a span of 20 years plus 3 months. INTERVAL YEAR TO
 MONTH has a length of "leading precision" plus 3 SQL_TEXT characters. For
 example, this <data type> specification has a length of 5 SQL_TEXT characters:
 
+::
+
    INTERVAL YEAR TO MONTH
 
 A day-time INTERVAL combines one or more of the datetime fields DAY, HOUR,
 MINUTE and SECOND in the <interval qualifier>. The possible definitions are thus:
+
+::
 
    INTERVAL DAY [ (leading precision) ]
 
@@ -1313,11 +1576,15 @@ seconds precision, if specified, is as described in "<interval qualifier>".
 
 INTERVAL DAY expects intervals to have the following form:
 
+::
+
    'd[...]'
 
 e.g.: '1' represents a span of 1 day. INTERVAL DAY has a length of "leading
 precision" SQL_TEXT characters. For example, this <data type> specification
 has a length of 2 SQL_TEXT characters:
+
+::
 
    INTERVAL DAY
 
@@ -1325,15 +1592,21 @@ has a length of 2 SQL_TEXT characters:
 
 INTERVAL HOUR expects intervals to have the following form:
 
+::
+
    'h[...]'
 
 e.g.: '15' represents a span of 15 hours. INTERVAL HOUR has a length of
 "leading precision" SQL_TEXT characters. For example, this <data type>
 specification has a length of 2 SQL_TEXT characters:
 
+::
+
    INTERVAL HOUR
 
 INTERVAL MINUTE expects intervals to have the following form:
+
+::
 
    'm[...]'
 
@@ -1341,9 +1614,13 @@ e.g.: '75' represents a span of 75 minutes. INTERVAL MINUTE has a length of
 "leading precision" SQL_TEXT characters. For example, this <data type>
 specification has a length of 2 SQL_TEXT characters:
 
+::
+
    INTERVAL MINUTE
 
 INTERVAL SECOND expects intervals to have the following form:
+
+::
 
    's[...[.n...]]'
 
@@ -1353,10 +1630,14 @@ has a length of "leading precision" plus "fractional seconds precision"
 SQL_TEXT characters. For example, this <data type> specification has a length
 of 2 SQL_TEXT characters:
 
+::
+
    INTERVAL SECOND(0)
 
 These two <data type> specifications both have a length of 9 SQL_TEXT
 characters:
+
+::
 
    INTERVAL SECOND
 
@@ -1367,6 +1648,8 @@ precision greater than zero includes one position for the decimal point.)
 
 INTERVAL DAY TO HOUR expects intervals to have the following form:
 
+::
+
    'd[...] h[...]'
 
 e.g.: '1 1' represents a span of 1 day plus 1 hour and '20 10' represents a
@@ -1375,9 +1658,13 @@ portion and the hours portion of the interval.) INTERVAL DAY TO HOUR has a
 length of "leading precision" plus 3 SQL_TEXT characters. For example, this
 <data type> specification has a length of 5 SQL_TEXT characters:
 
+::
+
    INTERVAL DAY TO HOUR
 
 INTERVAL DAY TO MINUTE expects intervals to have the following form:
+
+::
 
    'd[...] h[...]:m[...]'
 
@@ -1388,9 +1675,13 @@ INTERVAL DAY TO MINUTE has a length of "leading precision" plus 6 SQL_TEXT
 characters. For example, this <data type> specification has a length of 8
 SQL_TEXT characters:
 
+::
+
    INTERVAL DAY TO MINUTE
 
 INTERVAL DAY TO SECOND expects intervals to have the following form:
+
+::
 
    'd[...] h[...]:m[...]:s[...[.n...]]'
 
@@ -1402,9 +1693,13 @@ SECOND has a length of "leading precision" plus "fractional seconds precision"
 plus 9 SQL_TEXT characters. For example, this <data type> specification has a
 length of 11 SQL_TEXT characters:
 
+::
+
    INTERVAL DAY TO SECOND(0)
 
 These two <data type> specifications both have a length of 18 SQL_TEXT characters:
+
+::
 
    INTERVAL DAY TO SECOND
 
@@ -1412,15 +1707,21 @@ These two <data type> specifications both have a length of 18 SQL_TEXT character
 
 INTERVAL HOUR TO MINUTE expects intervals to have the following form:
 
+::
+
    'h[...]:m[...]'
 
 e.g.: '10:15' represents a span of 10 hours plus 15 minutes. INTERVAL HOUR TO
 MINUTE has a length of "leading precision" plus 3 SQL_TEXT characters. For
 example, this <data type> specification has a length of 5 SQL_TEXT characters:
 
+::
+
    INTERVAL HOUR TO MINUTE
 
 INTERVAL HOUR TO SECOND expects intervals to have the following form:
+
+::
 
    'h[...]:m[...]:s[...[.n...]]'
 
@@ -1429,15 +1730,21 @@ seconds. INTERVAL HOUR TO SECOND has a length of "leading precision" plus
 "fractional seconds precision" plus 6 SQL_TEXT characters. For example, this
 <data type> specification has a length of 8 SQL_TEXT characters:
 
+::
+
    INTERVAL HOUR TO SECOND(0)
 
 These two <data type> specifications both have a length of 15 SQL_TEXT characters:
+
+::
 
    INTERVAL HOUR TO SECOND
 
    INTERVAL HOUR TO SECOND(6)
 
 INTERVAL MINUTE TO SECOND expects intervals to have the following form:
+
+::
 
    'm[...]:s[...[.n...]]'
 
@@ -1447,15 +1754,21 @@ a length of "leading precision" plus "fractional seconds precision" plus 3
 SQL_TEXT characters. For example, this <data type> specification has a length
 of 5 SQL_TEXT characters:
 
+::
+
    INTERVAL MINUTE TO SECOND(0)
 
 These two <data type> specifications both have a length of 12 SQL_TEXT characters:
+
+::
 
    INTERVAL MINUTE TO SECOND
 
    INTERVAL MINUTE TO SECOND(6)
 
 Here is an example of INTERVAL:
+
+::
 
    CREATE interval_table (
       interval_column_1 INTERVAL YEAR(3) TO MONTH,
@@ -1478,6 +1791,8 @@ example SQL statements that put them to use.
 
 These SQL statements make a Table with a date Column, insert a row, then search for any date after January 2nd, 2000.
 
+::
+
    CREATE TABLE Date_Examples (
       occurrence_date DATE);
 
@@ -1489,6 +1804,8 @@ These SQL statements make a Table with a date Column, insert a row, then search 
    WHERE  occurrence_date > DATE '2000-01-02';
 
 These SQL statements make a Table with two time-of-day Columns, insert a row, then search for any time before 8:30 PM.
+
+::
 
    CREATE TABLE Time_Examples (
       occurrence_time TIME,
@@ -1505,6 +1822,8 @@ These SQL statements make a Table with two timestamp Columns,
 insert a row, then search for any timestamp equal to January 2nd, 2000 at 1
 second past midnight.
 
+::
+
    CREATE TABLE Timestamp_Examples (
       occurrence_timestamp TIMESTAMP,
       occurrence_timestamp_zone TIMESTAMP WITH TIME ZONE);
@@ -1516,12 +1835,16 @@ second past midnight.
       TIMESTAMP '2001-02-29 16:00:00',
       TIMESTAMP '2001-02-29 16:00:00+0:00');
 
-SELECT occurrence_timestamp, occurrence_timestamp_zone
-FROM   Timestamp_Examples
-WHERE  occurrence_timestamp_zone = TIMESTAMP '2000-01-02 00:00:01';
+::
+
+    SELECT occurrence_timestamp, occurrence_timestamp_zone
+    FROM   Timestamp_Examples
+    WHERE  occurrence_timestamp_zone = TIMESTAMP '2000-01-02 00:00:01';
 
 These SQL statements make a Table with two year-month interval Columns, insert
 a row, then search for any interval that is less than or equal to 37 months.
+
+::
 
    CREATE TABLE YInterval_Examples (
       occurrence_interval_1 INTERVAL YEAR,
@@ -1541,6 +1864,8 @@ a row, then search for any interval that is less than or equal to 37 months.
 These SQL statements make a Table with two day-time interval Columns, insert
 two rows, then search for any interval that doesn't equal 30 seconds.
 
+::
+
    CREATE TABLE DInterval_Examples (
       occurrence_interval_1 INTERVAL SECOND,
       occurrence_interval_2 INTERVAL SECOND(2,4));
@@ -1558,6 +1883,8 @@ two rows, then search for any interval that doesn't equal 30 seconds.
    VALUES (
       INTERVAL '22' SECOND,
       INTERVAL '22' SECOND');
+
+::
 
    SELECT occurrence_interval_1, occurrence_interval_2
    FROM   DInterval_Examples
@@ -1580,14 +1907,17 @@ can occur in expressions, SELECTs, INSERTs, DELETEs and UPDATEs. Explicit
 temporal type conversions can be forced with the CAST operator.
 
 CAST:
+
 In SQL, CAST is a scalar operator that converts a given scalar value to a
 given scalar <data type>. The required syntax for the CAST operator is:
 
-CAST (<cast operand> AS <cast target>)
+::
 
-   <cast operand> ::= scalar_expression
+    CAST (<cast operand> AS <cast target>)
 
-   <cast target> ::= <Domain name> | <data type>
+       <cast operand> ::= scalar_expression
+
+       <cast target> ::= <Domain name> | <data type>
 
 The CAST operator converts values of a source <data type> into values of a
 target <data type>, where each <data type> is an SQL pre-defined <data type>
@@ -1601,25 +1931,30 @@ your current <AuthorizationID> must have the USAGE Privilege on that Domain.)
 
 It isn't, of course, possible to convert the values of every <data type> into
 the values of every other <data type>. For temporal values, the rules are:
-      ## CAST (NULL AS <data type>) and CAST (temporal_source_is_a_null_value
+
+## CAST (NULL AS <data type>) and CAST (temporal_source_is_a_null_value
 AS <data type>) both result in a CAST result of NULL.
-      ## You can CAST a date source to these targets: fixed length character
+
+## You can CAST a date source to these targets: fixed length character
 string, variable length character string, CLOB, NCLOB, date and timestamp. You
 can also CAST a date source to a UDT target or a <reference type> target if a
 user-defined cast exists for this purpose and your current <AuthorizationID>
 has the EXECUTE Privilege on that user-defined cast.
-      ## You can CAST a time source to these targets: fixed length character
+
+## You can CAST a time source to these targets: fixed length character
 string, variable length character string, CLOB, NCLOB, time and timestamp. You
 can also CAST a time source to a UDT target or a <reference type> target if a
 user-defined cast exists for this purpose and your current <AuthorizationID>
 has the EXECUTE Privilege on that user-defined cast.
-      ## You can CAST a timestamp source to these targets: fixed length
+
+## You can CAST a timestamp source to these targets: fixed length
 character string, variable length character string, CLOB, NCLOB, date, time
 and timestamp. You can also CAST a timestamp source to a UDT target or a
 <reference type> target if a user-defined cast exists for this purpose and
 your current <AuthorizationID> has the EXECUTE Privilege on that user-defined
 cast.
-      ## You can CAST a year-month interval source to these targets: fixed
+
+## You can CAST a year-month interval source to these targets: fixed
 length character string, variable length character string, CLOB, NCLOB and
 year-month interval. You can CAST a day-time interval source to these targets:
 fixed length character string, variable length character string, CLOB, NCLOB
@@ -1636,7 +1971,8 @@ length character string, CLOB or NCLOB target, your DBMS converts the source
 value to the shortest possible character string that can express the source
 value (for example, "CAST (DATE '1994-07-15' AS CHAR(10))" results in the
 character string '1994-07-15').
-      ## For fixed length character string targets, if the length of the
+
+## For fixed length character string targets, if the length of the
 result equals the fixed length of the target, then the source is CAST to that
 result. If the length of the result is shorter than the fixed length of the
 target, then the source is CAST to that result, padded on the right with
@@ -1646,7 +1982,8 @@ your DBMS will return the SQLSTATE error 22001 "data exception-string data,
 right truncation". And if the result contains any characters that don't belong
 to the target's Character set, the CAST will also fail: your DBMS will return
 the SQLSTATE error 22018 "data  exception-invalid character value for cast".
-      ## For variable length character string, CLOB or NCLOB targets, if the
+
+## For variable length character string, CLOB or NCLOB targets, if the
 length of the result is less than or equals the maximum length of the target,
 then the source is CAST to that result. If the length of the result is longer
 than the maximum length of the target, the CAST will fail: your DBMS will
@@ -1654,7 +1991,8 @@ return the SQLSTATE error 22001 "data exception-string data, right
 truncation". And if the result contains any characters that don't belong to
 the target's Character set, the CAST will also fail: your DBMS will return the
 SQLSTATE error 22018 "data  exception-invalid character value for cast".
-      ## [Obscure Rule] The result of a CAST to a character string target has
+
+## [Obscure Rule] The result of a CAST to a character string target has
 the COERCIBLE coercibility attribute; its Collation is the default Collation
 for the target's Character set.
 
@@ -1663,65 +2001,82 @@ DBMS invokes the user defined cast routine, with the source value as the
 routine's argument. The CAST result is the value returned by the user defined cast.
 
 CAST DATE
-      ## When you CAST a date to a date target, the result is the source date.
-      ## When you CAST a date to a timestamp target, the result is a timestamp
+
+## When you CAST a date to a date target, the result is the source date.
+
+## When you CAST a date to a timestamp target, the result is a timestamp
 whose date portion is the same as the source date and whose time portion is
 zero (that is, "CAST (DATE '1994-07-15' AS TIMESTAMP)" results in TIMESTAMP
 '1994-07-15 00:00:00.000000').
 
 CAST TIME
-      ## When you CAST a time to a time target or a time with time zone to a
+
+## When you CAST a time to a time target or a time with time zone to a
 time with time zone target, the result is the source time.
-      ## When you CAST a time to a time with time zone target, the result is
+## When you CAST a time to a time with time zone target, the result is
 the source time converted to UTC.
-      ## When you CAST a time with time zone to a time target, the result is
+
+## When you CAST a time with time zone to a time target, the result is
 the source time converted to the local time.
-      ## When you CAST a time to a timestamp target or a time with time zone
+
+## When you CAST a time to a timestamp target or a time with time zone
 to a timestamp with time zone target, the result is a timestamp whose date
 portion is the value of CURRENT_DATE and whose time portion is the same as the
 source time (that is, "CAST (TIME '10:10:10.01' AS TIMESTAMP)" results in
 TIMESTAMP '1994-07-15 10:10:10.010000' if today's date is July 15, 1994).
-      ## When you CAST a time to a timestamp with time zone target, the result
+
+## When you CAST a time to a timestamp with time zone target, the result
 is a timestamp whose date portion is the value of CURRENT_DATE and whose time
 portion is the same as the source time converted to UTC.
-      ## When you CAST a time with time zone to a timestamp target, the result
+
+## When you CAST a time with time zone to a timestamp target, the result
 is a timestamp whose date portion is the value of CURRENT_DATE and whose time
 portion is the same as the source time converted to the local time.
 
 CAST TIMESTAMP
-      ## When you CAST a timestamp to a date target, the result is the date
+
+## When you CAST a timestamp to a date target, the result is the date
 portion of the timestamp. For example, "CAST (TIMESTAMP '1994-07-15
 10:10:10:010000' AS DATE)" results in DATE '1994-07-15'. When you CAST a
 timestamp with time zone to a date target, the result is the date portion of
 the timestamp, adjusted by the time zone offset if required.
-      ## When you CAST a timestamp to a time target or a timestamp with time
+
+## When you CAST a timestamp to a time target or a timestamp with time
 zone to a time with time zone target, the result is the time portion of the
 timestamp. For example, "CAST (TIMESTAMP '1994-07-15 10:10:10:010000+02:30')"
 results in TIME '10:10:10:010000+02:30'.
-      ## When you CAST a timestamp to a time with time zone target, the result
+
+## When you CAST a timestamp to a time with time zone target, the result
 is the time portion of the timestamp converted to UTC.
-      ## When you CAST a timestamp with time zone to a time target, the result
+
+## When you CAST a timestamp with time zone to a time target, the result
 is the time portion of the timestamp converted to the local time.
-      ## When you CAST a timestamp to a timestamp target or a timestamp with
+
+## When you CAST a timestamp to a timestamp target or a timestamp with
 time zone to a timestamp with time zone target, the result is the source timestamp.
-      ## When you CAST a timestamp to a timestamp with time zone target, the
+
+## When you CAST a timestamp to a timestamp with time zone target, the
 result is the source timestamp, with its time portion converted to UTC.
-      ## When you CAST a timestamp with time zone to a timestamp target, the
+
+## When you CAST a timestamp with time zone to a timestamp target, the
 result is the source timestamp, with its time portion converted to the local time.
 
 CAST INTERVAL
-      ## When you CAST an interval to an exact numeric target, your interval
+
+## When you CAST an interval to an exact numeric target, your interval
 has to be for one datetime field only. The result of the CAST is the numeric
 value of that datetime field. For example, "CAST ('100' INTERVAL YEAR(3) AS
 SMALLINT)" results in a SMALLINT value of 100. (Note: if the numeric value of
 your interval can't be represented as a target value without losing any
 leading significant digits, the CAST will fail: your DBMS will return the
 SQLSTATE error 22003 "data exception-numeric value out of range".
-      ## When you CAST a year-month interval to a year-month interval target
+
+## When you CAST a year-month interval to a year-month interval target
 or a day-time interval to a day-time interval target, if both source and
 target have the same <interval qualifier> then the result of the CAST is the
 source interval.
-      ## When you CAST a year-month interval to a year-month interval target
+
+## When you CAST a year-month interval to a year-month interval target
 or a day-time interval to a day-time interval target, if the source and target
 have different <interval qualifier>s, then the result of the CAST is the
 source interval converted to its equivalent in units of the target interval.
@@ -1736,6 +2091,7 @@ If you want to restrict your code to Core SQL, don't use <Domain name> as a
 CAST target: CAST only to a <data type>.
 
 Assignment:
+
 In SQL, temporal values must be compatible to be assigned to one another --
 that is, the source and the target must either (a) both be dates, (b) both be
 times (with or without time zone), (c) both be timestamps (with or without
@@ -1759,6 +2115,7 @@ parameter value".) We'll talk more about indicator parameters in our chapters
 on SQL binding styles.
 
 ## Datetime Assignment
+
 When you assign a datetime to a datetime target, your DBMS checks whether the
 source is a valid value for the target's <data type> (or if a valid value can
 be obtained from the source by rounding). If so, then the target is set to
@@ -1772,6 +2129,8 @@ ZONE assignment is somewhat more complicated, due to the possibility that only
 one of the source and target may include a <time zone interval>. If this is
 the case, your DBMS will effectively replace the source value with the result
 obtained by:
+
+::
 
    CAST (source TO target)
 
@@ -1787,6 +2146,7 @@ time equivalent and then (c) assign the local time result, without a time zone
 offset, to the target.
 
 ## Interval Assignment
+
 When you assign an interval to an interval target, your DBMS checks whether
 the source is a valid value for the target's <data type> (or if a valid value
 can be obtained from the source by rounding or truncation). If so, then the
@@ -1798,7 +2158,8 @@ field overflow".
 target's <data type>, then the value assigned to the target is non-standard
 because the SQL Standard requires implementors to define whether the DBMS will
 round or will truncate the source to obtain a valid value.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book
 truncates the interval source to obtain a valid value for the target.
 
 Assignment of year-month intervals with other year-month intervals, or of
@@ -1815,27 +2176,32 @@ before the operation is carried out. The conversion is done either by a simple
 mathematical process or by extending one of the intervals at its most
 significant and/or at its least significant end, with an appropriate datetime
 field set (initially) to zero. Thus, for example:
-      ## If you assign INTERVAL '3' YEAR to an INTERVAL YEAR TO MONTH target,
+
+## If you assign INTERVAL '3' YEAR to an INTERVAL YEAR TO MONTH target,
 your DBMS will extend the source at its least significant end by attaching a
 zero MONTH field. The source effectively becomes INTERVAL '3-00' YEAR TO
 MONTH, and assignment becomes straightforward.
-      ## If you assign INTERVAL '13' MONTH to an INTERVAL YEAR TO MONTH
+
+## If you assign INTERVAL '13' MONTH to an INTERVAL YEAR TO MONTH
 target, your DBMS will extend the source at its most significant end by
 attaching a zero YEAR field. The source effectively becomes INTERVAL '0-13'
 YEAR TO MONTH. Since a MONTH field may not be more than 11 months in a
 year-month interval, the source is further adjusted to INTERVAL '1-01' YEAR TO
 MONTH (1 year and 1 month equals 13 months), and assignment becomes
 straightforward.
-      ## If you assign INTERVAL '3' YEAR to an INTERVAL MONTH target, your
+
+## If you assign INTERVAL '3' YEAR to an INTERVAL MONTH target, your
 DBMS converts the source to an INTERVAL MONTH value by multiplying the year
 value by 12. The source effectively becomes INTERVAL '36' MONTH, and
 assignment becomes straightforward.
-      ## If you assign INTERVAL '3-01' YEAR TO MONTH to an INTERVAL MONTH
+
+## If you assign INTERVAL '3-01' YEAR TO MONTH to an INTERVAL MONTH
 target, your DBMS converts the source to an INTERVAL MONTH value by
 multiplying the year value by 12, and adding the number of months to the
 result. The source effectively becomes INTERVAL '37' MONTH, and assignment
 becomes straightforward.
-      ## If you assign INTERVAL '24' MONTH to an INTERVAL YEAR target, your
+
+## If you assign INTERVAL '24' MONTH to an INTERVAL YEAR target, your
 DBMS converts the source to an INTERVAL YEAR value by dividing the month value
 by 12. The source effectively becomes INTERVAL '2' YEAR, and assignment
 becomes straightforward. If, however, the source's month value is not evenly
@@ -1843,7 +2209,8 @@ divisible by 12 (e.g.: a source of INTERVAL '37' MONTH being assigned to an
 INTERVAL YEAR target), the assignment will fail so that no information is
 lost: your DBMS will return the SQLSTATE error 22015 "data exception-interval
 field overflow".
-      ## If you assign INTERVAL '2-00' YEAR TO MONTH to an INTERVAL YEAR
+
+## If you assign INTERVAL '2-00' YEAR TO MONTH to an INTERVAL YEAR
 target, your DBMS converts the source to an INTERVAL YEAR value by assigning
 the source's year value to the target, that is, the source effectively becomes
 INTERVAL '2' YEAR, and assignment becomes straightforward. If, however, the
@@ -1851,18 +2218,24 @@ source's month value is not equal to zero (e.g.: a source of INTERVAL '2-05'
 YEAR TO MONTH being assigned to an INTERVAL YEAR target), the assignment will
 fail so that no information is lost: your DBMS will return the SQLSTATE error
 22015 "data exception-interval field overflow".
-      ## The same considerations apply for assignments of day-time intervals
+
+## The same considerations apply for assignments of day-time intervals
 that don't have the same <interval qualifier>.
 
 Comparison:
+
 SQL provides the usual scalar comparison operators -- = and <> and < and <=
 and > and >= -- to perform operations on temporal values. All of them will be
 familiar; there are equivalent operators in other computer languages. If any
 of the comparands are NULL, the result of the operation is UNKNOWN. For example:
 
+::
+
    DATE '1997-07-15' = DATE '1997-08-01'
 
 returns FALSE.
+
+::
 
    'DATE '1997-07-15' = (result is NULL}
 
@@ -1872,6 +2245,8 @@ SQL also provides three quantifiers -- ALL, SOME, ANY -- which you can use
 along with a comparison operator to compare a value with the collection of
 values returned by a <table subquery>. Place the quantifier after the
 comparison operator, immediately before the <table subquery>. For example:
+
+::
 
    SELECT date_column
    FROM   Table_1
@@ -1898,12 +2273,14 @@ results of temporal comparisons are governed by the natural rules for dates
 and times according to the Gregorian calendar.
 
 ## Datetime Comparison
+
 [Obscure Rule] When you compare two datetime values, the result is determined
 according to the interval obtained when your comparands are subtracted from
 one another. If you're comparing times or timestamps with different <time zone
 interval>s, your DBMS will ignore the value of the time zone offset for the comparison.
 
 ## Interval Comparison
+
 [Obscure Rule] When you compare two interval values, your DBMS will
 effectively convert both comparands to the same precision before the operation
 is carried out. The conversion is done either by a simple mathematical process
@@ -1912,19 +2289,25 @@ at the least significant end, with an appropriate datetime field set
 (initially) to zero, just as is done with interval assignments. For example,
 for this comparison:
 
+::
+
    INTERVAL '2-05' YEAR TO MONTH = INTERVAL '3' YEAR
 
 both comparands are first converted to INTERVAL MONTH, making the actual comparison:
+
+::
 
    INTERVAL '29' MONTH = INTERVAL '36' MONTH
 
 The result, of course, is FALSE.
 
 Other Operations:
+
 With SQL, you have several other operations that you can perform on temporal
 values to get a temporal result.
 
 ## Arithmetic
+
 SQL provides the usual scalar arithmetic operators -- + and - and * and / --
 to perform operations on temporal values. All of them will be familiar; there
 are equivalent operators in other computer languages. Arithmetic operations on
@@ -1935,21 +2318,37 @@ of the operands are NULL, the result of the operation is also NULL.
 SQL doesn't allow you to do arithmetic on every possible combination of
 datetime and interval operands. Here are the valid possibilities, and the
 <data type> of the result:
-      ## Date + Interval and Interval + Date both yield Date
-      ## Date - Interval yields Date
-      ## Date - Date yields Interval
-      ## Time + Interval and Interval + Time both yield Time
-      ## Time - Interval yields Time
-      ## Timestamp + Interval and Interval + Timestamp both yield Timestamp
-      ## Timestamp - Interval yields Timestamp
-      ## year-month Interval + year-month Interval yields year-month Interval
-      ## day-time Interval + day-time Interval yields day-time Interval
-      ## year-month Interval - year-month Interval yields year-month Interval
-      ## day-time Interval - day-time Interval yields day-time Interval
-      ## Time - Time yields Interval
-      ## Timestamp - Timestamp yields Interval
-      ## Interval * Number and Number * Interval both yield Interval
-      ## Interval / Number yields Interval
+
+## Date + Interval and Interval + Date both yield Date
+
+## Date - Interval yields Date
+
+## Date - Date yields Interval
+
+## Time + Interval and Interval + Time both yield Time
+
+## Time - Interval yields Time
+
+## Timestamp + Interval and Interval + Timestamp both yield Timestamp
+
+## Timestamp - Interval yields Timestamp
+
+## year-month Interval + year-month Interval yields year-month Interval
+
+## day-time Interval + day-time Interval yields day-time Interval
+
+## year-month Interval - year-month Interval yields year-month Interval
+
+## day-time Interval - day-time Interval yields day-time Interval
+
+## Time - Time yields Interval
+
+## Timestamp - Timestamp yields Interval
+
+## Interval * Number and Number * Interval both yield Interval
+
+## Interval / Number yields Interval
+
 In each of these cases, the operands can be any argument that evaluates to the specified <data type>.
 
 The rules for temporal arithmetic can be explained with this analogy. When you
@@ -1971,10 +2370,12 @@ line, they aren't SQL DBMSs -- the SQL Standard states that operations like
 
 Our analogy would make us expect "date intervals" along these lines:
 
- 1994-03-02            1994-01-31
--1994-01-31           +0000-01-02
- ----------            ----------
- 0000-01-02            1994-03-02
+::
+
+     1994-03-02            1994-01-31
+    -1994-01-31           +0000-01-02
+     ----------            ----------
+     0000-01-02            1994-03-02
 
 but SQL considers these calculations to be illegal because year-month
 intervals are not compatible with day-time intervals. That is, in SQL temporal
@@ -1982,17 +2383,26 @@ arithmetic, you cannot carry from the days field to the months field, nor
 borrow from the months field to the days field. There is a way to get around
 what we call "The Day-Month Arithmetic Barrier" -- but first we'll look at the
 interval combinations that are encouraged by the Standard.
-      ## As stated earlier, the year-month intervals are compatible with each other, so this is legal:
+
+## As stated earlier, the year-month intervals are compatible with each other, so this is legal:
+
+::
 
    INTERVAL '0000' YEAR + INTERVAL '00' MONTH
 
 The result is INTERVAL '0000-00' YEAR TO MONTH.
-      ## The day-time intervals are also compatible with each other, so this is legal:
+
+## The day-time intervals are also compatible with each other, so this is legal:
+
+::
 
    INTERVAL '00:00' HOUR TO MINUTE + INTERVAL '00:00' MINUTE TO SECOND
 
 The result is INTERVAL '00:00:00' HOUR TO SECOND.
-      ## Since year-month intervals and day-time intervals are no compatible, this is illegal:
+
+## Since year-month intervals and day-time intervals are no compatible, this is illegal:
+
+::
 
    INTERVAL '00' MONTH + INTERVAL '01' DAY
 
@@ -2004,6 +2414,8 @@ The 1998 movie TITANIC was billed as a "2 hour 74 minute" movie. This is
 legitimate if there is no law that says "when number of minutes is greater
 than or equal to 60, carry into the hours column". Similarly, SQL allows
 <interval literal>s like:
+
+::
 
    INTERVAL '02:74' HOUR TO MINUTE
 
@@ -2017,31 +2429,37 @@ intervals, it also carries: (if second>=60 carry to minute), (if minute>=60
 carry to hour), (if hour>=24 carry to day). Because the result is normalized,
 this expression:
 
+::
+
    INTERVAL '02:74' HOUR TO MINUTE + INTERVAL '00:00' HOUR TO MINUTE
 
 yields:
+
+::
 
    INTERVAL '03:14' HOUR TO MINUTE
 
 Here, then, is the syntax allowed for temporal expressions:
 
-datetime expression ::=
-datetime value [ AT {LOCAL | TIME ZONE <time zone interval} ] |
-interval expression + datetime value [ AT {LOCAL | TIME ZONE <time zone interval} ] |
-datetime value [ AT {LOCAL | TIME ZONE <time zone interval} ] + interval term |
-datetime value [ AT {LOCAL | TIME ZONE <time zone interval} ] - interval term
+::
 
-interval expression ::=
-interval term |
-interval expression + interval term |
-interval expression - interval term |
-(datetime expression - datetime value [ AT {LOCAL | TIME ZONE <time zone interval} ]) <interval qualifier>
+    datetime expression ::=
+    datetime value [ AT {LOCAL | TIME ZONE <time zone interval} ] |
+    interval expression + datetime value [ AT {LOCAL | TIME ZONE <time zone interval} ] |
+    datetime value [ AT {LOCAL | TIME ZONE <time zone interval} ] + interval term |
+    datetime value [ AT {LOCAL | TIME ZONE <time zone interval} ] - interval term
 
-   interval term ::=
-   [ + | - ] interval value |
-   [ + | - ] interval value * number |
-   [ + | - ] interval value / number |
-   number * [ + | - ] interval value
+    interval expression ::=
+    interval term |
+    interval expression + interval term |
+    interval expression - interval term |
+    (datetime expression - datetime value [ AT {LOCAL | TIME ZONE <time zone interval} ]) <interval qualifier>
+
+       interval term ::=
+       [ + | - ] interval value |
+       [ + | - ] interval value * number |
+       [ + | - ] interval value / number |
+       number * [ + | - ] interval value
 
 Datetime expressions may only contain values of the same type. A datetime
 expression involving dates evaluates to a date. A datetime expression
@@ -2066,10 +2484,14 @@ expressed in calendar or clock units (as appropriate). Intervals may only be
 used with datetime and/or interval expressions that involve at least one
 compatible datetime field. For example, this is a legal expression:
 
+::
+
    start_date + INTERVAL '2' MONTH
 
 because a date and the specified interval have the MONTH field in common. This
 is not a legal expression:
+
+::
 
    start_date + (INTERVAL '2' MONTH + INTERVAL '1' DAY)
 
@@ -2077,91 +2499,123 @@ because the interval expression inside the parentheses would have to be
 evaluated first, and the two intervals have no datetime fields in common.
 
 These rules apply for date arithmetic:
-      ## If one operand evaluates to a date, the other operand must evaluate
+
+## If one operand evaluates to a date, the other operand must evaluate
 to a date, an INTERVAL YEAR, an INTERVAL MONTH, an INTERVAL YEAR TO MONTH or
 an INTERVAL DAY.
-      ## You can't add two dates. You can only add a date and an interval.
-      ## You can subtract a date from a date and you can subtract an interval
+
+## You can't add two dates. You can only add a date and an interval.
+
+## You can subtract a date from a date and you can subtract an interval
 from a date. You can't subtract a date from an interval.
-      ## Date expressions are evaluated according to the rules for valid
+
+## Date expressions are evaluated according to the rules for valid
 Gregorian calendar dates. If the result is an invalid date, the expression
 will fail: your DBMS will return the SQLSTATE error 22008 "data
 exception-datetime field overflow".
-      ## Remember that if your interval operand is a year-month interval,
+
+## Remember that if your interval operand is a year-month interval,
 there is no carry from the date operand's DAY field. Thus while this expression:
+
+::
 
    DATE '1997-07-31' + INTERVAL '1' MONTH
 
 returns DATE '1997-08-31' as expected, the result of this expression:
+
+::
 
    DATE '1997-10-31' + INTERVAL '1' MONTH
 
 is an error. There is no DAY field carry, so the result evaluates to DATE '1997-11-31' -- an invalid date.
 
 These rules apply for time arithmetic:
-      ## If one operand evaluates to a time, the other operand must evaluate
+
+## If one operand evaluates to a time, the other operand must evaluate
 to a time, an INTERVAL DAY, an INTERVAL HOUR, an INTERVAL MINUTE, an INTERVAL
 SECOND, an INTERVAL DAY TO HOUR, an INTERVAL DAY TO MINUTE, an INTERVAL DAY TO
 SECOND, an INTERVAL HOUR TO MINUTE, an INTERVAL HOUR TO SECOND or an INTERVAL
 MINUTE TO SECOND.
-      ## You can't add two times. You can only add a time and an interval.
-      ## You can subtract a time from a time and you can subtract an interval
+
+## You can't add two times. You can only add a time and an interval.
+
+## You can subtract a time from a time and you can subtract an interval
 from a time. You can't subtract a time from an interval.
-      ## Time expressions are evaluated modulo 24 -- that is:
+
+## Time expressions are evaluated modulo 24 -- that is:
+
+::
 
    TIME '19:00:00' + INTERVAL '9' HOUR
 
 returns TIME '04:00:00'. If the result is an invalid time, the expression will
 fail: your DBMS will return the SQLSTATE error 22008 "data exception-datetime
 field overflow".
-      ## The result of an operation between operands containing a SECONDs
+
+## The result of an operation between operands containing a SECONDs
 value has a fractional seconds precision that is the greater of the operands'
 fractional seconds precisions.
-      ## [Obscure Rule] Arithmetic operations involving a time and an interval
+
+## [Obscure Rule] Arithmetic operations involving a time and an interval
 preserve the time operand's <time zone interval>. If your operand is a time
 without time zone, then the current default time zone offset is assumed.
 
 These rules apply for timestamp arithmetic:
-      ## If one operand evaluates to a timestamp, the other operand must
+
+## If one operand evaluates to a timestamp, the other operand must
 evaluate to a timestamp, an INTERVAL YEAR, an INTERVAL MONTH, an INTERVAL YEAR
 TO MONTH, an INTERVAL DAY, an INTERVAL HOUR, an INTERVAL MINUTE, an INTERVAL
 SECOND, an INTERVAL DAY TO HOUR, an INTERVAL DAY TO MINUTE, an INTERVAL DAY TO
 SECOND, an INTERVAL HOUR TO MINUTE, an INTERVAL HOUR TO SECOND or an INTERVAL
 MINUTE TO SECOND.
-      ## You can't add two timestamps. You can only add a timestamp and an interval.
-      ## You can subtract a timestamp from a timestamp and you can subtract an
+
+## You can't add two timestamps. You can only add a timestamp and an interval.
+
+## You can subtract a timestamp from a timestamp and you can subtract an
 interval from a timestamp. You can't subtract a timestamp from an interval.
-      ## Timestamp expressions are evaluated according to the rules for valid
+
+## Timestamp expressions are evaluated according to the rules for valid
 Gregorian calendar dates. This means that, unlike time expressions, timestamp
 expressions are not evaluated modulo 24 because HOURs will carry to/from DAYs.
 Thus, the result of this expression:
+
+::
 
    TIMESTAMP '1997-07-15 19:00:00' + INTERVAL '9' HOUR
 
 is TIMESTAMP '1997-07-16 04:00:00'. If the result of a timestamp expression is
 an invalid timestamp, the expression will fail: your DBMS will return the
 SQLSTATE error 22008 "data exception-datetime field overflow".
-      ## The result of an operation between operands containing a SECONDs
+
+## The result of an operation between operands containing a SECONDs
 value has a fractional seconds precision that is the greater of the operands'
 fractional seconds precisions.
-      ## [Obscure Rule] Arithmetic operations involving a timestamp and an
+
+## [Obscure Rule] Arithmetic operations involving a timestamp and an
 interval preserve the timestamp operand's <time zone interval>. If your
 operand is a timestamp without time zone, then the current default time zone
 offset is assumed.
 
 These additional rules apply for INTERVAL arithmetic:
-      ## If one operand evaluates to a year-month interval, the other operand
+
+## If one operand evaluates to a year-month interval, the other operand
 must evaluate to a year-month interval, a date or a timestamp. If one operand
 evaluates to a day-time interval, the other operand must evaluate to a day-
 time interval, a date, a time or a timestamp.
-      ## You can add two intervals of the same type.
-      ## You can subtract two intervals of the same type.
-      ## You can multiply an interval with a number, or a number with an interval.
-      ## You can divide an interval by a number. You can't divide a number by an interval.
-      ## The result of an operation between interval operands containing a
+
+## You can add two intervals of the same type.
+
+## You can subtract two intervals of the same type.
+
+## You can multiply an interval with a number, or a number with an interval.
+
+## You can divide an interval by a number. You can't divide a number by an interval.
+
+## The result of an operation between interval operands containing a
 SECONDs value has a fractional seconds precision that is the greater of the
 operands' fractional seconds precisions.
-      ## Interval expressions that result in invalid intervals will fail: your
+
+## Interval expressions that result in invalid intervals will fail: your
 DBMS will return the SQLSTATE error 22015 "data exception-interval field overflow".
 
 If you want to restrict your code to Core SQL, don't add or subtract datetime
@@ -2170,10 +2624,14 @@ or timestamp value and don't use interval expressions at all.
 
 Coming back to the problem of subtracting two dates, we can see that the expression:
 
+::
+
    DATE '1994-03-02' - DATE '1994-01-31'
 
 is impossible on the face of it, because it would yield a nonexistent
 year-month-day interval. The converse is also true -- the expression:
+
+::
 
    DATE '1994-01-31' + INTERVAL '0000-01-02' YEAR TO DAY
 
@@ -2183,11 +2641,15 @@ datetime value) <interval qualifier>, where the result is determined by the
 least significant datetime field in <interval qualifier>. For example, if you
 want to know the difference between the two dates in years, use:
 
+::
+
    (DATE '1994-03-02' - DATE '1994-01-31') YEAR
 
 which results in INTERVAL '00' YEAR. (The least significant datetime field in
 the interval is YEAR, and 1994-1994 is zero.) If you want to know the
 difference between the two dates in months, use:
+
+::
 
    (DATE '1994-03-02' - DATE '1994-01-31') MONTH
 
@@ -2198,10 +2660,14 @@ though we can see that the difference between the dates is not a full two
 months, the correct SQL result is two.) If you want to know the difference
 between the two dates in years and months, use:
 
+::
+
    (DATE '1994-03-02' - DATE '1994-01-31') YEAR TO MONTH
 
 which results in INTERVAL '00-01' YEAR TO MONTH. If you want to know the
 difference between the two dates in days, use:
+
+::
 
    (DATE '1994-03-02' - DATE '1994-01-31') DAY
 
@@ -2212,26 +2678,35 @@ A runaway serf must hide in a town for a year and a day to gain freedom. If he
 runs away on March 12 1346, when can he party? SQL doesn't allow this
 expression:
 
+::
+
    DATE '1346-03-12' + (INTERVAL '1' YEAR + INTERVAL '1' DAY)
 
 since the two interval types can't combine. But they each go well with a date, so:
+
+::
 
    (DATE '1346-03-12' + INTERVAL '1' YEAR) + INTERVAL '1' DAY
 
 yields DATE '1347-03-13'. (The parentheses here are optional, because calculation is left-to-right.)
 
 errors
+
 The three common arithmetic exception conditions are:
-SQLSTATE 22007 -- data exception - invalid datetime format
-      ## e.g.: returned for this result: DATE '1994-02-30'
-SQLSTATE 22008 -- data exception - datetime field overflow
-      ## e.g.: returned for this expression: DATE '9999-01-01' + INTERVAL '1-00' YEAR TO MONTH
-SQLSTATE 22015 -- data exception - interval field overflow
-      ## e.g.: returned for this result: INTERVAL '999-11' YEAR TO MONTH (too many digits in leading field)
-SQLSTATE 22009 -- data exception - invalid time zone displacement value
-      ## e.g.: returned for this result: TIME '02:00:00+14:00'
+
+::
+
+    SQLSTATE 22007 -- data exception - invalid datetime format
+          ## e.g.: returned for this result: DATE '1994-02-30'
+    SQLSTATE 22008 -- data exception - datetime field overflow
+          ## e.g.: returned for this expression: DATE '9999-01-01' + INTERVAL '1-00' YEAR TO MONTH
+    SQLSTATE 22015 -- data exception - interval field overflow
+          ## e.g.: returned for this result: INTERVAL '999-11' YEAR TO MONTH (too many digits in leading field)
+    SQLSTATE 22009 -- data exception - invalid time zone displacement value
+          ## e.g.: returned for this result: TIME '02:00:00+14:00'
 
 ## Scalar functions
+
 SQL provides nine scalar functions that return a temporal value: the <case
 expression>, the <cast specification>, the current date value function, the
 current time value function, the current timestamp value function, the current
@@ -2243,17 +2718,22 @@ remember that they evaluate to a temporal value and can therefore be used
 anywhere in SQL that a temporal value could be used.
 
 niladic datetime functions --
+
 The required syntax for a niladic datetime function is:
 
-niladic datetime function ::=
-CURRENT_DATE |
-CURRENT_TIME [ (fractional seconds precision) ] |
-CURRENT_TIMESTAMP [ (fractional seconds precision) ] |
-LOCALTIME [ (fractional seconds precision) |
-LOCALTIMESTAMP [ (fractional seconds precision) ]
+::
+
+    niladic datetime function ::=
+    CURRENT_DATE |
+    CURRENT_TIME [ (fractional seconds precision) ] |
+    CURRENT_TIMESTAMP [ (fractional seconds precision) ] |
+    LOCALTIME [ (fractional seconds precision) |
+    LOCALTIMESTAMP [ (fractional seconds precision) ]
 
 CURRENT_DATE is a niladic datetime function with a result <data type> of DATE.
 It returns "today": that is, the current date. Here is an example of CURRENT_DATE:
+
+::
 
    ...WHERE date_column = CURRENT_DATE
 
@@ -2264,14 +2744,18 @@ zone offset is the <time zone interval> specified in the most recent SET TIME
 ZONE statement issued during the SQL-session. If you haven't issued a SET TIME
 ZONE statement, the default time zone offset is your DBMS's initial default
 time zone offset.
-      ## [NON-PORTABLE] The default time zone offset is non-standard because
+
+## [NON-PORTABLE] The default time zone offset is non-standard because
 the SQL Standard requires implementors to define the initial default time zone
 offset for an SQL-session.
-            [OCELOT Implementation] The OCELOT DBMS that comes with this book
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book
 sets the SQL-session's initial default time zone offset to INTERVAL +'00:00'
 HOUR TO MINUTE -- this represents UTC.
 
 Here is an example of CURRENT_TIME:
+
+::
 
    ...WHERE time_column <> CURRENT_TIME
 
@@ -2288,6 +2772,8 @@ precision, if specified, is an unsigned integer that specifies the number of
 digits following the decimal point in the SECONDs field of CURRENT_TIMESTAMP's
 result. Here is an example of CURRENT_TIMESTAMP:
 
+::
+
    ...WHERE timestamp_column > CURRENT_TIMESTAMP
 
 LOCALTIME is a niladic datetime function with a result <data type> of TIME. It
@@ -2297,13 +2783,19 @@ specified, is an unsigned integer that specifies the number of digits
 following the decimal point in the SECONDs field of LOCALTIME's result. The
 result of LOCALTIME is obtained by casting CURRENT_TIME's result -- that is:
 
+::
+
    LOCALTIME = CAST (CURRENT_TIME AS TIME)
 
 or, if fractional seconds precision is specified:
 
+::
+
    LOCALTIME(precision) = CAST (CURRENT_TIME(precision) AS TIME(precision))
 
 Here is an example of LOCALTIME:
+
+::
 
    ...WHERE time_column < LOCALTIME
 
@@ -2315,13 +2807,19 @@ specifies the number of digits following the decimal point in the SECONDs
 field of LOCALTIMESTAMP's result. The result of LOCALTIMESTAMP is obtained by
 casting CURRENT_TIMESTAMP's result -- that is:
 
+::
+
    LOCALTIMESTAMP = CAST (CURRENT_TIMESTAMP AS TIMESTAMP)
 
 or, if fractional seconds precision is specified:
 
+::
+
    LOCALTIMESTAMP(precision) = CAST (CURRENT_TIMESTAMP(precision) AS TIMESTAMP(precision))
 
 Here is an example of LOCALTIMESTAMP:
+
+::
 
    ...WHERE timestamp_column >= LOCALTIMESTAMP
 
@@ -2333,12 +2831,14 @@ CURRENT_TIMESTAMP and LOCALTIMESTAMP will therefore always return the same
 date, and CURRENT_TIME, CURRENT_TIMESTAMP, LOCALTIME and LOCALTIMESTAMP will
 always return the same effective time, when used within the same SQL
 statement.
-      ## [NON-PORTABLE] The timing of the clock reading for the evaluation of
+
+## [NON-PORTABLE] The timing of the clock reading for the evaluation of
 these functions is non-standard because the SQL Standard requires implementors
 to define when the clock is read. The choices are to read the clock at the
 beginning of a transaction, at the end of a transaction or somewhere in-
 between.
-            [OCELOT Implementation] The OCELOT DBMS that comes with this book
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book
 reads the clock immediately prior to performing any operations based on a
 niladic datetime function.
 
@@ -2348,10 +2848,13 @@ and don't specify a fractional seconds precision for LOCALTIMESTAMP other than
 zero or 6.
 
 <extract expression> --
+
 The required syntax for an <extract expression> is:
 
-<extract expression> ::=
-EXTRACT(datetime_field FROM temporal_argument)
+::
+
+    <extract expression> ::=
+    EXTRACT(datetime_field FROM temporal_argument)
 
 EXTRACT operates on an argument that evaluates to a date, a time, a timestamp
 or an interval. It extracts the numeric value of "datetime_field" from
@@ -2366,10 +2869,14 @@ value or a TIMESTAMP WITH TIME ZONE value.
 For any "datetime_field" other than SECOND, EXTRACT returns an integer. For a
 "datetime_field" of SECOND, EXTRACT returns a decimal number. For example:
 
+::
+
    EXTRACT (MINUTE FROM INTERVAL '-05:01:22.01' HOUR TO SECOND)
 
 returns the integer -1 (when "temporal_argument" is a negative interval, the
 result will be a negative number).
+
+::
 
    EXTRACT (SECOND FROM INTERVAL '-05:01:22.01' HOUR TO SECOND)
 
@@ -2379,12 +2886,15 @@ returns the decimal number -22.01.
 SQL Standard requires implementors to define the result's precision and (if
 applicable) the result's scale. (The scale defined must be at least large
 enough to accept the full size of the argument's fractional seconds precision.)
-            [OCELOT Implementation] The OCELOT DBMS that comes with this book
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book
 gives the result of EXTRACT an INTEGER <data type> for all "datetime_field"s
 other than SECOND. It gives the result of EXTRACT a DECIMAL(8,2) <data type>
 for a "datetime_field" of SECOND.
 
 Here is a SQL statement which extracts the YEAR field from a timestamp:
+
+::
 
    SELECT EXTRACT(YEAR FROM occurrence_timestamp)
    FROM   Timestamp_Examples;
@@ -2394,10 +2904,13 @@ The result is the integer 2001.
 If you want to restrict your code to Core SQL, don't use EXTRACT.
 
 <interval absolute value function> --
+
 The required syntax for an <interval absolute value function> is:
 
-<interval absolute value function> ::=
-ABS (interval_argument)
+::
+
+    <interval absolute value function> ::=
+    ABS (interval_argument)
 
 ABS operates on an argument that evaluates to an interval. It strips a
 negative sign (if it's present) from the argument and returns a non-negative
@@ -2411,6 +2924,7 @@ now -- look for it in our chapter on numbers.
 If you want to restrict your code to Core SQL, don't use ABS with an interval argument.
 
 ## Set functions
+
 SQL provides five set functions that operate on datetime values: COUNT(*),
 COUNT, MAX, MIN and GROUPING. SQL also provides seven set functions that
 operate on intervals: COUNT(*), COUNT, MAX, MIN, SUM, AVG and GROUPING. Since
@@ -2418,6 +2932,7 @@ none of these operate exclusively with temporal argument, we won't discuss
 them here; look for them in our chapter on set functions.
 
 ## Predicates
+
 In addition to the comparison operators, SQL provides nine other predicates
 that operate on temporal values: the <overlaps predicate>, the <between
 predicate>, the <in predicate>, the <null predicate>, the <exists predicate>,
@@ -2427,12 +2942,15 @@ or UNKNOWN. Only the first predicate operates strictly on temporal values;
 we'll discuss it here. Look for the rest in our chapter on search conditions.
 
 <overlaps predicate> --
+
 The required syntax for an <overlaps predicate> is:
 
-<overlaps predicate> ::=
-(datetime_argument_1, temporal_argument_1)
-OVERLAPS
-(datetime_argument_2, temporal_argument_2)
+::
+
+    <overlaps predicate> ::=
+    (datetime_argument_1, temporal_argument_1)
+    OVERLAPS
+    (datetime_argument_2, temporal_argument_2)
 
 OVERLAPS is a predicate that operates on two operands that evaluate to a
 period of time. It compares either a pair of datetimes, or a datetime and an
@@ -2448,36 +2966,54 @@ same datetime <data type> as the first argument or (b) evaluate to an interval
 that contains only the same datetime fields as the first argument. Each pair
 of arguments represents a period, as either "start to end" or "start and
 interval". The possible argument combinations are thus:
-   ## (date,date) OVERLAPS (date,date)
-   ## (date,date) OVERLAPS (date,interval of years or months or days)
-   ## (date,interval of years or months or days) OVERLAPS (date,date)
-   ## (date,interval of years or months or days) OVERLAPS (date,interval of years or months or days)
-   ## (time,time) OVERLAPS (time,time)
-   ## (time,time) OVERLAPS (time,interval of hours or minutes or seconds)
-   ## (time,interval of hours or minutes or seconds) OVERLAPS (time,time)
-   ## (time,interval of hours or minutes or seconds) OVERLAPS (time,interval of hours or minutes or seconds)
-   ## (timestamp,timestamp) OVERLAPS (timestamp,timestamp)
-   ## (timestamp,timestamp) OVERLAPS (timestamp,interval of years or months or days or hours or minutes or seconds)
-   ## (timestamp,interval of years or months or days or hours or minutes or seconds) OVERLAPS (timestamp,timestamp)
-   ## (timestamp,interval of years or months or days or hours or minutes or seconds) OVERLAPS (timestamp,interval of years or months or days or hours or minutes or seconds)
+
+## (date,date) OVERLAPS (date,date)
+
+## (date,date) OVERLAPS (date,interval of years or months or days)
+
+## (date,interval of years or months or days) OVERLAPS (date,date)
+
+## (date,interval of years or months or days) OVERLAPS (date,interval of years or months or days)
+
+## (time,time) OVERLAPS (time,time)
+
+## (time,time) OVERLAPS (time,interval of hours or minutes or seconds)
+
+## (time,interval of hours or minutes or seconds) OVERLAPS (time,time)
+
+## (time,interval of hours or minutes or seconds) OVERLAPS (time,interval of hours or minutes or seconds)
+
+## (timestamp,timestamp) OVERLAPS (timestamp,timestamp)
+
+## (timestamp,timestamp) OVERLAPS (timestamp,interval of years or months or days or hours or minutes or seconds)
+
+## (timestamp,interval of years or months or days or hours or minutes or seconds) OVERLAPS (timestamp,timestamp)
+
+## (timestamp,interval of years or months or days or hours or minutes or seconds) OVERLAPS (timestamp,interval of years or months or days or hours or minutes or seconds)
 
 Here is an example of a search condition using OVERLAPS:
+
+::
 
    (DATE '1994-01-01',DATE '1994-05-01') OVERLAPS
    (DATE '1993-07-01',DATE '1994-03-01')
 
 The example is asking whether the two temporal periods overlap as in this diagram:
 
-                   January 1 1994                      May 1 1994
-                   **********************************************
-                   ^               ^
-July 1 1993                        March 1 1994
-***********************************************
+::
+
+                       January 1 1994                      May 1 1994
+                       **********************************************
+                       ^               ^
+    July 1 1993                        March 1 1994
+    ***********************************************
 
 The diagram shows us that there is an overlap: the search condition result is
 TRUE. In this example, both OVERLAPS operands are "start to end" argument
 pairs: they're both of the same <data type>. Here is an equivalent example,
 using "start and interval" argument pairs instead:
+
+::
 
    (DATE '1994-01-01',INTERVAL '05' MONTH) OVERLAPS
    (DATE '1993-07-01',INTERVAL '08' MONTH)
@@ -2490,6 +3026,8 @@ OVERLAPS is really a comparison operation, whose result is determined by this
 equivalent search condition (the OVERLAPS "datetime_argument_1" is
 "first_start", "temporal_argument_1" is "first_end", "datetime_argument_2" is
 "second_start" and "temporal_argument_2" is "second_end"):
+
+::
 
    (first_start>second_start AND
       (first_start<second_end OR first_end<second_end))
@@ -2505,25 +3043,35 @@ point is earlier in time than the start point) or if the first argument of a
 pair is NULL, OVERLAPS switches them around. For example, if the search
 condition contains:
 
+::
+
    (DATE '1994-01-01',DATE '1993-05-01') OVERLAPS
    (DATE '1993-07-01',DATE '1994-03-01')
 
 the expression your DBMS will actually evaluate is:
+
+::
 
    (DATE '1993-05-01',DATE '1994-01-01') OVERLAPS
    (DATE '1993-07-01',DATE '1994-03-01')
 
 which evaluates to TRUE: the periods overlap. If the search condition contains:
 
+::
+
    (NULL,DATE '1994-05-01') OVERLAPS
    (DATE '1993-07-01',DATE '1994-03-01')
 
 the expression your DBMS will actually evaluate is:
 
+::
+
    (DATE '1994-05-01',NULL) OVERLAPS
    (DATE '1993-07-01',DATE '1994-03-01')
 
 which evaluates to UNKNOWN. However, this search condition evaluates to TRUE, despite the NULL argument:
+
+::
 
    (DATE '1994-07-01',INTERVAL '06' MONTH') OVERLAPS
    (DATE '1994-08-01',NULL)
@@ -2546,18 +3094,20 @@ days. The Oracle SYSDATE function returns the current date and the current time.
 ODBC has several datetime functions; most are replaceable with standard SQL.
 Here are the different names to expect.
 
-Standard                      ODBC
-CURRENT_DATE                  CURDATE
-CURRENT_TIME                  CURTIME
-CURRENT_TIMESTAMP             NOW
-EXTRACT(MONTH ...             MONTH
-(EXTRACT(MONTH...)/4          QUARTER
-EXTRACT(DAY ...               DAYOFMONTH
-not supported                 DAYOFWEEK
-not supported                 DAYOFYEAR
-EXTRACT(HOUR ...              HOUR
-EXTRACT(MINUTE ...            MINUTE
-EXTRACT(SECOND ...            SECOND
+::
+
+    Standard                      ODBC
+    CURRENT_DATE                  CURDATE
+    CURRENT_TIME                  CURTIME
+    CURRENT_TIMESTAMP             NOW
+    EXTRACT(MONTH ...             MONTH
+    (EXTRACT(MONTH...)/4          QUARTER
+    EXTRACT(DAY ...               DAYOFMONTH
+    not supported                 DAYOFWEEK
+    not supported                 DAYOFYEAR
+    EXTRACT(HOUR ...              HOUR
+    EXTRACT(MINUTE ...            MINUTE
+    EXTRACT(SECOND ...            SECOND
 
 The SQL Library
 ===============
@@ -2572,32 +3122,34 @@ like any general function library.
 Our addition to the SQL library for this chapter will check dates for SQL
 validity. Here it is.
 
-/* proleptic test -- test whether the DBMS uses a proleptic calendar
-   Pass:   Nothing
-   Return: 0 DBMS uses standard SQL with proleptic Gregorian calendar
-           1 DBMS uses standard SQL with corrected Gregorian calendar
-           2 DBMS has deviant date calculator
-           3 DBMS does not understand standard SQL syntax */
-int proleptic_test (void *)
-{
-  int x;
-  VALUES(DATE '1999-12-31');
-  SQLBindCol
-  SQLFetch(&x);
-  if (sqlcode==100 no data) return (3);
-  if (x==...) return (0);
-  if (x==...) return (1);
-  return (2); }
+::
 
-/* date_valid_test -- test whether a date is valid
-   Pass:   A string containing a date in the format yyyy-mm-dd
-   Return: 0 date is valid
-           <0     date is not valid
-           >0     date is valid but a warning was set */
-int date_valid_test (char *szdate)
-{
-  char      tmp[128];
-  strcpy(tmp,"VALUES (DATE '");
-  strcat(tmp,szdate);
-  strcat(tmp,"');");
-  return (SQLExecDirect(-1,tmp)); }
+    /* proleptic test -- test whether the DBMS uses a proleptic calendar
+       Pass:   Nothing
+       Return: 0 DBMS uses standard SQL with proleptic Gregorian calendar
+               1 DBMS uses standard SQL with corrected Gregorian calendar
+               2 DBMS has deviant date calculator
+               3 DBMS does not understand standard SQL syntax */
+    int proleptic_test (void *)
+    {
+      int x;
+      VALUES(DATE '1999-12-31');
+      SQLBindCol
+      SQLFetch(&x);
+      if (sqlcode==100 no data) return (3);
+      if (x==...) return (0);
+      if (x==...) return (1);
+      return (2); }
+
+    /* date_valid_test -- test whether a date is valid
+       Pass:   A string containing a date in the format yyyy-mm-dd
+       Return: 0 date is valid
+               <0     date is not valid
+               >0     date is valid but a warning was set */
+    int date_valid_test (char *szdate)
+    {
+      char      tmp[128];
+      strcpy(tmp,"VALUES (DATE '");
+      strcat(tmp,szdate);
+      strcat(tmp,"');");
+      return (SQLExecDirect(-1,tmp)); }
