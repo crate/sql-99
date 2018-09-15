@@ -14,31 +14,33 @@ diagram shows the main SQL Object hierarchy, illustrating, for example, that a
 Cluster can contain one or more Catalogs; Catalogs can contain one or more
 Schemas; Schemas can contain one or more Domains, Tables, Character sets, etc.
 
-=========
-=Cluster=
-=========
-     |
-============
-=Catalog(s)=
-============
-     |
-===========
-=Schema(s)=
-===========
-     |
-===========
-=Domain(s)=
-==================
-     =or Table(s)=
-===========================
-          =or Assertion(s)=
-====================================
-               =or Character set(s)=
-=====================================
-                    =or Collation(s)=
-============================================
-                         =or Translation(s)=
-============================================
+::
+
+    =========
+    =Cluster=
+    =========
+         |
+    ============
+    =Catalog(s)=
+    ============
+         |
+    ===========
+    =Schema(s)=
+    ===========
+         |
+    ===========
+    =Domain(s)=
+    ==================
+         =or Table(s)=
+    ===========================
+              =or Assertion(s)=
+    ====================================
+                   =or Character set(s)=
+    =====================================
+                        =or Collation(s)=
+    ============================================
+                             =or Translation(s)=
+    ============================================
 
 (There are several other SQL Objects; this diagram shows only the major ones.)
 
@@ -57,8 +59,10 @@ point in time; that is, it contains all the SQL-data you may access through a
 given SQL-server. The Objects that belong to a Cluster are known as Cluster
 Objects; that is, they depend on some Cluster. Every Cluster Object has a name
 that must be unique (among Objects of its name class) within the Cluster it belongs to. The Cluster Object name classes are:
-      ## <AuthorizationID>s and Roles.
-      ## Catalogs.
+
+## <AuthorizationID>s and Roles.
+## Catalogs.
+
 A Cluster may consist of zero or more of these Cluster Objects. The Cluster's
 name implicitly qualifies the names of the Objects that belong to it, and
 cannot be explicitly stated. Three SQL statements relate to Clusters: CONNECT, SET CONNECTION and DISCONNECT.
@@ -73,6 +77,9 @@ into being, how it may be accessed and how it may be destroyed.
 [OCELOT Implementation] applies for the rest of this chapter.
 
 The OCELOT DBMS that comes with this book considers a Cluster to be a directory on your storage device, e.g.: this would represent a Cluster on an MS-DOS hard drive:
+
+::
+
    C:\CLUSTER
 
 Each Cluster directory contains two files and zero or more subdirectories. The
@@ -85,7 +92,8 @@ not allow a Catalog to be part of multiple Clusters.
 
 OCELOT's method of creating and connecting to Clusters depends on the way you
 choose to begin a SQL session.
-      ## If the first SQL statement in your SQL-session is a CONNECT
+
+## If the first SQL statement in your SQL-session is a CONNECT
 statement, the DBMS will search for a CLUSTER file on a directory whose name
 matches the CONNECT statement's <SQL-server name>. If a CLUSTER file is found
 on the correct directory, the file will be opened. If the correct directory is
@@ -93,16 +101,20 @@ found but there is no CLUSTER file on it, a CLUSTER file will be created on
 that directory, and then opened. If no directory with the correct name is
 found, the directory will be created, then a CLUSTER file will be created on
 that directory, and opened.
-      ## If the first SQL statement in your SQL-session is not a CONNECT
+
+## If the first SQL statement in your SQL-session is not a CONNECT
 statement, the DBMS will open a CLUSTER file on a directory named OCELOT.
 
 To drop a Cluster, simply delete the CLUSTER file from your storage device.
 
 Cluster names:
+
 A <SQL-server name> identifies a Cluster. The required syntax for a <SQL-server name> is:
 
-<SQL-server name> ::=
-string
+::
+
+    <SQL-server name> ::=
+    string
 
 An <SQL-server name> has a maximum length of 128 octets and is either a
 <character string literal>, the name of a host character string parameter or a
@@ -111,18 +123,25 @@ reference to an SQL character string parameter that conforms to the rules for an
 NON-PORTABLE] A <SQL-server name> must be unique (for all Clusters) within an
 SQL-environment, but is non-standard because the SQL Standard requires
 implementors to define what a <SQL-server name> may be and which Character set it belongs to.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book
 defines a <SQL-server name> as any <identifier> belonging to the SQL_TEXT
 Character set that also follows the rules for a directory name on the
 operating system in use; generally it may include [drive:] and \upper-level name.
 
 Here are some examples of possible <SQL-server name>s:
 
+::
+
    'CLUSTER_1'
    -- a <SQL-server name> that is a <character string literal>
 
+::
+
    :CLUSTER_1
    -- a <SQL-server name> that is a host parameter name
+
+::
 
    CLUSTER_1
    -- a <SQL-server name> that is an SQL parameter name
