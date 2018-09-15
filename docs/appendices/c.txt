@@ -14,7 +14,7 @@ applications.
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+    :local:
 
 Implementation-defined features
 ===============================

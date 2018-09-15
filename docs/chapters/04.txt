@@ -25,7 +25,7 @@ of the two bit string <data type>s: BIT or BIT VARYING.
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+    :local:
 
 <bit string literal>s
 =====================

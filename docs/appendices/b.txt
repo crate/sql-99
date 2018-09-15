@@ -13,7 +13,7 @@ support.
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+    :local:
 
 Core SQL Notes
 --------------

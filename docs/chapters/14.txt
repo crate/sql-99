@@ -49,7 +49,7 @@ In this chapter, we'll describe SQL Clusters in detail, and show you the syntax 
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Cluster
 =======

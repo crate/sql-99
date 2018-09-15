@@ -13,7 +13,7 @@ In SQL, a <collection type> is an array: a composite constructed SQL <data type>
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Collection <data type>s
 =======================

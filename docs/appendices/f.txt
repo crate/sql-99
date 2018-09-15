@@ -19,7 +19,7 @@ vocabularies are used in different circles.
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+    :local:
 
 Glossary Entries
 ================

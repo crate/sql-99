@@ -14,7 +14,7 @@ them. Our description is therefore fairly brief.
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 What is a Locator?
 ==================

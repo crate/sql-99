@@ -37,7 +37,7 @@ note once again that there may in fact be several co-operating agencies responsi
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Isolation Phenomena
 ===================

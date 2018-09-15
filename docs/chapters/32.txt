@@ -16,7 +16,7 @@ in an SQL statement. In this chapter, we'll discuss both the implementation prob
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Set Operation Syntax
 ====================

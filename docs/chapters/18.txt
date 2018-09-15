@@ -32,7 +32,7 @@ SQL supports two types of Tables: the physically existent, named Base table and 
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Base Table
 ==========

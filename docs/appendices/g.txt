@@ -13,7 +13,7 @@ list, it's ephemeral. At some time, the original documents will cease to contain
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+    :local:
 
 SQL Foundation
 ==============

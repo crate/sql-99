@@ -39,7 +39,7 @@ statements to be used within Triggers, even though they have no support for pers
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Persistent Stored Modules
 =========================

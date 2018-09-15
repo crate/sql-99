@@ -11,7 +11,7 @@ We've come at last to the point where we can begin showing you the most importan
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Truth Values
 ============

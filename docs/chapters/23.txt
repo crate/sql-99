@@ -13,7 +13,7 @@ In this chapter, we'll describe SQL Translations in detail, and show you the syn
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Translation
 ===========

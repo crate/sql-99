@@ -39,7 +39,7 @@ SELECT from a View in INFORMATION_SCHEMA.
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+        :local:
 
 Some necessary preliminaries
 ============================

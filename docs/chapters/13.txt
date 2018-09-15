@@ -48,7 +48,7 @@ the deficiencies in a way that the DBMS can account for. This is unpleasant and 
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Representing Missing Data with NULL
 ===================================

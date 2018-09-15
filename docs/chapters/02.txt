@@ -21,7 +21,7 @@ revisit each of these areas in greater detail.
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+    :local:
 
 Set Theory
 ==========

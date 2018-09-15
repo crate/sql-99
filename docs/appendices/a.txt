@@ -51,16 +51,16 @@ All right: for most people, it's not vital to understand RDA in any detail.
 What we think is useful is a short summary and tutorial. From this chapter,
 you'll get an idea of:
 
-::
+## What RDA's job is.
 
-    ## What RDA's job is.
-    ## What sort of information goes back and forth on the network.
-    ## What "client/server" actually means.
+## What sort of information goes back and forth on the network.
+
+## What "client/server" actually means.
 
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+    :local:
 
 ISO/IEC 9759
 ------------

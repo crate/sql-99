@@ -16,7 +16,7 @@ Boolean <data type>: BOOLEAN.
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 <Boolean literal>s
 ==================

@@ -15,7 +15,7 @@ initialization process. Here are the descriptions of the three general functions
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 SQLDataSources
 ==============

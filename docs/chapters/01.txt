@@ -19,7 +19,7 @@ This book was written to describe Standard-conforming SQL.
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+    :local:
 
 How To Read This Book
 =====================

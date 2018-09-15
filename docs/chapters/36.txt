@@ -68,7 +68,7 @@ It's your job to figure out what operations fit together as a logical unit of wo
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Initiating Transactions
 =======================

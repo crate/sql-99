@@ -14,7 +14,7 @@ syntax to use to create, alter and destroy them.
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Character set
 =============

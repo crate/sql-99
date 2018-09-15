@@ -18,7 +18,7 @@ significant octet). BLOBs are stored in the binary string <data type>: BLOB.
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+    :local:
 
 <BLOB literal>s
 ===============

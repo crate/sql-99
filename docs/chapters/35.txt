@@ -29,7 +29,7 @@ warning: we'll revisit some of these points when we put them in context later on
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 The SQL-data Change Statements
 ==============================

@@ -14,7 +14,7 @@ definitions are a necessary evil for understanding some of what lies ahead.
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 <value specification>
 =====================

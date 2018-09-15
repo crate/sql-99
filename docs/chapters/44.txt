@@ -72,7 +72,7 @@ the SQLExecDirect function. The following flowchart shows the steps involved:
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Preparable SQL statements
 =========================

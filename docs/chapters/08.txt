@@ -31,7 +31,7 @@ stored in the INTERVAL <data type>.
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Some Preliminaries
 ==================

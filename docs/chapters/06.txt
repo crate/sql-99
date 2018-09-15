@@ -30,7 +30,7 @@ chapter, you'll see why the "solutions" are varied, random and wrong.
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+    :local:
 
 What is a Character?
 ====================

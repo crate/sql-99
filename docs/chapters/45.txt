@@ -63,7 +63,7 @@ Cursor attributes and fetching from Cursors. Their descriptions follow.
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 SQLFetch
 ========

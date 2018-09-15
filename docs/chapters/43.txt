@@ -32,7 +32,7 @@ There are six CLI functions for creating stmts, dropping stmts, getting stmt att
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 SQLAllocHandle(SQL_HANDLE_STMT,...)
 ===================================

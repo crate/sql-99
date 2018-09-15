@@ -38,7 +38,7 @@ a parameter list and a required algorithm (what the DBMS must do when you call i
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 EXAMPLE1.C
 ==========

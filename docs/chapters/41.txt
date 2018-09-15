@@ -25,7 +25,7 @@ Here's a closeup view of an env:
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Null Termination
 ================

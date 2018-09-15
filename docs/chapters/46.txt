@@ -21,7 +21,7 @@ SQLGetDescField, SQLSetDescField, SQLGetDescRec, SQLSetDescRec, SQLCopyDesc and 
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Descriptor Areas
 ================

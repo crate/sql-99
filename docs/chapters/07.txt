@@ -32,7 +32,7 @@ CHARACTER VARYING or NATIONAL CHARACTER LARGE OBJECT.
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+    :local:
 
 Character string <literal>s
 ===========================

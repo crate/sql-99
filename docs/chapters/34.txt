@@ -13,7 +13,7 @@ describe the ORDER BY clause now.
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 ORDER BY clause
 ===============

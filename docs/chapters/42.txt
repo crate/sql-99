@@ -31,7 +31,7 @@ There are eight CLI functions for creating dbcs, dropping dbcs, getting dbc attr
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 SQLAllocHandle(SQL_HANDLE_DBC,...)
 ==================================

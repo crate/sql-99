@@ -76,7 +76,7 @@ whole-set-at-a-time) and the "control" problem (adjusting host program flow base
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 What is embedded SQL?
 =====================

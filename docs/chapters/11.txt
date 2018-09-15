@@ -17,7 +17,7 @@ variables, passed as arguments to routines and returned by functions.
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Row <data type>s
 ================

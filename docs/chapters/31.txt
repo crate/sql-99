@@ -11,7 +11,7 @@ A subquery is a parenthesized query enclosed within some outer SQL statement. Mo
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Subquery syntax
 ===============

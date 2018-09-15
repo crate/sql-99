@@ -18,7 +18,7 @@ SQL as a grouped Table.
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 GROUP BY clause
 ===============

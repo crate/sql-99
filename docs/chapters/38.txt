@@ -60,7 +60,7 @@ active SQL-invoked routines.
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 SQL-Connections
 ===============

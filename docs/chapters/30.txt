@@ -31,7 +31,7 @@ The first insight is the basis of relational-database theory. The second is a wa
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Joined Tables
 =============

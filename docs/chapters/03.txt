@@ -31,7 +31,7 @@ type>s: FLOAT, REAL or DOUBLE PRECISION.
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+    :local:
 
 Numeric <literal>s
 ==================

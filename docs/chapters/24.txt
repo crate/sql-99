@@ -14,7 +14,7 @@ In this chapter, we'll describe SQL Triggers in detail, and show you the syntax 
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+    :local:
 
 Trigger
 =======

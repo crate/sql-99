@@ -11,7 +11,7 @@ Here is one SQL operation, written in two contrasting styles. Notice the differe
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+        :local:
 
 Authority
 =========

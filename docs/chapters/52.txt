@@ -25,7 +25,7 @@ that SQL-session and an SQL-server Module -- the SQL/PSM type -- is a Schema Obj
 .. rubric:: Table of Contents
 
 .. contents::
-:local:
+        :local:
 
 SQL-client Modules
 ==================

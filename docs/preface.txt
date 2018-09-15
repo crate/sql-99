@@ -16,7 +16,7 @@ fill that void.
 .. rubric:: Table of Contents
 
 .. contents::
-   :local:
+       :local:
 
 Who Should Read this Book?
 ==========================
