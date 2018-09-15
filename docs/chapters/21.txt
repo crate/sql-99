@@ -45,15 +45,23 @@ a minimum, this implementation-defined Character set: SQL_TEXT.
 [NON-PORTABLE] The complete set of predefined Character sets supported by a
 DBMS is non-standard because the SQL Standard allows implementors to include
 support for other Character sets, in addition to the required ones.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book
 provides support for seven other predefined Character sets, based on commonly
 available MS-Windows codepages. They are:
+
 CODEPAGE_0437 -- MS-DOS West European codepage 437.
+
 CODEPAGE_0850 -- MS-DOS International codepage 850.
+
 CODEPAGE_1250 -- MS-Windows Latin II codepage 1250.
+
 CODEPAGE_1251 -- MS-Windows Cyrillic codepage 1251.
+
 CODEPAGE_1253 -- MS-Windows Greek codepage 1253.
+
 CODEPAGE_1254 -- MS-Windows Turkish codepage 1254.
+
 CODEPAGE_1257 -- MS-Windows Baltic codepage 1257.
 
 The pre-defined Character sets provided by your DBMS belong to
@@ -68,9 +76,12 @@ determine the results of comparisons between the Character set's characters in
 the absence of an explicit COLLATE clause.
 
 A Character set is defined by a descriptor that contains three pieces of information:
-      ## The <Character set name>, qualified by the <Schema name> of the Schema it belongs to.
-      ## A list of the characters that belong to the Character set.
-      ## The name of the Character set's default Collation. (This may be the Form-of-use encoding scheme for the Character set's repertoire.)
+
+## The <Character set name>, qualified by the <Schema name> of the Schema it belongs to.
+
+## A list of the characters that belong to the Character set.
+
+## The name of the Character set's default Collation. (This may be the Form-of-use encoding scheme for the Character set's repertoire.)
 
 User-defined Character sets may belong to any Schema owned by the creator. To
 create a Character set, use the CREATE CHARACTER SET statement (either as a
@@ -85,10 +96,13 @@ Character set can have many possible Collations defined for it, although only
 one can be its default Collation.
 
 Character set names:
+
 A <Character set name> identifies a Character set. The required syntax for a <Character set name> is:
 
-<Character set name> ::=
-[ <Schema name>. ] unqualified name
+::
+
+    <Character set name> ::=
+    [ <Schema name>. ] unqualified name
 
 A <Character set name> is a <SQL language identifier> that is unique (for all
 Character sets) within the Schema it belongs to. The <Schema name> which
@@ -102,6 +116,8 @@ dropping a user-defined Character set, always provide an explicit <Schema
 name> qualifier for the <Character set name>.)
 
 Here are some examples of <Character set name>s:
+
+::
 
    LATIN1
    -- a predefined <Character set name>
@@ -121,9 +137,11 @@ The CREATE CHARACTER SET statement names a new user-defined Character set and
 specifies the Character set's repertoire and default Collation. The required
 syntax for the CREATE CHARACTER SET statement is:
 
-CREATE CHARACTER SET user-defined <Character set name> [ AS ]
-      GET predefined <Character set name>
-      [ COLLATE <Collation name> ]
+::
+
+    CREATE CHARACTER SET user-defined <Character set name> [ AS ]
+          GET predefined <Character set name>
+          [ COLLATE <Collation name> ]
 
 CREATE CHARACTER SET defines a new user-defined Character set. A Character set is owned by the Schema it belongs to.
 
@@ -142,6 +160,8 @@ from within CREATE SCHEMA. For example, this SQL statement will not return an
 error because the <Character set name> explicitly includes a qualifying
 <Schema name> that matches the name of the Schema being created:
 
+::
+
    CREATE SCHEMA bob
       CREATE CHARACTER SET bob.charset_1 AS GET LATIN1;
    -- creates a Character set called BOB.CHARSET_1 in Schema BOB
@@ -149,6 +169,8 @@ error because the <Character set name> explicitly includes a qualifying
 But this SQL statement will return an error because the <Character set name>
 explicitly includes a qualifying <Schema name> that is different from the name
 f the Schema being created:
+
+::
 
    CREATE SCHEMA bob
       CREATE CHARACTER SET sam.charset_1 AS GET LATIN1;
@@ -170,6 +192,8 @@ Character set. The GET clause of the CREATE CHARACTER SET statement names the
 predefined Character set that is the source for the new Character set. For
 example, this SQL statement:
 
+::
+
    CREATE CHARACTER SET bob.charset_1 AS LATIN1;
 
 defines a new user-defined Character set, called BOB.CHARSET_1, in the Schema
@@ -179,6 +203,8 @@ possible to "create" new Character sets; merely to rename (and possibly assign
 new default Collations for) them. The <keyword> AS in the GET clause is noise
 and can be omitted. For example, these two SQL statements are equivalent:
 
+::
+
    CREATE CHARACTER SET bob.charset_1 AS GET LATIN1;
 
    CREATE CHARACTER SET bob.charset_1 GET LATIN1;
@@ -187,6 +213,8 @@ The optional COLLATE clause of the CREATE CHARACTER SET statement allows you
 to define a default Collation for your user-defined Character set that is
 different from the default Collation of its source Character set. Your current
 <AuthorizationID> must have the USAGE Privilege on the Collation named. Here is an example:
+
+::
 
    CREATE CHARACTER SET bob.charset_1 AS GET LATIN1 COLLATE bob.collation_1;
 
@@ -202,7 +230,9 @@ DROP CHARACTER SET statement
 
 The DROP CHARACTER SET statement destroys a user-defined Character set. The required syntax for the DROP CHARACTER SET statement is:
 
-DROP CHARACTER SET <Character set name>
+::
+
+    DROP CHARACTER SET <Character set name>
 
 The <Character set name> must identify an existing Character set whose owner
 is either the current <AuthorizationID> or a Role that the current
@@ -211,6 +241,8 @@ Character set may drop it, and so it isn't possible to drop any of the
 predefined Character sets provided by your DBMS.
 
 The effect of DROP CHARACTER SET <Character set name>, e.g.:
+
+::
 
    DROP CHARACTER SET bob.charset_1;
 
@@ -222,8 +254,10 @@ Character set with no dependent Objects can be destroyed. If the Character set
 is used by any other Object, DROP CHARACTER SET will fail.
 
 If successful, DROP CHARACTER SET has a two-fold effect.
-      ## The Character set named is destroyed.
-      ## The USAGE Privilege held on the Character set by the
+
+## The Character set named is destroyed.
+
+## The USAGE Privilege held on the Character set by the
 <AuthorizationID> that owns it is revoked (by the SQL special grantor,
 "_SYSTEM") with a CASCADE revoke behaviour, so that the USAGE Privilege held
 on the Character set by any other <AuthorizationID> is also revoked.

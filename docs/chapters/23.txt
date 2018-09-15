@@ -32,17 +32,23 @@ repertoires by some standards body. Implementation-defined Translations are
 translations predefined for two Character sets by your DBMS. The pre-defined
 Translations provided by your DBMS belong to INFORMATION_SCHEMA. The SQL
 special grantee, PUBLIC, always has a USAGE Privilege on every predefined Translation provided by your DBMS.
-      [NON-PORTABLE] The set of predefined Translations provided by a DBMS is
+
+[NON-PORTABLE] The set of predefined Translations provided by a DBMS is
 non-standard because the SQL Standard has no required Translations: it
 requires implementors to define any Translations supported.
-            [OCELOT Implementation] The OCELOT DBMS that comes with this book
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book
 provides a Translation named OCELOT. It translates SQL_TEXT strings to ASCII_FULL strings.
 
 A Translation is defined by a descriptor that contains four pieces of information:
-      ## The <Translation name>, qualified by the <Schema name> of the Schema it belongs to.
-      ## The name of the Translation's source Character set: the Character set from which it translates.
-      ## The name of the Translation's target Character set: the Character set to which it translates.
-      ## The mapping scheme for the Translation.
+
+## The <Translation name>, qualified by the <Schema name> of the Schema it belongs to.
+
+## The name of the Translation's source Character set: the Character set from which it translates.
+
+## The name of the Translation's target Character set: the Character set to which it translates.
+
+## The mapping scheme for the Translation.
 
 Two character strings may be compared or assigned to one another only if they
 both belong to the same Character set. The way to force a comparison or
@@ -63,10 +69,13 @@ but a Character set can be named as either the source or the target for many
 different Translations.
 
 Translation names:
+
 A <Translation name> identifies a Translation. The required syntax for a <Translation name> is:
 
-<Translation name> ::=
-[ <Schema name>. ] unqualified name
+::
+
+    <Translation name> ::=
+    [ <Schema name>. ] unqualified name
 
 A <Translation name> is a <regular identifier> or a <delimited identifier>
 that is unique (for all Translations) within the Schema it belongs to. The
@@ -79,6 +88,8 @@ not belong to INFORMATION_SCHEMA. Therefore, when defining, using or dropping
 a user-defined Translation, always provide an explicit <Schema name> qualifier for the <Translation name>.)
 
 Here are some examples of possible <Translation name>s:
+
+::
 
    TRANSLATION_1
    -- a <Translation name>
@@ -98,14 +109,16 @@ The CREATE TRANSLATION statement names a new user-defined Translation and
 specifies the Translation's source and target Character sets as well as the
 Translation's source. The required syntax for the CREATE TRANSLATION statement is:
 
-CREATE TRANSLATION user-defined <Translation name>
-   FOR source <Character set name>
-   TO target <Character set name>
-   FROM <translation source>
+::
 
-   <translation source> ::=
-   existing <Translation name> |
-   <specific routine designator>
+    CREATE TRANSLATION user-defined <Translation name>
+       FOR source <Character set name>
+       TO target <Character set name>
+       FROM <translation source>
+
+       <translation source> ::=
+       existing <Translation name> |
+       <specific routine designator>
 
 CREATE TRANSLATION defines a new user-defined Translation. A Translation is owned by the Schema it belongs to.
 
@@ -123,6 +136,8 @@ within CREATE SCHEMA. For example, this SQL statement will not return an error
 because the <Translation name> explicitly includes a qualifying <Schema name>
 that matches the name of the Schema being created:
 
+::
+
    CREATE SCHEMA bob
       CREATE TRANSLATION bob.translation_1
          FOR SQL_CHARACTER TO LATIN1 FROM function_name;
@@ -131,6 +146,8 @@ that matches the name of the Schema being created:
 But this SQL statement will return an error because the <Translation name>
 explicitly includes a qualifying <Schema name> that is different from the name
 of the Schema being created:
+
+::
 
    CREATE SCHEMA bob
       CREATE TRANSLATION sam.translation_1
@@ -164,6 +181,8 @@ Privilege and whose source Character set and target Character set are the same
 as the source and target Character sets you're defining for the new
 Translation. For example, this SQL statement:
 
+::
+
    CREATE TRANSLATION bob.translation_2
       FOR SQL_CHARACTER TO LATIN1 FROM bob.translation_2;
 
@@ -185,7 +204,9 @@ DROP TRANSLATION statement
 
 The DROP TRANSLATION statement destroys a user-defined Translation. The required syntax for the DROP TRANSLATION statement is:
 
-DROP TRANSLATION <Translation name>
+::
+
+    DROP TRANSLATION <Translation name>
 
 The <Translation name> must identify an existing Translation whose owner is
 either the current <AuthorizationID> or a Role that the current
@@ -194,6 +215,8 @@ Translation may drop it, and so it isn't possible to drop any of the
 predefined Translations provided by your DBMS.
 
 The effect of DROP TRANSLATION <Translation name>, e.g.:
+
+::
 
    DROP TRANSLATION bob.translation_1;
 
@@ -205,8 +228,10 @@ Translation with no dependent Objects can be destroyed. If the Translation is
 used by any other Object, DROP TRANSLATION will fail.
 
 If successful, DROP TRANSLATION has a two-fold effect.
-      ## The Translation named is destroyed.
-      ## The USAGE Privilege held on the Translation by the <AuthorizationID>
+
+## The Translation named is destroyed.
+
+## The USAGE Privilege held on the Translation by the <AuthorizationID>
 that owns it is revoked (by the SQL special grantor, "_SYSTEM") with a CASCADE
 revoke behaviour, so that the USAGE Privilege held on the Translation by any
 other <AuthorizationID> is also revoked.

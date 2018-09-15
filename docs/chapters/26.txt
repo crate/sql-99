@@ -21,10 +21,14 @@ SQL/CLI or (c) both. There has been no popular implementation of a complete
 SQL language which can do all the things that other programming languages offer.
 
 For example, in essential SQL, there is no easy way to do these things:
-      ## Declare variables.
-      ## Assign to variables.
-      ## Control flow of execution with loops or if/then statements.
-      ## Write complete program modules.
+
+## Declare variables.
+
+## Assign to variables.
+
+## Control flow of execution with loops or if/then statements.
+
+## Write complete program modules.
 
 With PSM, there is a way to overcome those deficiencies -- if they are
 deficiencies. Essentially, PSM is a package of extensions to the essential SQL
@@ -77,12 +81,18 @@ SQL provides a status parameter -- SQLSTATE -- whose value indicates whether
 or not an SQL statement was successfully executed. All procedures must contain an SQLSTATE declaration.
 
 A Module is defined by a descriptor that contains six pieces of information:
-      ## The <Module name>, qualified by the <Schema name> of the Schema it belongs to.
-      ## The name of the Character set that is used to express the names of all Schema Objects mentioned in the Module's definition.
-      ## The Module's <AuthorizationID> -- this is the <AuthorizationID> that owns the Module's Schema.
-      ## The list of <Schema name>s contained in the Module's path specification.
-      ## A descriptor for every declared local temporary Table defined in the Module.
-      ## A descriptor for every SQL-invoked routine contained in the Module.
+
+## The <Module name>, qualified by the <Schema name> of the Schema it belongs to.
+
+## The name of the Character set that is used to express the names of all Schema Objects mentioned in the Module's definition.
+
+## The Module's <AuthorizationID> -- this is the <AuthorizationID> that owns the Module's Schema.
+
+## The list of <Schema name>s contained in the Module's path specification.
+
+## A descriptor for every declared local temporary Table defined in the Module.
+
+## A descriptor for every SQL-invoked routine contained in the Module.
 
 To create a Module, use the CREATE MODULE statement (either as a stand-alone
 SQL statement or within a CREATE SCHEMA statement). CREATE MODULE specifies
@@ -93,21 +103,28 @@ MODULE statement. To destroy a Module, use the DROP MODULE statement.
 There is a one-to-many association between Schemas and Modules: one Schema can own multiple Modules.
 
 Module names:
+
 A <Module name> identifies a Module. The required syntax for a <Module name> is:
 
-<Module name> ::=
-[ <Schema name>. ] unqualified name
+::
+
+    <Module name> ::=
+    [ <Schema name>. ] unqualified name
 
 A <Module name> is a <regular identifier> or a <delimited identifier> that is
 unique (for all Modules) within the Schema it belongs to. The <Schema name>
 which qualifies a <Module name> names the Schema that the Module belongs to
 and can either be explicitly stated, or a default will be supplied by your DBMS as follows:
-      ## If a <Module name> in a CREATE SCHEMA statement isn't qualified, the default qualifier is the name of the Schema you're creating.
-      ## If the unqualified <Module name> is found in any other SQL statement,
+
+## If a <Module name> in a CREATE SCHEMA statement isn't qualified, the default qualifier is the name of the Schema you're creating.
+
+## If the unqualified <Module name> is found in any other SQL statement,
 the default qualifier is the name of the Schema identified in the SCHEMA
 clause or AUTHORIZATION clause of the CREATE MODULE statement that defines that Module.
 
 Here are some examples of <Module name>s:
+
+::
 
    MODULE_1
    -- a <Module name>
@@ -123,13 +140,15 @@ CREATE MODULE statement
 
 The CREATE MODULE statement creates an SQL-server Module: a Module that belongs to a Schema. The required syntax for the CREATE MODULE statement is:
 
-CREATE MODULE <Module name>
-   [ NAMES ARE <Character set name> ]
-   [ SCHEMA default <Schema name>]
-   [ PATH <Schema name> [ {,<Schema name>}... ] ]
-   [ DECLARE TABLE statement(s) ]
-   <SQL-invoked routine>; ...
-   END MODULE
+::
+
+    CREATE MODULE <Module name>
+       [ NAMES ARE <Character set name> ]
+       [ SCHEMA default <Schema name>]
+       [ PATH <Schema name> [ {,<Schema name>}... ] ]
+       [ DECLARE TABLE statement(s) ]
+       <SQL-invoked routine>; ...
+       END MODULE
 
 CREATE MODULE defines a new SQL-server Module -- don't get this mixed up with
 the simple MODULE statement that is part of essential SQL, it defines an SQL-
@@ -170,17 +189,19 @@ The Module can contain zero or more DECLARE TABLE statements, each declaring a l
 
 The Module can contain one or more SQL-invoked routines -- these do the Module's work. Here's a simple example:
 
-CREATE MODULE Employees_Module         /* This begins and names the Module */
-  DECLARE PROCEDURE Delete_Employees() /* This is an SQL routine */
-      MODIFIES SQL DATA
-      DELETE FROM Employees;
-  DECLARE PROCEDURE Update_Employees() /* This is an SQL routine */
-      MODIFIES SQL DATA
-      UPDATE Employees SET col=NULL;
-  DECLARE PROCEDURE Insert_Employees() /* This is an SQL routine */
-      MODIFIES SQL DATA
-      INSERT INTO Employees VALUES (5);
-  END MODULE
+::
+
+    CREATE MODULE Employees_Module         /* This begins and names the Module */
+      DECLARE PROCEDURE Delete_Employees() /* This is an SQL routine */
+          MODIFIES SQL DATA
+          DELETE FROM Employees;
+      DECLARE PROCEDURE Update_Employees() /* This is an SQL routine */
+          MODIFIES SQL DATA
+          UPDATE Employees SET col=NULL;
+      DECLARE PROCEDURE Insert_Employees() /* This is an SQL routine */
+          MODIFIES SQL DATA
+          INSERT INTO Employees VALUES (5);
+      END MODULE
 
 If your memory stretches back to our chapter on SQL routines, you'll recognize
 the PROCEDURE statements here -- procedures and functions are part of
@@ -195,14 +216,18 @@ ALTER MODULE statement
 
 The ALTER MODULE statement lets you change a Module's definition. The required syntax for the ALTER MODULE statement is:
 
-ALTER MODULE <Module name>
-   {ADD | DROP} <Module contents> ...
+::
+
+    ALTER MODULE <Module name>
+       {ADD | DROP} <Module contents> ...
 
 ALTER MODULE changes an existing Module. <Module contents> can be a function,
 a procedure or any of the other things that might be part of a Module
 (exceptions, handlers, variables, Cursors, declared Tables and so on).
 
 Here's an example of an ALTER MODULE statement:
+
+::
 
    ALTER Module Employees_Module
      DROP PROCEDURE Insert_Employees;
@@ -214,13 +239,17 @@ DROP MODULE statement
 
 The DROP MODULE statement destroys an SQL-server Module. The required syntax for the DROP MODULE statement is:
 
-DROP MODULE <Module name> {RESTRICT | CASCADE}
+::
+
+    DROP MODULE <Module name> {RESTRICT | CASCADE}
 
 The <Module name> must identify an existing Module whose owner is either the
 current <AuthorizationID> or a Role that the current <AuthorizationID> may
 use. That is, only the <AuthorizationID> that owns the Module may drop it.
 
 The effect of DROP MODULE <Module name> RESTRICT, e.g.:
+
+::
 
    DROP MODULE module_1 RESTRICT;
 
@@ -233,17 +262,22 @@ destroyed. If the Module is used by any other Object, DROP MODULE ... RESTRICT w
 
 The effect of DROP MODULE <Module name> CASCADE, e.g.:
 
+::
+
    DROP MODULE module_1 CASCADE;
 
 is that the Module named is destroyed.
 
 Successfully dropping a Module has a six-fold effect:
-      ## The Module named is destroyed.
-      ## All Privileges held on the Module by the <AuthorizationID> that owns
+
+## The Module named is destroyed.
+
+## All Privileges held on the Module by the <AuthorizationID> that owns
 it are revoked (by the SQL special grantor, "_SYSTEM") with a CASCADE revoke
 behaviour, so that all Privileges held on the Module by any other
 <AuthorizationID> are also revoked.
-      ## All SQL routines, Triggers, Views and Constraints that depend on the Module are dropped with a CASCADE drop behaviour.
+
+## All SQL routines, Triggers, Views and Constraints that depend on the Module are dropped with a CASCADE drop behaviour.
 
 BEGIN ... END: compound statement
 =================================
@@ -256,26 +290,36 @@ In its simplest form, BEGIN ... END in SQL serves the same purpose as
 statements which are part of the same syntactical unit: a compound statement.
 The simplest required syntax is:
 
-BEGIN
-   [ <SQL statement>; ... ]
-END
+::
+
+    BEGIN
+       [ <SQL statement>; ... ]
+    END
 
 Here's a simple example:
+
+::
+
    BEGIN
        INSERT INTO Table_1 VALUES (5);
        INSERT INTO Table_2 VALUES (6);
    END
 
 ATOMIC statements:
+
 A slightly more complicated form of a compound statement has one extra optional clause: [NOT] ATOMIC. The required syntax is:
 
-BEGIN [ [ NOT ] ATOMIC ]    /* whether compound statement is atomic */
-  [ <SQL statement>; ... ]
-END
+::
+
+    BEGIN [ [ NOT ] ATOMIC ]    /* whether compound statement is atomic */
+      [ <SQL statement>; ... ]
+    END
 
 If ATOMIC is specified, the compound statement may not contain COMMIT or
 ROLLBACK. If you omit the clause, it defaults to NOT ATOMIC: the compound
 statement may contain COMMIT or ROLLBACK. Here's an example:
+
+::
 
    BEGIN ATOMIC
       INSERT INTO Table_1 VALUES (5);
@@ -291,18 +335,25 @@ there was a savepoint at the beginning of the compound statement and a
 ROLLBACK TO SAVEPOINT was executed when the second INSERT failed.
 
 Variables:
+
 A slightly more complicated form of a compound statement has one more optional
 clause: a variable declaration list. The required syntax is:
 
-BEGIN [ [ NOT ] ATOMIC ]
-  [ <variable declaration>; ... ]     /* variable-declaration list */
-  [ <SQL statement>; ... ]
-END
+::
+
+    BEGIN [ [ NOT ] ATOMIC ]
+      [ <variable declaration>; ... ]     /* variable-declaration list */
+      [ <SQL statement>; ... ]
+    END
+
+::
 
    <variable declaration> ::=
    DECLARE <SQL variable name> <data type> [ DEFAULT default value ]
 
 Here's an example:
+
+::
 
    BEGIN ATOMIC
      DECLARE v1 CHAR(5);                          /* variable declaration */
@@ -332,19 +383,24 @@ option of using variables for persistent storage: we're supposed to use Base
 tables for that.
 
 Assignment statements:
+
 Assignment statements begin with the <keyword> SET -- but don't call them "SET
 statements", to avoid confusion with non-PSM statements that also begin with
 SET. Assignment statements are syntactically similar to the SET clauses used
 in UPDATE statements. Here is the required syntax:
 
-SET
-   <target>     /* where the value goes to; usually a variable */
-   =
-   <source>     /* where the value comes from; an expression */
+::
+
+    SET
+       <target>     /* where the value goes to; usually a variable */
+       =
+       <source>     /* where the value comes from; an expression */
 
 In theory the <target> doesn't have to be a variable -- it could be a
 parameter or a "host variable" -- but normal programs will take the form
 "<variable> = <expression>". Here are some examples:
+
+::
 
    SET v1 = 5
 
@@ -355,16 +411,21 @@ parameter or a "host variable" -- but normal programs will take the form
    SET v1 = column_1
 
 Cursors:
+
 A slightly more complicated form of a compound statement has one more optional
 clause: a Cursor declaration list. The required syntax is:
 
-BEGIN [ [ NOT ] ATOMIC ]
-  [ <variable declaration>; ... ]
-  [ DECLARE CURSOR statement; ... ]      /* Cursor-declaration list */
-  [ <SQL statement>; ... ]
-END
+::
+
+    BEGIN [ [ NOT ] ATOMIC ]
+      [ <variable declaration>; ... ]
+      [ DECLARE CURSOR statement; ... ]      /* Cursor-declaration list */
+      [ <SQL statement>; ... ]
+    END
 
 The mechanics of Cursors are the same for PSM as they are for embedded SQL and for SQL/CLI. Here's an example:
+
+::
 
    BEGIN
      DECLARE v1 SMALLINT;             /* variable-declaration */
@@ -380,25 +441,30 @@ Objects that you declare in a compound statement have "local scope", so the
 <Cursor name> in this example -- cc -- can only be  used by SQL statements
 within the BEGIN ... END. The example could be replaced with this SQL statement:
 
+::
+
     INSERT INTO Table_2 SELECT column1 FROM Table_1;
 
 if there is only one row in TABLE_1.
 
 Conditions:
+
 A slightly more complicated form of a compound statement changes the optional
 variable declaration clause: instead of a variable declaration list, BEGIN ...
 END actually allows a variable or condition declaration list, so that you can
 declare conditions as well as variables. The required syntax is:
 
-BEGIN [ [ NOT ] ATOMIC ]
-  [ <variable | condition declaration>; ... ] /* variable-or-condition
-declaration list */
-  [ DECLARE CURSOR statement; ... ]
-  [ <SQL statement>; ... ]
-END
+::
 
-   <condition declaration> ::=
-      DECLARE <condition name> CONDITION [ FOR <sqlstate value> ]
+    BEGIN [ [ NOT ] ATOMIC ]
+      [ <variable | condition declaration>; ... ] /* variable-or-condition
+    declaration list */
+      [ DECLARE CURSOR statement; ... ]
+      [ <SQL statement>; ... ]
+    END
+
+       <condition declaration> ::=
+          DECLARE <condition name> CONDITION [ FOR <sqlstate value> ]
 
 Quick review: An SQLSTATE value is a 5-character status code string. Upon
 completion of any SQL statement, there will be a status code in SQLSTATE,
@@ -408,6 +474,8 @@ which is the main diagnostic field. Typical values are '01006'
 SQLSTATE values in our chapter on SQL/CLI diagnostics.
 
 Here's an example of the latest form of BEGIN ... END:
+
+::
 
    BEGIN ATOMIC
      DECLARE v1 SMALLINT;                          /* variable-declaration */
@@ -427,31 +495,36 @@ Here's an example of the latest form of BEGIN ... END:
 In this example, we have simply given condition names to three of the possible SQLSTATE values.
 
 Handlers:
+
 A slightly more complicated form of a compound statement adds another optional
 clause: a handler declaration list. The required syntax is:
 
-BEGIN [ [ NOT ] ATOMIC ]
-  [ <variable | condition declaration>; ... ]
-  [ DECLARE CURSOR statement; ... ]
-  [ <handler declaration>; ...]               /* handler-declaration list */
-  [ <SQL statement>; ... ]
-END
+::
 
-  <handler declaration> ::=
-  DECLARE <handler type> HANDLER FOR <condition value list> <handler action>
+    BEGIN [ [ NOT ] ATOMIC ]
+      [ <variable | condition declaration>; ... ]
+      [ DECLARE CURSOR statement; ... ]
+      [ <handler declaration>; ...]               /* handler-declaration list */
+      [ <SQL statement>; ... ]
+    END
 
-     <handler type> ::= {CONTINUE | EXIT | UNDO }
+      <handler declaration> ::=
+      DECLARE <handler type> HANDLER FOR <condition value list> <handler action>
 
-     <handler action> ::= <SQL statement>
+         <handler type> ::= {CONTINUE | EXIT | UNDO }
 
-     <condition value list> ::= <condition value> [ {,<condition value>}... ]
+         <handler action> ::= <SQL statement>
 
-     <condition value> ::=
-     <sqlstate value>| <condition name>| SQLEXCEPTION | SQLWARNING | NOT FOUND
+         <condition value list> ::= <condition value> [ {,<condition value>}... ]
+
+         <condition value> ::=
+         <sqlstate value>| <condition name>| SQLEXCEPTION | SQLWARNING | NOT FOUND
 
 The following example contains three handlers. The first is for an SQLSTATE
 value, the second is for a condition name and the third is for any warning
 (i.e.: any SQLSTATE in class '01').
+
+::
 
   BEGIN
     DECLARE constraint_error CONDITION FOR '23000';/* condition declaration */
@@ -467,6 +540,8 @@ value, the second is for a condition name and the third is for any warning
   END
 
 To see the effect of these handlers, consider what will happen with the SQL statement:
+
+::
 
    INSERT INTO Table_1 VALUES (99999);
 
@@ -484,36 +559,41 @@ that the second INSERT is not attempted -- the whole compound statement fails.
 
 The following chart compares the exception-handling features of embedded SQL, the CLI and the PSM.
 
-                                EMBEDDED SQL       CLI   PSM
-method of declaration           EXEC SQL WHENEVER  none  handler-declaration
-what happens                    GOTO               N/A   any SQL statement
-handles SQLNOTFOUND?            yes                N/A   yes
-handles SQLERROR?               yes                N/A   yes
-handles SQLWARNING?             yes                N/A   yes
-handles specific status codes?  no                 N/A   yes
+::
+
+                                    EMBEDDED SQL       CLI   PSM
+    method of declaration           EXEC SQL WHENEVER  none  handler-declaration
+    what happens                    GOTO               N/A   any SQL statement
+    handles SQLNOTFOUND?            yes                N/A   yes
+    handles SQLERROR?               yes                N/A   yes
+    handles SQLWARNING?             yes                N/A   yes
+    handles specific status codes?  no                 N/A   yes
 
 Among the SQL statements that a handler can execute are two new special ones: the SIGNAL statement and the RESIGNAL statement. These SQL statements affect the diagnostics area.
 
 Labels:
+
 We're still not done with the BEGIN ... END statement. The final form of a
 compound statement adds two more optional clauses: a beginning label and an
 end label. The required syntax for a compound statement is:
 
-[ <beginning_label>: ]
-BEGIN [ [ NOT ] ATOMIC ]
-  [ <variable | condition declaration>; ... ]
-  [ DECLARE CURSOR statement; ... ]
-  [ <handler declaration>; ...]
-  [ <SQL statement>; ... ]
-END [ <end_label> ]
+    [ <beginning_label>: ]
+    BEGIN [ [ NOT ] ATOMIC ]
+      [ <variable | condition declaration>; ... ]
+      [ DECLARE CURSOR statement; ... ]
+      [ <handler declaration>; ...]
+      [ <SQL statement>; ... ]
+    END [ <end_label> ]
 
-  <beginning_label> ::= <identifier>
+      <beginning_label> ::= <identifier>
 
-  <end_label> ::= <identifier>
+      <end_label> ::= <identifier>
 
 If you add labels to your compound statement, they should be equivalent (if
 both are specified). Labels are useful as referents for various control
 statements, which we will discuss later. Here's an example:
+
+::
 
   full_blown_example:                      /* beginning_label */
   BEGIN ATOMIC                             /* compound statement is atomic */
@@ -534,18 +614,20 @@ SIGNAL statement
 
 The SIGNAL statement is used to clear the diagnostics area. The required syntax for the SIGNAL statement is:
 
-SIGNAL <condition name or sqlstate value>
-   SET <signal information item list>
+    SIGNAL <condition name or sqlstate value>
+       SET <signal information item list>
 
-   <signal information item list> ::=
-   <signal information item> [ {,<signal information item>}... ]
+       <signal information item list> ::=
+       <signal information item> [ {,<signal information item>}... ]
 
-      <signal information item> ::=
-      <condition information item name> = <simple value specification>
+          <signal information item> ::=
+          <condition information item name> = <simple value specification>
 
 The SIGNAL statement clears every record in the diagnostics area. The end
 result is a record containing the passed condition name or sqlstate value. If
 you include the optional SET clause, your DBMS effectively executes:
+
+::
 
    RESIGNAL <signal information item list>;
 
@@ -556,8 +638,10 @@ RESIGNAL statement
 
 The RESIGNAL statement is used to pass conditions on to another handler. The required syntax for the RESIGNAL statement is:
 
-RESIGNAL [ <condition name or sqlstate value> ]
-   SET <signal information item list>
+::
+
+    RESIGNAL [ <condition name or sqlstate value> ]
+       SET <signal information item list>
 
 The RESIGNAL statement passes the given exception "up the line" to the next
 appropriate handler (since compound statements may be embedded in compound
@@ -577,14 +661,22 @@ contrast, a DBMS with PSM support will allow eight control statements. Of
 these, seven are similar to statements which appear in other languages. The
 eighth, FOR, depends on Objects which are unique to the SQL environment.
 Here's a list of these statements:
-      ## CASE -- Switch depending on condition.
-      ## IF -- If (condition) do.
-      ## ITERATE -- Restart loop.
-      ## LOOP -- Do statement(s) repeatedly.
-      ## LEAVE -- Break out of a loop or block.
-      ## WHILE -- Repeat statement(s) as long as condition is true.
-      ## REPEAT -- Repeat statement(s) until condition is true.
-      ## FOR -- Cursor-based FETCH loop.
+
+## CASE -- Switch depending on condition.
+
+## IF -- If (condition) do.
+
+## ITERATE -- Restart loop.
+
+## LOOP -- Do statement(s) repeatedly.
+
+## LEAVE -- Break out of a loop or block.
+
+## WHILE -- Repeat statement(s) as long as condition is true.
+
+## REPEAT -- Repeat statement(s) until condition is true.
+
+## FOR -- Cursor-based FETCH loop.
 
 CASE statement
 
@@ -592,24 +684,28 @@ The CASE statement is useful for switching between possible execution paths.
 There are two forms -- one contains search conditions, the other contains
 value expressions. The required syntax for the CASE statement is:
 
-searched CASE statement ::=
-CASE
-  WHEN <search condition> THEN <statement>(s)
-  [ WHEN <search condition> THEN <statement>(s) ... ]
-  [ ELSE <statement>(s) ]
-END CASE
+::
 
-simple CASE statement ::=
-CASE <case value>
-   WHEN <when value> THEN <statement>(s)
-   [ WHEN <when value> THEN <statement>(s) ... ]
-   [ ELSE <statement>(s) ]
-END CASE
+    searched CASE statement ::=
+    CASE
+      WHEN <search condition> THEN <statement>(s)
+      [ WHEN <search condition> THEN <statement>(s) ... ]
+      [ ELSE <statement>(s) ]
+    END CASE
+
+    simple CASE statement ::=
+    CASE <case value>
+       WHEN <when value> THEN <statement>(s)
+       [ WHEN <when value> THEN <statement>(s) ... ]
+       [ ELSE <statement>(s) ]
+    END CASE
 
 A "simple CASE statement" is merely a shorthand, and may be replaced by a
 "searched CASE statement" which has the form: "CASE WHEN <when value> = <case
 value> ...". Thus, the following examples, showing a searched CASE statement
 on the left and a simple CASE statement on the right, are exactly equivalent:
+
+::
 
    CASE                                CASE parameter_value
      WHEN parameter_value = 15           WHEN 15
@@ -627,6 +723,8 @@ SQLSTATE error: 20000 "case not found for case statement". For the above
 example, then, if the value of parameter_value is 5, then the DBMS will
 execute this SQL statement:
 
+::
+
    INSERT INTO t VALUES (0);
 
 ** TRAP: The syntax for the CASE statement is somewhat different from the
@@ -638,16 +736,20 @@ IF statement
 
 The IF statement is useful for simple "if (x) then (do this)" situations. The required syntax for the IF statement is:
 
-IF <search condition> THEN <SQL statement>(s)
-   ELSEIF <search condition> THEN <SQL statement>(s)
-   ELSE <SQL statement>(s)
-END IF
+::
+
+    IF <search condition> THEN <SQL statement>(s)
+       ELSEIF <search condition> THEN <SQL statement>(s)
+       ELSE <SQL statement>(s)
+    END IF
 
 Here's an example:
 
-  IF
-   5=5 THEN UPDATE Table_1 SET column_1 = column_1 + 1;
-  END IF
+::
+
+      IF
+       5=5 THEN UPDATE Table_1 SET column_1 = column_1 + 1;
+      END IF
 
 In this example, the search condition is TRUE, so the UPDATE statement will be
 executed. If the search condition had been FALSE or UNKNOWN, then the UPDATE statement would not have been executed.
@@ -656,14 +758,18 @@ LOOP statement
 
 The LOOP statement is useful for repeated execution of SQL statements. The required syntax for the LOOP statement is:
 
-[ <beginning_label>: ]
-LOOP
-   <SQL statement>(s)
-END LOOP [ <end_label> ]
+::
+
+    [ <beginning_label>: ]
+    LOOP
+       <SQL statement>(s)
+    END LOOP [ <end_label> ]
 
 The SQL statements between LOOP and END LOOP are repeated until the loop
 finishes. The <beginning_label> and the <end_label> must be equivalent, if you
 use them both. Here's an example:
+
+::
 
    LOOP
       SET x = x + 1;
@@ -679,6 +785,8 @@ LEAVE <statement_label>
 
 Here's an example:
 
+::
+
    beginning_label:
    LOOP
      SET x = x + 1;
@@ -692,14 +800,18 @@ WHILE statement
 The WHILE statement is useful for repeated execution of SQL statements, with a
 built-in equivalent to the LEAVE statement. The required syntax for the WHILE statement is:
 
-[ <beginning_label>: ]
-WHILE <search condition> DO
-   <SQL statement>(s)
-END WHILE [ <end_label> ]
+::
+
+    [ <beginning_label>: ]
+    WHILE <search condition> DO
+       <SQL statement>(s)
+    END WHILE [ <end_label> ]
 
 As long as the <search condition> is TRUE, the SQL statements between WHILE
 and END WHILE are repeatedly executed. The <beginning_label> and the
 <end_label> must be equivalent, if you use them both. Here's an example:
+
+::
 
    WHILE x <= 1000 DO
       SET x = x + 1;
@@ -713,14 +825,18 @@ REPEAT statement
 The REPEAT statement is much like the WHILE statement, except that the
 condition is tested after the execution of the SQL statement(s). The required syntax for the REPEAT statement is:
 
-[ <beginning_label>: ]
-REPEAT
-   <SQL statement>(s) UNTIL <search condition>
-END REPEAT [ <end_label> ]
+::
+
+    [ <beginning_label>: ]
+    REPEAT
+       <SQL statement>(s) UNTIL <search condition>
+    END REPEAT [ <end_label> ]
 
 As long as the <search condition> is FALSE or UNKNOWN, the SQL statements
 between REPEAT and END REPEAT are repeatedly executed. The <beginning_label>
 and the <end_label> must be equivalent, if you use them both. Here's an example:
+
+::
 
    REPEAT
       DELETE FROM Table_1 WHERE column_1 = x;
@@ -737,15 +853,19 @@ FOR statement
 The FOR statement is useful for simplified FETCH loops. Execution takes place
 for each row of a result set. The required syntax for the FOR statement is:
 
-[ <beginning_label>: ]
-FOR <loop variable name> AS [ <Cursor name>
-   [ {ASENSITIVE | INSENSITIVE | SENSITIVE} ] CURSOR FOR ]
-   <query expression> [ ORDER BY clause ] [ updatability clause ]
-DO
-   <SQL statement>(s)
-END FOR [ <end_label> ]
+::
+
+    [ <beginning_label>: ]
+    FOR <loop variable name> AS [ <Cursor name>
+       [ {ASENSITIVE | INSENSITIVE | SENSITIVE} ] CURSOR FOR ]
+       <query expression> [ ORDER BY clause ] [ updatability clause ]
+    DO
+       <SQL statement>(s)
+    END FOR [ <end_label> ]
 
 Here's an example:
+
+::
 
    FOR x AS Cursor_1 CURSOR FOR
       SELECT name, address_1, address_2 FROM Addresses
@@ -775,6 +895,8 @@ iteration condition, ITERATE causes the next iteration of the loop to start.
 If the iteration condition is FALSE or UNKNOWN, ITERATE causes the loop to
 end. Here's an example:
 
+::
+
    beginning_of_while:
    WHILE (color_of_moon_in_june = 'blue') DO
       ...
@@ -801,14 +923,17 @@ expected, too, that there are good host-language optimizers out there -- don't
 bother pitting C and SQL head-to-head with a "Sieve of Eratosthenes" benchmark. The SQL code would lose.
 
 On the other hand, we could say that:
-      ## Yes, SQL optimizers are inferior for low-level benchmarks, but
+
+## Yes, SQL optimizers are inferior for low-level benchmarks, but
 they're better at the high level -- and you'd be helping SQL optimizers if you
 could pass them groups of SQL statements, rather than individual SQL statements.
-      ## A lot of programming effort is spent solving the "impedance mismatch"
+
+## A lot of programming effort is spent solving the "impedance mismatch"
 problem -- the fact that host languages don't store data the SQL way, or
 process sets the SQL way, or have the same ideas of access control. With
 Modules inside the SQL environment, DBMSs can act in a consistent way across platforms.
-      ## Remote Data Access is feasible with SQL, but not with a host language.
+
+## Remote Data Access is feasible with SQL, but not with a host language.
 
 In the end, the world's SQL developers will decide which arguments are the
 most convincing. At the moment, PSM is not (yet) the popular way to go.

@@ -29,14 +29,16 @@ dropped using standard SQL statements.
 
 There are four Constraint variations -- UNIQUE Constraints, PRIMARY KEY
 Constraints, FOREIGN KEY Constraints and CHECK Constraints.
-      ## A UNIQUE Constraint defines one or more Columns of a Table as unique
+
+## A UNIQUE Constraint defines one or more Columns of a Table as unique
 Columns: it is satisfied if no two rows in the Table have the same non-null
 values in the unique Columns. A PRIMARY KEY Constraint is a UNIQUE Constraint
 that specifies PRIMARY KEY: it is satisfied if (a) no two rows in the Table
 have the same non-null values in the unique Columns and (b) none of the
 primary key Columns are NULL. UNIQUE Constraints and PRIMARY KEY Constraints
 describe a Base table's candidate keys.
-      ## A FOREIGN KEY Constraint defines one or more Columns of a Table as
+
+## A FOREIGN KEY Constraint defines one or more Columns of a Table as
 referencing Columns whose values must match the values of some corresponding
 referenced Columns in a referenced Base table (the referenced Columns must be
 UNIQUE Columns for the referenced Table). It is satisfied if, for every row in
@@ -45,14 +47,18 @@ those of the corresponding referenced Columns in some row of the referenced
 Table. (If either Table contains NULLs, satisfaction of the FOREIGN KEY
 Constraint depends on the Constraint's match type.) FOREIGN KEY Constraints
 describe linkages between Base tables.
-      ## A CHECK Constraint defines a search condition: it is violated if the
+
+## A CHECK Constraint defines a search condition: it is violated if the
 result of the condition is FALSE for any row of the Table. An Assertion is a
 CHECK Constraint that may operate on multiple Tables.
 
 Non-deterministic Constraints:
+
 A CHECK Constraint may not define a non-deterministic search condition -- that
 is, any condition whose result may vary from time to time. Here is an example
 of an invalid CHECK Constraint:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 DATE CHECK (column_1 = CURRENT_DATE);
@@ -63,12 +69,16 @@ time the function is called, your DBMS is not able to determine whether the
 Constraint has been violated or not. For another example, run this query
 twice, on the same database:
 
+::
+
    SELECT *
    FROM   Table_1
    WHERE  column_time = TIME '13:14:15';
 
 You can be sure that the results will be the same both times. Now run this
 query twice:
+
+::
 
    SELECT *
    FROM   Table_1
@@ -77,6 +87,8 @@ query twice:
 You can't be sure that the results will be the same both times because the
 current time is a value from outside your SQL environment, beyond the control
 of your DBMS. Now run this query twice:
+
+::
 
    SELECT 'a '
    FROM   Table_1
@@ -96,31 +108,37 @@ SQL Standards leaves undefined, you have a query which requires a
 nine-syllable term to describe: "possibly non-deterministic". Specifically,
 queries are possibly non-deterministic (and therefore not allowed in
 Constraints) if they depend on:
-      ## A niladic function (CURRENT_DATE, CURRENT_TIME, CURRENT_TIMESTAMP,
+
+## A niladic function (CURRENT_DATE, CURRENT_TIME, CURRENT_TIMESTAMP,
 LOCALTIME, LOCALTIMESTAMP, USER, CURRENT_USER, SESSION_USER, SYSTEM_USER,
 CURRENT_PATH, CURRENT_ROLE).
-      ## An operation which picks from multiple values that may be
+
+## An operation which picks from multiple values that may be
 equivalent-but-not-the-same. Picky operations include: MIN, MAX, UNION (though
 UNION ALL is okay), INTERSECT, EXCEPT, DISTINCT and grouping columns.
 Equivalent-but-not-the-same can be true for: character strings and times and
 timestamps (in the latter cases the external factor that causes
 non-determinism is the time zone).
-      ## A routine invocation which is based on a procedure in a host language
+
+## A routine invocation which is based on a procedure in a host language
 or on parameters that are set by a host program.
 
 No matter what type of Constraint you're defining, the main ideas are always the same.
-      ## One: You're describing a state which must not be FALSE. This means it
+
+## One: You're describing a state which must not be FALSE. This means it
 can be either TRUE or UNKNOWN. (It can also be "temporarily FALSE" -- your
 DBMS is supposed to allow bad data until constraint check time. Then, if it
 descries a FALSE condition, it must wipe the bad data out again, so it's
 equally correct to say "Constraint violation" and "attempted Constraint
 violation".) Evaluation of a Constraint is one of the areas where NULLs and
 three-valued logic play an important role.
-      ## Two: A Constraint is an Object in a Schema -- it is not a procedure.
+
+## Two: A Constraint is an Object in a Schema -- it is not a procedure.
 It is, rather, a revelation to the DBMS about what you want and what you don't
 want to see in your database.
 
 Constraint deferrability:
+
 All Constraints are defined with a deferral mode of either DEFERRABLE or NOT
 DEFERRABLE. A deferral mode of DEFERRABLE allows you to specify when you want
 your DBMS to check the Constraint for violation (the choices are at statement
@@ -132,6 +150,8 @@ Constraint checking are INSERT, UPDATE and DELETE (there is no Constraint
 checking for DROP statements). DELETE is slightly less important because
 whenever you get rid of a row, there is no longer any need to check whether
 that row violates a Constraint. Consider these SQL statements:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT);
@@ -169,11 +189,13 @@ constraint check time: its defined initial constraint check time is always the
 current constraint check time at the beginning of a transaction but you may
 change the check time for the period of the transaction (from IMMEDIATE to
 DEFERRED or vice versa) if the Constraint is DEFERRABLE.
-      ## During a transaction, your DBMS will check every Constraint with a
+
+## During a transaction, your DBMS will check every Constraint with a
 current constraint check time of IMMEDIATE for violation right after it
 executes an SQL statement -- thus each such Constraint may be checked multiple
 times during a transaction.
-      ## During a transaction, your DBMS will wait to check every Constraint
+
+## During a transaction, your DBMS will wait to check every Constraint
 with a current constraint check time of DEFERRED until the transaction ends --
 thus each such Constraint will be checked only once per transaction.
 For each SQL-session, the current constraint check time of all Constraints is
@@ -199,25 +221,32 @@ Assertion, and one Base table may be constrained by the rules of many
 Assertions.
 
 Constraint names:
+
 A <Constraint name> identifies a Constraint or an Assertion. The required
 syntax for a <Constraint name> is:
 
-<Constraint name> ::=
-[ <Schema name>. ] unqualified name
+::
+
+    <Constraint name> ::=
+    [ <Schema name>. ] unqualified name
 
 A <Constraint name> is a <regular identifier> or a <delimited identifier> that
 is unique (for all Constraints and Assertions) within the Schema it belongs
 to. The <Schema name> that qualifies a <Constraint name> names the Schema that
 the Constraint or Assertion belongs to and can either be explicitly stated, or
 a default will be supplied by your DBMS as follows:
-      ## If a <Constraint name> in a CREATE SCHEMA statement isn't qualified,
+
+## If a <Constraint name> in a CREATE SCHEMA statement isn't qualified,
 the default qualifier is the name of the Schema you're creating.
-      ## If the unqualified <Constraint name> is found in any other SQL
+
+## If the unqualified <Constraint name> is found in any other SQL
 statement in a Module, the default qualifier is the name of the Schema
 identified in the SCHEMA clause or AUTHORIZATION clause of the MODULE
 statement which defines that Module.
 
 Here are some examples of <Constraint name>s:
+
+::
 
    CONSTRAINT_1
    -- a <Constraint name>
@@ -247,6 +276,7 @@ are dependent on some Base table, and therefore on some Schema -- the
 A <Column Constraint> may be any Constraint that can be a <Table Constraint>.
 
 <Domain Constraint>:
+
 A Domain may be constrained by zero or more <Domain Constraint>s: Constraints
 defined in a CREATE DOMAIN or an ALTER DOMAIN statement. <Domain Constraint>s
 are dependent on some Domain, and therefore on some Schema -- the <Constraint
@@ -258,15 +288,21 @@ either directly or indirectly, to the Domain that the <Domain Constraint>
 belongs to) and it must begin with the <value specification> VALUE; that is,
 the only proper form for a <Domain Constraint>'s rule is:
 
+::
+
    CHECK (VALUE ...)
 
 (This is the only time SQL allows you to use the <value specification> VALUE.)
 
 Three things wrong with the World Wide Web are:
-      ## Pages can be written in different styles and formats, or just be
+
+## Pages can be written in different styles and formats, or just be
 garbage.
-      ## Pages can be duplicated.
-      ## Links can be broken (the notorious "URL not found" error).
+
+## Pages can be duplicated.
+
+## Links can be broken (the notorious "URL not found" error).
+
 If we could control the World Wide Web, we'd do what we could to stomp out
 each of those practices, in turn. Specifically, we'd add three basic kinds of
 Constraints. Well, we don't control the Web. But we do control databases, so
@@ -291,76 +327,107 @@ Constraint Descriptors
 
 A UNIQUE Constraint is defined by a descriptor that contains five pieces of
 information:
-      ## The <Constraint name>, qualified by the <Schema name> of the Schema
+
+## The <Constraint name>, qualified by the <Schema name> of the Schema
 it belongs to.
-      ## The Constraint's deferral mode: either DEFERRABLE or NOT DEFERRABLE.
-      ## The Constraint's initial constraint check time: either INITIALLY
+
+## The Constraint's deferral mode: either DEFERRABLE or NOT DEFERRABLE.
+
+## The Constraint's initial constraint check time: either INITIALLY
 DEFERRED or INITIALLY IMMEDIATE.
-      ## The Constraint's rule: the <keyword> UNIQUE, which forces the Table's
+
+## The Constraint's rule: the <keyword> UNIQUE, which forces the Table's
 set of valid values for one or more Columns to be unique.
-      ## The names and positions of the Columns that are required to contain
+
+## The names and positions of the Columns that are required to contain
 only unique values.
 
 A PRIMARY KEY Constraint is defined by a descriptor that contains five pieces
 of information:
-      ## The <Constraint name>, qualified by the <Schema name> of the Schema
+
+## The <Constraint name>, qualified by the <Schema name> of the Schema
 it belongs to.
-      ## The Constraint's deferral mode: either DEFERRABLE or NOT DEFERRABLE.
-      ## The Constraint's initial constraint check time: either INITIALLY
+
+## The Constraint's deferral mode: either DEFERRABLE or NOT DEFERRABLE.
+
+## The Constraint's initial constraint check time: either INITIALLY
 DEFERRED or INITIALLY IMMEDIATE.
-      ## The Constraint's rule: the <keyword> phrase PRIMARY KEY, which forces
+
+## The Constraint's rule: the <keyword> phrase PRIMARY KEY, which forces
 the Table's set of valid values for one or more Columns to be unique and not
 NULL.
-      ## The names and positions of the Columns that are the Table's primary
+
+## The names and positions of the Columns that are the Table's primary
 key and thus are required to contain only unique, non-null values. (A Table
 that has a primary key cannot have a proper supertable.)
 
 A FOREIGN KEY Constraint is defined by a descriptor that contains nine pieces
 of information:
-      ## The <Constraint name>, qualified by the <Schema name> of the Schema
+
+## The <Constraint name>, qualified by the <Schema name> of the Schema
 it belongs to.
-      ## The Constraint's deferral mode: either DEFERRABLE or NOT DEFERRABLE.
-      ## The Constraint's initial constraint check time: either INITIALLY
+
+## The Constraint's deferral mode: either DEFERRABLE or NOT DEFERRABLE.
+
+## The Constraint's initial constraint check time: either INITIALLY
 DEFERRED or INITIALLY IMMEDIATE.
-      ## The Constraint's rule: the <keyword> phrase FOREIGN KEY, which forces
+
+## The Constraint's rule: the <keyword> phrase FOREIGN KEY, which forces
 the Table's set of valid values for one or more Columns to match some
 corresponding Columns.
-      ## The names and positions of the referencing Column(s) that make up a
+
+## The names and positions of the referencing Column(s) that make up a
 foreign key for a Table.
-      ## The name of the Table that contains the referenced Column(s).
-      ## The names and positions of the references Column(s) in the referenced
+
+## The name of the Table that contains the referenced Column(s).
+
+## The names and positions of the references Column(s) in the referenced
 Table.
-      ## The Constraint's MATCH type (if any).
-      ## The Constraint's referential triggered actions (if any).
+
+## The Constraint's MATCH type (if any).
+
+## The Constraint's referential triggered actions (if any).
 
 A NOT NULL Constraint is defined by a descriptor that contains four pieces of
 information:
-      ## The <Constraint name>, qualified by the <Schema name> of the Schema
+
+## The <Constraint name>, qualified by the <Schema name> of the Schema
 it belongs to.
-      ## The Constraint's deferral mode: either DEFERRABLE or NOT DEFERRABLE.
-      ## The Constraint's initial constraint check time: either INITIALLY
+
+## The Constraint's deferral mode: either DEFERRABLE or NOT DEFERRABLE.
+
+## The Constraint's initial constraint check time: either INITIALLY
 DEFERRED or INITIALLY IMMEDIATE.
-      ## The Constraint's rule: CHECK (<Column name> IS NOT NULL).
+
+## The Constraint's rule: CHECK (<Column name> IS NOT NULL).
 
 A CHECK Constraint is defined by a descriptor that contains four pieces of
 information:
-      ## The <Constraint name>, qualified by the <Schema name> of the Schema
+
+## The <Constraint name>, qualified by the <Schema name> of the Schema
 it belongs to.
-      ## The Constraint's deferral mode: either DEFERRABLE or NOT DEFERRABLE.
-      ## The Constraint's initial constraint check time: either INITIALLY
+
+## The Constraint's deferral mode: either DEFERRABLE or NOT DEFERRABLE.
+
+## The Constraint's initial constraint check time: either INITIALLY
 DEFERRED or INITIALLY IMMEDIATE.
-      ## The Constraint's rule: the <keyword> CHECK followed by the
+
+## The Constraint's rule: the <keyword> CHECK followed by the
 parenthesized search condition that forces the Table's set of valid values for
 one or more Columns to be TRUE or UNKNOWN for the condition.
 
 An Assertion is defined by a descriptor that contains five pieces of
 information:
-      ## The <Constraint name>, qualified by the <Schema name> of the Schema
+
+## The <Constraint name>, qualified by the <Schema name> of the Schema
 it belongs to.
-      ## The Constraint's deferral mode: either DEFERRABLE or NOT DEFERRABLE.
-      ## The Constraint's initial constraint check time: either INITIALLY
+
+## The Constraint's deferral mode: either DEFERRABLE or NOT DEFERRABLE.
+
+## The Constraint's initial constraint check time: either INITIALLY
 DEFERRED or INITIALLY IMMEDIATE.
-      ## The Constraint's rule: the <keyword> CHECK followed by the
+
+## The Constraint's rule: the <keyword> CHECK followed by the
 parenthesized search condition that forces the set of valid values for one or
 more Base Tables to be TRUE or UNKNOWN for the condition.
 
@@ -373,38 +440,40 @@ ALTER DOMAIN statement, it names a Constraint and defines the Constraint's
 type, deferral mode and constraint check time. The required syntax for a
 Constraint definition is:
 
-Constraint definition ::=
-[ CONSTRAINT <Constraint name> ]
-Constraint_type
-[ <constraint attributes> ]
+::
 
-   Constraint_type ::=
-   <Table Constraint> |
-   <Column Constrain> |
-   <Domain Constraint>
+    Constraint definition ::=
+    [ CONSTRAINT <Constraint name> ]
+    Constraint_type
+    [ <constraint attributes> ]
 
-      <Table Constraint> ::=
-      UNIQUE Constraint |
-      PRIMARY KEY Constraint |
-      FOREIGN KEY Constraint |
-      CHECK Constraint
+       Constraint_type ::=
+       <Table Constraint> |
+       <Column Constrain> |
+       <Domain Constraint>
 
-      <Column Constraint> ::=
-      UNIQUE Constraint |
-      PRIMARY KEY Constraint |
-      FOREIGN KEY Constraint |
-      NOT NULL Constraint |
-      CHECK Constraint
+          <Table Constraint> ::=
+          UNIQUE Constraint |
+          PRIMARY KEY Constraint |
+          FOREIGN KEY Constraint |
+          CHECK Constraint
 
-      <Domain Constraint> ::=
-      CHECK Constraint
+          <Column Constraint> ::=
+          UNIQUE Constraint |
+          PRIMARY KEY Constraint |
+          FOREIGN KEY Constraint |
+          NOT NULL Constraint |
+          CHECK Constraint
 
-   <constraint attributes> ::=
-   <constraint check time> [ [ NOT ] DEFERRABLE ] |
-   [ NOT ] DEFERRABLE [ <constraint check time> ]
+          <Domain Constraint> ::=
+          CHECK Constraint
 
-      <constraint check time> ::=
-      INITIALLY DEFERRED | INITIALLY IMMEDIATE
+       <constraint attributes> ::=
+       <constraint check time> [ [ NOT ] DEFERRABLE ] |
+       [ NOT ] DEFERRABLE [ <constraint check time> ]
+
+          <constraint check time> ::=
+          INITIALLY DEFERRED | INITIALLY IMMEDIATE
 
 A Constraint definition defines a new rule that will constrain a Base table's
 set of valid values. A <Table Constraint> and a <Column Constraint> are owned
@@ -412,17 +481,22 @@ by the Table they belong to. A <Domain Constraint> is owned by the Domain it
 belongs to.
 
 <Constraint name>:
+
 All Constraints have names. The optional CONSTRAINT clause of a Constraint
 definition is used to provide an explicit name for a Constraint. If you omit
 the CONSTRAINT clause from a Constraint definition, your DBMS will provide a
 default <Constraint name> to identify the Constraint. For example, this SQL
 statement includes a Constraint definition that includes a CONSTRAINT clause:
 
+::
+
    ALTER TABLE Table_1 ADD CONSTRAINT constraint_1
       PRIMARY KEY(column_1);
 
 (The name of the Constraint is CONSTRAINT_1.) This SQL statement includes a
 Constraint definition that omits the CONSTRAINT clause:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT PRIMARY KEY);
@@ -443,6 +517,7 @@ statement, the <Constraint name>, if explicitly qualified, must include the
 create a Constraint belonging to a different Schema from within CREATE SCHEMA.
 
 Types of Constraints:
+
 A <Table Constraint> defines a rule that limits the set of values for one or
 more Columns of a Base table.
 
@@ -459,6 +534,7 @@ Constraint>. A <Domain Constraint> is a CHECK Constraint that uses the <value
 specification> VALUE.
 
 Deferral mode:
+
 A Constraint definition may include a specification of the Constraint's
 deferral mode: either DEFERRABLE or NOT DEFERRABLE. A deferral mode of NOT
 DEFERRABLE means that your DBMS will check the Constraint for violation
@@ -471,6 +547,7 @@ INITIALLY DEFERRED Constraint defaults to DEFERRABLE and the deferral mode for
 an INITIALLY IMMEDIATE Constraint defaults to NOT DEFERRABLE.
 
 Constraint check time:
+
 A Constraint definition may also include a specification of the Constraint's
 initial constraint check time: either INITIALLY DEFERRED or INITIALLY
 IMMEDIATE. If you omit the constraint check time specification from a
@@ -517,6 +594,8 @@ for x, you not only don't get x, you actually get the precise reverse of x! If
 you must use deferred Constraints, add this SQL statement to your transaction
 before you COMMIT:
 
+::
+
    SET CONSTRAINTS ALL IMMEDIATE;
 
 The advantage of SET CONSTRAINTS ALL IMMEDIATE is that it won't ROLLBACK, so
@@ -526,10 +605,12 @@ something to commit.
 Although it's usually best to check all Constraints for violation right after
 you've done an operation that might cause your data to be invalid, here's some
 reasons why you might want to defer Constraint checking:
-      ## Because some invalid state might be true for a while (such as a
+
+## Because some invalid state might be true for a while (such as a
 transaction that temporarily throws everything out of balance), but you know
 that the situation will resolve itself by transaction end.
-      ## Because you want to subvert or ignore Constraints until there is some
+
+## Because you want to subvert or ignore Constraints until there is some
 reason to worry about them. For example, there might be some calculations that
 you want to perform on a "what if" basis, and the only way to get them
 straight is by temporarily turning off the Constraint checking mechanism. Such
@@ -544,16 +625,22 @@ deferred-Constraint plans.
 Here is an example of a SQL statement that adds a NOT DEFERRABLE INITIALLY
 IMMEDIATE Constraint to a Table:
 
+::
+
    ALTER TABLE Table_1 ADD CONSTRAINT constraint_1
       CHECK (column_1 > 500) NOT DEFERRABLE INITIALLY IMMEDIATE;
 
 This SQL statement adds a DEFERRABLE INITIALLY IMMEDIATE Constraint to a
 Table:
 
+::
+
    ALTER TABLE Table_1 ADD CONSTRAINT constraint_1
       CHECK (column_1 > 500) DEFERRABLE INITIALLY IMMEDIATE;
 
 This SQL statement adds a DEFERRABLE INITIALLY DEFERRED Constraint to a Table:
+
+::
 
    ALTER TABLE Table_1 ADD CONSTRAINT constraint_1
       CHECK (column_1 > 500) DEFERRABLE INITIALLY DEFERRED;
@@ -570,15 +657,17 @@ A UNIQUE Constraint is either a <Table Constraint> or a <Column Constraint>
 and defines a rule that constrains a unique key to non-duplicate values only.
 The required syntax for a UNIQUE Constraint is:
 
-UNIQUE <Table Constraint> ::=
-[ CONSTRAINT <Constraint name> ]
-UNIQUE (<Column name> [ {,<Column name>}... ]) | UNIQUE (VALUE)
-[ <constraint attributes> ]
+::
 
-UNIQUE <Column Constraint> ::=
-[ CONSTRAINT <Constraint name> ]
-<Column name> UNIQUE
-[ <constraint attributes> ]
+    UNIQUE <Table Constraint> ::=
+    [ CONSTRAINT <Constraint name> ]
+    UNIQUE (<Column name> [ {,<Column name>}... ]) | UNIQUE (VALUE)
+    [ <constraint attributes> ]
+
+    UNIQUE <Column Constraint> ::=
+    [ CONSTRAINT <Constraint name> ]
+    <Column name> UNIQUE
+    [ <constraint attributes> ]
 
 A Base table may be constrained by zero or more UNIQUE Constraints, each
 specifying a rule that a group of one or more Columns (the unique key) may
@@ -599,6 +688,8 @@ from any other row.
 
 Here are some examples of UNIQUE Constraint definitions:
 
+::
+
    CREATE TABLE Table_1 (
       column_1 SMALLINT,
       CONSTRAINT constraint_1 UNIQUE(column_1) DEFERRED INITIALLY DEFERRED);
@@ -617,10 +708,14 @@ Here are some examples of UNIQUE Constraint definitions:
 Once created, a UNIQUE <Column Constraint> logically becomes a UNIQUE <Table
 Constraint>. The <Column Constraint> in this SQL statement:
 
+::
+
    CREATE TABLE Table_1 (
       column_1 SMALLINT UNIQUE);
 
 is therefore equivalent to the <Table Constraint> in this SQL statement:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT,
@@ -631,6 +726,8 @@ cause the unique key to contain any non-null duplicate values. (Multiple null
 values are allowed, since the null value is never equal to anything, even
 another null value.) A UNIQUE Constraint is violated if its condition is FALSE
 for any row of the Table it belongs to. Consider these SQL statements:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT,
@@ -657,15 +754,17 @@ A PRIMARY KEY Constraint is either a <Table Constraint> or a <Column
 Constraint> and defines a rule that constrains a unique key to non-duplicate,
 non-null values only. The required syntax for a PRIMARY KEY Constraint is:
 
-PRIMARY KEY <Table Constraint> ::=
-[ CONSTRAINT <Constraint name> ]
-PRIMARY KEY (<Column name> [ {,<Column name>}... ])
-[ <constraint attributes> ]
+::
 
-PRIMARY KEY <Column Constraint> ::=
-[ CONSTRAINT <Constraint name> ]
-<Column name> PRIMARY KEY
-[ <constraint attributes> ]
+    PRIMARY KEY <Table Constraint> ::=
+    [ CONSTRAINT <Constraint name> ]
+    PRIMARY KEY (<Column name> [ {,<Column name>}... ])
+    [ <constraint attributes> ]
+
+    PRIMARY KEY <Column Constraint> ::=
+    [ CONSTRAINT <Constraint name> ]
+    <Column name> PRIMARY KEY
+    [ <constraint attributes> ]
 
 A Base table may be constrained by no more than one PRIMARY KEY Constraint,
 which specifies a rule that a group of one or more Columns is the Table's
@@ -678,12 +777,18 @@ A Table's PRIMARY KEY Constraint must name a set of Columns that is different
 from the set of Columns named by any other UNIQUE Constraint defined for the
 Table. Which unique key should be the primary key for a Table? The criteria
 are:
-      ## Simplicity, i.e.: the key with the fewest Columns and smallest size.
-      ## Permanence.
-      ## Mnemonicity, i.e.: the key that people will understand and remember.
-      ## The key's use in other (e.g.: foreign) Tables.
+
+## Simplicity, i.e.: the key with the fewest Columns and smallest size.
+
+## Permanence.
+
+## Mnemonicity, i.e.: the key that people will understand and remember.
+
+## The key's use in other (e.g.: foreign) Tables.
 
 Here are some examples of PRIMARY KEY Constraint definitions:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT,
@@ -702,10 +807,14 @@ Here are some examples of PRIMARY KEY Constraint definitions:
 Once created, a PRIMARY KEY <Column Constraint> logically becomes a PRIMARY
 KEY <Table Constraint>. The <Column Constraint> in this SQL statement:
 
+::
+
    CREATE TABLE Table_1 (
       column_1 SMALLINT PRIMARY KEY);
 
 is therefore equivalent to the <Table Constraint> in this SQL statement:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT,
@@ -715,6 +824,8 @@ A PRIMARY KEY Constraint makes it impossible to COMMIT any operation that
 would cause the unique key to contain any NULLs or any duplicate values. A
 PRIMARY KEY Constraint is violated if its condition is FALSE for any row of
 the Table it belongs to. Consider these SQL statements:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT,
@@ -741,6 +852,8 @@ names or our part numbers very often. A primary key identifier also comes in
 handy when you're splitting your data into two Tables. For example, consider
 an "Internet address". You might start off with this Table definition:
 
+::
+
    CREATE TABLE Table_1 (
       table_id VARCHAR(40),
       int_address VARCHAR(50));
@@ -752,6 +865,8 @@ repeating Column (ARRAY) for this data? Well maybe, but the use of non-atomic
 values is still frowned on and deservedly has a bad rep -- see our chapter on
 <collection type>s for a discussion of the problem. The classic relational
 solution is to split your data into two Tables. For example:
+
+::
 
    CREATE TABLE Table_1 (
       table_id VARCHAR(40),
@@ -774,33 +889,35 @@ Constraint> and defines a rule that constrains a foreign key to values that
 match only those values contained in a referenced unique key. The required
 syntax for a FOREIGN KEY Constraint is:
 
-FOREIGN KEY <Table Constraint> ::=
-[ CONSTRAINT <Constraint name> ]
-FOREIGN KEY (referencing <Column name> [ {,<Column name>}... ])
-   REFERENCES referenced <Table name>
-      [ (referenced <Column name> [ {,<Column name>}... ]) ]
-   [ MATCH {FULL | PARTIAL | SIMPLE} ]
-   [ <referential triggered action> ]
-[ <constraint attributes> ]
+::
 
-      <referential triggered action> ::=
-      ON UPDATE <action> [ ON DELETE <action> ] |
-      ON DELETE <action> [ ON UPDATE <action> ]
+    FOREIGN KEY <Table Constraint> ::=
+    [ CONSTRAINT <Constraint name> ]
+    FOREIGN KEY (referencing <Column name> [ {,<Column name>}... ])
+       REFERENCES referenced <Table name>
+          [ (referenced <Column name> [ {,<Column name>}... ]) ]
+       [ MATCH {FULL | PARTIAL | SIMPLE} ]
+       [ <referential triggered action> ]
+    [ <constraint attributes> ]
 
-         <action> ::=
-         NO ACTION |
-         CASCADE |
-         RESTRICT |
-         SET NULL |
-         SET DEFAULT
+          <referential triggered action> ::=
+          ON UPDATE <action> [ ON DELETE <action> ] |
+          ON DELETE <action> [ ON UPDATE <action> ]
 
-FOREIGN KEY <Column Constraint> ::=
-[ CONSTRAINT <Constraint name> ]
-<Column name> REFERENCES referenced <Table name>
-      [ (referenced <Column name>) ]
-   [ MATCH {FULL | PARTIAL | SIMPLE} ]
-   [ <referential triggered action> ]
-[ <constraint attributes> ]
+             <action> ::=
+             NO ACTION |
+             CASCADE |
+             RESTRICT |
+             SET NULL |
+             SET DEFAULT
+
+    FOREIGN KEY <Column Constraint> ::=
+    [ CONSTRAINT <Constraint name> ]
+    <Column name> REFERENCES referenced <Table name>
+          [ (referenced <Column name>) ]
+       [ MATCH {FULL | PARTIAL | SIMPLE} ]
+       [ <referential triggered action> ]
+    [ <constraint attributes> ]
 
 A Base table may be constrained by zero or more FOREIGN KEY Constraints, which
 specify a rule that a group of one or more Columns of the Table may contain
@@ -808,6 +925,8 @@ only those values found in a similar set of unique Columns belonging to
 (usually) another Table. You can't define a foreign key with Columns that have
 a <data type> of BLOB, CLOB, NCLOB or ARRAY. Here are some examples of FOREIGN
 KEY Constraint definitions:
+
+::
 
    CREATE TABLE Table_2 (
       column_1 SMALLINT,
@@ -829,10 +948,14 @@ KEY Constraint definitions:
 Once created, a FOREIGN KEY <Column Constraint> logically becomes a FOREIGN
 KEY <Table Constraint>. The <Column Constraint> in this SQL statement:
 
+::
+
    CREATE TABLE Table_2 (
       column_1 SMALLINT REFERENCES Table_1);
 
 is therefore equivalent to the <Table Constraint> in this SQL statement:
+
+::
 
    CREATE TABLE Table_2 (
       column_1 SMALLINT,
@@ -862,12 +985,14 @@ null values and the degree of matching specified for the Constraint; see the
 comments on the MATCH clause, later in this section.
 
 Referencing Columns:
+
 The FOREIGN KEY clause of a FOREIGN KEY <Table Constraint> definition names
 the referencing Columns: the group of one or more Columns that make up the
 foreign key (a Column may appear in the list only once). You may specify only
 unqualified <Column name>s in this clause.
 
 Referenced Table and Columns:
+
 The REFERENCES clause of a FOREIGN KEY Constraint definition names the
 referenced Base table: the Base table that contains the referenced unique key.
 The Table types must match: if the Table that owns the FOREIGN KEY Constraint
@@ -896,6 +1021,8 @@ referenced Table must be constrained by a NOT DEFERRABLE PRIMARY KEY
 Constraint; the primary key is also the referenced unique key.
 
 Here are some more examples of FOREIGN KEY Constraint definitions:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT,
@@ -939,7 +1066,8 @@ Here are some more examples of FOREIGN KEY Constraint definitions:
       column_3 DATE,
       CONSTRAINT constraint_3
          FOREIGN KEY(column3) REFERENCES Table_1(column3));
-   -- Here the foreign key explicitly matches Table_1's unique key; this is
+
+-- Here the foreign key explicitly matches Table_1's unique key; this is
 mandatory because, if the referenced Column list were omitted, your DBMS would
 attempt to match the foreign key (COLUMN_3) to Table_1's primary key
 (COLUMN_1,COLUMN_2) and would fail.
@@ -951,11 +1079,14 @@ the referencing Table must be the current <AuthorizationID> and must have the
 REFERENCES Privilege on every referenced Column named.
 
 MATCH clause:
+
 The optional MATCH clause of a FOREIGN KEY Constraint definition specifies the
 degree of the required match between the values of the foreign key and the
 referenced unique key. There are three match options: MATCH SIMPLE, MATCH FULL
 and MATCH PARTIAL. If you omit the MATCH clause, it defaults to MATCH SIMPLE.
 For example, these two SQL statements are equivalent:
+
+::
 
    CREATE TABLE Table_2 (
       column_1 SMALLINT,
@@ -975,16 +1106,22 @@ entire foreign key equals the value of the entire unique key in at least one
 row of the referenced Table. For example, given a referenced Table with these
 two unique key rows:
 
+::
+
    {10,'tiny'} {20,'huge'}
 
 these foreign key rows are valid for the referencing Table:
 
+::
+
    {10,'tiny'} -- because a matching unique key row exists
 
    {NULL,'tiny'} {10,NULL} {NULL,'soso'} {30,NULL} -- because, in each case,
-one foreign key Column is NULL
+   one foreign key Column is NULL
 
 and this foreign key row is invalid:
+
+::
 
    {10,'huge'} -- because no matching unique key row exists
 
@@ -998,9 +1135,13 @@ defined as NOT NULL in the foreign key, then the Constraint will have the same
 effect as if you had defined the Constraint with MATCH SIMPLE.) For example,
 given a referenced Table with these two unique key rows:
 
+::
+
    {10,'tiny'} {20,'huge'}
 
 these foreign key rows are valid for the referencing Table:
+
+::
 
    {10,'tiny'} -- because a matching unique key row exists
 
@@ -1008,10 +1149,12 @@ these foreign key rows are valid for the referencing Table:
 
 and these foreign key rows are invalid:
 
+::
+
    {10,'huge'} -- because no matching unique key row exists
 
    {NULL,'tiny'} {10,NULL} -- because, in each case, only some of the foreign
-key is NULL
+   key is NULL
 
 For MATCH PARTIAL, a FOREIGN KEY Constraint is satisfied if, for each row of
 the referencing Table, at least one foreign key Column is NULL and the values
@@ -1023,30 +1166,37 @@ the foreign key, then the Constraint will have the same effect as if you had
 defined the Constraint with MATCH SIMPLE.) For example, given a referenced
 Table with these two unique key rows:
 
+::
+
    {10,'tiny'} {20,'huge'}
 
 these foreign key rows are valid for the referencing Table:
+
+::
 
    {10,'tiny'} -- because a matching unique key row exists
 
    {NULL,NULL} -- because the entire foreign key is NULL
 
    {NULL,'tiny'} {10,NULL} {NULL,'huge'} {20,NULL} -- because, in each case,
-one foreign key Column is NULL but the other matches the corresponding unique
-Column in some row of the referenced Table
+   one foreign key Column is NULL but the other matches the corresponding unique
+   Column in some row of the referenced Table
 
 and these foreign key rows are invalid:
+
+::
 
    {10,'huge'} -- because no matching unique key row exists
 
    {NULL,'big'} {30,NULL} -- because, although one foreign key Column is NULL.
-the other does not match the value of the corresponding unique Column in any
-row of the referenced Table
+   the other does not match the value of the corresponding unique Column in any
+   row of the referenced Table
 
 ** TIP: Use MATCH FULL, or define all foreign key Columns with a NOT NULL
 Constraint.
 
 Referential Action:
+
 What happens if you UPDATE a primary key? What happens if you DELETE a primary
 key? Neither should happen often, but if you must, remember that the rule for
 primary/foreign key relationships is in terms of database states: "no foreign
@@ -1060,6 +1210,8 @@ optional ON DELETE clause specifies the action you want your DBMS to take when
 a DELETE operation on the referenced Table causes the FOREIGN KEY Constraint
 to be violated. If you omit either clause, both default to ON UPDATE NO ACTION
 and ON DELETE NO ACTION. For example, these two SQL statements are equivalent:
+
+::
 
    CREATE TABLE Table_2 (
       column_1 SMALLINT,
@@ -1090,20 +1242,23 @@ row in the referenced Table, every row in your referencing Table that contains
 a foreign key with at least one non-null Column whose value equals the value
 of that unique key, is a matching row -- and a matching row that matches only
 one row of the referenced Table is a unique matching row.
-      ## If you define a FOREIGN KEY Constraint with MATCH SIMPLE ON DELETE
+
+## If you define a FOREIGN KEY Constraint with MATCH SIMPLE ON DELETE
 CASCADE or with MATCH FULL ON DELETE CASCADE, every time you DELETE rows from
 the referenced Table, your DBMS will also DELETE all matching rows from the
 referencing Table. If you define a FOREIGN KEY Constraint with MATCH PARTIAL
 ON DELETE CASCADE, every time you DELETE rows from the referenced Table, your
 DBMS will also DELETE all unique matching rows from the referencing Table.
-      ## If you define a FOREIGN KEY Constraint with MATCH SIMPLE ON DELETE
+
+## If you define a FOREIGN KEY Constraint with MATCH SIMPLE ON DELETE
 SET NULL or with MATCH FULL ON DELETE SET NULL, every time you DELETE rows
 from the referenced Table, your DBMS will also set the entire foreign key in
 every matching row of the referencing Table to NULL. If you define a FOREIGN
 KEY Constraint with MATCH PARTIAL ON DELETE SET NULL, every time you DELETE
 rows from the referenced Table, your DBMS will also set the entire foreign key
 in every unique matching row of the referencing Table to NULL.
-      ## If you define a FOREIGN KEY Constraint with MATCH SIMPLE ON DELETE
+
+## If you define a FOREIGN KEY Constraint with MATCH SIMPLE ON DELETE
 SET DEFAULT or with MATCH FULL ON DELETE SET DEFAULT, every time you DELETE
 rows from the referenced Table, your DBMS will also set each Column of the
 foreign key in every matching row of the referencing Table to its default
@@ -1111,7 +1266,8 @@ value. If you define a FOREIGN KEY Constraint with MATCH PARTIAL ON DELETE SET
 DEFAULT, every time you DELETE rows from the referenced Table, your DBMS will
 also set each Column of the foreign key in every unique matching row of the
 referencing Table to its default value.
-      ## If you define a FOREIGN KEY Constraint with MATCH SIMPLE ON DELETE
+
+## If you define a FOREIGN KEY Constraint with MATCH SIMPLE ON DELETE
 RESTRICT or with MATCH FULL ON DELETE RESTRICT, every time you attempt to
 DELETE rows from the referenced Table, your DBMS will check for matching rows
 in the referencing Table. If you define a FOREIGN KEY Constraint with MATCH
@@ -1122,7 +1278,8 @@ appropriate) rows exist, the operation will fail: your DBMS will return the
 SQLSTATE error 23001 "integrity constraint violation-restrict violation". A
 FOREIGN KEY Constraint defined with ON DELETE NO ACTION acts essentially the
 same as one defined with ON DELETE RESTRICT.
-      ## If you define a FOREIGN KEY Constraint with MATCH SIMPLE ON UPDATE
+
+## If you define a FOREIGN KEY Constraint with MATCH SIMPLE ON UPDATE
 CASCADE or with MATCH FULL ON UPDATE CASCADE, every time you UPDATE a
 referenced Column, your DBMS will also UPDATE the corresponding foreign key
 Column in all matching rows of the referencing Table to the same value. If you
@@ -1134,7 +1291,8 @@ changed, all rows of the referenced Table that considered that referencing row
 to be a matching row also have the same change made. If this isn't the case,
 the operation will fail: your DBMS will return the SQLSTATE error 27000
 "triggered data change violation".
-      ## If you define a FOREIGN KEY Constraint with MATCH SIMPLE ON UPDATE
+
+## If you define a FOREIGN KEY Constraint with MATCH SIMPLE ON UPDATE
 SET NULL, every time you UPDATE a referenced Column, your DBMS will also set
 the corresponding foreign key Column in all matching rows of the referencing
 Table to NULL. If you define a FOREIGN KEY Constraint with MATCH FULL ON
@@ -1144,7 +1302,8 @@ to NULL. If you define a FOREIGN KEY Constraint with MATCH PARTIAL ON UPDATE
 SET NULL, every time you UPDATE a referenced Column, your DBMS will also set
 any corresponding non-null foreign key Column in every unique matching row of
 the referencing Table to NULL.
-      ## If you define a FOREIGN KEY Constraint with MATCH SIMPLE ON UPDATE
+
+## If you define a FOREIGN KEY Constraint with MATCH SIMPLE ON UPDATE
 SET DEFAULT or with MATCH FULL ON UPDATE SET DEFAULT, every time you UPDATE a
 referenced Column, your DBMS will also set the corresponding foreign key
 Column in all matching rows of the referencing Table to its default value. If
@@ -1152,7 +1311,8 @@ you define a FOREIGN KEY Constraint with MATCH PARTIAL ON UPDATE SET DEFAULT,
 every time you UPDATE a referenced Column, your DBMS will also set any
 corresponding non-null foreign key Column in every unique matching row of the
 referencing Table to its default value.
-      ## If you define a FOREIGN KEY Constraint with MATCH SIMPLE ON UPDATE
+
+## If you define a FOREIGN KEY Constraint with MATCH SIMPLE ON UPDATE
 RESTRICT or with MATCH FULL ON UPDATE RESTRICT, every time you attempt to
 UPDATE a referenced Column, your DBMS will check for matching rows in the
 referencing Table. If you define a FOREIGN KEY Constraint with MATCH PARTIAL
@@ -1166,6 +1326,8 @@ UPDATE RESTRICT.
 
 For an example of the NO ACTION/RESTRICT option, consider the following SQL
 statements:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT DEFAULT 12
@@ -1186,6 +1348,8 @@ statements:
 
 For TABLE_1 and TABLE_2, the effect of each of these SQL statements:
 
+::
+
    UPDATE Table_1 SET column_1=11 WHERE column_1=10;
 
    UPDATE Table_2 SET column_1=11 where column_1=10;
@@ -1201,6 +1365,8 @@ operation that attempts to change a row of TABLE_2, will always fail if the
 resulting value in TABLE_2.COLUMN_1 does not match some value of
 TABLE_1.COLUMN_1.) The effect of this SQL statement:
 
+::
+
    DELETE FROM Table_1 WHERE column_1=10;
 
 is also an error return, because deleting the applicable row from
@@ -1208,16 +1374,20 @@ TABLE_1 would leave TABLE_2 with a row containing a COLUMN_1 value that does
 not match any TABLE_1.COLUMN_1 value.
 
 To summarize:
-      ## When an UPDATE operation attempts to update a non-null value in a
+
+## When an UPDATE operation attempts to update a non-null value in a
 Column that is referenced in a FOREIGN KEY Constraint defined with ON UPDATE
 NO ACTION or ON UPDATE RESTRICT, the UPDATE fails, regardless of the MATCH
 option, if there are matching rows in the referencing Table.
-      ## When a DELETE operation attempts to delete a row from a Table that is
+
+## When a DELETE operation attempts to delete a row from a Table that is
 referenced in a FOREIGN KEY Constraint defined with ON DELETE NO ACTION or ON
 DELETE RESTRICT, the DELETE operation fails, regardless of the MATCH option,
 if there are matching rows in the referencing Table.
 
 For an example of the CASCADE option, consider the following SQL statements:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT DEFAULT 12
@@ -1238,11 +1408,15 @@ For an example of the CASCADE option, consider the following SQL statements:
 
 For TABLE_1 and TABLE_2, the effect of this SQL statement:
 
+::
+
    UPDATE Table_1 SET column_1=11 where column_1=10;
 
 is that all values of TABLE_1.COLUMN_1 that are equal to 10 are set to 11,
 with the same effect cascading down; that is, all values in TABLE_2.COLUMN_1
 that are equal to 10 are also set to 11. And the effect of this SQL statement:
+
+::
 
    DELETE FROM Table_1 WHERE column_1=10;
 
@@ -1250,7 +1424,8 @@ is that all applicable rows are deleted from TABLE_1, with the same effect
 cascading down; that is, all matching rows of TABLE_2 are also deleted.
 
 To summarize:
-      ## When an UPDATE operation attempts to update a non-null value in a
+
+## When an UPDATE operation attempts to update a non-null value in a
 Column that is referenced in a FOREIGN KEY Constraint defined with MATCH
 SIMPLE or MATCH FULL and ON UPDATE CASCADE, the referenced Column, and the
 corresponding referencing Column in all matching rows, are set to the new
@@ -1260,7 +1435,8 @@ and ON UPDATE CASCADE, the referenced Column, and the corresponding
 referencing Column in all unique matching rows where the referencing Column
 contains a non-null value, are set to the new value. Unique matching rows with
 a referencing Column that contains the null value are not updated.
-      ## When a DELETE operation attempts to delete a row from a Table that is
+
+## When a DELETE operation attempts to delete a row from a Table that is
 referenced in a FOREIGN KEY Constraint defined with MATCH SIMPLE or MATCH FULL
 and ON DELETE CASCADE, the applicable row, and all matching rows, are deleted.
 When a DELETE operation attempts to delete a row from a Table that is
@@ -1268,6 +1444,8 @@ referenced in a FOREIGN KEY Constraint defined with MATCH PARTIAL and ON
 DELETE CASCADE, the applicable row, and all unique matching rows, are deleted.
 
 For an example of the SET NULL option, consider the following SQL statements:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT DEFAULT 12
@@ -1288,12 +1466,16 @@ For an example of the SET NULL option, consider the following SQL statements:
 
 For TABLE_1 and TABLE_2, the effect of this SQL statement:
 
+::
+
    UPDATE Table_1 SET column_1=11 where column_1=10;
 
 is that all values of TABLE_1.COLUMN_1 that are equal to 10 are set to 11, and
 that all values in TABLE_2.COLUMN_1 that are equal to 10 are set to the null
 value. (If TABLE_2.COLUMN_1 did not allow null values, the UPDATE statement
 would fail.) And the effect of this SQL statement:
+
+::
 
    DELETE FROM Table_1 WHERE column_1=10;
 
@@ -1302,7 +1484,8 @@ TABLE_2.COLUMN_1 that are equal to 10 are set to the null value. (If
 TABLE_2.COLUMN_1 did not allow null values, the DELETE statement would fail.)
 
 To summarize:
-      ## When an UPDATE operation attempts to update a non-null value in a
+
+## When an UPDATE operation attempts to update a non-null value in a
 Column that is referenced in a FOREIGN KEY Constraint defined with MATCH
 SIMPLE and ON UPDATE SET NULL, the referenced Column is set to the new value
 and the corresponding referencing Column in all matching rows is set to the
@@ -1315,7 +1498,8 @@ non-null value in a Column that is referenced in a FOREIGN KEY Constraint
 defined with MATCH PARTIAL and ON UPDATE SET NULL, the referenced Column is
 set to the new value and the corresponding referencing Column in all unique
 matching rows is set to the null value.
-      ## When a DELETE operation attempts to delete a row from a Table that is
+
+## When a DELETE operation attempts to delete a row from a Table that is
 referenced in a FOREIGN KEY Constraint defined with MATCH SIMPLE or MATCH FULL
 and ON DELETE SET NULL, the applicable row is deleted and, for all matching
 rows, each referencing Column is set to the null value. When a DELETE
@@ -1326,6 +1510,8 @@ Column is set to the null value.
 
 For an example of the SET DEFAULT option, consider the following SQL
 statements:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT DEFAULT 12
@@ -1346,12 +1532,16 @@ statements:
 
 For TABLE_1 and TABLE_2, the effect of this SQL statement:
 
+::
+
    UPDATE Table_1 SET column_1=11 where column_1=10;
 
 is that all values of TABLE_1.COLUMN_1 that are equal to 10 are set to 11, and
 that all values of TABLE_2.COLUMN_1 that are equal to 10 are set to COLUMN_1's
 default value, 15. (If no row existed where the value of TABLE_1.COLUMN_1 was
 15, the UPDATE statement would fail.) And the effect of this SQL statement:
+
+::
 
    DELETE FROM Table_1 WHERE column_1=10;
 
@@ -1361,7 +1551,8 @@ TABLE_2.COLUMN_1 that are equal to 10 are set to COLUMN_1's default value, 15.
 statement would fail.)
 
 To summarize:
-      ## When an UPDATE operation attempts to update a non-null value in a
+
+## When an UPDATE operation attempts to update a non-null value in a
 Column that is referenced in a FOREIGN KEY Constraint defined with MATCH
 SIMPLE or MATCH FULL and ON UPDATE SET DEFAULT, the referenced Column is set
 to the new value and the corresponding referencing Column in all matching rows
@@ -1370,7 +1561,8 @@ non-null value in a Column that is referenced in a FOREIGN KEY Constraint
 defined with MATCH PARTIAL and ON UPDATE SET DEFAULT, the referenced Column is
 set to the new value and the corresponding referencing Column in all unique
 matching rows is set to its default value.
-      ## When a DELETE operation attempts to delete a row from a Table that is
+
+## When a DELETE operation attempts to delete a row from a Table that is
 referenced in a FOREIGN KEY Constraint defined with MATCH SIMPLE or MATCH FULL
 and ON DELETE SET DEFAULT, the applicable row is deleted, and, for all
 matching rows, each referencing Column is set to its default value. When a
@@ -1398,30 +1590,38 @@ A NOT NULL Constraint is a <Column Constraint>, defining a rule that
 constrains a key to non-null values only. The required syntax for a NOT NULL
 Constraint is:
 
-NOT NULL <Column Constraint> ::=
-[ CONSTRAINT <Constraint name> ]
-<Column name> NOT NULL
-[ <constraint attributes> ]
+::
+
+    NOT NULL <Column Constraint> ::=
+    [ CONSTRAINT <Constraint name> ]
+    <Column name> NOT NULL
+    [ <constraint attributes> ]
 
 A Column may be constrained by no more than one NOT NULL Constraint, which
 specifies a rule that the Column may contain only non-null values. Here is an
 example of a NOT NULL Constraint definition:
 
-   CREATE TABLE Table_1 (
-      column_1 SMALLINT
-         DEFAULT 15
-         CONSTRAINT constraint_1 NOT NULL DEFERRABLE INITIALLY IMMEDIATE);
-   -- defines a NOT NULL <Column Constraint> in CREATE TABLE
+::
+
+       CREATE TABLE Table_1 (
+          column_1 SMALLINT
+             DEFAULT 15
+             CONSTRAINT constraint_1 NOT NULL DEFERRABLE INITIALLY IMMEDIATE);
+       -- defines a NOT NULL <Column Constraint> in CREATE TABLE
 
 Once created, a NOT NULL <Column Constraint> logically becomes a CHECK <Table
 Constraint>. The <Column Constraint> in this SQL statement:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT NOT NULL);
 
 is therefore equivalent to the <Table Constraint> in this SQL statement:
 
-CREATE TABLE Table_1 (
+::
+
+   CREATE TABLE Table_1 (
      column_1 SMALLINT,
      CHECK (column_1 IS NOT NULL));
 
@@ -1429,6 +1629,8 @@ A NOT NULL Constraint makes it impossible to COMMIT any operation that would
 cause the Column to which it belongs to contain any NULLs. A NOT NULL
 Constraint is violated if it is FALSE for any row of the Table it belongs to.
 Consider this SQL statement:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT CONSTRAINT constraint_1 NOT NULL,
@@ -1444,20 +1646,22 @@ A CHECK Constraint is either a <Table Constraint>, a <Column Constraint> or a
 <Domain Constraint> and defines a rule that constrains the set of valid values
 for a Base table. The required syntax for a CHECK Constraint is:
 
-CHECK <Table Constraint> ::=
-[ CONSTRAINT <Constraint name> ]
-CHECK (search condition)
-[ <constraint attributes> ]
+::
 
-CHECK <Column Constraint> ::=
-[ CONSTRAINT <Constraint name> ]
-<Column name> CHECK (search condition)
-[ <constraint attributes> ]
+    CHECK <Table Constraint> ::=
+    [ CONSTRAINT <Constraint name> ]
+    CHECK (search condition)
+    [ <constraint attributes> ]
 
-CHECK <Domain Constraint> ::=
-[ CONSTRAINT <Constraint name> ]
-CHECK (VALUE search condition)
-[ <constraint attributes> ]
+    CHECK <Column Constraint> ::=
+    [ CONSTRAINT <Constraint name> ]
+    <Column name> CHECK (search condition)
+    [ <constraint attributes> ]
+
+    CHECK <Domain Constraint> ::=
+    [ CONSTRAINT <Constraint name> ]
+    CHECK (VALUE search condition)
+    [ <constraint attributes> ]
 
 A Base table may be constrained by zero or more CHECK Constraints, which
 specify a rule that a group of one or more Columns of a Table may contain only
@@ -1466,6 +1670,8 @@ Constraint is satisfied if its search condition evaluates to TRUE or to
 UNKNOWN for all rows within its scope.
 
 Here are some examples of CHECK Constraint definitions:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT,
@@ -1506,10 +1712,14 @@ indirectly, to the Domain that the <Domain Constraint> belongs to).
 Once created, a CHECK <Column Constraint> logically becomes a CHECK <Table
 Constraint>. The <Column Constraint> in this SQL statement:
 
+::
+
    CREATE TABLE Table_1 (
       column_1 SMALLINT CHECK(column_1<400));
 
 is therefore equivalent to the <Table Constraint> in this SQL statement:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT,
@@ -1517,32 +1727,38 @@ is therefore equivalent to the <Table Constraint> in this SQL statement:
 
 A CHECK Constraint's search condition may specify any conditional expression,
 subject to the following rules:
-      ## The search condition may not contain (a) a <target specification> or
+
+## The search condition may not contain (a) a <target specification> or
 (b) a set function (i.e.: COUNT, AVG, MAX, MIN or SUM) unless the set function
 is contained in a subquery or (c) any of these functions: CURRENT_PATH,
 CURRENT_USER, SESSION_USER, SYSTEM_USER, USER, CURRENT_DATE, CURRENT_TIME,
 CURRENT_TIMESTAMP, LOCALTIME or LOCALTIMESTAMP or (d) any query that is
 possibly non-deterministic, as defined earlier in this chapter.
-      ## The search condition may not invoke a non-deterministic routine, or a
+
+## The search condition may not invoke a non-deterministic routine, or a
 routine which possibly modifies SQL-data.
-      ## If a CHECK Constraint belongs to a persistent Base table or to a
+## If a CHECK Constraint belongs to a persistent Base table or to a
 Domain, its search condition may not refer to any temporary Tables.
-      ## If a CHECK Constraint belongs to a GLOBAL TEMPORARY Base table, its
+
+## If a CHECK Constraint belongs to a GLOBAL TEMPORARY Base table, its
 search condition may refer only to GLOBAL TEMPORARY Base Tables. If a CHECK
 Constraint belongs to a created LOCAL TEMPORARY Base table, its search
 condition may refer only to GLOBAL TEMPORARY Base Tables or to created LOCAL
 TEMPORARY Base tables. If a CHECK Constraint belongs to a declared LOCAL
 TEMPORARY Base table, its search condition may not refer to any persistent
 Base Tables.
-      ## If a CHECK Constraint belongs to a temporary Table defined with ON
+
+## If a CHECK Constraint belongs to a temporary Table defined with ON
 COMMIT PRESERVE ROWS, its search condition may not contain a subquery that
 refers to a temporary Table defined with ON COMMIT DELETE ROWS.
-      ## [Obscure Rule] If a CHECK Constraint's search condition can't be
+
+## [Obscure Rule] If a CHECK Constraint's search condition can't be
 represented in INFORMATION_SCHEMA without truncation, your DBMS will return
 the SQLSTATE warning 01009 "warning-search condition too long for information
 schema".
 
 Privileges:
+
 In order to create a CHECK Constraint, the <AuthorizationID> that owns the
 Schema to which the Constraint will belong must be the current
 <AuthorizationID> and must have the REFERENCES Privilege on every Column that
@@ -1558,6 +1774,8 @@ is satisfied.) Thus, for example, the Constraint defined in this CREATE TABLE
 statement is violated if any row of TABLE_1 contains a COLUMN_1 value that is
 greater than 99:
 
+::
+
    CREATE TABLE Table_1 (
       column_1 SMALLINT,
       column_2 VARCHAR(4),
@@ -1565,20 +1783,26 @@ greater than 99:
 
 This SQL statement would therefore violate CONSTRAINT_1:
 
+::
+
    INSERT INTO Table_1 VALUES (105);
 
 because a search condition that evaluates to FALSE violates the Constraint.
 Both of these SQL statements, however, would satisfy CONSTRAINT_1:
+
+::
 
    INSERT INTO Table_1 VALUES (-30);
    -- a search condition that evaluates to TRUE satisfies the Constraint
 
    INSERT INTO Table_1 VALUES (NULL);
    -- NULL is allowed; a search condition that evaluates to UNKNOWN satisfies
-the Constraint
+   the Constraint
 
 The first use of a CHECK <Table Constraint> is to restrict what range of
 values is allowed in a Column, for example:
+
+::
 
    ALTER TABLE Table_1 ADD CONSTRAINT constraint_1
       CHECK(column_1 BETWEEN 5 AND 9) NOT DEFERRABLE;
@@ -1587,6 +1811,8 @@ You'll often see Column values restrained like this; it's a feature in dialog
 boxes. The second use of a CHECK <Table Constraint> is to see that two Columns
 within the same Table agree with each other, for example:
 
+::
+
    ALTER TABLE Films ADD CONSTRAINT constraint_1
       CHECK(film_type <> 'Action' OR star = 'Stallone') NOT DEFERRABLE;
 
@@ -1594,12 +1820,16 @@ The third use is to find out whether some relation is true between a row in
 one Table, and a row in another Table or a different row in the same Table,
 for example:
 
+::
+
    ALTER TABLE Table_1 ADD CONSTRAINT constraint_1
       CHECK (column_1 > (SELECT MAX(column_2) FROM Table_2) NOT DEFERRABLE;
 
 This sort of thing was once illegal, but in modern variations of SQL, you'll
 see inter-table Constraint references on an occasional basis. The fourth use
 of a CHECK <Table Constraint> is documentary, for example:
+
+::
 
    ALTER TABLE Table_1 ADD CONSTRAINT comment_1
       CHECK ('this is a comment ...' IS NOT NULL)
@@ -1613,6 +1843,8 @@ type Y or, to put it positively: certain things go in certain classes. These
 two examples both express the theme "values based on this Domain must not be
 space":
 
+::
+
    CREATE DOMAIN domain_1 AS CHAR(1)
       CONSTRAINT constraint_1 CHECK (VALUE <> ' ');
 
@@ -1625,6 +1857,8 @@ In a <Domain Constraint>'s CHECK condition, the word VALUE is a placeholder:
 your DBMS replaces it with the appropriate <Column name> when checking the
 Constraint. The second of these two SQL statements would force a Constraint
 check:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 domain_1,
@@ -1656,14 +1890,17 @@ The CREATE ASSERTION statement names a new Constraint and defines the
 Constraint's deferral mode, initial constraint check time and its CHECK search
 condition. The required syntax for the CREATE ASSERTION statement is:
 
-CREATE ASSERTION <Constraint name>
-CHECK (search condition)
-[ <constraint attributes> ]
+::
+
+    CREATE ASSERTION <Constraint name>
+    CHECK (search condition)
+    [ <constraint attributes> ]
 
 CREATE ASSERTION defines a new rule that will constrain the set of valid
 values for one or more Base tables. An Assertion is owned by the Schema it
 belongs to.
-      ## The <Constraint name> identifies the Assertion and the Schema that it
+
+## The <Constraint name> identifies the Assertion and the Schema that it
 belongs to. A <Constraint name> that includes an explicit <Schema name>
 qualifier belongs to the Schema named. A <Constraint name> that does not
 include an explicit <Schema name> qualifier belongs to the SQL-session default
@@ -1678,6 +1915,8 @@ a different Schema from within CREATE SCHEMA. For example, this SQL statement
 will not return an error because the <Constraint name> will default to include
 the qualifying <Schema name>:
 
+::
+
    CREATE SCHEMA bob
       CREATE TABLE Table_1 (column_1 SMALLINT)
       CREATE ASSERTION constraint_1
@@ -1687,6 +1926,8 @@ the qualifying <Schema name>:
 This SQL statement will not return an error either because the <Constraint
 name> explicitly includes a qualifying <Schema name> that matches the name of
 the Schema being created:
+
+::
 
    CREATE SCHEMA bob
       CREATE TABLE bob.Table_1 (column_1 SMALLINT)
@@ -1698,12 +1939,14 @@ But this SQL statement will return an error because the <Constraint name>
 explicitly includes a qualifying <Schema name> that is different from the name
 of the Schema being created:
 
+::
+
    CREATE SCHEMA bob
       CREATE TABLE Table_1 (column_1 SMALLINT)
       CREATE ASSERTION sam.constraint_1
         CHECK ((SELECT AVG(column_1) FROM Table_1 >40) NOT DEFERRABLE;
    -- tries to create a Constraint belonging to Schema SAM inside Schema BOB;
-illegal syntax
+   illegal syntax
 
 If CREATE ASSERTION is executed as a stand-alone SQL statement, the current
 <AuthorizationID> must either be the owner of the Schema that this new
@@ -1716,15 +1959,19 @@ An Assertion's CHECK search condition may specify any conditional expression
 or a set function), subject to the following rules (note that these rules are
 slightly different from the rules given earlier for a CHECK Constraint's
 search condition):
-      ## The search condition may not contain a <host parameter name>, an <SQL
+
+## The search condition may not contain a <host parameter name>, an <SQL
 parameter name>, any of these functions: CURRENT_PATH, CURRENT_USER,
 SESSION_USER, SYSTEM_USER, USER, CURRENT_DATE, CURRENT_TIME,
 CURRENT_TIMESTAMP, LOCALTIME or LOCALTIMESTAMP or any query that is possibly
 non-deterministic, as defined earlier in this chapter.
-      ## The search condition may not invoke a non-deterministic routine, or a
+
+## The search condition may not invoke a non-deterministic routine, or a
 routine which possibly modifies SQL-data.
-      ## The search condition may not refer to any temporary Tables.
-      ## [Obscure Rule] If an Assertion's CHECK search condition can't be
+
+## The search condition may not refer to any temporary Tables.
+
+## [Obscure Rule] If an Assertion's CHECK search condition can't be
 represented in INFORMATION_SCHEMA without truncation, your DBMS will return
 the SQLSTATE warning 01009 "warning-search condition too long for information
 schema".
@@ -1733,6 +1980,8 @@ An Assertion makes it impossible to COMMIT any operation that would cause the
 Constraint's search condition to evaluate to FALSE. (This means, of course,
 that if the condition evaluates to TRUE or to UNKNOWN, the Constraint is
 satisfied.) Thus, for example, for these two SQL statements:
+
+::
 
    CREATE TABLE Table_1 (
       column_1 SMALLINT,
@@ -1745,17 +1994,21 @@ CONSTRAINT_1 is violated if the average of the TABLE_1.COLUMN_1 values is less
 than 41. Assume that TABLE_1 contains one row, where COLUMN_1 contains 42.
 This SQL statement would then violate CONSTRAINT_1:
 
+::
+
    INSERT INTO Table_1 VALUES (38);
 
 because a search condition that evaluates to FALSE violates the Constraint.
 Both of these SQL statements, however, would satisfy CONSTRAINT_1:
+
+::
 
    INSERT INTO Table_1 VALUES (100);
    -- a search condition that evaluates to TRUE satisfies the Constraint
 
    INSERT INTO Table_1 VALUES (NULL);
    -- NULL is allowed; a search condition that evaluates to UNKNOWN satisfies
-the Constraint
+   the Constraint
 
 The <constraint attributes> clause of CREATE ASSERTION is as defined in
 "Constraint definition", earlier in this chapter. If you omit the clause, the
@@ -1773,6 +2026,8 @@ you: Assume a Constraint that, in English, is: "There must be at least one row
 in Table TABLE_1". If you try to implement this requirement as a <Table
 Constraint>, for example with this SQL statement:
 
+::
+
    ALTER TABLE Table_1 ADD CONSTRAINT constraint_1
       CHECK (0 <> (SELECT COUNT(*) FROM Table_1));
 
@@ -1780,6 +2035,8 @@ you'll find it won't work: since a <Table Constraint> is checked once "for
 each row", and there are no rows, the check never happens if you leave the
 TABLE_1 empty. To make it work, create an Assertion to ensure the condition is
 checked at least once. For example:
+
+::
 
    CREATE ASSERTION constraint_1
       CHECK (0 <> (SELECT COUNT(*) FROM Table_1));
@@ -1789,6 +2046,8 @@ SELECT condition. Here's another example: consider a Constraint that, in
 English, is: "We can only hold picnics if there's money." In this case, you
 could use this <Table Constraint> and it would work:
 
+::
+
    ALTER TABLE Picnics ADD CONSTRAINT constraint_1
       CHECK (EXISTS (SELECT * FROM Accounts WHERE balance > 0));
 
@@ -1797,6 +2056,8 @@ there's a Constraint on the PICNICS Table. There is, of course, but there's a
 Constraint on the ACCOUNTS Table too and this isn't immediately clear. If you
 define the same condition with CREATE ASSERTION, you'll be signalling that
 there's more to it; for example:
+
+::
 
    CREATE ASSERTION Picnic_Account_Check
       CHECK (NOT EXISTS (SELECT * FROM Picnics) OR
@@ -1809,12 +2070,16 @@ Interlocking references
 =======================
 
 An example of an interlocking reference is:
-      ## Every Employee must be in a department.
-      ## Every Department must have at least one employee.
+
+## Every Employee must be in a department.
+
+## Every Department must have at least one employee.
 This is an "interlock" problem because there must be a reference from the
 EMPLOYEES Table to the DEPARTMENTS Table, as well as a reference going the
 other way: from the DEPARTMENTS Table to the EMPLOYEES Table. Here are the
 Table definitions:
+
+::
 
    CREATE TABLE Employees (
      emp_id INT,
@@ -1829,7 +2094,7 @@ Table definitions:
      CONSTRAINT dept_constraint_2
        CHECK (dept_id IN (SELECT * FROM Employees) NOT DEFERRABLE);
    -- this CHECK clause illustrates the normal way to make a "foreign
-reference" to a "key" which is not unique or primary
+   reference" to a "key" which is not unique or primary
 
 In this example, the CREATE TABLE Employees... statement will return an error
 because it refers to the DEPARTMENTS Table before that Table has been created.
@@ -1839,6 +2104,8 @@ EMPLOYEES Table before that Table has been created. You could put both Table
 definitions inside a CREATE SCHEMA statement, but that isn't a general
 solution. To solve the problem, split the CREATE TABLE statements up like
 this:
+
+::
 
    CREATE TABLE Employees (
       emp_id INT,
@@ -1862,23 +2129,31 @@ statements. Anyway, with this method, there's no problem defining interlocked
 Tables. However, there's still a problem with putting data into them. For
 example, assuming no data exists in either Table, this SQL statement:
 
+::
+
    INSERT INTO Employees VALUES (1, 1);
 
 will cause EMPS_CONSTRAINT_1 to fail because there are no departments. And
 this SQL statement:
+
+::
 
    INSERT INTO Departments VALUES (1);
 
 will cause DEPT_CONSTRAINT_2 to fail because there are no employees.
 
 There are three solutions to this problem.
-      ## Solution #1. Use SQL3 features. There are, in fact, a few ways to do
+
+## Solution #1. Use SQL3 features. There are, in fact, a few ways to do
 this with SQL3 -- the clearest would be to join the two Tables and update the
 join.
-      ## Solution #2. Take advantage of the fact that NULL matches anything.
+
+## Solution #2. Take advantage of the fact that NULL matches anything.
 Begin with the assumption that the DEPARTMENTS Table is not empty, presumably
 because you used Solution #1 for some other department. Then execute these SQL
 statements:
+
+::
 
    INSERT INTO Employees VALUES (1, NULL);
 
@@ -1888,8 +2163,11 @@ statements:
 
 You can sometimes use NULL where you can't use anything else -- so insert a
 NULL as a temporary placeholder, and replace it when both rows exist.
-      ## Solution #3. Change the initial setup so that all Constraints are
+
+## Solution #3. Change the initial setup so that all Constraints are
 deferred. For example:
+
+::
 
    CREATE TABLE Employees (
       emp_id INT,
@@ -1912,6 +2190,8 @@ deferred. For example:
 This method causes the INSERT problem to disappear because no checks will
 occur at INSERT time. Thus, these INSERT statements would now work without
 returning an error:
+
+::
 
    INSERT INTO Employees VALUES (1, 1);
 
@@ -1940,7 +2220,9 @@ DROP ASSERTION statement
 The DROP ASSERTION statement destroys an Assertion. The required syntax for
 the DROP ASSERTION statement is:
 
-DROP ASSERTION <Constraint name>
+::
+
+    DROP ASSERTION <Constraint name>
 
 The <Constraint name> must identify an existing Assertion whose owner is
 either the current <AuthorizationID> or a Role that the current
@@ -1950,6 +2232,8 @@ explicit <Schema name> qualifier, the Assertion must belong to the SQL-session
 default Schema.
 
 The effect of DROP ASSERTION <Constraint name>, e.g.:
+
+::
 
    DROP ASSERTION constraint_1;
 
