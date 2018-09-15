@@ -4,12 +4,56 @@
 Chapter 32 -- Searching with Set Operators
 ==========================================
 
-SQL supports three set operators: UNION, EXCEPT and INTERSECT. We described their general effects in our discussion of set theory (see our chapter on general concepts). Here's a quick recap, using two Tables: TABLE_1 contains these three, one-Column rows: {1,2,3} and TABLE_2 contains these three, one- Column rows: {1,3,5}. ## The expression: (Table_1) UNION (Table_2) yields all non-duplicate rows from both TABLE_1 and TABLE_2, so the result is these four rows: {1,2,3,5}. ## The expression: (Table_1) EXCEPT (Table_2) yields all rows that are in TABLE_1 and are not also in TABLE_2, so the result is this row: {2}. ## The expression: (Table_1) INTERSECT (Table_2) yields all rows that are in TABLE_1 and are also in TABLE_2, so the result is these two rows: {1,3} The result in all three cases is, of course, another Table: UNION and EXCEPT and INTERSECT take two Tables as input, and produce one result Table as output (that's why some sources -- particularly FIPS -- refer to UNION and EXCEPT and INTERSECT as "Table operators" rather than "set operators") -- and so these constructs can also be used as a
-in an SQL statement. In this chapter, we'll discuss both the implementation problems and the details for the three set operators. You'll notice that the list of implementation-specific restrictions is quite long, which reflects the difficulty that DBMS vendors have supporting set operators. Before we begin our discussion though, we want to emphasize that each of the set operators can be used to form what the SQL Standard calls a -- that is, an expression that results in a Table. Here is the full syntax required for a : ::= [ WITH [ RECURSIVE ] ] ::= [ {, }... ] ::= [ () ] AS () [ ] ::= | ::= | UNION [ ALL | DISTINCT ] [ ] | EXCEPT [ ALL | DISTINCT ] [ ] ::= | ::= | INTERSECT [ ALL | DISTINCT ] [ ] ::= | ::= | () ::= | VALUES (s) | TABLE
-::= CORRESPONDING [ BY () ] ::= [ {,} ... ] ::= | | ::= SEARCH SET ::= DEPTH FIRST BY | BREADTH FIRST BY ::= CYCLE SET TO DEFAULT USING ::= [ {,}... ] ::= ::= Although this syntax diagram looks extremely complicated, don;t be too discouraged! Most SQL queries are fairly simple SELECT statements, and those are mostly the types of examples we'll show you. And, in this chapter, we're just going to concentrate on the set operators anyway. However, a brief description of some of the terms in the diagram is warranted. ## UNION and EXCEPT may appear in a and INTERSECT may appear in a . In none of the cases are the input Columns involved allowed to have a BLOB, CLOB or NCLOB . ## A is either a (see our chapter on searching with joins) or a . ## A is either a or a that uses INTERSECT. ## You use a to specify the second Table operand of an INTERSECT operation. A is either a , a parenthesized , a SELECT statement (i.e.: SELECT ... FROM ... WHERE ...), a Table constructor or TABLE
-(which evaluates to SELECT * FROM
-). If you want to restrict your code to Core SQL, don't use TABLE
-. ## A Table constructor is the VALUES followed by a comma- delimited, parenthesized list of rows or an expression that evaluates to a Table. Here's an example of the first case: ... VALUES (10,'hello',B'1011'), (20,'goodbye',B'1111'), (30,'bobby',B'0000') ... is a Table constructor that constructs a three-Column Table with three rows. (Each value inside the VALUES clause may be any expression that evaluates to a single value.) Here's another example, this time of the second case: ... VALUES (SELECT column_1, column_5 FROM Table_1 WHERE column_1=10) ... is a Table constructor that constructs a two-Column Table. If you want to restrict your code to Core SQL, don't use a Table constructor that involves a Table expression, don't use a Table constructor anywhere but in an INSERT statement and make all your Table constructors contain exactly one row.
+SQL supports three set operators: UNION, EXCEPT and INTERSECT. We described
+their general effects in our discussion of set theory (see our chapter on
+general concepts). Here's a quick recap, using two Tables: TABLE_1 contains
+these three, one-Column rows: {1,2,3} and TABLE_2 contains these three, one-
+Column rows: {1,3,5}. ## The expression: (Table_1) UNION (Table_2) yields all
+non-duplicate rows from both TABLE_1 and TABLE_2, so the result is these four
+rows: {1,2,3,5}. ## The expression: (Table_1) EXCEPT (Table_2) yields all rows
+that are in TABLE_1 and are not also in TABLE_2, so the result is this row:
+{2}. ## The expression: (Table_1) INTERSECT (Table_2) yields all rows that are
+in TABLE_1 and are also in TABLE_2, so the result is these two rows: {1,3} The
+result in all three cases is, of course, another Table: UNION and EXCEPT and
+INTERSECT take two Tables as input, and produce one result Table as output
+(that's why some sources -- particularly FIPS -- refer to UNION and EXCEPT and
+INTERSECT as "Table operators" rather than "set operators") -- and so these
+constructs can also be used as a in an SQL statement. In this chapter, we'll
+discuss both the implementation problems and the details for the three set
+operators. You'll notice that the list of implementation-specific restrictions
+is quite long, which reflects the difficulty that DBMS vendors have supporting
+set operators. Before we begin our discussion though, we want to emphasize that
+each of the set operators can be used to form what the SQL Standard calls a --
+that is, an expression that results in a Table. Here is the full syntax
+required for a : ::= [ WITH [ RECURSIVE ] ] ::= [ {, }... ] ::= [ () ] AS () [
+] ::= | ::= | UNION [ ALL | DISTINCT ] [ ] | EXCEPT [ ALL | DISTINCT ] [ ] ::=
+| ::= | INTERSECT [ ALL | DISTINCT ] [ ] ::= | ::= | () ::= | VALUES (s) |
+TABLE ::= CORRESPONDING [ BY () ] ::= [ {,} ... ] ::= | | ::= SEARCH SET ::=
+DEPTH FIRST BY | BREADTH FIRST BY ::= CYCLE SET TO DEFAULT USING ::= [ {,}... ]
+::= ::= Although this syntax diagram looks extremely complicated, don;t be too
+discouraged! Most SQL queries are fairly simple SELECT statements, and those
+are mostly the types of examples we'll show you. And, in this chapter, we're
+just going to concentrate on the set operators anyway. However, a brief
+description of some of the terms in the diagram is warranted. ## UNION and
+EXCEPT may appear in a and INTERSECT may appear in a . In none of the cases are
+the input Columns involved allowed to have a BLOB, CLOB or NCLOB . ## A is
+either a (see our chapter on searching with joins) or a . ## A is either a or a
+that uses INTERSECT. ## You use a to specify the second Table operand of an
+INTERSECT operation. A is either a , a parenthesized , a SELECT statement
+(i.e.: SELECT ... FROM ... WHERE ...), a Table constructor or TABLE (which
+evaluates to SELECT * FROM ). If you want to restrict your code to Core SQL,
+don't use TABLE . ## A Table constructor is the VALUES followed by a comma-
+delimited, parenthesized list of rows or an expression that evaluates to a
+Table. Here's an example of the first case: ... VALUES (10,'hello',B'1011'),
+(20,'goodbye',B'1111'), (30,'bobby',B'0000') ... is a Table constructor that
+constructs a three-Column Table with three rows. (Each value inside the VALUES
+clause may be any expression that evaluates to a single value.) Here's another
+example, this time of the second case: ... VALUES (SELECT column_1, column_5
+FROM Table_1 WHERE column_1=10) ... is a Table constructor that constructs a
+two-Column Table. If you want to restrict your code to Core SQL, don't use a
+Table constructor that involves a Table expression, don't use a Table
+constructor anywhere but in an INSERT statement and make all your Table
+constructors contain exactly one row.
 
 .. rubric:: Table of Contents
 

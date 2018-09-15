@@ -9,6 +9,8 @@ For CLI programs, the stmt is at the level below dbc and (usually) above desc.
 The dbc may contain multiple stmts, and the stmt may contain four descs.
 Here's a closeup view of a stmt:
 
+::
+
       ... from dbc
       | |
       | |
@@ -36,6 +38,9 @@ SQLAllocHandle(SQL_HANDLE_STMT,...)
 ===================================
 
 Function Prototype:
+
+::
+
   SQLRETURN SQLAllocHandle (
     SQLSMALLINT HandleType,   /* 16-bit input = SQL_HANDLE_STMT */
     SQLINTEGER InputHandle,   /* 32-bit input, must be a hdbc */
@@ -43,40 +48,49 @@ Function Prototype:
     );
 
 Job:
+
 Allocate a stmt.
 
 Algorithm:
-If (HandleType == SQL_HANDLE_STMT) {
-      If InputHandle is not a valid hdbc:
-        return error: CLI-specific condition-invalid handle
-      The dbc's diagnostics area is emptied.
-      If hdbc is not "connected":
-        Set *OutputHandle = 0
-        return error: 08003 connection exception-connection does not exist
-      If maximum number of stmts has already been made:
-        Set *OutputHandle = 0
-        return error: CLI-specific condition-limit on number of handles exceeded
-      If (dbc's connection is not the current connection)
-        Change current connection = dbc's connection
-      If (memory-allocation failure while trying to allocate the new stmt)
-        Set *OutputHandle = 0
-        return error: CLI-specific condition-memory allocation error
-      Make four descs: an IPD, an IRD, an APD, an ARD.
-      (The four descs have some pre-set values, described in the next chapter.)
-      Set *OutputHandle = handle of new stmt. }
+
+::
+
+    If (HandleType == SQL_HANDLE_STMT) {
+          If InputHandle is not a valid hdbc:
+            return error: CLI-specific condition-invalid handle
+          The dbc's diagnostics area is emptied.
+          If hdbc is not "connected":
+            Set *OutputHandle = 0
+            return error: 08003 connection exception-connection does not exist
+          If maximum number of stmts has already been made:
+            Set *OutputHandle = 0
+            return error: CLI-specific condition-limit on number of handles exceeded
+          If (dbc's connection is not the current connection)
+            Change current connection = dbc's connection
+          If (memory-allocation failure while trying to allocate the new stmt)
+            Set *OutputHandle = 0
+            return error: CLI-specific condition-memory allocation error
+          Make four descs: an IPD, an IRD, an APD, an ARD.
+          (The four descs have some pre-set values, described in the next chapter.)
+          Set *OutputHandle = handle of new stmt. }
 
 Notes:
-      ## You cannot allocate a stmt until you have allocated a dbc and connected (with SQLConnect).
-      ## The handle of the new stmt is "unique", which means that there is no
+
+## You cannot allocate a stmt until you have allocated a dbc and connected (with SQLConnect).
+
+## The handle of the new stmt is "unique", which means that there is no
 other stmt in the env with the same value. This uniqueness would not be
 guaranteed if there were two envs, but that's usually impossible anyway.
-      ## The Standard calls it the "handle of the allocated SQL-statement",
+
+## The Standard calls it the "handle of the allocated SQL-statement",
 but in all our examples we name it a hstmt, which is the general fashion.
-      ## Keep the hstmt. You'll need it later for
+
+## Keep the hstmt. You'll need it later for
 SQLFreeHandle(SQL_HANDLE_STMT...) and for quite a few other things. In fact,
 the majority of CLI functions (42 of the 62) take a hstmt as input.
 
 Example:
+
       #include "sqlcli.h"
       ...
       SQLHDBC     hdbc;
@@ -90,23 +104,35 @@ SQLAllocStmt
 ============
 
 Function Prototype:
+
+::
+
   SQLRETURN SQLAllocStmt(
     SQLHDBC hdbc,             /* 32-bit input, must be a hdbc */
     SQLHSTMT *hstmt           /* pointer to 32-bit output, a hstmt */
     );
 
 Job:
+
 Make a new stmt.
 
 Algorithm:
-SQLRETURN = SQLAllocStmt(hdbc,&hstmt);
+
+::
+
+    SQLRETURN = SQLAllocStmt(hdbc,&hstmt);
+
 is the same as
-SQLRETURN = SQLAllocHandle(SQL_HANDLE_STMT,hdbc,&hstmt);
+
+::
+
+    SQLRETURN = SQLAllocHandle(SQL_HANDLE_STMT,hdbc,&hstmt);
 
 Notes:
       ## The Standard does not deprecate SQLAllocStmt. All DBMSs should continue to support it. It is, however, redundant.
 
 Example:
+
       #include "sqlcli.h"
       ...
       SQLHDBC     hdbc;
@@ -123,6 +149,9 @@ SQLGetStmtAttr
 ==============
 
 Function Prototype:
+
+::
+
   SQLRETURN SQLGetStmtAttr(
       SQLHSTMT hstmt,               /* 32-bit input -- statement handle */
       SQLINTEGER Attribute,         /* 32-bit input */
@@ -131,9 +160,13 @@ Function Prototype:
       SQLINTEGER *StringLength);    /* pointer to 32-bit output */
 
 Job:
+
 Retrieve one attribute of a stmt.
 
 Algorithm:
+
+::
+
       If (Attribute == SQL_ATTR_APP_ROW_DESC)
         Set *Value = (SQLHDESC) stmt's ARD handle.
       If (Attribute == SQL_ATTR_APP_PARAM_DESC)
@@ -163,59 +196,77 @@ Algorithm:
         return error: HY092 CLI-specific condition-invalid attribute identifier
 
 Notes:
-      ## Here is a list of the standard stmt attributes:
-VALUE  #DEFINE IN SQLCLI.H          SETTABLE?  DATA TYPE   REMARKS
--3     SQL_ATTR_CURSOR_HOLDABLE     yes        SQLINTEGER  ANSI SQL3 only
-                                                           0=nonholdable
-                                                           1=holdable
--2     SQL_ATTR_CURSOR_SENSITIVITY  yes        SQLINTEGER  0=asensitive
-                                                           1=insensitive
-                                                           2=sensitive
--1     SQL_ATTR_CURSOR_SCROLLABLE   yes        SQLINTEGER  ANSI SQL3 only
-                                                           0=nonscrollable
-                                                           1=scrollable
-10010  SQL_ATTR_APP_ROW_DESC        yes        SQLHDESC    ARD
-10011  SQL_ATTR_APP_PARAM_DESC      yes        SQLHDESC    APD
-10012  SQL_ATTR_IMP_ROW_DESC        no         SQLHDESC    IRD
-10013  SQL_ATTR_IMP_PARAM_DESC      no         SQLHDESC    IPD
-10014  SQL_ATTR_METADATA_ID         yes        SQLINTEGER  SQL3 only
-                                                           0=false
-                                                           1=true
+
+## Here is a list of the standard stmt attributes:
+
+::
+
+    VALUE  #DEFINE IN SQLCLI.H          SETTABLE?  DATA TYPE   REMARKS
+    -3     SQL_ATTR_CURSOR_HOLDABLE     yes        SQLINTEGER  ANSI SQL3 only
+                                                               0=nonholdable
+                                                               1=holdable
+    -2     SQL_ATTR_CURSOR_SENSITIVITY  yes        SQLINTEGER  0=asensitive
+                                                               1=insensitive
+                                                               2=sensitive
+    -1     SQL_ATTR_CURSOR_SCROLLABLE   yes        SQLINTEGER  ANSI SQL3 only
+                                                               0=nonscrollable
+                                                               1=scrollable
+    10010  SQL_ATTR_APP_ROW_DESC        yes        SQLHDESC    ARD
+    10011  SQL_ATTR_APP_PARAM_DESC      yes        SQLHDESC    APD
+    10012  SQL_ATTR_IMP_ROW_DESC        no         SQLHDESC    IRD
+    10013  SQL_ATTR_IMP_PARAM_DESC      no         SQLHDESC    IPD
+    10014  SQL_ATTR_METADATA_ID         yes        SQLINTEGER  SQL3 only
+                                                               0=false
+                                                               1=true
+
 Other stmt attributes may be defined in particular implementations. (Reminder:
 SQLHDESC stands for "handle of a desc", a 32-bit value.)
-      ## When you allocate a stmt (with SQLAllocHandle or SQLAllocStmt), the
+
+## When you allocate a stmt (with SQLAllocHandle or SQLAllocStmt), the
 DBMS automatically sets up four descs: the ARD, the APD, the IRD and the IPD.
 You can pick up the handles of these descs by calling SQLGetStmtAttr with
 SQL_ATTR_APP_ROW_DESC, SQL_ATTR_APP_PARAM_DESC, SQL_ATTR_IMP_ROW_DESC and
 SQL_ATTR_IMP_PARAM_DESC, respectively -- you'll need these because there are
 several CLI functions which use a desc handle as input.
-      ## When you get a result set (by calling SQLExecDirect or SQLExecute for
+
+## When you get a result set (by calling SQLExecDirect or SQLExecute for
 a query expression such as "SELECT ..."), the DBMS implicitly declares a
 Cursor. What kind of Cursor? That depends on the "cursor" attributes:
-            ## SQL_ATTR_CURSOR_SCROLLABLE
-if 0 = "false" = SQL_NONSCROLLABLE: you can only fetch NEXT.
-if 1 = "true" = SQL_SCROLLABLE: you can fetch FIRST, NEXT, PRIOR, LAST,
-ABSOLUTE and RELATIVE.
-The default is 0, but you can call SQLSetStmtAttr to change that.
-            ## SQL_ATTR_CURSOR_SENSITIVITY
-if 0 = SQL_ASENSITIVE = SQL_UNSPECIFIED: sensitivity isn't known.
-if 1 = SQL_INSENSITIVE: changes made elsewhere won't be seen here.
-if 2 = SQL_SENSITIVE: changes made elsewhere will be seen here.
-The default is 0, but you can call SQLSetStmtAttr to change that.
-            ## SQL_ATTR_CURSOR_HOLDABLE
-if 0 = "false" = SQL_NONHOLDABLE: Cursor disappears at transaction end.
-if 1 = "true" = SQL_HOLDABLE: Cursor remains at transaction end.
-The default is probably 0 (you'd have to call SQLGetInfo to be certain) but
-you can call SQLSetStmtAttr to change that.
-      ## When you use a Catalog function (such as SQLColumns or SQLTables),
+
+    ## SQL_ATTR_CURSOR_SCROLLABLE
+
+    if 0 = "false" = SQL_NONSCROLLABLE: you can only fetch NEXT.
+    if 1 = "true" = SQL_SCROLLABLE: you can fetch FIRST, NEXT, PRIOR, LAST,
+    ABSOLUTE and RELATIVE.
+    The default is 0, but you can call SQLSetStmtAttr to change that.
+
+    ## SQL_ATTR_CURSOR_SENSITIVITY
+
+    if 0 = SQL_ASENSITIVE = SQL_UNSPECIFIED: sensitivity isn't known.
+    if 1 = SQL_INSENSITIVE: changes made elsewhere won't be seen here.
+    if 2 = SQL_SENSITIVE: changes made elsewhere will be seen here.
+    The default is 0, but you can call SQLSetStmtAttr to change that.
+
+    ## SQL_ATTR_CURSOR_HOLDABLE
+
+    if 0 = "false" = SQL_NONHOLDABLE: Cursor disappears at transaction end.
+    if 1 = "true" = SQL_HOLDABLE: Cursor remains at transaction end.
+    The default is probably 0 (you'd have to call SQLGetInfo to be certain) but
+    you can call SQLSetStmtAttr to change that.
+
+## When you use a Catalog function (such as SQLColumns or SQLTables),
 the DBMS has to search the "metadata", that is, the INFORMATION_SCHEMA Views.
 The SQL_ATTR_METADATA_ID attribute indicates how searches are conducted with
 Catalog functions. We discuss this in more detail in our chapter on SQL/CLI
 Catalog functions.
-      ## The BufferLength and StringLength parameters aren't currently in use.
+
+## The BufferLength and StringLength parameters aren't currently in use.
 They're there in case we ever have a statement attribute that contains a string value.
 
 Example:
+
+::
+
       #include "sqlcli.h"
       HSTMT hstmt;
       HDESC hipd;
@@ -234,6 +285,9 @@ SQLSetStmtAttr
 ==============
 
 Function Prototype:
+
+::
+
   SQLRETURN SQLSetStmtAttr(
     SQLHSTMT hstmt,              /* 32-bit input - statement handle */
     SQLINTEGER Attribute,        /* 32-bit input */
@@ -242,6 +296,7 @@ Function Prototype:
     );
 
 Job:
+
 Set an attribute of the stmt -- to change the DBMS's behaviour for Cursor
 control, to change the handle used for an application desc, or to change the
 search method for Catalog functions.
@@ -249,6 +304,9 @@ search method for Catalog functions.
 There are eight standard stmt attributes, listed in the previous section.
 
 Algorithm:
+
+::
+
       If (Attribute is not one of the settable attributes)
         return error: HY092 CLI-specific condition-invalid attribute identifier
       If (Attribute == SQL_ATTR_APD_HANDLE)
@@ -296,25 +354,35 @@ Algorithm:
         Set stmt's Cursor's "holdable" attribute = Value.
 
 Notes:
-      ## The specification allows for implementation-defined attributes and
+
+::
+
+## The specification allows for implementation-defined attributes and
 for the possibility of future change. That's why the StringLength parameter
 exists, although it's not currently used.
-      ## SQL_ATTR_APP_ROW_DESC and SQL_ATTR_APP_PARAM_DESC are listed as
+
+## SQL_ATTR_APP_ROW_DESC and SQL_ATTR_APP_PARAM_DESC are listed as
 settable attributes, so you can change the stmt's ARD and APD. (You can't
 change the stmt's IRD and IPD.) The Value parameter must point to the handle
 of a user desc. This option makes it possible to save or share application descs.
-      ## SQL_ATTR_CURSOR_SCROLLABLE and SQL_ATTR_CURSOR_HOLDABLE are used to
+
+## SQL_ATTR_CURSOR_SCROLLABLE and SQL_ATTR_CURSOR_HOLDABLE are used to
 specify whether a stmt's Cursor is "scrollable" and/or "holdable".
-      ## SQL_ATTR_METADATA_ID is an abbreviation for "the attribute for
+
+## SQL_ATTR_METADATA_ID is an abbreviation for "the attribute for
 metadata identifiers", for example the names of Tables in INFORMATION_SCHEMA.
-      ## It's easy to forget that the Value parameter is described as
+
+## It's easy to forget that the Value parameter is described as
 SQLPOINTER. Don't make the mistake of passing "hdesc" (handle of a desc); pass
 "&hdesc" (address of a handle of a desc) instead.
 
 Example:
+
 Change the settings of all settable stmt attributes. This example only shows
 what the syntax looks like for the various options. More realistic examples
 will appear in the chapters on "Cursors", "descs", and "Catalog functions".
+
+::
 
   #include "sqlcli.h"
   SQLHSTMT hstmt;
@@ -337,15 +405,22 @@ SQLFreeHandle(SQL_HANDLE_STMT,...)
 ==================================
 
 Function Prototype:
+
+::
+
   SQLRETURN SQLFreeHandle(    /* function returns SMALLINT */
       SQLSMALLINT HandleType, /* 16-bit input, = SQL_HANDLE_STMT */
       SQLINTEGER Handle       /* 32-bit input, must be a hstmt */
       );
 
 Job:
+
 Destroy a stmt.
 
 Algorithm:
+
+::
+
       If (HandleType == SQL_HANDLE_STMT)
         If (Handle is not a hstmt)
           return error: CLI-specific condition-invalid handle
@@ -360,17 +435,25 @@ Algorithm:
         Deallocate stmt.
 
 Notes:
-      ## Correctly speaking, this functions "frees the stmt"; it doesn't merely free the stmt's handle.
-      ## The DBMS calls SQLFreeHandle(SQL_HANDLE_STMT...) implicitly, for all stmts in a dbc, as part of an SQLDisconnect operation.
-      ## There is a mention here of a "current" dbc. If there are multiple dbcs, the DBMS will implicitly switch, when necessary, to the dbc whose handle
+
+## Correctly speaking, this functions "frees the stmt"; it doesn't merely free the stmt's handle.
+
+## The DBMS calls SQLFreeHandle(SQL_HANDLE_STMT...) implicitly, for all stmts in a dbc, as part of an SQLDisconnect operation.
+
+## There is a mention here of a "current" dbc. If there are multiple dbcs, the DBMS will implicitly switch, when necessary, to the dbc whose handle
 is passed in the function call (or, as in this case, to the dbc associated
 with the stmt whose handle is passed in the function call). This switching is
 transparent. There is no need, when using the CLI, for any analogue of the
 basic SQL "SET CONNECTION ..." statement.
-      ## Freeing a statement causes an implicit "close Cursor" operation, but not an implicit "end transaction" operation.
-      ## Quite often, programmers allocate a stmt only once, and re-use the same stmt throughout the SQL-session. So SQLFreeHandle(SQL_HANDLE_STMT...) may be seen only infrequently.
+
+## Freeing a statement causes an implicit "close Cursor" operation, but not an implicit "end transaction" operation.
+
+## Quite often, programmers allocate a stmt only once, and re-use the same stmt throughout the SQL-session. So SQLFreeHandle(SQL_HANDLE_STMT...) may be seen only infrequently.
 
 Example:
+
+::
+
       #include "sqlcli.h"
       SQLHDBC     hdbc;
       SQLHSTMT    hstmt;
@@ -385,20 +468,32 @@ SQLFreeStmt
 ===========
 
 Function Prototype:
+
+::
+
   SQLRETURN SQLFreeStmt(
     SQLHSTMT hstmt,            /* 32-bit input */
     SQLSMALLINT Option;        /* 16-bit input */
     );
 
 Job:
+
 SQLFreeStmt has five different jobs, depending on the value of Option:
-      ## If Option is 0, SQLFreeStmt's job is to close a Cursor.
-      ## If Option is 1, SQLFreeStmt's job is to destroy a stmt.
-      ## If Option is 2, SQLFreeStmt's job is to unbind Columns.
-      ## If Option is 3, SQLFreeStmt's job is to unbind parameters.
-      ## If Option is 4, SQLFreeStmt's job is to reallocate.
+
+## If Option is 0, SQLFreeStmt's job is to close a Cursor.
+
+## If Option is 1, SQLFreeStmt's job is to destroy a stmt.
+
+## If Option is 2, SQLFreeStmt's job is to unbind Columns.
+
+## If Option is 3, SQLFreeStmt's job is to unbind parameters.
+
+## If Option is 4, SQLFreeStmt's job is to reallocate.
 
 Algorithm:
+
+::
+
       If (Option == SQL_CLOSE (0))
         If (there is a Cursor)
           Cancel all information about the result set.
@@ -424,33 +519,43 @@ Algorithm:
         return error: HY092 CLI-specific condition-invalid attribute identifier
 
 Notes:
-      ## Regrettably, we are forced to mention a few details before their time
+
+## Regrettably, we are forced to mention a few details before their time
 for full discussion is come. For the immediate purpose, we hope it is enough
 to say that:
-            ## RESULT SETS are temporary Tables which result from the
-execution of an SQL query.
-            ## Cursors are named interface objects through which result sets
-can be retrieved one row at a time.
-            ## BINDINGS are associations between a host program's host
-variables (i.e.: pointers to data buffers and indicator variables) and their
-corresponding SQL Objects (Columns and/or parameter markers). Often Columns
-are bound with the SQLBindCol function, while parameters are bound with the
-SQLBindParameter function.
-      ## Because SQLFreeHandle is now the main function for freeing resources,
+
+    ## RESULT SETS are temporary Tables which result from the
+    execution of an SQL query.
+
+    ## Cursors are named interface objects through which result sets
+    can be retrieved one row at a time.
+
+    ## BINDINGS are associations between a host program's host
+    variables (i.e.: pointers to data buffers and indicator variables) and their
+    corresponding SQL Objects (Columns and/or parameter markers). Often Columns
+    are bound with the SQLBindCol function, while parameters are bound with the
+    SQLBindParameter function.
+
+## Because SQLFreeHandle is now the main function for freeing resources,
 the name SQLFreeStmt is now a misnomer -- we don't use SqlFreeStmt for freeing
 stmts nowadays. However, it maintains a residue of usefulness. It's good for
 "partial stmt freeing", freeing things associated with stmts that might be
 taking up space, or whose continued existence might cause conflict with other
 operations.
-      ## SQLFreeStmt(...,SQL_CLOSE) does exactly the same thing as the
+
+## SQLFreeStmt(...,SQL_CLOSE) does exactly the same thing as the
 SQLCloseCursor function, except for one detail: if there is no Cursor
 currently open, then SQLCloseCursor returns an error, while
 SQLFreeStmt(...,SQL_CLOSE) does not return an error.
-      ## SQLFreeStmt(hstmt,SQL_DROP) is now just another way of saying:
+
+## SQLFreeStmt(hstmt,SQL_DROP) is now just another way of saying:
 SQLFreeHandle(SQL_HANDLE_STMT,hstmt).
-      ## SQLFreeStmt(...,SQL_UNBIND) and SQLFreeStmt(...,SQL_RESET_PARAMS) are
+
+## SQLFreeStmt(...,SQL_UNBIND) and SQLFreeStmt(...,SQL_RESET_PARAMS) are
 handy ways of "disassociating" the application's RAM from the DBMS, so that
 there won't be inadvertent access to memory that's no longer valid. Here's an example:
+
+::
 
     x=malloc(1024);                   /* malloc an area */
     SQLBindCol(...,x,...);            /* Now there is a binding to the malloc'd area */
@@ -459,15 +564,21 @@ there won't be inadvertent access to memory that's no longer valid. Here's an ex
 
 However, only the "data pointer" field is cleared -- not the "indicator
 pointer" field (this is probably an inadvertent omission from the Standard).
-      ## SQLFreeStmt(...,SQL_REALLOCATE) can be used to clear parts of stmts:
-            ## The "statement" (a copy of the SQL statement string which was last prepared or executed for this stmt, including "select" source statements).
-            ## The "Cursor", including the Cursor's result set. These things
-take up space, so presumably SQLFreeStmt(...,SQL_REALLOCATE) is useful under
-low-memory conditions. But normally it's unnecessary: "statement" and "Cursor"
-are superseded in any case when an SQL statement is re-prepared/re-executed.
+
+## SQLFreeStmt(...,SQL_REALLOCATE) can be used to clear parts of stmts:
+
+    ## The "statement" (a copy of the SQL statement string which was last prepared or executed for this stmt, including "select" source statements).
+
+    ## The "Cursor", including the Cursor's result set. These things
+    take up space, so presumably SQLFreeStmt(...,SQL_REALLOCATE) is useful under
+    low-memory conditions. But normally it's unnecessary: "statement" and "Cursor"
+    are superseded in any case when an SQL statement is re-prepared/re-executed.
 
 Example:
+
 Since SQLFreeStmt(...,SQL_DROP) is the reverse of SQLAllocStmt(...), we show both these obsolescent calls together.
+
+::
 
   #include "sqlcli.h"
   SQLHDBC hdbc;

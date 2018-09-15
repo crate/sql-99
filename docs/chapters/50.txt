@@ -25,8 +25,10 @@ locators are 32-bit INTs), and exists only until the current transaction ends
 (unless it is held).
 
 Locators have certain properties.
-      ## A locator may be either valid or invalid.
-      ## A locator may be a holdable locator.
+
+## A locator may be either valid or invalid.
+
+## A locator may be a holdable locator.
 
 When a locator is initially created, it is marked valid and (if applicable)
 not holdable. You have to execute a HOLD LOCATOR statement before the end of
@@ -47,9 +49,13 @@ LOCATOR to the specification. According to the SQL Standard, this then allows
 the passing of very large data values "without transferring the entire value
 to and from the SQL-agent". That is -- if you're dealing with an image, why do
 this:
-      ## DBMS reads into DBMS memory
-      ## DBMS transfers to host language memory
-      ## host language writes copy
+
+## DBMS reads into DBMS memory
+
+## DBMS transfers to host language memory
+
+## host language writes copy
+
 The procedure could do it without transfers, with a locator.
 
 Standard SQL provides two statements for use with locators. Brief descriptions
@@ -93,6 +99,9 @@ SQLGetLength
 ============
 
 Function Prototype:
+
+::
+
   SQLRETURN  SQLGetLength(
     SQLHSTMT hstmt,                 /* 32-bit input */
     SQLSMALLINT LocatorType,        /* 16-bit input */
@@ -102,45 +111,53 @@ Function Prototype:
     );
 
 Job:
+
 Return the length of the value represented by a BLOB, CLOB, NCLOB, UDT or
 ARRAY locator.
 
 Algorithm:
-If (there is a prepared statement associated with hstmt)
-  return error: HY010 CLI-specific condition-function sequence error
-If (LocatorType is not SQL_BLOB_LOCATOR or SQL_CLOB_LOCATOR or SQL_UDT_LOCATOR
-or SQL_ARRAY_LOCATOR)
-  return error: CLI-specific condition-invalid argument value
-If (Locator does not refer to a Locator)
-  return error: 0F001 locator exception-invalid specification
-If (LocatorType==SQL_BLOB_LOCATOR and Locator doesn't refer to a BLOB)
-Or (LocatorType==SQL_CLOB_LOCATOR and Locator doesn't refer to a CLOB)
-Or (LocatorType==SQL_UDT_LOCATOR and Locator doesn't refer to a UDT)
-Or (LocatorType==SQL_ARRAY_LOCATOR and Locator doesn't refer to an ARRAY)
-  return error: dynamic SQL error-restricted data type attribute violation
 
-Case:
-If (the Large Object's value is NULL)
-  If (IndicatorValue is a null pointer)
-    return error: data exception-null value, no indicator parameter
-    Set *IndicatorValue = SQL_NULL_DATA i.e. -1
-Else
-  If (IndicatorValue is not a null pointer)
-    Set *IndicatorValue = 0
-  If (LocatorType == SQL_BLOB_LOCATOR)
-    Set *StringLength = length of BLOB, in octets
-  If (LocatorType==SQL_CLOB_LOCATOR)
-    Set *StringLength = length of CLOB, in characters
-  If (LocatorType==SQL_UDT_LOCATOR)
-    Set *StringLength = length of UDT, in octets
-  If (LocatorType==SQL_ARRAY_LOCATOR)
-    Set *StringLength = length of ARRAY, in octets
+::
+
+    If (there is a prepared statement associated with hstmt)
+      return error: HY010 CLI-specific condition-function sequence error
+    If (LocatorType is not SQL_BLOB_LOCATOR or SQL_CLOB_LOCATOR or SQL_UDT_LOCATOR
+    or SQL_ARRAY_LOCATOR)
+      return error: CLI-specific condition-invalid argument value
+    If (Locator does not refer to a Locator)
+      return error: 0F001 locator exception-invalid specification
+    If (LocatorType==SQL_BLOB_LOCATOR and Locator doesn't refer to a BLOB)
+    Or (LocatorType==SQL_CLOB_LOCATOR and Locator doesn't refer to a CLOB)
+    Or (LocatorType==SQL_UDT_LOCATOR and Locator doesn't refer to a UDT)
+    Or (LocatorType==SQL_ARRAY_LOCATOR and Locator doesn't refer to an ARRAY)
+      return error: dynamic SQL error-restricted data type attribute violation
+
+    Case:
+    If (the Large Object's value is NULL)
+      If (IndicatorValue is a null pointer)
+        return error: data exception-null value, no indicator parameter
+        Set *IndicatorValue = SQL_NULL_DATA i.e. -1
+    Else
+      If (IndicatorValue is not a null pointer)
+        Set *IndicatorValue = 0
+      If (LocatorType == SQL_BLOB_LOCATOR)
+        Set *StringLength = length of BLOB, in octets
+      If (LocatorType==SQL_CLOB_LOCATOR)
+        Set *StringLength = length of CLOB, in characters
+      If (LocatorType==SQL_UDT_LOCATOR)
+        Set *StringLength = length of UDT, in octets
+      If (LocatorType==SQL_ARRAY_LOCATOR)
+        Set *StringLength = length of ARRAY, in octets
 
 Notes:
-      ## The octet length and the character length will be the same value only
+
+## The octet length and the character length will be the same value only
 if 8-bit Character sets are in use.
 
 Example:
+
+::
+
       #include "sqlcli.h"
       ...
       SQLINTEGER  lob;              /* large object locator */
@@ -155,6 +172,9 @@ SQLGetPosition
 ==============
 
 Function Prototype:
+
+::
+
   SQLRETURN SQLGetPosition(
     SQLHSTMT StatementHandle,         /* 32-bit input */
     SQLSMALLINT LocatorType,          /* 16-bit input */
@@ -168,10 +188,16 @@ Function Prototype:
     );
 
 Job:
+
+::
+
 Return the position of a passed string within a BLOB, CLOB, NCLOB, UDT or
 ARRAY.
 
 Algorithm:
+
+::
+
   if (stmt is associated with a prepared or executed statement)
     return error: HY010 CLI-specific condition-function sequence error
       If (LocatorType is not SQL_BLOB_LOCATOR or SQL_CLOB_LOCATOR or
@@ -200,6 +226,9 @@ SQLGetSubstring
 ===============
 
 Function Prototype
+
+::
+
   SQLRETURN  SQLGetSubString(
     SQLHSTMT StatementHandle,             /* 32-bit input */
     SQLSMALLINT LocatorType,              /* 16-bit input */
@@ -213,31 +242,35 @@ Function Prototype
     SQLINTEGER *IndicatorValue);          /* pointer to integer output */
 
 Job:
+
 Extract a portion of a BLOB, CLOB, NCLOB, UDT or ARRAY, returning the result
 as a string or, alternatively, as a new BLOB, CLOB, NCLOB, UDT or ARRAY.
 
 Algorithm:
-  if (stmt is associated with a prepared or executed statement)
-    return error: HY010 CLI-specific condition-function sequence error
-  If (LocatorType is not SQL_BLOB_LOCATOR or SQL_CLOB_LOCATOR or
-SQL_UDT_LOCATOR or SQL_ARRAY_LOCATOR)
-    return error: CLI-specific condition-invalid argument value
-  If (Locator does not refer to a Locator)
-    return error: 0F001 locator exception-invalid specification
-  If (LocatorType==SQL_BLOB_LOCATOR and Locator doesn't refer to a BLOB)
-  Or (LocatorType==SQL_CLOB_LOCATOR and Locator doesn't refer to a CLOB)
-  Or (LocatorType==SQL_UDT_LOCATOR and Locator doesn't refer to a UDT)
-  Or (LocatorType==SQL_ARRAY_LOCATOR and Locator doesn't refer to an ARRAY)
-    return error: dynamic SQL error-restricted data type attribute violation
-  If (the Large Object's value is NULL)
-    If (IndicatorValue is a null pointer)
-      return error: data exception-null value, no indicator parameter
-    Set *IndicatorValue = SQL_NULL_DATA i.e. -1
-  Else
-    If (IndicatorValue is not a null pointer)
-      Set *IndicatorValue = 0;
-  Transfer the substring from the BLOB, CLOB, NCLOB, UDT or ARRAY to
-TargetValue, using a procedure analogous to Character Retrieval Procedure.
+
+::
+
+      if (stmt is associated with a prepared or executed statement)
+        return error: HY010 CLI-specific condition-function sequence error
+      If (LocatorType is not SQL_BLOB_LOCATOR or SQL_CLOB_LOCATOR or
+    SQL_UDT_LOCATOR or SQL_ARRAY_LOCATOR)
+        return error: CLI-specific condition-invalid argument value
+      If (Locator does not refer to a Locator)
+        return error: 0F001 locator exception-invalid specification
+      If (LocatorType==SQL_BLOB_LOCATOR and Locator doesn't refer to a BLOB)
+      Or (LocatorType==SQL_CLOB_LOCATOR and Locator doesn't refer to a CLOB)
+      Or (LocatorType==SQL_UDT_LOCATOR and Locator doesn't refer to a UDT)
+      Or (LocatorType==SQL_ARRAY_LOCATOR and Locator doesn't refer to an ARRAY)
+        return error: dynamic SQL error-restricted data type attribute violation
+      If (the Large Object's value is NULL)
+        If (IndicatorValue is a null pointer)
+          return error: data exception-null value, no indicator parameter
+        Set *IndicatorValue = SQL_NULL_DATA i.e. -1
+      Else
+        If (IndicatorValue is not a null pointer)
+          Set *IndicatorValue = 0;
+      Transfer the substring from the BLOB, CLOB, NCLOB, UDT or ARRAY to
+    TargetValue, using a procedure analogous to Character Retrieval Procedure.
 
 ODBC: Since this is an SQL3 function, it is not in ODBC 3.0.
 

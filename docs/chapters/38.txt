@@ -76,9 +76,11 @@ CONNECT statement
 The CONNECT statement explicitly establishes an SQL-Connection. The
 establishment of an SQL-Connection gives you access to the SQL-data on an SQL-server in your environment and thus starts an SQL-session. The required syntax for the CONNECT statement is:
 
-CONNECT TO
-   DEFAULT |
-   <SQL-server name> [ AS <Connection name> ] [ USER <AuthorizationID> ]
+::
+
+    CONNECT TO
+       DEFAULT |
+       <SQL-server name> [ AS <Connection name> ] [ USER <AuthorizationID> ]
 
 The CONNECT statement may not be executed during a transaction unless your DBMS supports transactions that affect multiple SQL-servers.
 
@@ -86,6 +88,8 @@ DEFAULT Connection:
 The SQL Standard does not require an explicit CONNECT statement to start an
 SQL-session. If the first SQL statement in an SQL-session is anything other
 than a CONNECT statement, your DBMS will first execute this SQL statement:
+
+::
 
    CONNECT TO DEFAULT;
 
@@ -100,11 +104,16 @@ will return the SQLSTATE error 08002 "connection exception-connection name in us
 [NON-PORTABLE] The effect of "CONNECT TO DEFAULT;" is non-standard because the
 SQL Standard requires implementors to define what the default SQL-Connection
 and the default SQL-server are.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book treats the (explicit or implicit) SQL statement:
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book treats the (explicit or implicit) SQL statement:
+
+::
 
    CONNECT TO DEFAULT;
 
 as equivalent to this SQL statement:
+
+::
 
    CONNECT TO 'ocelot' AS 'ocelot' USER 'ocelot';
 
@@ -112,8 +121,11 @@ This CONNECT statement causes the OCELOT DBMS to establish a SQL-Connection to a
 If the default Cluster can't be found, the DBMS will create it.
 
 <SQL-Server name> clause:
+
 The other form of the CONNECT statement has three possible arguments, only one
 of which is mandatory. The syntax "CONNECT TO <SQL-server name>;", e.g.:
+
+::
 
    CONNECT TO 'some_server';
 
@@ -126,7 +138,10 @@ about just what an SQL-server is, and consequently leaves the method for
 determining its location and the communication protocol required to access it up to the DBMS.
 
 AS clause:
+
 The syntax "CONNECT TO <SQL-server name> AS <Connection name>;", e.g.:
+
+::
 
    CONNECT TO 'some_server' AS 'connection_1';
 
@@ -142,7 +157,8 @@ SQLSTATE error 2E000 "invalid connection name".)
 value of a valid <Connection name> is non-standard because the SQL Standard
 requires implementors to define what a valid <Connection name> may be and what
 Character set <Connection name>s belong to.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book
 defines a <Connection name> as any valid <regular identifier> or <delimited
 identifier> whose characters belong to the INFORMATION_SCHEMA.SQL_TEXT Character set.
 
@@ -150,6 +166,8 @@ If your CONNECT statement doesn't include the optional AS <Connection name>
 clause, the value of <Connection name> defaults to the value of <SQL-server
 name>. The following SQL statements are therefore equivalent (assuming that
 the default SQL-Connection is to an SQL-server named "SOME_SERVER"):
+
+::
 
    CONNECT TO DEFAULT;
 
@@ -168,7 +186,10 @@ subject of CONNECT TO or SET CONNECTION and DISCONNECT has not been issued for
 it -- CONNECT TO will fail: the DBMS will return the SQLSTATE error 08002 "connection exception-connection name in use".
 
 USER clause:
+
 The syntax "CONNECT TO <SQL-server name> USER <AuthorizationID>;", e.g.:
+
+::
 
    CONNECT TO 'some_server' USER 'bob';
 
@@ -184,6 +205,8 @@ clause, the value of the SQL-session user defaults to an <AuthorizationID>
 chosen by your DBMS. The following SQL statements are therefore equivalent
 (assuming that the default SQL-Connection is to an SQL-server named "SOME_SERVER"):
 
+::
+
    CONNECT TO DEFAULT;
 
    CONNECT TO 'some_server';
@@ -193,10 +216,14 @@ chosen by your DBMS. The following SQL statements are therefore equivalent
 [NON-PORTABLE] The effect of omitting the optional USER clause from a CONNECT
 statement is non-standard because the SQL Standard requires implementors to
 define their own initial default SQL-session <AuthorizationID>.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book has an initial default <AuthorizationID> of 'OCELOT'.
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book has an initial default <AuthorizationID> of 'OCELOT'.
 
 CONNECT Examples:
+
 This SQL statement:
+
+::
 
    CONNECT TO 'some_server';
 
@@ -204,17 +231,23 @@ establishes an SQL-Connection to the SQL-server specified. The <Connection name>
 
 This SQL statement:
 
+::
+
    CONNECT TO 'some_server' AS 'Connection_1';
 
 establishes an SQL-Connection named CONNECTION_1 to the SQL-server specified. The SQL-session <AuthorizationID> is set to the DBMS's initial default <AuthorizationID>.
 
 This SQL statement:
 
+::
+
    CONNECT TO 'some_server' USER 'bob';
 
 establishes an SQL-Connection to the SQL-server specified. The <Connection name> defaults to 'SOME_SERVER'; the SQL-session <AuthorizationID> is set to 'BOB'.
 
 And this SQL statement:
+
+::
 
    CONNECT TO 'some_server' AS 'Connection_1' USER 'bob';
 
@@ -240,7 +273,8 @@ SET CONNECTION statement
 
 [NON-PORTABLE] An SQL-compliant DBMS can either limit the number of concurrent
 SQL-Connections to one, or it can support multiple concurrent SQL-Connections.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book allows
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book allows
 multiple concurrent SQL-Connections to be made; each begins a separate
 SQL-session for the <Cluster name> specified. Thus, OCELOT supports multi-user
 operations -- one or more Users may connect to the same Cluster simultaneously
@@ -253,7 +287,9 @@ available SQL-Connections -- it makes a dormant SQL-Connection current. As a
 consequence, any other SQL-Connection that was current then becomes dormant.
 The required syntax for the SET CONNECTION statement is:
 
-SET CONNECTION DEFAULT | <Connection name>
+::
+
+    SET CONNECTION DEFAULT | <Connection name>
 
 The SET CONNECTION statement activates a dormant SQL-Connection and makes it
 the current SQL-Connection. SET CONNECTION may not be executed during a
@@ -261,7 +297,9 @@ transaction unless your DBMS supports transactions that affect multiple SQL-serv
 
 The SQL statement:
 
- SET CONNECTION DEFAULT;
+::
+
+    SET CONNECTION DEFAULT;
 
 will establish your DBMS's default SQL-Connection as the current SQL-Connection. If there is no current or dormant default SQL-Connection (that is, if "CONNECT TO DEFAULT;" wasn't previously issued during the SQL-session),
 SET CONNECTION will fail: your DBMS will return the SQLSTATE error 08003 "connection exception-connection does not exist".
@@ -275,7 +313,9 @@ to either the current or a dormant SQL-Connection, SET CONNECTION will fail:
 your DBMS will return the SQLSTATE error 08003 "connection
 exception-connection does not exist". For example, this SQL statement:
 
-   SET CONNECTION 'connection_2';
+::
+
+    SET CONNECTION 'connection_2';
 
 makes the SQL-Connection called 'CONNECTION_2' the current SQL-Connection and
 puts the previous (if any) SQL-Connection into a dormant state. If your DBMS
@@ -284,14 +324,18 @@ will return the SQLSTATE error 08006 "connection exception-connection failure".
 
 If you want to restrict your code to Core SQL, don't use the SET CONNECTION statement.
 
-DISCONNECT statement
+::
+
+    DISCONNECT statement
 
 The DISCONNECT statement is used to terminate an inactive SQL-Connection. A
 SQL-Connection can be closed whether it is the current SQL-Connection or a
 dormant SQL-Connection, but may not closed while a transaction is on-going for
 its associated SQL-session. The required syntax for the DISCONNECT statement is:
 
-DISCONNECT <Connection name> | DEFAULT | CURRENT | ALL
+::
+
+    DISCONNECT <Connection name> | DEFAULT | CURRENT | ALL
 
 The DISCONNECT statement terminates an inactive SQL-Connection. DISCONNECT may
 not be executed during a transaction -- if you attempt to terminate an
@@ -304,6 +348,8 @@ You can disconnect a specific SQL-Connection by naming it (with "DISCONNECT
 (with "DISCONNECT CURRENT;") or you can disconnect the current and all dormant
 SQL-Connections at once (with "DISCONNECT ALL;"). For example, this SQL
 statement closes an inactive SQL-Connection called CONNECTION_1, whether it is current or dormant;
+
+::
 
    DISCONNECT 'connection_1';
 
@@ -319,6 +365,8 @@ CONNECT statement or SET CONNECTION statement establishes one.
 
 This SQL statement:
 
+::
+
    DISCONNECT DEFAULT;
 
 terminates the DBMS's default SQL-Connection, whether it is
@@ -331,6 +379,8 @@ longer be a current SQL-Connection until another CONNECT statement or SET CONNEC
 
 This SQL statement:
 
+::
+
    DISCONNECT CURRENT;
 
 terminates the current SQL-Connection. If there is no current SQL-Connection,
@@ -340,6 +390,8 @@ successfully, there will no longer be a current SQL-Connection until another
 CONNECT statement or SET CONNECTION statement establishes one.
 
 This SQL statement:
+
+::
 
    DISCONNECT ALL;
 
@@ -358,6 +410,8 @@ The SQL Standard suggests that DISCONNECT should be automatic when an
 SQL-session ends -- but lets the DBMS decide when this has occurred.
 Recommendation: To be absolutely sure of correct results, always end your SQL-sessions with the explicit DISCONNECT statement:
 
+::
+
    DISCONNECT ALL;
 
 If you want to restrict your code to Core SQL, don't use the DISCONNECT statement.
@@ -373,12 +427,14 @@ SET SESSION CHARACTERISTICS statement
 The SET SESSION CHARACTERISTICS statement sets the value of one or more
 transaction characteristics for the current SQL-session. The required syntax for the SET SESSION CHARACTERISTICS statement is:
 
-SET SESSION CHARACTERISTICS AS <transaction mode> [ {,<transaction mode>}... ]
+::
 
-   <transaction mode> ::=
-   <isolation level> |
-   <transaction access mode> |
-   <diagnostics size>
+    SET SESSION CHARACTERISTICS AS <transaction mode> [ {,<transaction mode>}... ]
+
+       <transaction mode> ::=
+       <isolation level> |
+       <transaction access mode> |
+       <diagnostics size>
 
 You can set the same characteristics for all the transactions in an entire
 SQL-session as you can for a single transaction. Each of the transaction
@@ -391,6 +447,8 @@ SQL-session to go dormant and then reactivate it later, your DBMS will reset
 each characteristic to the value you specified the last time you issued SET
 SESSION CHARACTERISTICS for that SQL-session. Here's an example:
 
+::
+
    SET SESSION CHARACTERISTICS AS
      READ WRITE
      ISOLATION LEVEL REPEATABLE READ
@@ -402,7 +460,9 @@ SET SESSION AUTHORIZATION statement
 
 The SET SESSION AUTHORIZATION statement sets the session user <AuthorizationID> for the current SQL-session. The required syntax for the SET SESSION AUTHORIZATION statement is:
 
-SET SESSION AUTHORIZATION <value specification>
+::
+
+    SET SESSION AUTHORIZATION <value specification>
 
 When you start an SQL-session, your DBMS sets the value of the session user
 <AuthorizationID> for the SQL-session to the <AuthorizationID> specified with
@@ -419,7 +479,8 @@ temporary Tables defined for the SQL-session is the SQL-session <AuthorizationID
 of an SQL-session. Whether you can use the SET SESSION AUTHORIZATION statement
 at any other time is non-standard because the SQL Standard requires
 implementors to define whether the SQL-session <AuthorizationID> may be changed once an SQL-session has begun.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book allows
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book allows
 the SQL-session <AuthorizationID> to be changed at any time (except during a transaction).
 
 You can change the value of the SQL-session <AuthorizationID> with the SET
@@ -440,6 +501,8 @@ SESSION AUTHORIZATION will fail: your DBMS will return the SQLSTATE error
 For an example of SET SESSION AUTHORIZATION, assume that the session user
 <AuthorizationID> for your SQL-session is BOB and you'd like to switch it to SAM. Here's three different ways to do it:
 
+::
+
    SET SESSION AUTHORIZATION 'sam';
 
    SET SESSION AUTHORIZATION :char_variable;
@@ -454,7 +517,9 @@ SET ROLE statement
 
 The SET ROLE statement sets the enabled Roles for the current SQL-session. The required syntax for the SET ROLE statement is:
 
-SET ROLE <value specification> | NONE
+::
+
+    SET ROLE <value specification> | NONE
 
 When you start an SQL-session, your DBMS sets the value of the current Role
 <AuthorizationID> for the SQL-session to the <AuthorizationID> specified with
@@ -486,6 +551,8 @@ SQL-transaction".
 For an example of SET ROLE, assume that the current Role for your SQL-session
 is NULL and you'd like to switch it to TELLER_ROLE. Here's two different ways to do it:
 
+::
+
    SET ROLE 'Teller_Role';
 
    SET ROLE :char_variable;
@@ -498,7 +565,8 @@ SET TIME ZONE statement
 [NON-PORTABLE] An SQL-session always begins with an initial default time zone
 offset that is non-standard because the SQL Standard requires implementors to
 define their own initial default time zone offset.
-      [OCELOT Implementation] The OCELOT DBMS that comes with this book has an
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book has an
 initial default time zone that represents UTC -- its default time zone offset
 is INTERVAL +'00:00' HOUR TO MINUTE.
 
@@ -507,7 +575,9 @@ zone for all times and timestamps that don't include an explicit <time zone
 interval>. You can use the SET TIME ZONE statement to change the default time
 zone offset for the current SQL-session. The required syntax for the SET TIME ZONE statement is:
 
-SET TIME ZONE LOCAL | interval_expression
+::
+
+    SET TIME ZONE LOCAL | interval_expression
 
 The SET TIME ZONE statement changes the current SQL-session's default time
 zone offset. It has two possible arguments: the <keyword> LOCAL or an
@@ -523,6 +593,8 @@ will fail: your DBMS will return the SQLSTATE error 25001 "invalid transaction s
 
 The effect of this SQL statement:
 
+::
+
    SET TIME ZONE LOCAL;
 
 is to set the time zone offset for the current SQL-session to your DBMS's initial default time zone offset.
@@ -530,6 +602,8 @@ is to set the time zone offset for the current SQL-session to your DBMS's initia
 The SQL syntax "SET TIME ZONE interval_expression" is used to set the time
 zone offset for the current SQL-session to the value that results when
 "interval_expression" is evaluated. For example, this SQL statement:
+
+::
 
    SET TIME ZONE INTERVAL -'03:00' HOUR TO MINUTE;
 

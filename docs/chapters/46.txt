@@ -9,12 +9,17 @@ Chapter 46 -- SQL/CLI: desc Functions
 
 In this chapter, we'll describe the fourth essential CLI resource: the desc.
 We have much to say about:
-      ## What is in a desc -- fields of the header and the "item descriptor areas".
-      ## How to make a desc, or how to use an automatically-made desc.
-      ## Similarities and differences of ARDs, APDs, IRDs and IPDs.
-      ## Functions which attack descs directly: SQLAllocHandle,
+
+## What is in a desc -- fields of the header and the "item descriptor areas".
+
+## How to make a desc, or how to use an automatically-made desc.
+
+## Similarities and differences of ARDs, APDs, IRDs and IPDs.
+
+## Functions which attack descs directly: SQLAllocHandle,
 SQLGetDescField, SQLSetDescField, SQLGetDescRec, SQLSetDescRec, SQLCopyDesc and others.
-      ## Functions which attack descs indirectly: SQLBindParameter, SQLBindCol, SQLColAttribute, SQLDescribeCol and others.
+
+## Functions which attack descs indirectly: SQLBindParameter, SQLBindCol, SQLColAttribute, SQLDescribeCol and others.
 
 .. rubric:: Table of Contents
 
@@ -25,6 +30,8 @@ Descriptor Areas
 ================
 
 Here is a piece of CLI code:
+
+::
 
    SQLExecDirect(hstmt,"SELECT col_1,col_2 FROM T WHERE col_1=?",SQL_NTS);
    SQLFetch(hstmt);
@@ -47,69 +54,78 @@ value: <data type>, size, precision, scale, Character set, etc.? Descriptor
 areas -- or descs -- are available to handle such questions, for both parameters and row Columns.
 
 Automatic descs:
+
 There are four automatic descs; here's a brief description of each:
-      ## IRD, or Implementation Row Descriptor. Its usual use: to find out
+
+## IRD, or Implementation Row Descriptor. Its usual use: to find out
 what the DBMS knows about a result set. The IRD is filled in when you call
 SQLPrepare for a SELECT statement.
-      ## ARD, or Application Row Descriptor. Its usual use: to tell the DBMS
+
+## ARD, or Application Row Descriptor. Its usual use: to tell the DBMS
 how to transfer a result set to the host. The important fields of the ARD must
 be filled in by the host program.
-      ## IPD, or Implementation Parameter Descriptor. Its usual use: to
+
+## IPD, or Implementation Parameter Descriptor. Its usual use: to
 provide information about the DBMS's view of parameters. The DBMS may be
 capable of "populating" the IPD fields; otherwise, the programmer must take
 some responsibility for this job.
-      ## APD, or Application Parameter Descriptor. Its usual use: to the tell
+
+## APD, or Application Parameter Descriptor. Its usual use: to the tell
 the DBMS how to transfer an input parameter. (Parameters are marked in an SQL
 statement with "?" parameter markers.)
 
 Here's a pseudo "struc" declaration, for future reference in this chapter's examples.
 
-desc struc {
-  SQL_DESC_ALLOC_TYPE smallint,                /* header fields ... */
-  SQL_DESC_COUNT smallint,
-  SQL_DESC_DYNAMIC_FUNCTION char[],
-  SQL_DESC_DYNAMIC_FUNCTION_CODE integer,
-  SQL_DESC_KEY_TYPE smallint,
-  IDA struc occurs n times {
-    SQL_DESC_CHARACTER_SET_CATALOG varchar[],  /* IDA[n] fields ... */
-    SQL_DESC_CHARACTER_SET_SCHEMA varchar[],
-    SQL_DESC_CHARACTER_SET_NAME varchar[],
-    SQL_DESC_COLLATION_CATALOG varchar[],
-    SQL_DESC_COLLATION_SCHEMA varchar[],
-    SQL_DESC_COLLATION_NAME varchar[],
-    SQL_DESC_DATA_POINTER void*,
-    SQL_DESC_DATETIME_INTERVAL_CODE smallint,
-    SQL_DESC_DATETIME_INTERVAL_PRECISION smallint,
-    SQL_DESC_INDICATOR_POINTER integer*,
-    SQL_DESC_KEY_MEMBER smallint,
-    SQL_DESC_LENGTH integer,
-    SQL_DESC_NAME varchar[],
-    SQL_DESC_NULLABLE smallint,
-    SQL_DESC_OCTET_LENGTH integer,
-    SQL_DESC_OCTET_LENGTH_POINTER integer*,
-    SQL_DESC_PARAMETER_ORDINAL_POSITION smallint,
-    SQL_DESC_PARAMETER_SPECIFIC_CATALOG varchar[],
-    SQL_DESC_PARAMETER_SPECIFIC_SCHEMA varchar[],
-    SQL_DESC_PARAMETER_SPECIFIC_NAME varchar[],
-    SQL_DESC_PRECISION smallint,
-    SQL_DESC_SCALE smallint,
-    SQL_DESC_TYPE smallint,
-    SQL_DESC_UDT_CATALOG varchar[],
-    SQL_DESC_UDT_SCHEMA varchar[],
-    SQL_DESC_UDT_NAME varchar[],
-    SQL_DESC_UNNAMED smallint
-    }
-  }
-APD = desc;
-IPD = desc;
-ARD = desc;
-IRD = desc;
+::
+
+    desc struc {
+      SQL_DESC_ALLOC_TYPE smallint,                /* header fields ... */
+      SQL_DESC_COUNT smallint,
+      SQL_DESC_DYNAMIC_FUNCTION char[],
+      SQL_DESC_DYNAMIC_FUNCTION_CODE integer,
+      SQL_DESC_KEY_TYPE smallint,
+      IDA struc occurs n times {
+        SQL_DESC_CHARACTER_SET_CATALOG varchar[],  /* IDA[n] fields ... */
+        SQL_DESC_CHARACTER_SET_SCHEMA varchar[],
+        SQL_DESC_CHARACTER_SET_NAME varchar[],
+        SQL_DESC_COLLATION_CATALOG varchar[],
+        SQL_DESC_COLLATION_SCHEMA varchar[],
+        SQL_DESC_COLLATION_NAME varchar[],
+        SQL_DESC_DATA_POINTER void*,
+        SQL_DESC_DATETIME_INTERVAL_CODE smallint,
+        SQL_DESC_DATETIME_INTERVAL_PRECISION smallint,
+        SQL_DESC_INDICATOR_POINTER integer*,
+        SQL_DESC_KEY_MEMBER smallint,
+        SQL_DESC_LENGTH integer,
+        SQL_DESC_NAME varchar[],
+        SQL_DESC_NULLABLE smallint,
+        SQL_DESC_OCTET_LENGTH integer,
+        SQL_DESC_OCTET_LENGTH_POINTER integer*,
+        SQL_DESC_PARAMETER_ORDINAL_POSITION smallint,
+        SQL_DESC_PARAMETER_SPECIFIC_CATALOG varchar[],
+        SQL_DESC_PARAMETER_SPECIFIC_SCHEMA varchar[],
+        SQL_DESC_PARAMETER_SPECIFIC_NAME varchar[],
+        SQL_DESC_PRECISION smallint,
+        SQL_DESC_SCALE smallint,
+        SQL_DESC_TYPE smallint,
+        SQL_DESC_UDT_CATALOG varchar[],
+        SQL_DESC_UDT_SCHEMA varchar[],
+        SQL_DESC_UDT_NAME varchar[],
+        SQL_DESC_UNNAMED smallint
+        }
+      }
+    APD = desc;
+    IPD = desc;
+    ARD = desc;
+    IRD = desc;
 
 Throughout this chapter, we'll replace long-winded references using
 program-like conventions. For example, it is often necessary to make
 statements like this: "Within the Application Parameter Descriptor, in the nth
 occurrence of the Item Descriptor Area, set the SCALE attribute to 5." We will
 make such statements this way:
+
+::
 
    "Set APD.IDA[n].SQL_DESC_SCALE = 5"
 
@@ -130,12 +146,16 @@ alphabetical order. Each entry begins with a field identifier (which is the
 code used for identification), a <data type> and an indicator of the field's
 importance. For example:
 
+::
+
    SQL_DESC_ALLOC_TYPE 1099
          Type: SMALLINT. Importance: Low.
 
 This description should be read as follows: The SQL descriptor field is
 identified by the code SQL_DESC_ALLOC_TYPE, which is a number. The sqlcli.h
 line for this field is:
+
+::
 
    #define SQL_DESC_ALLOC_TYPE 1099
 
@@ -146,11 +166,13 @@ speaking, the field is of low importance (this is our subjective estimate).
 Each field entry contains some text description, accompanied by examples if
 the field is of high importance. Finally, each entry ends with a small chart. For example:
 
-     May be Gotten by ...           May be Set by ...
-ARD  user                           SQLGetData, user
-IRD  SQLGetData[P], user[P]         SQLPrepare
-APD  SQLExecute, user               SQLGetDescField
-IPD  SQLExecute, user               SQLPrepare[I], user
+::
+
+         May be Gotten by ...           May be Set by ...
+    ARD  user                           SQLGetData, user
+    IRD  SQLGetData[P], user[P]         SQLPrepare
+    APD  SQLExecute, user               SQLGetDescField
+    IPD  SQLExecute, user               SQLPrepare[I], user
 
 This chart should be read as follows: When this field is in the ARD, it may be
 gotten by the user (presumably with the SQLGetDescField function) and it may
@@ -167,9 +189,11 @@ is blank for a particular automatic desc, that means the field is not affected
 by any "get" or "set" function (as appropriate) for that desc.
 
 The desc Header Fields:
+
 There are five desc header fields: SQL_DESC_ALLOC_TYPE, SQL_DESC_COUNT, SQL_DESC_DYNAMIC_FUNCTION, SQL_DESC_DYNAMIC_FUNCTION_CODE and SQL_DESC_KEY_TYPE. Their descriptions follow.
 
 ## SQL_DESC_ALLOC_TYPE
+
 SQL_DESC_ALLOC_TYPE 1099
       Type: SMALLINT. Importance: Low.
 
@@ -180,13 +204,16 @@ descs; they will have SQL_DESC_ALLOC_AUTO in this field. Those descs which are
 made explicitly by a call to SQLAllocHandle(SQL_HANDLE_DESC,...) are user
 descs; they will have SQL_DESC_ALLOC_USER in this field.
 
-     May be Gotten by ...                 May be Set by ...
-ARD  SQLFreeHandle, user                  SQLAllocHandle
-IRD  SQLFreeHandle, user[P]               SQLAllocHandle
-APD  SQLFreeHandle, user                  SQLAllocHandle
-IPD  SQLFreeHandle, user                  SQLAllocHandle
+::
+
+         May be Gotten by ...                 May be Set by ...
+    ARD  SQLFreeHandle, user                  SQLAllocHandle
+    IRD  SQLFreeHandle, user[P]               SQLAllocHandle
+    APD  SQLFreeHandle, user                  SQLAllocHandle
+    IPD  SQLFreeHandle, user                  SQLAllocHandle
 
 ## SQL_DESC_COUNT
+
 SQL_DESC_COUNT 1001
       Type: SMALLINT. Importance: High
 
@@ -208,47 +235,59 @@ SQLBindCol for COLUMN_1, then ARD.SQL_DESC_COUNT is set to 1.
 In ODBC, the value goes down if you "unbind" the last IDA (by setting
 desc.IDA[n].SQL_DATA_POINTER=0).
 
-     May be Gotten by ...           May be Set by ...
-ARD  SQLGetData, SQLGetDescRec,     SQLBindCol, SQLSetDescRec,
-     user                           user
-IRD  SQLGetDescRec[P],user[P],      SQLPrepare
-     SQLNumResultCols[P]
-APD  SQLExecute, SQLGetDescRec,     SQLBindParameter, SQLSetDescRec,
-     SQLGetParamData, SQLParamData, user
-     user
-IPD  SQLExecute, SQLGetDescRec,     SQLBindParameter, SQLPrepare[I],
-     user                           SQLSetDescRec, user
+::
+
+         May be Gotten by ...           May be Set by ...
+    ARD  SQLGetData, SQLGetDescRec,     SQLBindCol, SQLSetDescRec,
+         user                           user
+    IRD  SQLGetDescRec[P],user[P],      SQLPrepare
+         SQLNumResultCols[P]
+    APD  SQLExecute, SQLGetDescRec,     SQLBindParameter, SQLSetDescRec,
+         SQLGetParamData, SQLParamData, user
+         user
+    IPD  SQLExecute, SQLGetDescRec,     SQLBindParameter, SQLPrepare[I],
+         user                           SQLSetDescRec, user
 
 ## SQL_DESC_DYNAMIC_FUNCTION
+
 SQL_DESC_DYNAMIC_FUNCTION 1031
       Type: VARCHAR. Importance: Low.
 
 This is an SQL3 field only; it's not in ODBC. It provides an SQL_TEXT string
 containing a copy of the prepared statement. For example, after:
 
+::
+
    SQLPrepare(hstmt,"INSERT INTO Table_1 VALUES (5)",SQL_NTS);
 
 IRD.SQL_DESC_DYNAMIC_FUNCTION will contain 'INSERT INTO Table_1 VALUES (5)'.
 You can get the same information with the SQLGetDiagField function.
 
-     May be Gotten by ...           May be Set by ...
-ARD
-IRD  user                           SQLPrepare
-APD
-IPD  user                           SQLPrepare
+::
+
+         May be Gotten by ...           May be Set by ...
+    ARD
+    IRD  user                           SQLPrepare
+    APD
+    IPD  user                           SQLPrepare
 
 ## SQL_DESC_DYNAMIC_FUNCTION_CODE
+
 SQL_DESC_DYNAMIC_FUNCTION_CODE 1032
       Data type: INTEGER. Importance: Low.
 
 This is an SQL3 field only; it's not in ODBC. It provides a numeric code for
 the prepared statement. For example, after:
 
+::
+
    SQLPrepare(hstmt,"INSERT INTO Table_1 VALUES (5)",SQL_NTS);
 
 IRD.SQL_DESC_DYNAMIC_FUNCTION_CODE will contain 50 (you can find the list of
 possible codes in our chapter on SQL/CLI diagnostics). You can get the same
 information with the SQLGetDiagField function.
+
+::
 
      May be Gotten by ...           May be Set by ...
 ARD
@@ -257,6 +296,7 @@ APD
 IPD  user                           SQLPrepare
 
 ## SQL_DESC_KEY_TYPE
+
 SQL_DESC_KEY_TYPE 1029
       Type: SMALLINT. Importance: Low.
 
@@ -267,21 +307,28 @@ the value is 1. Otherwise, the value is 0. For example, suppose that TABLE_1
 has two Columns, COL_1 AND COL_2, and that TABLE_1's primary key is (COL_1).
 In that case:
 
+::
+
    SQLPrepare(hstmt,"SELECT * FROM Table_1",SQL_NTS);
 
 will set IRD.SQL_DESC_KEY_TYPE = 1, and:
+
+::
 
    SQLPrepare(hstmt,"SELECT COUNT(*) FROM Table_1",SQL_NTS);
 
 will set IRD.SQL_DESC_KEY_TYPE = 0.
 
-     May be Gotten by ...           May be Set by ...
-ARD
-IRD  user                           SQLPrepare
-APD
-IPD
+::
+
+         May be Gotten by ...           May be Set by ...
+    ARD
+    IRD  user                           SQLPrepare
+    APD
+    IPD
 
 The desc Item Descriptor Area (IDA) Fields:
+
 There are 28 desc IDA fields: SQL_DESC_CHARACTER_SET_CATALOG,
 SQL_DESC_CHARACTER_SET_SCHEMA, SQL_DESC_CHARACTER_SET_NAME,
 SQL_DESC_COLLATION_CATALOG, SQL_DESC_COLLATION_SCHEMA, SQL_DESC_COLLATION,
@@ -297,6 +344,7 @@ also known as the "Item Fields", the "fields of the Descriptor Record" (an
 ODBC term) and as the "detail records". Their descriptions follow.
 
 ## Character set fields
+
 SQL_DESC_CHARACTER_SET_CATALOG 1019
       Type: VARCHAR. Importance: Low.
 
@@ -312,13 +360,16 @@ item's <data type> is CHAR, VARCHAR or CLOB. Some example values are:
 'OCELOT', 'INFORMATION_SCHEMA' and 'ISO8BIT' (for the three fields,
 respectively).
 
-     May be Gotten by ...           May be Set by ...
-ARD  SQLGetData, user               user
-IRD  SQLGetData, user               SQLPrepare
-APD  SQLExecute, user               user
-IPD  SQLExecute, user               SQLPrepare[I], user
+::
+
+         May be Gotten by ...           May be Set by ...
+    ARD  SQLGetData, user               user
+    IRD  SQLGetData, user               SQLPrepare
+    APD  SQLExecute, user               user
+    IPD  SQLExecute, user               SQLPrepare[I], user
 
 ## Collation fields
+
 SQL_DESC_COLLATION_CATALOG 1016
       Type: VARCHAR. Importance: Low.
 
@@ -338,13 +389,16 @@ For a select list, a standard DBMS may set these fields to a <Collation name>
 -- for example, 'OCELOT', 'INFORMATION_SCHEMA' and 'POLISH' (for the three
 fields, respectively). You can change the fields, but it does not matter -- the DBMS never reads them.
 
-     May be Gotten by ...           May be Set by ...
-ARD  user                           user
-IRD  user                           SQLPrepare
-APD  user                           user
-IPD  user                           SQLPrepare[I], user
+::
+
+         May be Gotten by ...           May be Set by ...
+    ARD  user                           user
+    IRD  user                           SQLPrepare
+    APD  user                           user
+    IPD  user                           SQLPrepare[I], user
 
 ##SQL_DESC_DATA_POINTER
+
 SQL_DESC_DATA_POINTER 1010
       Type: POINTER. Importance: High.
 
@@ -363,15 +417,18 @@ side effect is that IPD.IDA[4].SQL_DESC_DATA_POINTER = 0. Moral: change this fie
 
 In ODBC: the name is SQL_DESC_DATA_PTR.
 
-     May be Gotten by ...           May be Set by ...
-ARD  SQLGetData, SQLFreeStmt,       SQLSetDescRec, user
-     user
-IRD
-APD  SQLExecute, SQLFreeStmt,       SQLBindParameter, SQLSetDescRec,
-     user                           user
-IPD                                 SQLSetDescRec, user
+::
+
+         May be Gotten by ...           May be Set by ...
+    ARD  SQLGetData, SQLFreeStmt,       SQLSetDescRec, user
+         user
+    IRD
+    APD  SQLExecute, SQLFreeStmt,       SQLBindParameter, SQLSetDescRec,
+         user                           user
+    IPD                                 SQLSetDescRec, user
 
 ## SQL_DESC_DATETIME_INTERVAL_CODE
+
 SQL_DESC_DATETIME_INTERVAL_CODE 1007
       Type: SMALLINT. Importance: Medium.
 
@@ -382,15 +439,18 @@ For example: if SQL_DESC_TYPE = 9 and SQL_DESC_DATETIME_INTERVAL_CODE = 5,
 then the item's precise <data type> is known to be TIMESTAMP WITH TIME ZONE.
 If you change the SQL_DESC_TYPE field to 9 or 10, you must change SQL_DESC_DATETIME_INTERVAL_CODE too.
 
-     May be Gotten by ...           May be Set by ...
-ARD  user                           SQLSetDescRec, user
-IRD  SQLGetData, SQLDescribeCol,    SQLPrepare
-     user
-APD  SQLExecute, user               SQLSetDescRec, user
-IPD  SQLExecute, user               SQLBindParameter, SQLSetDescRec,
-                                    SQLPrepare[I], user
+::
+
+         May be Gotten by ...           May be Set by ...
+    ARD  user                           SQLSetDescRec, user
+    IRD  SQLGetData, SQLDescribeCol,    SQLPrepare
+         user
+    APD  SQLExecute, user               SQLSetDescRec, user
+    IPD  SQLExecute, user               SQLBindParameter, SQLSetDescRec,
+                                        SQLPrepare[I], user
 
 ## SQL_DESC_DATETIME_INTERVAL_PRECISION
+
 SQL_DESC_DATETIME_INTERVAL_PRECISION 1014
       Type: SMALLINT. Importance: Medium.
 
@@ -404,6 +464,8 @@ desc.IDA[n].SQL_DESC_DATETIME_INTERVAL_PRECISION = 4.
 In ODBC, SQL_DESC_DATETIME_INTERVAL_PRECISION is 26 rather than 1014 and <data
 type> is INTEGER rather than SMALLINT.
 
+::
+
      May be Gotten by ...           May be Set by ...
 ARD  user                           user
 IRD  SQLGetData, SQLDescribeCol,    SQLPrepare
@@ -412,6 +474,7 @@ APD  SQLExecute, user               user
 IPD  SQLExecute, user               SQLBindParameter, SQLPrepare[I], user
 
 ## SQL_DESC_INDICATOR_POINTER
+
 SQL_DESC_INDICATOR_POINTER 1009
       Type: POINTER TO INTEGER. Importance: Medium
 
@@ -426,15 +489,18 @@ The field's initial value is 0.
 
 In ODBC, the name is SQL_DESC_INDICATOR_PTR.
 
-     May be Gotten by ...           May be Set by ...
-ARD  SQLGetData, user               SQLBindCol, SQLSetDescRec,
-                                     user
-IRD
-APD  user                           SQLBindParameter, SQLSetDescRec,
-                                    user
-IPD                                 SQLSetDescRec
+::
+
+         May be Gotten by ...           May be Set by ...
+    ARD  SQLGetData, user               SQLBindCol, SQLSetDescRec,
+                                         user
+    IRD
+    APD  user                           SQLBindParameter, SQLSetDescRec,
+                                        user
+    IPD                                 SQLSetDescRec
 
 ## SQL_DESC_KEY_MEMBER
+
 SQL_DESC_KEY_MEMBER 1030
       Type: INTEGER. Importance: Low.
 
@@ -442,17 +508,22 @@ This field is in SQL3 only; it's not in ODBC. If a fetched item is from a
 Column of the selected Table's primary key or a preferred candidate key, then
 the value is 1 (true); otherwise it's 0 (false). For example:
 
+::
+
    SQLPrepare(hstmt,"SELECT 5 FROM t",SQL_NTS);
 
 will set IRD.IDA[1].SQL_DESC_KEY_MEMBER = 0. (See also the header field SQL_DESC_KEY_TYPE.)
 
-     May be Gotten by ...           May be Set by ...
-ARD
-IRD  user                           SQLPrepare
-APD
-IPD
+::
+
+         May be Gotten by ...           May be Set by ...
+    ARD
+    IRD  user                           SQLPrepare
+    APD
+    IPD
 
 ## SQL_DESC_LENGTH
+
 SQL_DESC_LENGTH 1003
       Data type: INTEGER. Importance: Medium.
 
@@ -464,6 +535,8 @@ it equals 10 for a Column defined as a DATE (because 2000-01-01 is 10
 positions). For a BLOB <data type>, this is the defined length in octets. In
 ANSI SQL, SQL_DESC_LENGTH may be changed with the SQLSetDescField function. In ISO SQL, it may not be.
 
+::
+
      May be Gotten by ...           May be Set by ...
 ARD  user                           user
 IRD  SQLGetData, SQLDescribeCol,    SQLPrepare
@@ -472,16 +545,21 @@ APD  SQLExecute, user               user
 IPD  SQLExecute, user               SQLPrepare[I], user
 
 ## SQL_DESC_NAME
+
 SQL_DESC_NAME 1011
       Type: VARCHAR. Importance: Low.
 
 This provides the derived Column name if there's a select list. For example, after:
+
+::
 
    SQLPrepare(hstmt,"SELECT col_1 FROM Table_1",SQL_NTS);
 
 the DBMS sets IRD.IDA[n].SQL_DESC_NAME = "Col_1". In ANSI SQL, SQL_DESC_NAME
 may be changed with the SQLSetDescField function. In ISO SQL, it may not be.
 In ODBC, named parameters are supported.
+
+::
 
      May be Gotten by ...           May be Set by ...
 ARD  user                           user
@@ -490,6 +568,7 @@ APD  user                           user
 IPD  user                           user
 
 ## SQL_DESC_NULLABLE
+
 SQL_DESC_NULLABLE 1008
       Type: SMALLINT. Importance: Medium.
 
@@ -499,6 +578,8 @@ ANSI SQL, SQL_DESC_NULLABLE may be changed with the SQLSetDescField function.
 In ISO SQL, it may not be. In ODBC, the value might also be 2
 (SQL_NULLABLE_UNKNOWN).
 
+::
+
      May be Gotten by ...           May be Set by ...
 ARD  user                           user
 IRD  SQLDescribeCol, user           SQLPrepare
@@ -506,6 +587,7 @@ APD  user                           user
 IPD  user                           SQLPrepare[I], user
 
 ## SQL_DESC_OCTET_LENGTH
+
 SQL_DESC_OCTET_LENGTH 1013
       Type: INTEGER. Importance: Medium.
 
@@ -522,14 +604,17 @@ parameters, it uses the length pointed to by the SQL_DESC_OCTET_LENGTH_POINTER f
 Despite some contradictions in other documents, we believe that datetime or
 interval transfers are not affected by the value in this field.
 
-     May be Gotten by ...           May be Set by ...
-ARD  SQLGetDescRec, user            SQLBindCol, SQLSetDescRec
-IRD  SQLGetDescRec, user            SQLPrepare, SQLSetDescRec
-APD  SQLGetDescRec, user            SQLBindParameter, SQLSetDescRec
-IPD  SQLGetDescRec, user            SQLBindParameter,
-                                    SQLPrepare[I], SQLSetDescRec, user
+::
+
+         May be Gotten by ...           May be Set by ...
+    ARD  SQLGetDescRec, user            SQLBindCol, SQLSetDescRec
+    IRD  SQLGetDescRec, user            SQLPrepare, SQLSetDescRec
+    APD  SQLGetDescRec, user            SQLBindParameter, SQLSetDescRec
+    IPD  SQLGetDescRec, user            SQLBindParameter,
+                                        SQLPrepare[I], SQLSetDescRec, user
 
 ## SQL_DESC_OCTET_LENGTH_POINTER
+
 SQL_DESC_OCTET_LENGTH_POINTER 1004
       Data type: POINTER TO INTEGER. Importance: Medium.
 
@@ -550,52 +635,61 @@ imprecise: the rules don't really change, but octet length is always set after
 indicator, and we stop if indicator == SQL_NULL_DATA).
 
 If they're separate:
-On Output (taking SQLFetch for our example):
-  If fetched value IS NULL:
-    SQLFetch sets *SQL_DESC_INDICATOR_POINTER = SQL_NULL_DATA (-1)
-    SQLFetch does not set *SQL_DESC_OCTET_LENGTH_POINTER
-  If fetched value IS NOT NULL:
-    SQLFetch sets *SQL_DESC_INDICATOR_POINTER = 0
-    SQLFetch sets *SQL_DESC_OCTET_LENGTH_POINTER = string size in octets
-On Input:
-  *SQL_DESC_INDICATOR_POINTER should be either 0 or -1.
-  *SQL_DESC_OCTET_LENGTH_POINTER can be SQL_NTS, SQL_DATA_AT_EXEC or length.
+
+::
+
+    On Output (taking SQLFetch for our example):
+      If fetched value IS NULL:
+        SQLFetch sets *SQL_DESC_INDICATOR_POINTER = SQL_NULL_DATA (-1)
+        SQLFetch does not set *SQL_DESC_OCTET_LENGTH_POINTER
+      If fetched value IS NOT NULL:
+        SQLFetch sets *SQL_DESC_INDICATOR_POINTER = 0
+        SQLFetch sets *SQL_DESC_OCTET_LENGTH_POINTER = string size in octets
+    On Input:
+      *SQL_DESC_INDICATOR_POINTER should be either 0 or -1.
+      *SQL_DESC_OCTET_LENGTH_POINTER can be SQL_NTS, SQL_DATA_AT_EXEC or length.
 
 If they're the same:
-On Output (taking SQLFetch for our example):
-  If fetched value IS NULL:
-    SQLFetch sets *SQL_DESC_INDICATOR_POINTER = SQL_NULL_DATA (-1)
-  If fetched value IS NOT NULL:
-    SQLFetch sets *SQL_DESC_INDICATOR_POINTER = 0
-/* We've proposed a change to the ISO committee; the following is an assumption that they'll adopt it: */
-      () if CHAR or BLOB:
-           *SQL_DESC_OCTET_LENGTH_POINTER = length
-      () otherwise:
-           "implementation-dependent", but assume it's like ODBC:
-           *SQL_DESC_OCTET_LENGTH_POINTER = length
-           ... This "overrides the setting of *SQL_DESC_INDICATOR_POINTER=0.
-           ... So "strlen_or_ind" is a misnomer; it's "strlen_and_ind"
-  If (CHAR or BLOB)
-    If (truncation would occur):
-      SQLFetch sets *SQL_DESC_INDICATOR_POINTER = length
-    If (truncation would not occur):
-      SQLFetch sets *SQL_DESC_INDICATOR_POINTER = 0
-On Input:
-  *SQL_DESC_INDICATOR_POINTER may be 0,-1,SQL_NTS,SQL_DATA_AT_EXEC, or length.
+
+::
+
+    On Output (taking SQLFetch for our example):
+      If fetched value IS NULL:
+        SQLFetch sets *SQL_DESC_INDICATOR_POINTER = SQL_NULL_DATA (-1)
+      If fetched value IS NOT NULL:
+        SQLFetch sets *SQL_DESC_INDICATOR_POINTER = 0
+    /* We've proposed a change to the ISO committee; the following is an assumption that they'll adopt it: */
+          () if CHAR or BLOB:
+               *SQL_DESC_OCTET_LENGTH_POINTER = length
+          () otherwise:
+               "implementation-dependent", but assume it's like ODBC:
+               *SQL_DESC_OCTET_LENGTH_POINTER = length
+               ... This "overrides the setting of *SQL_DESC_INDICATOR_POINTER=0.
+               ... So "strlen_or_ind" is a misnomer; it's "strlen_and_ind"
+      If (CHAR or BLOB)
+        If (truncation would occur):
+          SQLFetch sets *SQL_DESC_INDICATOR_POINTER = length
+        If (truncation would not occur):
+          SQLFetch sets *SQL_DESC_INDICATOR_POINTER = 0
+    On Input:
+      *SQL_DESC_INDICATOR_POINTER may be 0,-1,SQL_NTS,SQL_DATA_AT_EXEC, or length.
 
 The rules are a little confusing, but that's the price we have to pay for
 backward compatibility -- some of the older CLI functions allow for only one
 pointer variable which serves for both "indicator" and "string length" information.
 
-     May be Gotten by ...           May be Set by ...
-ARD  user                           SQLBindCol, SQLSetDescRec,
-                                    user
-IRD
-APD  SQLExecute, user               SQLBindParameter, SQLSetDescRec,
-                                    user
-IPD                                 SQLSetDescRec
+::
+
+         May be Gotten by ...           May be Set by ...
+    ARD  user                           SQLBindCol, SQLSetDescRec,
+                                        user
+    IRD
+    APD  SQLExecute, user               SQLBindParameter, SQLSetDescRec,
+                                        user
+    IPD                                 SQLSetDescRec
 
 ## SQL_DESC_PARAMETER_MODE
+
 SQL_DESC_PARAMETER_MODE 1021
       Data type: SMALLINT. Importance: Low.
 
@@ -610,13 +704,16 @@ the APD and the ARD. In ODBC, a field named IPD.IDA[n].SQL_DESC_PARAMETER_TYPE
 can be set to SQL_PARAM_MODE_IN, SQL_PARAM_MODE_INOUT or SQL_PARAM_MODE_OUT.
 The default value is SQL_PARAM_MODE_INPUT.
 
-     May be Gotten by ...          May be Set by ...
-ARD
-IRD  user
-APD  SQLExecute                    SQLBindParameter
-IPD                                SQLPrepare[I], user
+::
+
+         May be Gotten by ...          May be Set by ...
+    ARD
+    IRD  user
+    APD  SQLExecute                    SQLBindParameter
+    IPD                                SQLPrepare[I], user
 
 ## SQL_DESC_PARAMETER_ORDINAL_POSITION
+
 SQL_DESC_PARAMETER_ORDINAL_POSITION 1022
       Type: SMALLINT. Importance: Low.
 
@@ -626,13 +723,16 @@ an SQL "CALL ..." statement, the DBMS sets IPD.IDA[n].SQL_DESC_PARAMETER_ORDINAL
 
 In ANSI SQL, users may only change this field in the IPD (with the SQLSetDescField function). In ISO SQL, users may change this field in the IPD, the APD and the ARD.
 
-     May be Gotten by ...          May be Set by ...
-ARD
-IRD  user
-APD
-IPD                                SQLPrepare[I], user
+::
+
+         May be Gotten by ...          May be Set by ...
+    ARD
+    IRD  user
+    APD
+    IPD                                SQLPrepare[I], user
 
 ## Parameter fields
+
 SQL_DESC_PARAMETER_SPECIFIC_CATALOG 1023
       Type: VARCHAR. Importance: Low.
 
@@ -648,13 +748,16 @@ SQLPrepare sets IPD if "populate IPD" is true.
 
 In ANSI SQL, users may only change these fields in the IPD (with the SQLSetDescField function). In ISO SQL, users may change these fields in the IPD, the APD and the ARD.
 
-     May be Gotten by ...          May be Set by ...
-ARD
-IRD  user
-APD
-IPD                                SQLPrepare[I], user
+::
+
+         May be Gotten by ...          May be Set by ...
+    ARD
+    IRD  user
+    APD
+    IPD                                SQLPrepare[I], user
 
 ## SQL_DESC_PRECISION
+
 SQL_DESC_PRECISION 1005
       Type: SMALLINT. Importance: Medium.
 
@@ -667,15 +770,18 @@ is the fractional seconds precision -- that is, the number of digits after the
 decimal point in the SECOND datetime component. The default value in each case
 is what you'd get if you used the <data type> with its default value in a CREATE TABLE statement.
 
-     May be Gotten by ...          May be Set by ...
-ARD  SQLGetData, user              SQLSetDescRec, user
-IRD  SQLGetData, SQLDescribeCol,   SQLPrepare
-     user
-APD  user                          SQLSetDescRec
-IPD  SQLExecute, user              SQLBindParameter, SQLSetDescRec,
-                                   SQLPrepare[I], user
+::
+
+         May be Gotten by ...          May be Set by ...
+    ARD  SQLGetData, user              SQLSetDescRec, user
+    IRD  SQLGetData, SQLDescribeCol,   SQLPrepare
+         user
+    APD  user                          SQLSetDescRec
+    IPD  SQLExecute, user              SQLBindParameter, SQLSetDescRec,
+                                       SQLPrepare[I], user
 
 ## SQL_DESC_SCALE
+
 SQL_DESC_SCALE 1006
       Type: SMALLINT. Importance: Medium.
 
@@ -687,15 +793,18 @@ the DBMS will set IRD.IDA[n].SQL_DESC_SCALE = 0 during SQLPrepare, and ignore
 the field on all other occasions. For all other <data type>s, the value of
 SQL_DESC_SCALE is irrelevant. The field's initial value is 0.
 
-     May be Gotten by ...          May be Set by ...
-ARD  SQLGetData, user              SQLSetDescRec, user
-IRD  SQLGetData, SQLDescribeCol,   SQLPrepare
-     user[P]
-APD  user                          SQLSetDescRec, user
-IPD  SQLExecute, user              SQLBindParameter, SQLSetDescRec,
-                                   SQLPrepare[I], user
+::
+
+         May be Gotten by ...          May be Set by ...
+    ARD  SQLGetData, user              SQLSetDescRec, user
+    IRD  SQLGetData, SQLDescribeCol,   SQLPrepare
+         user[P]
+    APD  user                          SQLSetDescRec, user
+    IPD  SQLExecute, user              SQLBindParameter, SQLSetDescRec,
+                                       SQLPrepare[I], user
 
 ## SQL_DESC_TYPE
+
 SQL_DESC_TYPE 1002
       Type: SMALLINT. Importance: High.
 
@@ -712,17 +821,20 @@ You may set ARD.IDA[n].SQL_DESC_TYPE = SQL_C_DEFAULT. By setting SQL_DESC_TYPE
 with SQLSetDescField, YOU CAUSE ALL OTHER FIELDS OF THE IDA TO BE RESET TO
 IMPLEMENTATION-DEPENDENT VALUES. Moral: always set SQL_DESC_TYPE first.
 
-     May be Gotten by ...          May be Set by ...
-ARD  SQLGetData, user              SQLBindCol, SQLSetDescRec,
-                                   user
-IRD  SQLGetData, SQLDescribeCol,   SQLPrepare
-     user
-APD  user                          SQLBindParameter, SQLSetDescRec,
-                                   user
-IPD  SQLExecute, user              SQLBindParameter, SQLSetDescRec,
-                                   SQLPrepare[I], user
+::
+
+         May be Gotten by ...          May be Set by ...
+    ARD  SQLGetData, user              SQLBindCol, SQLSetDescRec,
+                                       user
+    IRD  SQLGetData, SQLDescribeCol,   SQLPrepare
+         user
+    APD  user                          SQLBindParameter, SQLSetDescRec,
+                                       user
+    IPD  SQLExecute, user              SQLBindParameter, SQLSetDescRec,
+                                       SQLPrepare[I], user
 
 ## UDT fields
+
 SQL_DESC_UDT_CATALOG 1026
       Type: VARCHAR. Importance: Low.
 
@@ -735,13 +847,16 @@ SQL_DESC_UDT_NAME 1028
 These three fields are SQL3 fields only; they're not in ODBC. Together, they
 make up the qualified name of the item's user-defined type, if it has one.
 
-     May be Gotten by ...          May be Set by ...
-ARD  user                          user
-IRD  SQLGetData, user              SQLPrepare
-APD  SQLExecute, user              user
-IPD  SQLExecute, user              user
+::
+
+         May be Gotten by ...          May be Set by ...
+    ARD  user                          user
+    IRD  SQLGetData, user              SQLPrepare
+    APD  SQLExecute, user              user
+    IPD  SQLExecute, user              user
 
 ## SQL_DESC_UNNAMED
+
 SQL_DESC_UNNAMED 1012
       Type: SMALLINT. Importance: Low.
 
@@ -750,6 +865,8 @@ This field has two possible values: 1 (true) (SQL_UNNAMED) or 0 (false) (SQL_NAM
 In the IRD: if the select list contains an initially-unnamed Column, then the
 DBMS makes up a name, returns the made-up name to the SQL_DESC_NAME field and
 sets the SQL_DESC_UNNAMED field to SQL_UNNAMED. For example, after:
+
+::
 
    SQLPrepare(hstmt,"SELECT 5+1 FROM Table_1",SQL_NTS);
 
@@ -760,11 +877,13 @@ In the IPD: if "auto-populate" happens, then the DBMS sets IPD.IDA[n].SQL_DESC_U
 
 In ANSI SQL, users may change this field (with the SQLSetDescField function). In ISO SQL, they may not.
 
-     May be Gotten by ...          May be Set by ...
-ARD  user                          user
-IRD  user                          SQLPrepare
-APD  user                          user
-IPD  user                          SQLPrepare[I], user
+::
+
+         May be Gotten by ...          May be Set by ...
+    ARD  user                          user
+    IRD  user                          SQLPrepare
+    APD  user                          user
+    IPD  user                          SQLPrepare[I], user
 
 The desc Functions
 ==================
@@ -780,6 +899,9 @@ There are 14 desc functions. Their descriptions follow.
 SQLAllocHandle(SQL_HANDLE_DESC,...)
 
 Function Prototype:
+
+::
+
   SQLRETURN SQLAllocHandle(
     SQLSMALLINT HandleType,     /* 16-bit input = SQL_HANDLE_DESC */
     SQLINTEGER InputHandle,     /* 32-bit input, must be a hdbc */
@@ -787,48 +909,60 @@ Function Prototype:
     );
 
 Job:
+
 Allocate a user desc. (Note: User descs are unimportant. We start off with this function for symmetry reasons.)
 
 Algorithm:
-If (HandleType == SQL_HANDLE_DESC)
-  If (InputHandle is not a valid handle of a dbc)
-    return error: CLI-specific condition-invalid handle
-  Empty the dbc's diagnostics area.
-  If (dbc is not connected)
-    Set *OutputHandle = 0
-    return error: connection exception-connection does not exist
-  If (the maximum number of descs has already been allocated)
-    Set *OutputHandle = 0
-    /* The maximum number of descs is implementor-defined */
-    return error: HY014 CLI-specific condition-limit on number of handles exceeded
-  If (there's not enough memory)
-    Set *OutputHandle = 0
-    return error: HY001 CLI-specific condition-memory allocation error
-  Allocate a new desc, associated with the dbc.
-  Set desc.SQL_ALLOC_TYPE = 2 i.e. SQL_DESC_ALLOC_USER.
-  /* Thus this desc is marked as a user desc, not an automatic desc. */
-  *OutputHandle = handle of new desc.
+
+::
+
+    If (HandleType == SQL_HANDLE_DESC)
+      If (InputHandle is not a valid handle of a dbc)
+        return error: CLI-specific condition-invalid handle
+      Empty the dbc's diagnostics area.
+      If (dbc is not connected)
+        Set *OutputHandle = 0
+        return error: connection exception-connection does not exist
+      If (the maximum number of descs has already been allocated)
+        Set *OutputHandle = 0
+        /* The maximum number of descs is implementor-defined */
+        return error: HY014 CLI-specific condition-limit on number of handles exceeded
+      If (there's not enough memory)
+        Set *OutputHandle = 0
+        return error: HY001 CLI-specific condition-memory allocation error
+      Allocate a new desc, associated with the dbc.
+      Set desc.SQL_ALLOC_TYPE = 2 i.e. SQL_DESC_ALLOC_USER.
+      /* Thus this desc is marked as a user desc, not an automatic desc. */
+      *OutputHandle = handle of new desc.
 
 Notes:
-      ## In early prototypes of the CLI there were separate calls for
+
+## In early prototypes of the CLI there were separate calls for
 different resource types (see SQLAllocEnv, SQLAllocConnect, SQLAllocStmt).
 Eventually people realized that the number of handle types might grow
 indefinitely, so SQLAllocHandle was defined as a generalized "allocate handle"
 function for all current and future resource types.
-      ## Call this function after you have allocated a dbc and after you have
+
+## Call this function after you have allocated a dbc and after you have
 connected, since the InputHandle parameter is a hdbc.
-      ## This function is only for user descs. There are two kinds of descs:
+
+## This function is only for user descs. There are two kinds of descs:
 automatic descs and user descs. The DBMS implicitly sets up 4 automatic descs
 (ARD, APD, IRD, IPD) when SQLAllocHandle(SQL_HANDLE_STMT,...) is called, and
 associates them with the stmt. You explicitly set up user descs with
 SQLAllocHandle(SQL_HANDLE_DESC,...), and they are associated with the dbc.
-      ## Using another function (SQLSetStmtAttr), you can replace one of the
+
+## Using another function (SQLSetStmtAttr), you can replace one of the
 automatic descs with a user desc. Such descs can be shared among multiple
 stmts.
-      ## Using another function (SQLCopyDescRec), you can save the contents of
+
+## Using another function (SQLCopyDescRec), you can save the contents of
 an automatic desc in a user desc, for backup purposes.
 
 Example:
+
+::
+
  #include "sqlcli.h"
  ...
  SQLHDBC hdbc;
@@ -843,48 +977,61 @@ ODBC: The SQLAllocHandle function is new in ODBC 3.5; in ODBC 2.0 the desc resou
 SQLFreeHandle(SQL_HANDLE_DESC,...)
 
 Function Prototype:
+
+::
+
  SQLRETURN SQLFreeHandle(     /* function returns SMALLINT */
       SQLSMALLINT HandleType, /* 16-bit input, = SQL_HANDLE_HDESC */
     SQLINTEGER Handle         /* 32-bit input, must be a hdesc */
     );
 
 Job:
+
 Destroy a user desc. (Remember that the SQLFreeHandle function can be used to
 destroy any resource: an env, a dbc, a stmt or a desc. We are treating the
 four variants as four separate functions. In this section, our sole concern is desc.)
 
 Algorithm:
- If (HandleType == SQL_HANDLE_DESC)
-   If (Handle is not really a handle of a desc)
-   return error: CLI-specific condition-invalid handle
- Empty the desc's diagnostics area.
- The desc's dbc becomes the "current dbc".
- If (there is a deferred parameter number)
-   return error: HY010 CLI-specific condition-function sequence error
- If (desc.SQL_DESC_ALLOC_TYPE == SQL_DESC_ALLOC_AUTO)
-   /* You can't free any of the four descs (ARD IRD APD IPD) that
-     were automatically allocated when you made a stmt. They stay
-       around till you free the stmt. You can only free a "user"desc --
-       a desc which you allocated explicitly with SQLAllocHandle. */
-   return error: HY017 CLI-specific condition-invalid use of automatically-allocated descriptor
- /* The following cancels the effects of any SQLSetStmtAttr calls which
-   might have made the user desc into an ARD or APD, in place of the
-   automatic ARD or APD desc. */
- For (each stmt associated with dbc)
-   If (stmt is associated with the desc)
-    If (the desc is currently the stmt's ARD)
-     Re-associate stmt with the automatically-allocated ARD
-      If (the desc is currently the stmt's APD)
-     Re-associate stmt with the automatically-allocated APD
- Deallocate desc.
- The handle becomes invalid.
+
+::
+
+     If (HandleType == SQL_HANDLE_DESC)
+       If (Handle is not really a handle of a desc)
+       return error: CLI-specific condition-invalid handle
+     Empty the desc's diagnostics area.
+     The desc's dbc becomes the "current dbc".
+     If (there is a deferred parameter number)
+       return error: HY010 CLI-specific condition-function sequence error
+     If (desc.SQL_DESC_ALLOC_TYPE == SQL_DESC_ALLOC_AUTO)
+       /* You can't free any of the four descs (ARD IRD APD IPD) that
+         were automatically allocated when you made a stmt. They stay
+           around till you free the stmt. You can only free a "user"desc --
+           a desc which you allocated explicitly with SQLAllocHandle. */
+       return error: HY017 CLI-specific condition-invalid use of automatically-allocated descriptor
+     /* The following cancels the effects of any SQLSetStmtAttr calls which
+       might have made the user desc into an ARD or APD, in place of the
+       automatic ARD or APD desc. */
+     For (each stmt associated with dbc)
+       If (stmt is associated with the desc)
+        If (the desc is currently the stmt's ARD)
+         Re-associate stmt with the automatically-allocated ARD
+          If (the desc is currently the stmt's APD)
+         Re-associate stmt with the automatically-allocated APD
+     Deallocate desc.
+     The handle becomes invalid.
 
 Notes:
-      ## If SQLFreeHandle returns SQL_ERROR, then the handle is still live and you can get diagnostics.
-      ## This function is the reverse of the SQLAllocHandle(SQL_HANDLE_DESC,...) function. Only user descs are destructible with SQLFreeHandle(SQL_HANDLE_DESC,...).
-      ## The SQLDisconnect function will automatically destroy all descs which are associated with a dbc. So technically you don't need to call SQLFreeHandle(SQL_HANDLE_DESC...) if you are about to disconnect.
+
+## If SQLFreeHandle returns SQL_ERROR, then the handle is still live and you can get diagnostics.
+
+## This function is the reverse of the SQLAllocHandle(SQL_HANDLE_DESC,...) function. Only user descs are destructible with SQLFreeHandle(SQL_HANDLE_DESC,...).
+
+## The SQLDisconnect function will automatically destroy all descs which are associated with a dbc. So technically you don't need to call SQLFreeHandle(SQL_HANDLE_DESC...) if you are about to disconnect.
 
 Example:
+
+::
+
  #include "sqlcli.h"
  SQLHDESC hdesc;
  ...
@@ -895,6 +1042,9 @@ ODBC: SQLFreeHandle(SQL_HANDLE_DESC,...) is new in ODBC 3.0.
 SQLGetDescField
 
 Function Prototype:
+
+::
+
  SQLRETURN SQLGetDescField (
    SQLHDESC hdesc,                       /* 32-bit input */
    SQLSMALLINT RecordNumber,             /* 16-bit input */
@@ -905,83 +1055,96 @@ Function Prototype:
    );
 
 Job:
+
 Get one field from a desc.
 
 Algorithm:
-If (FieldIdentifier<> one of the FieldIdentifier codes in "The Desc Fields")
- return error: HY091 CLI-specific condition-invalid descriptor field identifier.
-If (FieldIdentifier is the code for one of the IDA fields)
- /* The RecordNumber parameter would be irrelevant for a "header field",
-   but IDA is multiple-occurrence so we need a valid index for IDA fields */
- If (RecordNumber < 1)
-   return error: '07009': Dynamic SQL error-invalid descriptor index.
- If (RecordNumber > SQL_DESC_COUNT)
-   /* Example: if the desc is an IRD, and the only SQL statement so far is
-     INSERT, then SQL_DESC_COUNT is zero. If now you pass SQL_DESC_TYPE
-     as the FieldIdentifier parameter and 5 as the RecordNumber parameter,
-     then the DBMS returns with return code = SQL_NO_DATA. */
-   Return with warning: '02000': No data.
-If (FieldIdentifier is only applicable for a Prepared Statement, and there is no Prepared Statement)
- /* Example: if the desc is an IRD, and no SQLPrepare or SQLExecDirect
-   has happened for the stmt associated with the desc, then a request
-   for SQL_DESC_TYPE would make no sense. */
- Return error: HY007 CLI-specific condition-associated statement  is not prepared.
-If (FieldIdentifier is not applicable for this type of desc)
- /* Example: if the desc is an IPD, then a request for
-   SQL_DESC_INDICATOR_POINTER would make no sense. */
- Return with error HY091 CLI-specific condition-invalid descriptor field identifier.
-If (the field is in its initially-undefined state)
- /* Example: if the desc is an IPD, and the DBMS doesn't "automatically
-   populate" the IPD, then most fields stay in their "undefined" state. */
- Return with error HY091 CLI-specific condition-invalid descriptor field identifier.
-Retrieve the value of the field indicated by the FieldIdentifier parameter,
-and put it in the place pointed to by the Value parameter. Notice that the
-value might be a smallint, or it might be an integer, or it might be a
-character string. In the latter case, the rules of Character String
-Retrieval apply.
+
+::
+
+    If (FieldIdentifier<> one of the FieldIdentifier codes in "The Desc Fields")
+     return error: HY091 CLI-specific condition-invalid descriptor field identifier.
+    If (FieldIdentifier is the code for one of the IDA fields)
+     /* The RecordNumber parameter would be irrelevant for a "header field",
+       but IDA is multiple-occurrence so we need a valid index for IDA fields */
+     If (RecordNumber < 1)
+       return error: '07009': Dynamic SQL error-invalid descriptor index.
+     If (RecordNumber > SQL_DESC_COUNT)
+       /* Example: if the desc is an IRD, and the only SQL statement so far is
+         INSERT, then SQL_DESC_COUNT is zero. If now you pass SQL_DESC_TYPE
+         as the FieldIdentifier parameter and 5 as the RecordNumber parameter,
+         then the DBMS returns with return code = SQL_NO_DATA. */
+       Return with warning: '02000': No data.
+    If (FieldIdentifier is only applicable for a Prepared Statement, and there is no Prepared Statement)
+     /* Example: if the desc is an IRD, and no SQLPrepare or SQLExecDirect
+       has happened for the stmt associated with the desc, then a request
+       for SQL_DESC_TYPE would make no sense. */
+     Return error: HY007 CLI-specific condition-associated statement  is not prepared.
+    If (FieldIdentifier is not applicable for this type of desc)
+     /* Example: if the desc is an IPD, then a request for
+       SQL_DESC_INDICATOR_POINTER would make no sense. */
+     Return with error HY091 CLI-specific condition-invalid descriptor field identifier.
+    If (the field is in its initially-undefined state)
+     /* Example: if the desc is an IPD, and the DBMS doesn't "automatically
+       populate" the IPD, then most fields stay in their "undefined" state. */
+     Return with error HY091 CLI-specific condition-invalid descriptor field identifier.
+    Retrieve the value of the field indicated by the FieldIdentifier parameter,
+    and put it in the place pointed to by the Value parameter. Notice that the
+    value might be a smallint, or it might be an integer, or it might be a
+    character string. In the latter case, the rules of Character String
+    Retrieval apply.
 
 Notes:
-      ## SQLGetDescField is a fundamental desc routine. There are several
+
+## SQLGetDescField is a fundamental desc routine. There are several
 other routines which are, conceptually, wrappers for one or more
 SQLGetDescField calls. For example, the SQLColAttribute function will
 implicitly call SQLGetDescField after finding the IRD; SQLGetDescRec will
 retrieve seven desc fields at once (name, type, subtype, length, precision,
 scale and nullable).
-      ## In our descriptions of the desc fields, the included charts of
+
+## In our descriptions of the desc fields, the included charts of
 functions that affect the field use the word "user" to identify those cases
 where SQLGetDescField may be called to retrieve a single value after
 explicitly passing the field's numeric identifier.
-      ## The first SQLGetDescField parameter is a hdesc. To get this handle,
+
+## The first SQLGetDescField parameter is a hdesc. To get this handle,
 save the handle when you call SQLAllocHandle (if it's a user desc) and call
 SQLGetStmtAttr (if it's an automatic desc).
-      ## The second parameter -- FieldIdentifier -- is unnecessary for a
+
+## The second parameter -- FieldIdentifier -- is unnecessary for a
 header field. For an IDA, it's an index to the multiple-occurrence structure
 and should contain a value between 1 and "count".
 
 Example:
+
 Assume you have just called:
+
+::
 
    SQLExecDirect(hstmt,"SELECT * FROM Table_1",SQL_NTS);
 
 Since SQLExecDirect implies a "SQLPrepare" phase, the DBMS has filled in some of the IRD fields, as follows:
 
----------------------------------------------------------------------------
--
---------------------
---SQL_DESC_COUNT -
-- ------------------     << picture of IRD after "SELECT * FROM Table_1" >>
-- | 00003       |
-- ------------------
--
--------------------------------------------------------------------
-- - SQL_DESC_NAME | SQL_DESC_PRECISION | SQL_DESC_TYPE | ... |
--------------------------------------------------------------------
--  1-'Col_1'      | 00005              | 00002         | ... |
--  2-'Col_2'      | 00004              | 00003         | ... |
--  3-'Col_3'      | ??                 | 00001         | ... |
--   ------------------------------------------------------------------
--
----------------------------------------------------------------------------
+::
+
+    ---------------------------------------------------------------------------
+    -
+    --------------------
+    --SQL_DESC_COUNT -
+    - ------------------     << picture of IRD after "SELECT * FROM Table_1" >>
+    - | 00003       |
+    - ------------------
+    -
+    -------------------------------------------------------------------
+    - - SQL_DESC_NAME | SQL_DESC_PRECISION | SQL_DESC_TYPE | ... |
+    -------------------------------------------------------------------
+    -  1-'Col_1'      | 00005              | 00002         | ... |
+    -  2-'Col_2'      | 00004              | 00003         | ... |
+    -  3-'Col_3'      | ??                 | 00001         | ... |
+    -   ------------------------------------------------------------------
+    -
+    ---------------------------------------------------------------------------
 
 For space reasons, we've shown only a few fields in this diagram. But there's
 enough to make it clear that: (a) the DBMS found three Columns in the result
@@ -994,6 +1157,8 @@ SQL_DESC_TYPE == 1) and its precision is unset because CHAR Columns have no prec
 
 Here are some SQLGetDescField calls -- and what will be put into the value variable:
 
+::
+
    SQLGetDescField(hdesc,NULL,SQL_DESC_COUNT,&value,NULL,NULL);
     -- gets 3
 
@@ -1005,21 +1170,23 @@ Here are some SQLGetDescField calls -- and what will be put into the value varia
 
 And here is a larger code snippet, which finds out the hdesc value (a necessary preliminary!), then displays the name of every Column in TABLE_1:
 
- #include "sqlcli.h"
- ...
- SQLHSTMT hstmt;                    /* handle of stmt */
- SQLHDESC hdesc;                    /* handle of IRD */
- SQLSMALLINT i,col_count;           /* used for a loop counter */
- SQLCHAR *col_name[128+1];
- ...
- SQLExecDirect(hstmt,"SELECT * FROM Table_1",SQL_NTS);
- SQLGetStmtAttr(hstmt,SQL_ATTR_IMP_ROW_DESC,&hdesc,NULL,NULL);
- SQLGetDescField(hdesc,SQL_DESC_COUNT,&col_count,NULL,NULL);
- printf("The Columns of Table_1 are:\n");
- for (i=1; i<=col_count; ++i) {
-   SQLGetDescField(hdesc,i,SQL_DESC_NAME,col_name,sizeof(col_name),NULL);
-   printf("%s\n",col_name); }
- ...
+::
+
+     #include "sqlcli.h"
+     ...
+     SQLHSTMT hstmt;                    /* handle of stmt */
+     SQLHDESC hdesc;                    /* handle of IRD */
+     SQLSMALLINT i,col_count;           /* used for a loop counter */
+     SQLCHAR *col_name[128+1];
+     ...
+     SQLExecDirect(hstmt,"SELECT * FROM Table_1",SQL_NTS);
+     SQLGetStmtAttr(hstmt,SQL_ATTR_IMP_ROW_DESC,&hdesc,NULL,NULL);
+     SQLGetDescField(hdesc,SQL_DESC_COUNT,&col_count,NULL,NULL);
+     printf("The Columns of Table_1 are:\n");
+     for (i=1; i<=col_count; ++i) {
+       SQLGetDescField(hdesc,i,SQL_DESC_NAME,col_name,sizeof(col_name),NULL);
+       printf("%s\n",col_name); }
+     ...
 
 ODBC: The SQLGetDescField function is new in ODBC 3.5. There are some
 implementation-defined additional fields. The expected behaviour is somewhat
@@ -1030,6 +1197,9 @@ return SQL_SUCCESS and an undefined value.
 SQLSetDescField
 
 Function Prototype:
+
+::
+
  SQLRETURN SQLSetDescField(
    SQLHDESC hdesc,                  /* 32-bit input */
    SQLSMALLINT RecordNumber,        /* 16-bit input */
@@ -1039,174 +1209,204 @@ Function Prototype:
    );
 
 Job:
+
 Assign a value to one field in a desc.
 
 Algorithm:
-If (desc is associated with a "deferred parameter")
- return error: HY010 CLI-specific condition-function sequence error
-If (desc is an IRD)
- /* This error will appear only for ISO SQL3: */
- return error: HY016 CLI-specific condition-cannot modify an implementation row descriptor
-If (FieldIdentifier is not a code used in "The Desc Fields" list)
- return error: HY091 CLI-specific condition-invalid descriptor field identifier
-If (this field cannot be set by the user)
- return error: HY091 CLI-specific condition-invalid descriptor field identifier
-If (FieldIdentifier == SQL_DESC_COUNT)
-    Set desc.SQL_DESC_COUNT = Value
-If (this is an IDA field i.e. not a header field)
- If (RecordNumber < 1)
-   return error: 07009 Dynamic SQL error-invalid descriptor index
- /* We have: a particular field in a particular IDA of a desc
-    identified by FieldIdentifier/RecordNumber/hdesc respectively).
-    We have: a new value for that field (in Value/BufferLength). */
-If (FieldIdentifier == SQL_DESC_OCTET_LENGTH_POINTER)
-    Set desc.IDA[RecordNumber].SQL_DESC_OCTET_LENGTH_POINTER = Value
-If (FieldIdentifier == SQL_DESC_INDICATOR_POINTER)
- Set desc.IDA[RecordNumber].SQL_DESC_INDICATOR_POINTER = Value
-If (FieldIdentifier == SQL_DESC_CHARACTER_SET_CATALOG (or SCHEMA) (or NAME))
- /* Value points to a string, BufferLength is string size, possibly
-    BufferLength == SQL_NTS */
- Trim lead and trail spaces from the string.
- Ensure that the string is a valid identifier.
- /* Valid identifiers may include introducers. */
- Copy string to desc.IDA[RecordNumber].SQL_DESC_CHARACTER_SET_CATALOG (or
-SCHEMA) (or NAME)
-If (RecordNumber > desc.SQL_DESC_COUNT)
- /* Change SQL_DESC_COUNT so it equals the maximum IDA index number */
- Set desc.SQL_DESC_COUNT = RecordNumber
-If (FieldIdentifier <> SQL_DESC_COUNT)
- If (FieldIdentifier not
-SQL_DESC_OCTET_LENGTH_POINTER|SQL_DESC_DATA_POINTER|INDICATOR_POINTER)
-   Set desc.IDA[RecordNumber].SQL_DESC_DATA_POINTER = 0
-If (FieldIdentifier == SQL_DESC_DATA_POINTER)
- Set desc.IDA[RecordNumber].SQL_DESC_DATA_POINTER = Value
- If (Value <> 0)
-   /* The "Consistency check" is described later in this chapter.
-     Basically, it just checks that field values aren't absurd. */
-   If ("Consistency check" failure)
-    /* SQL_DESC_DATA_POINTER field might be changed despite the error */
-    return error: HY021 CLI-specific condition-inconsistent descriptor information
-If (FieldIdentifier == SQL_DESC_TYPE)
-    If (Value is not a valid data type, for example SQL_NUMERIC)
-   return error: HY004 CLI-specific condition-invalid data type
- Set desc.IDA[RecordNumber].SQL_DESC_TYPE = Value
- /* See the "Default values" chart in this section */
-    Set other fields to their "default values"
-   If (FieldIdentifier == SQL_DATETIME_INTERVAL_CODE)
- If (desc.IDA[RecordNumber].SQL_DESC_TYPE is datetime (9))
-   If (Value=1 or 2 or 4: i.e.: date or time or time with time zone)
-      Set desc.IDA[RecordNumber].SQL_DESC_PRECISION = 0
-   If (Value=3 or 5: i.e.: timestamp or timestamp with time zone)
-    Set desc.IDA[RecordNumber].SQL_DESC_PRECISION = 6
-   Set other fields to implementation-dependent values
- If (desc.ida[RecordNumber].SQL_DESC_TYPE is interval)
-   Set desc.IDA[RecordNumber].SQL_DESC_DATETIME_INTERVAL_PRECISION = 2
-   If (Value is for an interval that ends with SECOND)
-      Set desc.IDA[RecordNumber].SQL_DESC_PRECISION = 6
-   Else
-    Set desc.ida[RecordNumber].SQL_DESC_PRECISION = 0
-/* For other FieldIdentifier values, there is no standard
-  procedure. A reasonable assumption is that the DBMS would
-  simply copy Value to the field indicated by FieldIdentifier. */
+
+::
+
+    If (desc is associated with a "deferred parameter")
+     return error: HY010 CLI-specific condition-function sequence error
+    If (desc is an IRD)
+     /* This error will appear only for ISO SQL3: */
+     return error: HY016 CLI-specific condition-cannot modify an implementation row descriptor
+    If (FieldIdentifier is not a code used in "The Desc Fields" list)
+     return error: HY091 CLI-specific condition-invalid descriptor field identifier
+    If (this field cannot be set by the user)
+     return error: HY091 CLI-specific condition-invalid descriptor field identifier
+    If (FieldIdentifier == SQL_DESC_COUNT)
+        Set desc.SQL_DESC_COUNT = Value
+    If (this is an IDA field i.e. not a header field)
+     If (RecordNumber < 1)
+       return error: 07009 Dynamic SQL error-invalid descriptor index
+     /* We have: a particular field in a particular IDA of a desc
+        identified by FieldIdentifier/RecordNumber/hdesc respectively).
+        We have: a new value for that field (in Value/BufferLength). */
+    If (FieldIdentifier == SQL_DESC_OCTET_LENGTH_POINTER)
+        Set desc.IDA[RecordNumber].SQL_DESC_OCTET_LENGTH_POINTER = Value
+    If (FieldIdentifier == SQL_DESC_INDICATOR_POINTER)
+     Set desc.IDA[RecordNumber].SQL_DESC_INDICATOR_POINTER = Value
+    If (FieldIdentifier == SQL_DESC_CHARACTER_SET_CATALOG (or SCHEMA) (or NAME))
+     /* Value points to a string, BufferLength is string size, possibly
+        BufferLength == SQL_NTS */
+     Trim lead and trail spaces from the string.
+     Ensure that the string is a valid identifier.
+     /* Valid identifiers may include introducers. */
+     Copy string to desc.IDA[RecordNumber].SQL_DESC_CHARACTER_SET_CATALOG (or
+    SCHEMA) (or NAME)
+    If (RecordNumber > desc.SQL_DESC_COUNT)
+     /* Change SQL_DESC_COUNT so it equals the maximum IDA index number */
+     Set desc.SQL_DESC_COUNT = RecordNumber
+    If (FieldIdentifier <> SQL_DESC_COUNT)
+     If (FieldIdentifier not
+    SQL_DESC_OCTET_LENGTH_POINTER|SQL_DESC_DATA_POINTER|INDICATOR_POINTER)
+       Set desc.IDA[RecordNumber].SQL_DESC_DATA_POINTER = 0
+    If (FieldIdentifier == SQL_DESC_DATA_POINTER)
+     Set desc.IDA[RecordNumber].SQL_DESC_DATA_POINTER = Value
+     If (Value <> 0)
+       /* The "Consistency check" is described later in this chapter.
+         Basically, it just checks that field values aren't absurd. */
+       If ("Consistency check" failure)
+        /* SQL_DESC_DATA_POINTER field might be changed despite the error */
+        return error: HY021 CLI-specific condition-inconsistent descriptor information
+    If (FieldIdentifier == SQL_DESC_TYPE)
+        If (Value is not a valid data type, for example SQL_NUMERIC)
+       return error: HY004 CLI-specific condition-invalid data type
+     Set desc.IDA[RecordNumber].SQL_DESC_TYPE = Value
+     /* See the "Default values" chart in this section */
+        Set other fields to their "default values"
+       If (FieldIdentifier == SQL_DATETIME_INTERVAL_CODE)
+     If (desc.IDA[RecordNumber].SQL_DESC_TYPE is datetime (9))
+       If (Value=1 or 2 or 4: i.e.: date or time or time with time zone)
+          Set desc.IDA[RecordNumber].SQL_DESC_PRECISION = 0
+       If (Value=3 or 5: i.e.: timestamp or timestamp with time zone)
+        Set desc.IDA[RecordNumber].SQL_DESC_PRECISION = 6
+       Set other fields to implementation-dependent values
+     If (desc.ida[RecordNumber].SQL_DESC_TYPE is interval)
+       Set desc.IDA[RecordNumber].SQL_DESC_DATETIME_INTERVAL_PRECISION = 2
+       If (Value is for an interval that ends with SECOND)
+          Set desc.IDA[RecordNumber].SQL_DESC_PRECISION = 6
+       Else
+        Set desc.ida[RecordNumber].SQL_DESC_PRECISION = 0
+    /* For other FieldIdentifier values, there is no standard
+      procedure. A reasonable assumption is that the DBMS would
+      simply copy Value to the field indicated by FieldIdentifier. */
 
 Notes:
-      ## Sometimes Value is a pointer; sometimes it's an integer; sometimes
+
+## Sometimes Value is a pointer; sometimes it's an integer; sometimes
 it's a smallint; depending on FieldIdentifier.
-      ## If you must change multiple fields in one IDA, do them in this order:
-            ## Change the SQL_DESC_TYPE field first.
-            ## Change the SQL_DESC_DATETIME_INTERVAL_CODE field second.
-            ## Change the other fields (except for SQL_DESC_DATA_POINTER) in any order.
-            ## Change the SQL_DESC_DATA_POINTER field last.
+
+## If you must change multiple fields in one IDA, do them in this order:
+
+    ## Change the SQL_DESC_TYPE field first.
+
+    ## Change the SQL_DESC_DATETIME_INTERVAL_CODE field second.
+
+    ## Change the other fields (except for SQL_DESC_DATA_POINTER) in any order.
+
+    ## Change the SQL_DESC_DATA_POINTER field last.
+
 If you don't set fields in this order, you'll get errors. It's deliberate.
-      ## If an error happens, the value of the field may be changed anyway.
-      ## If you change a header field, you should pass RecordNumber = 0 (otherwise, in theory, you could inadvertently changed the SQL_DESC_COUNT field).
-      ## The <data type> of Value should correspond to the <data type> of the
+
+## If an error happens, the value of the field may be changed anyway.
+
+## If you change a header field, you should pass RecordNumber = 0 (otherwise, in theory, you could inadvertently changed the SQL_DESC_COUNT field).
+
+## The <data type> of Value should correspond to the <data type> of the
 field being changed. For example, if changing the SQL_DESC_SCALE field, Value
 should contain a SMALLINT value. For a list of the <data type> correspondences
 between the SQL predefined <data type>s and host variables, see our chapter on
 embedded SQL.
-      ## The SQLSetDescField function can only set one field at a time.
+
+## The SQLSetDescField function can only set one field at a time.
 Therefore, it is a "fundamental" function. There are other functions which can
 be used to change multiple fields (SQLSetDescRec, SQLBindParameter and SQLBindCol).
-      ## Default Values -- A change to SQL_DESC_TYPE will cause other IDA
+
+## Default Values -- A change to SQL_DESC_TYPE will cause other IDA
 fields to be reset to their "default values". This chart shows what the
 changes are. Any fields not shown are reset to implementation-dependent values.
 
-If SQL_DESC_TYPE is changed to ...  ... Then these fields change too
-SQL_CHAR, SQL_VARCHAR, SQL_CLOB     SQL_DESC_CATALOG etc.: default set
-                                    SQL_LENGTH: maximum length [Note 1]
-SQL_BIT, SQL_BIT_VARYING, SQL_BLOB  SQL_LENGTH: maximum length
-SQL_DATETIME                        SQL_PRECISION: 0
-SQL_INTERVAL                        SQL_DATETIME_INTERVAL_PRECISION: 2
-SQL_DECIMAL, SQL_NUMERIC            SQL_PRECISION: maximum precision [Note 2]
-                                    SQL_SCALE: 0
-SQL_FLOAT                           SQL_PRECISION: default precision [Note 2]
+::
 
-            ## Note 1: The "maximum length" is not the usual default value for
-a CHAR <data type>. If you say "CREATE TABLE Table_1 (col_1 CHAR);", the
-default length is 1. That is why, in ODBC, if you set SQL_DESC_TYPE to
-SQL_CHAR, the SQL_LENGTH field changes to 1. But in standard SQL, it becomes a
-character string <data type>'s "maximum possible length", which is an
-implementation-defined size.
-            ## Note 2: The "default precision" of SQL_DECIMAL, SQL_NUMERIC and
-SQL_FLOAT <data type>s is implementation-defined.
-            ## The Standard has omitted mention of all other <data type>s in
-relation to SQLSetDescField, and ends with a note that says an error will be
-returned for any type not shown in the chart. In effect, this means that all
-<data types> other than SQL_CHAR, SQL_VARCHAR, SQL_CLOB, SQL_BIT,
-SQL_BIT_VARYING, SQL_BLOB, SQL_DATETIME, SQL_INTERVAL, SQL_DECIMAL,
-SQL_NUMERIC and SQL_FLOAT are technically illegal here. The wise programmer
-will assume that these matters will be resolved by the DBMS vendor -- not
-being able to use SQL_INTEGER, for example, seems too severe a restriction to be followed.
-      ## Consistency check -- While you're changing descriptor fields, you might cause temporary inconstancy. Here's how:
-            ## [Step 1] You change SQL_DESC_TYPE to SQL_DECIMAL. Changing the
-<data type> triggers a wholesale resetting of all other IDA fields to default
-values. For example, the SQL_DESC_PRECISION field becomes 1 (an
-implementation-defined default), the SQL_DESC_SCALE field becomes 0 and the
-SQL_DESC_DATA_POINTER becomes a null pointer.
-            ## [Step 2] You change SQL_DESC_SCALE to 5. Now the scale is
-greater than the precision. That is inconsistent -- a DECIMAL(1,5) definition
-is illegal. But don't worry -- the DBMS won't reject your change.
-            ## [Step 3] You change SQL_DESC_PRECISION to 6. Now the fields are consistent again.
-            ## [Step 4] You change SQL_DESC_DATA_POINTER to a host-variable
-address. Changing the data pointer triggers a consistency check. The rationale
-for delaying the consistency check until you change the data pointer is that
-temporary inconsistencies are inevitable if you change one field at a time,
-but don't matter as long as the data pointer is a null pointer. When you set
-the data pointer, you "bind the Column" to the host variable. At that point
-the DBMS cannot allow any further inconsistency. If you've read our chapters
-about the various SQL predefined <data type>s, you'll find that the
-consistency check is merely an enforcement of the rules you already know. And
-there are no **GOTCHAs because the DBMS only checks what's relevant. It looks
-for these things:
-                  ## SQL_DESC_PRECISION, SQL_DESC_SCALE, SQL_DESC_LENGTH,
-SQL_DESC_DESC_DATETIME_INTERVAL_CODE and SQL_DESC_DATETIME_INTERVAL_PRECISION
-must be valid if it's possible to specify precision, scale, length and/or
-specific datetime or interval leading-field precision when you're defining a
-Column of the given <data type>. For example, "FLOAT(precision)" is legal in
-definitions, therefore SQL_DESC_PRECISION must have a valid value if
-SQL_DESC_TYPE = SQL_FLOAT. On the other hand, precision is not specifiable for
-REAL Columns, so there is no check of SQL_DESC_PRECISION if SQL_DESC_TYPE =
-SQL_REAL. If SQL_DESC_TYPE is NUMERIC or DECIMAL, then scale and precision
-must be valid for the <data type> (e.g. scale cannot be greater than
-precision). (Warning: this description is of the SQL Standard "Consistency
-Check" definition. The ODBC "Consistency Check" is more picky.)
-                  ## For IDAs within application descriptors (ARDs or APDs),
-SQL_DESC_TYPE must be a <data type> that's representable in the host language.
-In our charts of <data type> correspondences (see our chapter on embedded
-SQL), we showed you that the SQL INTEGER <data type> translates directly to a
-C data type: long. Easy times. Now what about the NUMERIC <data type>? Well
-you'd have to CAST it to something that C can handle: either a floating-point
-or a character-string. Casting is easy -- just change the <data type> as we
-described in each <data type> chapter.
-                  ## If the DBMS detects an inconsistency during execution of
-SQLSetDescField or SQLSetDescRec, the SQLSTATE error return is HY021
-CLI-specific condition-inconsistent descriptor information.
-      ## ** TIP: even though you never need an SQL_DESC_DATA_POINTER value in
+    If SQL_DESC_TYPE is changed to ...  ... Then these fields change too
+    SQL_CHAR, SQL_VARCHAR, SQL_CLOB     SQL_DESC_CATALOG etc.: default set
+                                        SQL_LENGTH: maximum length [Note 1]
+    SQL_BIT, SQL_BIT_VARYING, SQL_BLOB  SQL_LENGTH: maximum length
+    SQL_DATETIME                        SQL_PRECISION: 0
+    SQL_INTERVAL                        SQL_DATETIME_INTERVAL_PRECISION: 2
+    SQL_DECIMAL, SQL_NUMERIC            SQL_PRECISION: maximum precision [Note 2]
+                                        SQL_SCALE: 0
+    SQL_FLOAT                           SQL_PRECISION: default precision [Note 2]
+
+    ## Note 1: The "maximum length" is not the usual default value for
+    a CHAR <data type>. If you say "CREATE TABLE Table_1 (col_1 CHAR);", the
+    default length is 1. That is why, in ODBC, if you set SQL_DESC_TYPE to
+    SQL_CHAR, the SQL_LENGTH field changes to 1. But in standard SQL, it becomes a
+    character string <data type>'s "maximum possible length", which is an
+    implementation-defined size.
+
+    ## Note 2: The "default precision" of SQL_DECIMAL, SQL_NUMERIC and
+    SQL_FLOAT <data type>s is implementation-defined.
+
+    ## The Standard has omitted mention of all other <data type>s in
+    relation to SQLSetDescField, and ends with a note that says an error will be
+    returned for any type not shown in the chart. In effect, this means that all
+    <data types> other than SQL_CHAR, SQL_VARCHAR, SQL_CLOB, SQL_BIT,
+    SQL_BIT_VARYING, SQL_BLOB, SQL_DATETIME, SQL_INTERVAL, SQL_DECIMAL,
+    SQL_NUMERIC and SQL_FLOAT are technically illegal here. The wise programmer
+    will assume that these matters will be resolved by the DBMS vendor -- not
+    being able to use SQL_INTEGER, for example, seems too severe a restriction to be followed.
+
+## Consistency check -- While you're changing descriptor fields, you might cause temporary inconstancy. Here's how:
+
+    ## [Step 1] You change SQL_DESC_TYPE to SQL_DECIMAL. Changing the
+    <data type> triggers a wholesale resetting of all other IDA fields to default
+    values. For example, the SQL_DESC_PRECISION field becomes 1 (an
+    implementation-defined default), the SQL_DESC_SCALE field becomes 0 and the
+    SQL_DESC_DATA_POINTER becomes a null pointer.
+
+    ## [Step 2] You change SQL_DESC_SCALE to 5. Now the scale is
+    greater than the precision. That is inconsistent -- a DECIMAL(1,5) definition
+    is illegal. But don't worry -- the DBMS won't reject your change.
+
+    ## [Step 3] You change SQL_DESC_PRECISION to 6. Now the fields are consistent again.
+
+    ## [Step 4] You change SQL_DESC_DATA_POINTER to a host-variable
+    address. Changing the data pointer triggers a consistency check. The rationale
+    for delaying the consistency check until you change the data pointer is that
+    temporary inconsistencies are inevitable if you change one field at a time,
+    but don't matter as long as the data pointer is a null pointer. When you set
+    the data pointer, you "bind the Column" to the host variable. At that point
+    the DBMS cannot allow any further inconsistency. If you've read our chapters
+    about the various SQL predefined <data type>s, you'll find that the
+    consistency check is merely an enforcement of the rules you already know. And
+    there are no **GOTCHAs because the DBMS only checks what's relevant. It looks
+    for these things:
+
+        ## SQL_DESC_PRECISION, SQL_DESC_SCALE, SQL_DESC_LENGTH,
+        SQL_DESC_DESC_DATETIME_INTERVAL_CODE and SQL_DESC_DATETIME_INTERVAL_PRECISION
+        must be valid if it's possible to specify precision, scale, length and/or
+        specific datetime or interval leading-field precision when you're defining a
+        Column of the given <data type>. For example, "FLOAT(precision)" is legal in
+        definitions, therefore SQL_DESC_PRECISION must have a valid value if
+        SQL_DESC_TYPE = SQL_FLOAT. On the other hand, precision is not specifiable for
+        REAL Columns, so there is no check of SQL_DESC_PRECISION if SQL_DESC_TYPE =
+        SQL_REAL. If SQL_DESC_TYPE is NUMERIC or DECIMAL, then scale and precision
+        must be valid for the <data type> (e.g. scale cannot be greater than
+        precision). (Warning: this description is of the SQL Standard "Consistency
+        Check" definition. The ODBC "Consistency Check" is more picky.)
+
+        ## For IDAs within application descriptors (ARDs or APDs),
+        SQL_DESC_TYPE must be a <data type> that's representable in the host language.
+        In our charts of <data type> correspondences (see our chapter on embedded
+        SQL), we showed you that the SQL INTEGER <data type> translates directly to a
+        C data type: long. Easy times. Now what about the NUMERIC <data type>? Well
+        you'd have to CAST it to something that C can handle: either a floating-point
+        or a character-string. Casting is easy -- just change the <data type> as we
+        described in each <data type> chapter.
+
+        ## If the DBMS detects an inconsistency during execution of
+        SQLSetDescField or SQLSetDescRec, the SQLSTATE error return is HY021
+        CLI-specific condition-inconsistent descriptor information.
+
+## ** TIP: even though you never need an SQL_DESC_DATA_POINTER value in
 an IPD IDA, set it anyway. That will force a consistency check. It's better to
 check for inconsistency in advance, rather than waiting for the consistency
 error to happen when you try to execute the statement.
-      ## The DBMS may also detect inconsistency during execution of
+
+## The DBMS may also detect inconsistency during execution of
 SQLBindParameter or SQLBindCol, but usually there is a final Consistency Check
 during SQLExecute. If the DBMS detects an inconsistency during execution of
 SQLExecute, the SQLSTATE error return is either 07001 Dynamic SQL error-using
@@ -1215,65 +1415,77 @@ clause does not match target specifications. (There appears to be an error in
 the Standard; this is what we believe is the intended meaning.)
 
 Example:
+
 You have an SQL statement which uses an integer input parameter. You want to
 tell the DBMS about it, by setting certain fields of the APD. Assume that the
 "auto-populate IPD" flag is off, so you'll have to set some fields in the IPD
 too. Here's how.
 
- #include "sqlcli.h"
- SQLHSTMT hstmt;
- SQLHDESC hapd,hipd;          /* hapd="handle of APD"; hipd="handle of IPD" */
- SQLINTEGER input_variable;   /* this has the value we pass */
- ...
- SQLPrepare(hstmt,"INSERT INTO Table_1 VALUES (?)",SQL_NTS);
- SQLGetStmtAttr(hstmt,SQL_ATTR_AUTO_APD,
- SQLGetStmtAttr(hstmt, SQL_ATTR_APP_PARAM_DESC, &hapd, NULL, NULL);
- SQLSetDescField(hapd,1,SQL_DESC_TYPE,SQL_INTEGER,NULL);
- SQLSetDescField(hapd,1,SQL_DESC_DATA_POINTER,&input_variable,NULL);
- SQLGetStmtAttr(hstmt, SQL_ATTR_IMP_PARAM_DESC, &hipd, NULL, NULL);
- SQLSetDescField(hipd,1,SQL_DESC_TYPE,SQL_INTEGER,NULL);
- SQLSetDescField(hipd,1,SQL_DESC_DATA_POINTER,&input_variable,NULL);
- input_variable = 55;
- SQLExecute(hstmt);
- ...
+::
+
+     #include "sqlcli.h"
+     SQLHSTMT hstmt;
+     SQLHDESC hapd,hipd;          /* hapd="handle of APD"; hipd="handle of IPD" */
+     SQLINTEGER input_variable;   /* this has the value we pass */
+     ...
+     SQLPrepare(hstmt,"INSERT INTO Table_1 VALUES (?)",SQL_NTS);
+     SQLGetStmtAttr(hstmt,SQL_ATTR_AUTO_APD,
+     SQLGetStmtAttr(hstmt, SQL_ATTR_APP_PARAM_DESC, &hapd, NULL, NULL);
+     SQLSetDescField(hapd,1,SQL_DESC_TYPE,SQL_INTEGER,NULL);
+     SQLSetDescField(hapd,1,SQL_DESC_DATA_POINTER,&input_variable,NULL);
+     SQLGetStmtAttr(hstmt, SQL_ATTR_IMP_PARAM_DESC, &hipd, NULL, NULL);
+     SQLSetDescField(hipd,1,SQL_DESC_TYPE,SQL_INTEGER,NULL);
+     SQLSetDescField(hipd,1,SQL_DESC_DATA_POINTER,&input_variable,NULL);
+     input_variable = 55;
+     SQLExecute(hstmt);
+     ...
 
 Here is a picture of the APD after the SQLSetDescField calls are done:
 
-- ----------------------- -------------------
---SQL_DESC_ALLOC_TYPE- - SQL_DESC_COUNT -
-- ----------------------- ------------------
-- | 00001              | | 00001       |
-- ----------------------- ------------------
--
-----------------------------------------------------
--- SQL_DESC_DATA_POINTER | SQL_DESC_TYPE | ........ |
------------------------------------------------------
--  1-&input_variable     | 00004         | ........ |
-- ----------------------------------------------------
+::
+
+    - ----------------------- -------------------
+    --SQL_DESC_ALLOC_TYPE- - SQL_DESC_COUNT -
+    - ----------------------- ------------------
+    - | 00001              | | 00001       |
+    - ----------------------- ------------------
+    -
+    ----------------------------------------------------
+    -- SQL_DESC_DATA_POINTER | SQL_DESC_TYPE | ........ |
+    -----------------------------------------------------
+    -  1-&input_variable     | 00004         | ........ |
+    - ----------------------------------------------------
 
 We will revisit "parameter passing" again after discussing the SQLBindCol function.
 
 SQLGetDescRec
 
 Function Prototype:
- SQLRETURN SQLGetDescRec(
-   SQLHDESC hdesc,                 /* 32-bit input */
-   SQLSMALLINT RecordNumber,       /* 16-bit input */
-   SQLCHAR *Name,                  /* CHAR* output */
-   SQLSMALLINT BufferLength,       /* 16-bit input */
-   SQLSMALLINT *NameLength,        /* CHAR* output */
-   SQLSMALLINT *Type,              /* 16-bit output */
-   SQLSMALLINT *SubType,           /* 16-bit output */
-   SQLINTEGER *Length,             /* 32-bit output */
-   SQLSMALLINT *Precision,         /* 16-bit output */
-   SQLSMALLINT *Scale,             /* 16-bit output */
-   SQLSMALLINT *Nullable           /* 16-bit output */
-   );
+
+::
+
+     SQLRETURN SQLGetDescRec(
+       SQLHDESC hdesc,                 /* 32-bit input */
+       SQLSMALLINT RecordNumber,       /* 16-bit input */
+       SQLCHAR *Name,                  /* CHAR* output */
+       SQLSMALLINT BufferLength,       /* 16-bit input */
+       SQLSMALLINT *NameLength,        /* CHAR* output */
+       SQLSMALLINT *Type,              /* 16-bit output */
+       SQLSMALLINT *SubType,           /* 16-bit output */
+       SQLINTEGER *Length,             /* 32-bit output */
+       SQLSMALLINT *Precision,         /* 16-bit output */
+       SQLSMALLINT *Scale,             /* 16-bit output */
+       SQLSMALLINT *Nullable           /* 16-bit output */
+       );
 
 Job:
+
 Retrieve the values of several fields from one Item Descriptor Area of a desc.
 
 Algorithm:
+
+::
+
       /* hdesc refers to a desc. */
       /* RecordNumber n refers to IDA[n] within the desc. */
       If (RecordNumber < 1)
@@ -1295,48 +1507,57 @@ Algorithm:
       Set *Nullable = desc.IDA[RecordNumber].SQL_DESC_NULLABLE field.
 
 Notes:
-      ## In effect, calling SQLGetDescRec is equivalent to calling
+
+## In effect, calling SQLGetDescRec is equivalent to calling
 SQLGetDescField several times, with different field identifiers:
 SQL_DESC_NAME, SQL_DESC_TYPE, SQL_DESC_DATETIME_INTERVAL_CODE,
 SQL_DESC_OCTET_LENGTH, SQL_DESC_PRECISION, SQL_DESC_SCALE and SCALE_NULLABLE.
-      ## Regarding the value of *Length, what the Standard actually says is
+
+## Regarding the value of *Length, what the Standard actually says is
 that it should be set to "the length (in octets or positions, as appropriate)"
 ... which is ambiguous. We have taken the ODBC specification as our guide here
 -- it says *Length should be set to SQL_DESC_OCTET_LENGTH. Probably you should
 use another function if the setting of Length is important to you.
-      ## For fields which are "not applicable", pass null parameters. For
+
+## For fields which are "not applicable", pass null parameters. For
 example, the SQL_DESC_NAME field is usually meaningless within an ARD or an
 APD. So, for *Name, BufferLength and *Namelength, pass null if you're
 retrieving from an ARD or APD. By passing null pointers, you can limit the
 values you get, to fill only the fields you really want.
-      ## SQLGetDescRec's BufferLength parameter is defined as SMALLINT
+
+## SQLGetDescRec's BufferLength parameter is defined as SMALLINT
 (16-bit). SQLGetDescField's BufferLength parameter in defined as INTEGER
 (32-bit). However, the apparent inconsistency causes no problems: the length
 of a Name string is typically only a few octets.
 
 Example:
+
 The following code snippet is an exact copy of the example used for the SQLGetDescField function, with only one line changed:
+
+::
 
    SQLGetDescField(hdesc,SQL_DESC_NAME,col_name,sizeof(col_name),NULL);
 
 is replaced by a call to SQLGetDescRec which gets only the name.
 
- #include "sqlcli.h"
- ...
- SQLHSTMT hstmt;                    /* handle of stmt */
- SQLHDESC hdesc;                    /* handle of IRD */
- SQLSMALLINT i,col_count;           /* used for a loop counter */
- SQLCHAR *col_name[128+1];
- ...
- SQLExecDirect(hstmt,"SELECT * FROM Table_1",SQL_NTS);
- SQLGetStmtAttr(hstmt,SQL_ATTR_IMP_ROW_DESC,&hdesc,NULL,NULL);
- SQLGetDescField(hdesc,SQL_DESC_COUNT,&col_count,NULL,NULL);
- printf("The Columns of Table Table_1 are:\n");
- for (i=1; i<=col_count; ++i) {
-   SQLGetDescRec(
-      hdesc,i,col_name,sizeof(col_name),NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-   printf("%s\n",col_name); }
- ...
+::
+
+     #include "sqlcli.h"
+     ...
+     SQLHSTMT hstmt;                    /* handle of stmt */
+     SQLHDESC hdesc;                    /* handle of IRD */
+     SQLSMALLINT i,col_count;           /* used for a loop counter */
+     SQLCHAR *col_name[128+1];
+     ...
+     SQLExecDirect(hstmt,"SELECT * FROM Table_1",SQL_NTS);
+     SQLGetStmtAttr(hstmt,SQL_ATTR_IMP_ROW_DESC,&hdesc,NULL,NULL);
+     SQLGetDescField(hdesc,SQL_DESC_COUNT,&col_count,NULL,NULL);
+     printf("The Columns of Table Table_1 are:\n");
+     for (i=1; i<=col_count; ++i) {
+       SQLGetDescRec(
+          hdesc,i,col_name,sizeof(col_name),NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+       printf("%s\n",col_name); }
+     ...
 
 ODBC: The SQLGetDescRec function is new in ODBC 3.5. (In ODBC 2.0 the desc fields were always retrieved via other functions, such as SQLDescribeCol.)
 SQLGetDescRec is apparently short for "Get Descriptor Record". "Descriptor
@@ -1346,6 +1567,9 @@ fact that the name is SQLGetDescRec, rather than SQLGetIDA, illustrates the infl
 SQLSetDescRec
 
 Function Prototype:
+
+::
+
  SQLRETURN SQLSetDescRec(
    SQLHDESC hdesc,            /* 32-bit input */
    SQLSMALLINT RecordNumber,  /* 16-bit input */
@@ -1360,81 +1584,94 @@ Function Prototype:
    );
 
 Job:
+
 Set the values for several fields in one Item Descriptor Area of a desc.
 
 Algorithm:
-If (desc is associated with a "deferred parameter")
-  return error: HY010 CLI-specific condition-function sequence error
-If (RecordNumber < 1)
-  return error: 07009 dynamic SQL error-invalid descriptor index
-If (desc is an IRD)
-  /* This error will appear only for ISO SQL3: */
-  return error: HY016 CLI-specific condition-cannot modify an implementation row descriptor
- Set desc.IDA[RecordNumber].SQL_DESC_TYPE = Type
- Set desc.IDA[RecordNumber].SQL_DESC_PRECISION = Precision
- Set desc.IDA[RecordNumber].SQL_DESC_SCALE = Scale
- Set desc.IDA[RecordNumber].SQL_DESC_DATETIME_INTERVAL_CODE = SubType
- if (desc is an IPD)
-  /* for IPD: this is the length in characters / bits / positions
-  Set desc.IDA[RecordNumber].SQL_DESC_LENGTH=Length
- Else
-  /* for APD or ARD: this is the length in octets */
-  Set desc.IDA[RecordNumber].SQL_DESC_OCTET_LENGTH=Length
- if (StringLength is not a null pointer)
-  Set desc.IDA[RecordNumber].SQL_DESC_OCTET_LENGTH_POINTER=StringLength
-  Set desc.IDA[RecordNumber].SQL_DESC_DATA = Data
- If (Indicator is not a null pointer)
-  Set desc.IDA[RecordNumber].SQL_DESC_INDICATOR_POINTER=Indicator
- If (Data is not a null pointer)
-  If ("Consistency Check" fails)
-    return error: HY021 CLI-specific condition-inconsistent descriptor information
- If (RecordNumber > desc.SQL_DESC_COUNT)
-  Set desc.SQL_DESC_COUNT = RecordNumber
- /* If any errors occur, then desc.SQL_DESC_COUNT will not be changed,
-    but the other fields mentioned in this description may be. */
+
+::
+
+    If (desc is associated with a "deferred parameter")
+      return error: HY010 CLI-specific condition-function sequence error
+    If (RecordNumber < 1)
+      return error: 07009 dynamic SQL error-invalid descriptor index
+    If (desc is an IRD)
+      /* This error will appear only for ISO SQL3: */
+      return error: HY016 CLI-specific condition-cannot modify an implementation row descriptor
+     Set desc.IDA[RecordNumber].SQL_DESC_TYPE = Type
+     Set desc.IDA[RecordNumber].SQL_DESC_PRECISION = Precision
+     Set desc.IDA[RecordNumber].SQL_DESC_SCALE = Scale
+     Set desc.IDA[RecordNumber].SQL_DESC_DATETIME_INTERVAL_CODE = SubType
+     if (desc is an IPD)
+      /* for IPD: this is the length in characters / bits / positions
+      Set desc.IDA[RecordNumber].SQL_DESC_LENGTH=Length
+     Else
+      /* for APD or ARD: this is the length in octets */
+      Set desc.IDA[RecordNumber].SQL_DESC_OCTET_LENGTH=Length
+     if (StringLength is not a null pointer)
+      Set desc.IDA[RecordNumber].SQL_DESC_OCTET_LENGTH_POINTER=StringLength
+      Set desc.IDA[RecordNumber].SQL_DESC_DATA = Data
+     If (Indicator is not a null pointer)
+      Set desc.IDA[RecordNumber].SQL_DESC_INDICATOR_POINTER=Indicator
+     If (Data is not a null pointer)
+      If ("Consistency Check" fails)
+        return error: HY021 CLI-specific condition-inconsistent descriptor information
+     If (RecordNumber > desc.SQL_DESC_COUNT)
+      Set desc.SQL_DESC_COUNT = RecordNumber
+     /* If any errors occur, then desc.SQL_DESC_COUNT will not be changed,
+        but the other fields mentioned in this description may be. */
 
 Notes:
-      ## In effect, calling SQLSetDescRec is equivalent to calling SQLSetDescField several times, with different field identifiers: SQL_DESC_TYPE, SQL_DESC_PRECISION, SQL_DESC_SCALE, SQL_DESC_DATETIME_INTERVAL_CODE, SQL_DESC_LENGTH or SQL_DESC_OCTET_LENGTH,SQL_DESC_OCTET_LENGTH_POINTER, SQL_DESC_DATA_POINTER and
+
+## In effect, calling SQLSetDescRec is equivalent to calling SQLSetDescField several times, with different field identifiers: SQL_DESC_TYPE, SQL_DESC_PRECISION, SQL_DESC_SCALE, SQL_DESC_DATETIME_INTERVAL_CODE, SQL_DESC_LENGTH or SQL_DESC_OCTET_LENGTH,SQL_DESC_OCTET_LENGTH_POINTER, SQL_DESC_DATA_POINTER and
 SQL_DESC_DATA_POINTER.
-      ## Using SQLSetDescRec on an ARD is somewhat similar to using SQLBindCol on the stmt which contains the ARD.
-      ## Using SQLSetDescRec on an APD is somewhat similar to using SQLBindParameter on the stmt which contains the APD.
-      ## The parameters of SQLGetDescRec do not correspond to the parameters
+
+## Using SQLSetDescRec on an ARD is somewhat similar to using SQLBindCol on the stmt which contains the ARD.
+
+## Using SQLSetDescRec on an APD is somewhat similar to using SQLBindParameter on the stmt which contains the APD.
+
+## The parameters of SQLGetDescRec do not correspond to the parameters
 of SQLGetDescRec. For example, there is no way to set the SQL_DESC_NAME field.
-      ## Because of the peculiar algorithm logic, it is impossible to set
+
+## Because of the peculiar algorithm logic, it is impossible to set
 SQL_DESC_OCTET_LENGTH_POINTER or SQL_DESC_INDICATOR_POINTER to null values.
-      ## A Consistency Check always happens. Therefore, if there are other
+
+## A Consistency Check always happens. Therefore, if there are other
 fields that you want to set, you should call SQLSetDescField before you call SQLSetDescRec.
 
 Example:
+
 This is an efficient way to execute an SQL statement many times, varying only
 the input parameter (represented in the statement by "?"). The code will
 insert 50 rows, with values between 1 and 50. We have deliberately varied some
 names and parameter-declarations, to show a style preferred by other
 programmers.
 
-#include "sqlcli.h"
-SQLHSTMT hstmt;
-SQLHDESC hdesc1,hdesc2; /* hdesc1 is APD, hdesc2 is IPD */
-SQLINTEGER i;           /* the loop counter, and the input value */
-...
-/* prepare the statement -- outside the loop */
-SQLPrepare(hstmt, "INSERT INTO Table_1 VALUES (?)", SQL_NTS);
-/* Associate i with APD */
-SQLGetStmtAttr(hstmt,SQL_ATTR_APP_PARAM_DESC,&hdesc1,0L,(SQLINTEGER *)NULL);
-SQLSetDescRec(
-   hdesc1,1,SQL_INTEGER,0,0L,0,0,(SQLPOINTER)&i,(SQLINTEGER *)NULL,
-   (SQLINTEGER *)NULL);
-/* Associate parameter marker with IPD */
-SQLGetStmtAttr(hstmt,SQL_ATTR_IMP_PARAM_DESC,&hdesc2,0L,(SQLINTEGER *)NULL);
-SQLSetDescRec(
-   hdesc2,1,SQL_INTEGER,0,0L,0,0,(SQLPOINTER)NULL,(SQLINTEGER *)NULL,
-   (SQLINTEGER *)NULL);
-for (i=1; i<50; ++i)
-    {
-    /* execute the statement -- inside the loop */
-    SQLExecute(hstmt);
-    }
-...
+::
+
+    #include "sqlcli.h"
+    SQLHSTMT hstmt;
+    SQLHDESC hdesc1,hdesc2; /* hdesc1 is APD, hdesc2 is IPD */
+    SQLINTEGER i;           /* the loop counter, and the input value */
+    ...
+    /* prepare the statement -- outside the loop */
+    SQLPrepare(hstmt, "INSERT INTO Table_1 VALUES (?)", SQL_NTS);
+    /* Associate i with APD */
+    SQLGetStmtAttr(hstmt,SQL_ATTR_APP_PARAM_DESC,&hdesc1,0L,(SQLINTEGER *)NULL);
+    SQLSetDescRec(
+       hdesc1,1,SQL_INTEGER,0,0L,0,0,(SQLPOINTER)&i,(SQLINTEGER *)NULL,
+       (SQLINTEGER *)NULL);
+    /* Associate parameter marker with IPD */
+    SQLGetStmtAttr(hstmt,SQL_ATTR_IMP_PARAM_DESC,&hdesc2,0L,(SQLINTEGER *)NULL);
+    SQLSetDescRec(
+       hdesc2,1,SQL_INTEGER,0,0L,0,0,(SQLPOINTER)NULL,(SQLINTEGER *)NULL,
+       (SQLINTEGER *)NULL);
+    for (i=1; i<50; ++i)
+        {
+        /* execute the statement -- inside the loop */
+        SQLExecute(hstmt);
+        }
+    ...
 
 Warning: This code is "efficient" because it calls SQLPrepare and the
 SQLSetDescRec functions only once, for an SQL statement that is executed 50
@@ -1446,15 +1683,22 @@ ODBC: SQLSetDescRec is new in ODBC 3.0. You can set SQL_DESC_OCTET_LENGTH_POINTE
 SQLCopyDesc
 
 Function Prototype:
+
+::
+
  SQLRETURN SQLCopyDesc(
    SQLHDESC source_hdesc,     /* 32-bit input */
    SQLHDESC target_hdesc      /* 32-bit input */
    );
 
 Job:
+
 Copy a source desc to a target desc.
 
 Algorithm:
+
+::
+
       If (source_hdesc is not a hdesc)
      return error: CLI-specific condition-invalid handle
     If (target_hdesc is not a hdesc)
@@ -1474,95 +1718,118 @@ the exception of the SQL_DESC_ALLOC_TYPE field. SQL_DESC_ALLOC_TYPE keeps its
 original value).
 
 Notes:
-      ## There are other ways to copy an entire desc. For example, you could
+
+## There are other ways to copy an entire desc. For example, you could
 call the SQLGetDescField and SQLSetDescField functions repeatedly. But
 SQLCopyDesc is the easy way.
-      ## If you're thinking of copying stmt #1's APD to stmt #2's APD, there's
+
+## If you're thinking of copying stmt #1's APD to stmt #2's APD, there's
 an alternative: you can allocate a user desc and share it. Here's how:
-            ## Make a user desc:
 
-   SQLAllocHandle(SQL_HANDLE_DESC,hdbc,&hdesc_user);
+## Make a user desc:
 
-      ## Say that stmt #1's APD is the user desc:
+::
 
-  SQLSetStmtAttr(hstmt1,SQL_ATTR_APP_ROW_DESC,&hdesc_user,NULL);
+    SQLAllocHandle(SQL_HANDLE_DESC,hdbc,&hdesc_user);
 
-      ## Fill in the fields of stmt #1's APD (using SQLSetDescRec etc.)
+## Say that stmt #1's APD is the user desc:
 
-      ## Say that stmt #2's APD is the user desc:
+::
 
-   SQLSetStmtAttr(hstmt2,SQL_ATTR_APP_ROW_DESC,&hdesc_user,NULL);
+    SQLSetStmtAttr(hstmt1,SQL_ATTR_APP_ROW_DESC,&hdesc_user,NULL);
+
+## Fill in the fields of stmt #1's APD (using SQLSetDescRec etc.)
+
+## Say that stmt #2's APD is the user desc:
+
+::
+
+    SQLSetStmtAttr(hstmt2,SQL_ATTR_APP_ROW_DESC,&hdesc_user,NULL);
 
 Now there's no need to copy, because stmt #2's APD is stmt #1's APD.
-      ## One possible use of SQLCopyDesc is to copy an IRD to an ARD. The
+
+## One possible use of SQLCopyDesc is to copy an IRD to an ARD. The
 point is: the IRD and the IRD fields are supposed to be similar; the IRD is
 set up automatically; so after the copy the ARD will have the values that the
 DBMS thinks should be there. If you want to change these values slightly, you
 can fine-tune using SQLSetDescField.
-      ## Another possible use of SQLCopyDesc is to save desc information --
+
+## Another possible use of SQLCopyDesc is to save desc information --
 if, for example, you have a small number of queries that are executed
 repeatedly using the same stmt. Here's how:
-            ## Allocate a user descriptor with
-SQLAllocHandle(SQL_HANDLE_DESC,...).
-            ## Copy an automatic desc to the user desc, with SQLCopyDesc.
-            ## Change the automatic desc for some temporary purpose.
-            ## Copy the user desc back to the automatic desc, with SQLCopyDesc.
-This is like "pushing" all the desc fields to a stack, making changes, then
-"popping" to restore the original values.
-      ## Some DBMSs will perform a consistency check on the target desc's IDAs
+
+    ## Allocate a user descriptor with
+    SQLAllocHandle(SQL_HANDLE_DESC,...).
+
+    ## Copy an automatic desc to the user desc, with SQLCopyDesc.
+
+    ## Change the automatic desc for some temporary purpose.
+
+    ## Copy the user desc back to the automatic desc, with SQLCopyDesc.
+    This is like "pushing" all the desc fields to a stack, making changes, then
+    "popping" to restore the original values.
+
+## Some DBMSs will perform a consistency check on the target desc's IDAs
 if any target_desc.IDA[n].SQL_DESC_DATA_POINTER is not a null pointer.
-      ## The copy is possible even if the source and target descs are in
+
+## The copy is possible even if the source and target descs are in
 different connections.
 
 Example:
+
 This shows how to copy values from one Table to another. The trick works like
 this:
-      ## Step 1: Prepare a SELECT statement from the source Table. This yields
+
+## Step 1: Prepare a SELECT statement from the source Table. This yields
 the IRD of the source. Bind the result set with SQLSetDescRec. This yields the
 ARD of the source.
-      ## Step 2: Prepare an INSERT statement on the target Table. This yields
+
+## Step 2: Prepare an INSERT statement on the target Table. This yields
 the IPD of the target.
-      ## Step 3: Copy the source RDs to the target PDs.
+
+## Step 3: Copy the source RDs to the target PDs.
 
 The trick would work for any pair of Tables, provided Columns have compatible
 <data type>s.
 
-#include "sqlcli.h"
-SQLCHAR   szCol_1[6];/* sz is "string, zero terminated" */
-SQLINTEGER cbCol_1;  /* col_1's indicator */
-SQLHSTMT    hstmt_source, hstmt_target;
-SQLHDESC    hard_source, hird_source; /* source's ARD+IRD handles */
-SQLHDESC    hapd_target, hipd_target; /* target's APD+IPD handles */
-...
- /* Get the handles of each desc that we'll use */
- /* SELECT from the source. */
- SQLExecDirect(hstmt_source,"SELECT col_1 FROM Sources;",SQL_NTS);
- SQLGetStmtAttr(hstmt_source,SQL_ATTR_APP_ROW_DESC,&hard_source,0,NULL);
- SQLGetStmtAttr(hstmt_target,SQL_ATTR_APP_PARAM_DESC,&hapd_target,0,NULL);
- /* Bind source Column #1. This changes the source's ARD. */
- SQLSetDescRec(
-   hard_source,1,SQL_CHAR,NULL,NULL,NULL,NULL,NULL,szCol_1,&6,&cbCol_1);
- /* Copy source's ARD to target's APD */
- SQLCopyDesc(hard_source,hapd_target);
- /* Copy source's IRD to target's IPD */
- SQLGetStmtAttr(hstmt_source,SQL_ATTR_IMP_ROW_DESC,&hird_source,0,NULL);
- SQLGetStmtAttr(hstmt_target,SQL_ATTR_IMP_PARAM_DESC,&hipd_target,0,NULL);
- SQLCopyDesc(hIrd_source, hipd_target);
- /* Prepare to INSERT in the target. */
- /* Once again, we assume "auto-populate IPD" is not true. If it were
-   true, SQLPrepare would overwrite what we've just copied to the IPD. */
- SQLPrepare(hstmt_target,"INSERT INTO Targets VALUES (?)", SQL_NTS);
- /* Fetch loop */
- for (;;) {
-   sqlreturn = SQLFetchScroll(hstmt0, SQL_FETCH_NEXT, 0);
-   if (sqlreturn <> SQL_SUCCESS && sqlreturn <> SQL_SUCCESS_WITH_INFO) break;
-   /* According to the row descriptors of the SELECT: we fetched into
-     szCol_1 and cbCol_1. According to the parameter descriptors of
-     INSERT: we'll get our values from szCol_1 and cbCol_1. Thus the
-     fetch's "output" is the insert's "input". */
-   SQLExecute(hstmt_target); }
- SQLCloseCursor(hstmt_source);
- ...
+::
+
+    #include "sqlcli.h"
+    SQLCHAR   szCol_1[6];/* sz is "string, zero terminated" */
+    SQLINTEGER cbCol_1;  /* col_1's indicator */
+    SQLHSTMT    hstmt_source, hstmt_target;
+    SQLHDESC    hard_source, hird_source; /* source's ARD+IRD handles */
+    SQLHDESC    hapd_target, hipd_target; /* target's APD+IPD handles */
+    ...
+     /* Get the handles of each desc that we'll use */
+     /* SELECT from the source. */
+     SQLExecDirect(hstmt_source,"SELECT col_1 FROM Sources;",SQL_NTS);
+     SQLGetStmtAttr(hstmt_source,SQL_ATTR_APP_ROW_DESC,&hard_source,0,NULL);
+     SQLGetStmtAttr(hstmt_target,SQL_ATTR_APP_PARAM_DESC,&hapd_target,0,NULL);
+     /* Bind source Column #1. This changes the source's ARD. */
+     SQLSetDescRec(
+       hard_source,1,SQL_CHAR,NULL,NULL,NULL,NULL,NULL,szCol_1,&6,&cbCol_1);
+     /* Copy source's ARD to target's APD */
+     SQLCopyDesc(hard_source,hapd_target);
+     /* Copy source's IRD to target's IPD */
+     SQLGetStmtAttr(hstmt_source,SQL_ATTR_IMP_ROW_DESC,&hird_source,0,NULL);
+     SQLGetStmtAttr(hstmt_target,SQL_ATTR_IMP_PARAM_DESC,&hipd_target,0,NULL);
+     SQLCopyDesc(hIrd_source, hipd_target);
+     /* Prepare to INSERT in the target. */
+     /* Once again, we assume "auto-populate IPD" is not true. If it were
+       true, SQLPrepare would overwrite what we've just copied to the IPD. */
+     SQLPrepare(hstmt_target,"INSERT INTO Targets VALUES (?)", SQL_NTS);
+     /* Fetch loop */
+     for (;;) {
+       sqlreturn = SQLFetchScroll(hstmt0, SQL_FETCH_NEXT, 0);
+       if (sqlreturn <> SQL_SUCCESS && sqlreturn <> SQL_SUCCESS_WITH_INFO) break;
+       /* According to the row descriptors of the SELECT: we fetched into
+         szCol_1 and cbCol_1. According to the parameter descriptors of
+         INSERT: we'll get our values from szCol_1 and cbCol_1. Thus the
+         fetch's "output" is the insert's "input". */
+       SQLExecute(hstmt_target); }
+     SQLCloseCursor(hstmt_source);
+     ...
 
 ODBC: The SQLCopyDesc function arrived with ODBC 3.0. ODBC's Driver Manager
 will handle copying if the source and target handles are associated with
@@ -1571,155 +1838,179 @@ different drivers.
 SQLBindCol
 
 Function Prototype:
- SQLRETURN SQLBindCol(
-   SQLHSTMT hstmt,                  /* 32-bit input */
-   SQLSMALLINT ColumnNumber,        /* 16-bit input */
-   SQLSMALLINT BufferType,          /* 16-bit input */
-   SQLPOINTER Data,                 /* ANY* input */
-   SQLINTEGER BufferLength,         /* 32-bit input */
-   SQLINTEGER *StrLen_or_Ind        /* 32-bit pointer to output */
-   );
+
+::
+
+     SQLRETURN SQLBindCol(
+       SQLHSTMT hstmt,                  /* 32-bit input */
+       SQLSMALLINT ColumnNumber,        /* 16-bit input */
+       SQLSMALLINT BufferType,          /* 16-bit input */
+       SQLPOINTER Data,                 /* ANY* input */
+       SQLINTEGER BufferLength,         /* 32-bit input */
+       SQLINTEGER *StrLen_or_Ind        /* 32-bit pointer to output */
+       );
 
 Job:
+
 Bind a Column to a host variable by setting fields in the ARD.
 
 Algorithm:
-   If (ColumnNumber < 1)
-    return error: 07009 Dynamic SQL error-invalid descriptor index
-   If (BufferType <> SQL_C_DEFAULT and BufferType is not a valid type code)
-    /* A "valid type code" could be one of: 1 (SQL_CHAR), 2 (SQL_NUMERIC), 3
-(SQL_DECIMAL), 4 (SQL_INTEGER), 5 (SQL_SMALLINT), 6 (SQL_FLOAT), 7 (SQL_REAL),
-8 (SQL_DOUBLE), 18 (SQL_UDT_LOCATOR), 20 (SQL_REF), 30 (SQL_BLOB), 31
-(SQL_BLOB_LOCATOR), 40 (SQL_CLOB), 41 (SQL_CLOB_LOCATOR), etc. But no host
-language has corresponding <data type>s for all of those; see the data type
-correspondences lists in our chapter on embedded SQL. */
-    return error: HY003 CLI-specific condition-invalid data type in application descriptor
-   If (BufferLength <= 0)
-    return error: HY090 CLI-specific condition-invalid string length or buffer length
-   Set ARD.IDA[ColumnNumber].SQL_DESC_TYPE = BufferType
-   Set ARD.IDA[ColumnNumber].SQL_DESC_OCTET_LENGTH = BufferLength
-   Set ARD.IDA[ColumnNumber].SQL_DESC_LENGTH = maximum for this data type
-   Set ARD.IDA[ColumnNumber].SQL_DESC_DATA_POINTER = Data
-   Set ARD.IDA[ColumnNumber].SQL_DESC_OCTET_LENGTH_POINTER = StrLen_or_Ind
-   Set ARD.IDA[ColumnNumber].SQL_DESC_INDICATOR_POINTER = StrLen_or_Ind
-   If (ColumnNumber > ARD.SQL_DESC_COUNT)
-    Set ARD.SQL_DESC_COUNT = ColumnNumber
-   /* If an error occurs: the DBMS leaves SQL_DESC_COUNT unchanged, but may
-     set IDA fields to implementation-dependent values. */
+
+::
+
+       If (ColumnNumber < 1)
+        return error: 07009 Dynamic SQL error-invalid descriptor index
+       If (BufferType <> SQL_C_DEFAULT and BufferType is not a valid type code)
+        /* A "valid type code" could be one of: 1 (SQL_CHAR), 2 (SQL_NUMERIC), 3
+    (SQL_DECIMAL), 4 (SQL_INTEGER), 5 (SQL_SMALLINT), 6 (SQL_FLOAT), 7 (SQL_REAL),
+    8 (SQL_DOUBLE), 18 (SQL_UDT_LOCATOR), 20 (SQL_REF), 30 (SQL_BLOB), 31
+    (SQL_BLOB_LOCATOR), 40 (SQL_CLOB), 41 (SQL_CLOB_LOCATOR), etc. But no host
+    language has corresponding <data type>s for all of those; see the data type
+    correspondences lists in our chapter on embedded SQL. */
+        return error: HY003 CLI-specific condition-invalid data type in application descriptor
+       If (BufferLength <= 0)
+        return error: HY090 CLI-specific condition-invalid string length or buffer length
+       Set ARD.IDA[ColumnNumber].SQL_DESC_TYPE = BufferType
+       Set ARD.IDA[ColumnNumber].SQL_DESC_OCTET_LENGTH = BufferLength
+       Set ARD.IDA[ColumnNumber].SQL_DESC_LENGTH = maximum for this data type
+       Set ARD.IDA[ColumnNumber].SQL_DESC_DATA_POINTER = Data
+       Set ARD.IDA[ColumnNumber].SQL_DESC_OCTET_LENGTH_POINTER = StrLen_or_Ind
+       Set ARD.IDA[ColumnNumber].SQL_DESC_INDICATOR_POINTER = StrLen_or_Ind
+       If (ColumnNumber > ARD.SQL_DESC_COUNT)
+        Set ARD.SQL_DESC_COUNT = ColumnNumber
+       /* If an error occurs: the DBMS leaves SQL_DESC_COUNT unchanged, but may
+         set IDA fields to implementation-dependent values. */
 
 Notes:
-      ## Technically, a host variable is "bound" when it is associated with a
+
+## Technically, a host variable is "bound" when it is associated with a
 host-variable address. Since SQLBindCol causes a setting of
 ARD.IDA[ColumnNumber].SQL_DESC_DATA_POINTER, we can describe it thus:
 "SQLBindCol performs a binding of an output host variable for a result-set
 Column; specifically the result-set Column indicated by the ColumnNumber parameter."
-      ## Technically, this host variable is called a "target specification".
+
+## Technically, this host variable is called a "target specification".
 SQLBindCol is for values that flow out from the DBMS to a host variable.
-      ## The usual idea is that what you set up with SQLBindCol will later be
+
+## The usual idea is that what you set up with SQLBindCol will later be
 used by SQLFetch or SQLFetchScroll. Alternatively, you could bind after
 fetching, using the SQLGetData function.
-      ## You need a valid hstmt, but you don't need a result set yet. That is,
+
+## You need a valid hstmt, but you don't need a result set yet. That is,
 you can SELECT either before or after you call SQLBindCol.
-      ## Calling SQLBindCol for a stmt is conceptually similar to calling
+
+## Calling SQLBindCol for a stmt is conceptually similar to calling
 SQLSetDescRec for the stmt's ARD. In fact, everything that you can do with
 SQLBindCol, and more, can be done with SQLSetDescRec. However, SQLBindCol is
 seen far more often than SQLSetDescRec.
-      ## Warning: You are passing addresses. The DBMS will write to those
+
+## Warning: You are passing addresses. The DBMS will write to those
 addresses. So there are two easy ways to cause GPFs:
-            ## Pass the address of a local variable, exit from the procedure
-that the local variable is defined in, then call SQLFetch.
-            ## Pass a buffer which is too small to hold the result. For CHAR
-and  BIT <data type>s there is a guard against this (you pass BufferLength to
-tell the DBMS when it must stop). For numeric <data type>s there is also a
-guard against this (if you say that BufferType is SQL_SMALLINT the DBMS won't
-move a 32-bit value to it). But if you enter the wrong value for DataType ...
-Ka-Boom! As a safeguard, some programmers deliberately "unbind" when they
-finish fetching -- see the description of SQLFreeStmt(...SQL_UNBIND).
-      ## SQLBindCol does not set every defined field in the ARD. You might
+
+    ## Pass the address of a local variable, exit from the procedure
+    that the local variable is defined in, then call SQLFetch.
+
+    ## Pass a buffer which is too small to hold the result. For CHAR
+    and  BIT <data type>s there is a guard against this (you pass BufferLength to
+    tell the DBMS when it must stop). For numeric <data type>s there is also a
+    guard against this (if you say that BufferType is SQL_SMALLINT the DBMS won't
+    move a 32-bit value to it). But if you enter the wrong value for DataType ...
+    Ka-Boom! As a safeguard, some programmers deliberately "unbind" when they
+    finish fetching -- see the description of SQLFreeStmt(...SQL_UNBIND).
+
+## SQLBindCol does not set every defined field in the ARD. You might
 have to follow up with a call to SQLSetDescField if for some reason you have
 to change a low-importance field, like SQL_DESC_DATETIME_INTERVAL_PRECISION.
-      ## The value of BufferLength is irrelevant for non-string <data type>s.
+
+## The value of BufferLength is irrelevant for non-string <data type>s.
 Nevertheless, you must always pass a value greater than zero.
 
 Example:
- /* This example shows a retrieval of a CHAR string. */
- #include "sqlcli.h"
- SQLHSTMT hstmt;
- SQLCHAR value[128];
- SQLINTEGER value_indicator;
- ...
- SQLBindCol(hstmt,1,SQL_CHAR,value,sizeof(value),&value_indicator);
- SQLExecDirect(stmt,"SELECT 'ABCDE' FROM t",SQL_NTS);
- SQLFetch(hstmt);
- /* At this point, value has "ABCDE\0", value_indicator has zero. */
- ...
 
- /* This example shows a retrieval of a floating-point variable. The C data
-type is float, but we use SQL_REAL -- for explanation, see the list of data
-correspondences. We'd like to pass NULL as the BufferLength parameter -- it's
-irrelevant -- but we can't. */
- #include "sqlcli.h"
- #include <math.h>
- SQLHSTMT hstmt;
- SQLREAL value;   /* sqlcli.h contains the line "typedef float SQLREAL" */
- SQLINTEGER value_indicator;
- ...
- SQLBindCol(hstmt,1,SQL_REAL,&value,sizeof(value),&value_indicator);
- SQLExecDirect(stmt,"SELECT 1.5E5 FROM t",SQL_NTS);
- SQLFetch(hstmt);
- /* At this point, value has 1.5E5, value_indicator has zero. */
- ...
+::
 
- /* This example shows a retrieval of two Columns from the first row of
-TABLE_1. It displays their values, or displays "NULL". */
- #include "sqlcli.h"
- SQLINTEGER col_1;
- SQLCHAR   col_2[128];
- SQLINTEGER col_1_ind,col_2_ind;
- SQLHSTMT  hstmt;
- SQLHDESC  hdesc;
- ...
- SQLBindCol(hstmt,1,SQL_INTEGER,&col_1,sizeof(col_1),&col_1_ind);
- SQLBindCol(hstmt,2,SQL_CHAR,col_2,sizeof(col_2),&col_2_ind);
- SQLExecDirect(hstmt,"SELECT col_1,col_2 FROM Table_1",SQL_NTS);
- SQLFetch(hstmt);
- if (col_1_ind == SQL_NULL_DATA) printf("NULL\n");
- else printf("%ld.\n",col_1);
- if (col_2_ind == SQL_NULL_DATA) printf("NULL\n");
- else printf("%s.\n",col_2);
- ...
+     /* This example shows a retrieval of a CHAR string. */
+     #include "sqlcli.h"
+     SQLHSTMT hstmt;
+     SQLCHAR value[128];
+     SQLINTEGER value_indicator;
+     ...
+     SQLBindCol(hstmt,1,SQL_CHAR,value,sizeof(value),&value_indicator);
+     SQLExecDirect(stmt,"SELECT 'ABCDE' FROM t",SQL_NTS);
+     SQLFetch(hstmt);
+     /* At this point, value has "ABCDE\0", value_indicator has zero. */
+     ...
+
+     /* This example shows a retrieval of a floating-point variable. The C data
+    type is float, but we use SQL_REAL -- for explanation, see the list of data
+    correspondences. We'd like to pass NULL as the BufferLength parameter -- it's
+    irrelevant -- but we can't. */
+     #include "sqlcli.h"
+     #include <math.h>
+     SQLHSTMT hstmt;
+     SQLREAL value;   /* sqlcli.h contains the line "typedef float SQLREAL" */
+     SQLINTEGER value_indicator;
+     ...
+     SQLBindCol(hstmt,1,SQL_REAL,&value,sizeof(value),&value_indicator);
+     SQLExecDirect(stmt,"SELECT 1.5E5 FROM t",SQL_NTS);
+     SQLFetch(hstmt);
+     /* At this point, value has 1.5E5, value_indicator has zero. */
+     ...
+
+     /* This example shows a retrieval of two Columns from the first row of
+    TABLE_1. It displays their values, or displays "NULL". */
+     #include "sqlcli.h"
+     SQLINTEGER col_1;
+     SQLCHAR   col_2[128];
+     SQLINTEGER col_1_ind,col_2_ind;
+     SQLHSTMT  hstmt;
+     SQLHDESC  hdesc;
+     ...
+     SQLBindCol(hstmt,1,SQL_INTEGER,&col_1,sizeof(col_1),&col_1_ind);
+     SQLBindCol(hstmt,2,SQL_CHAR,col_2,sizeof(col_2),&col_2_ind);
+     SQLExecDirect(hstmt,"SELECT col_1,col_2 FROM Table_1",SQL_NTS);
+     SQLFetch(hstmt);
+     if (col_1_ind == SQL_NULL_DATA) printf("NULL\n");
+     else printf("%ld.\n",col_1);
+     if (col_2_ind == SQL_NULL_DATA) printf("NULL\n");
+     else printf("%s.\n",col_2);
+     ...
 
 Here is a picture of the ARD after the SQLSetDescField call is done:
 
-- ----------------------- -------------------
---SQL_DESC_ALLOC_TYPE- - SQL_DESC_COUNT -
-- ----------------------- ------------------
-- | 00001             | | 00002       |
-- ----------------------- ------------------
--
------------------------------------------------------
--- SQL_DESC_DATA_POINTER | SQL_DESC_TYPE | ........ |
------------------------------------------------------
--  1-&col_1              | 00004         | ........ |
------------------------------------------------------
--  2-col_2 (address)     | 00001         | ........ |
------------------------------------------------------
+::
+
+    - ----------------------- -------------------
+    --SQL_DESC_ALLOC_TYPE- - SQL_DESC_COUNT -
+    - ----------------------- ------------------
+    - | 00001             | | 00002       |
+    - ----------------------- ------------------
+    -
+    -----------------------------------------------------
+    -- SQL_DESC_DATA_POINTER | SQL_DESC_TYPE | ........ |
+    -----------------------------------------------------
+    -  1-&col_1              | 00004         | ........ |
+    -----------------------------------------------------
+    -  2-col_2 (address)     | 00001         | ........ |
+    -----------------------------------------------------
 
 Here is a picture of the IRD after the SQLExecDirect call is done:
 
-- ----------------------- -------------------
---SQL_DESC_ALLOC_TYPE- - SQL_DESC_COUNT -
-- ----------------------- ------------------
-- | 00001             | | 00002       |
-- ----------------------- ------------------
--
------------------------------------------------------
--- SQL_DESC_NAME      | SQL_DESC_TYPE | ........ |
------------------------------------------------------
--  1-'Col_1'          | 00005         | ........ |
--   ----------------------------------------------------
--  2-'Col_2'          | 00001         | ........ |
------------------------------------------------------
+::
+
+    - ----------------------- -------------------
+    --SQL_DESC_ALLOC_TYPE- - SQL_DESC_COUNT -
+    - ----------------------- ------------------
+    - | 00001             | | 00002       |
+    - ----------------------- ------------------
+    -
+    -----------------------------------------------------
+    -- SQL_DESC_NAME      | SQL_DESC_TYPE | ........ |
+    -----------------------------------------------------
+    -  1-'Col_1'          | 00005         | ........ |
+    -   ----------------------------------------------------
+    -  2-'Col_2'          | 00001         | ........ |
+    -----------------------------------------------------
 
 [Obscure Rule] In this example, COL_1 is actually a SMALLINT (SQL_DESC_TYPE ==
 5), but it's being transferred to an INTEGER (SQL_DESC_TYPE == 4). That is not
@@ -1735,16 +2026,22 @@ programs would collapse tomorrow if a DBMS vendor decided to enforce the
 standard SQL rule.
 
 SQL_C_DEFAULT:
+
 There is a lazy way to bind numbers. Instead of passing a real <data type>,
 pass 99 (SQL_C_DEFAULT). Here is an example using SQLBindCol -- notice that
 the third parameter is SQL_C_DEFAULT, so, after SQLBindCol, the value in
 ARD.IDA[n].SQL_DESC_TYPE == SQL_C_DEFAULT. When SQLFetch occurs, it handles
 the default request like this:
-      ## Set ARD.IDA[n].SQL_DESC_TYPE = IRD.IDA[n].SQL_DESC_TYPE.
-      ## Set ARD.IDA[n].SQL_DESC_PRECISION = IRD.IDA[n].SQL_DESC_PRECISION.
-      ## Set ARD.IDA[n].SQL_DESC_SCALE = IRD.IDA[n].SQL_DESC_SCALE.
+
+## Set ARD.IDA[n].SQL_DESC_TYPE = IRD.IDA[n].SQL_DESC_TYPE.
+
+## Set ARD.IDA[n].SQL_DESC_PRECISION = IRD.IDA[n].SQL_DESC_PRECISION.
+
+## Set ARD.IDA[n].SQL_DESC_SCALE = IRD.IDA[n].SQL_DESC_SCALE.
 (These are temporary settings. SQLFetch never makes permanent changes to any
 desc fields.) Now there is enough information to continue the fetch:
+
+::
 
   #include "sqlcli.h"
   SQLHSTMT hstmt;
@@ -1755,26 +2052,36 @@ desc fields.) Now there is enough information to continue the fetch:
   SQLFetch(hstmt);
 
 And now, a few words of urgent warning:
-      ## The only fields involved are type, precision and  scale -- not length
+
+## The only fields involved are type, precision and  scale -- not length
 or octet_length.
-      ## There is no check for possible overflow of the target output.
-      ## The ODBC specification does not agree with the Standard about what
+
+## There is no check for possible overflow of the target output.
+
+## The ODBC specification does not agree with the Standard about what
 the default <data type> codes should be.
 
 Retrieving Column values:
+
 Column retrieval involves executing a SELECT statement, then fetching from the
 result set to variables defined in your host program. The Columns in the
 select list must be "bound" to the host-variable addresses. The problems you
 must solve -- with the DBMS's help -- are:
-      ## The impedance mismatch between SQL <data type>s and host language types.
-      ## Telling the DBMS where to put the data.
-      ## Telling the DBMS how null values should be signalled to the host.
-      ## Ensuring that the DBMS does not go beyond the host-variable buffers.
+
+## The impedance mismatch between SQL <data type>s and host language types.
+
+## Telling the DBMS where to put the data.
+
+## Telling the DBMS how null values should be signalled to the host.
+
+## Ensuring that the DBMS does not go beyond the host-variable buffers.
 
 There are two solutions to these problems:
-      ## Call SQLBindCol, SQLSetDescField or SQLSetDescRec, then fetch using
+
+## Call SQLBindCol, SQLSetDescField or SQLSetDescRec, then fetch using
 SQLFetch or SQLFetchScroll.
-      ## Fetch using SQLFetch or SQLFetchScroll, then call SQLGetData.
+
+## Fetch using SQLFetch or SQLFetchScroll, then call SQLGetData.
 The most popular option is to call SQLBindCol, then SQLFetch.
 
 There are two descs involved here -- the IRD (which the DBMS sets up when the
@@ -1784,61 +2091,71 @@ sure that the ARD matches the IRD, and setting up appropriate buffers for the
 DBMS to fetch data into.
 
 Fetch Loops Revisited:
+
 Once more into the "fetch", dear friends! Now that you know about binding, you
 can fetch INTO something. Here is a program which does so. Most functions are
 shown in skeletal form. There is a test for truncation.
 
-#include "sqlcli.h"
-SQLHENV     henv;
-SQLHDBC     hdbc;
-SQLHSTMT    hstmt;
-SQLCHAR   char_string[128];
-SQLINTEGER char_string_ind;
-SQLRETURN  sqlreturn;
-void main ()
-{
- SQLAllocHandle(SQL_HANDLE_ENV,NULL,&henv);
- SQLAllocHandle(SQL_HANDLE_DBC,henv,&hdbc);
- SQLConnect(hdbc,...,SQL_NTS);
- SQLAllocHandle(SQL_HANDLE_HSTMT,hdbc,&hstmt);
- SQLExecDirect(hstmt,"SELECT ...",SQL_NTS);
- SQLBindCol(
-   hstmt,1,SQL_CHAR,char_string,sizeof(char_string),&char_string_ind);
- for (;;) {
-   sqlreturn = SQLFetch(hstmt);
-   if (sqlreturn == SQL_NO_DATA) break;
-   if (sqlreturn == SQL_ERROR) {
-    printf("Error ... aborting\n");
-    break; }
-   if (sqlreturn == SQL_SUCCESS_WITH_WARNING) {
-    /* We could call SQLGetDiagnostics to find out if sqlstate == '01004'
-        (string data right truncation), diagnostics is a later chapter.
-      Instead, we'll see if see if the DBMS had more data than it sent. */
-    if (char_string_ind >= sizeof(char_string) printf("[Truncated!]"); }
-   if (char_string_ind==SQL_NULL_DATA) printf("NULL\n");
-   else printf("%s.\n",char_string); }
- SQLCloseCursor(hstmt);
- SQLFreeHandle(SQL_HANDLE_STMT,hstmt);
- SQLDisconnect(hdbc);
- SQLFreeHandle(SQL_HANDLE_DBC,hdbc);
- SQLFreeHandle(SQL_HANDLE_ENV,henv); }
+::
+
+    #include "sqlcli.h"
+    SQLHENV     henv;
+    SQLHDBC     hdbc;
+    SQLHSTMT    hstmt;
+    SQLCHAR   char_string[128];
+    SQLINTEGER char_string_ind;
+    SQLRETURN  sqlreturn;
+    void main ()
+    {
+     SQLAllocHandle(SQL_HANDLE_ENV,NULL,&henv);
+     SQLAllocHandle(SQL_HANDLE_DBC,henv,&hdbc);
+     SQLConnect(hdbc,...,SQL_NTS);
+     SQLAllocHandle(SQL_HANDLE_HSTMT,hdbc,&hstmt);
+     SQLExecDirect(hstmt,"SELECT ...",SQL_NTS);
+     SQLBindCol(
+       hstmt,1,SQL_CHAR,char_string,sizeof(char_string),&char_string_ind);
+     for (;;) {
+       sqlreturn = SQLFetch(hstmt);
+       if (sqlreturn == SQL_NO_DATA) break;
+       if (sqlreturn == SQL_ERROR) {
+        printf("Error ... aborting\n");
+        break; }
+       if (sqlreturn == SQL_SUCCESS_WITH_WARNING) {
+        /* We could call SQLGetDiagnostics to find out if sqlstate == '01004'
+            (string data right truncation), diagnostics is a later chapter.
+          Instead, we'll see if see if the DBMS had more data than it sent. */
+        if (char_string_ind >= sizeof(char_string) printf("[Truncated!]"); }
+       if (char_string_ind==SQL_NULL_DATA) printf("NULL\n");
+       else printf("%s.\n",char_string); }
+     SQLCloseCursor(hstmt);
+     SQLFreeHandle(SQL_HANDLE_STMT,hstmt);
+     SQLDisconnect(hdbc);
+     SQLFreeHandle(SQL_HANDLE_DBC,hdbc);
+     SQLFreeHandle(SQL_HANDLE_ENV,henv); }
 
 SQLGetData
 
 Function Prototype:
- SQLRETURN SQLGetData(
-   SQLHSTMT hstmt,            /* 32-bit input */
-   SQLSMALLINT ColumnNumber,  /* 16-bit input -- index to IDA */
-   SQLSMALLINT TargetType,    /* 16-bit input. Concise. */
-   SQLPOINTER TargetValue,    /* VOID* output */
-   SQLINTEGER BufferLength,   /* 32-bit input */
-   SQLINTEGER *StrLen_or_Ind  /* 32-bit output */
-   );
+
+::
+
+     SQLRETURN SQLGetData(
+       SQLHSTMT hstmt,            /* 32-bit input */
+       SQLSMALLINT ColumnNumber,  /* 16-bit input -- index to IDA */
+       SQLSMALLINT TargetType,    /* 16-bit input. Concise. */
+       SQLPOINTER TargetValue,    /* VOID* output */
+       SQLINTEGER BufferLength,   /* 32-bit input */
+       SQLINTEGER *StrLen_or_Ind  /* 32-bit output */
+       );
 
 Job:
+
 Get a value from one Column of a result set. Call SQLGetData after calling SQLFetch or SQLFetchScroll.
 
 Algorithm:
+
+::
+
       If (there is no fetched row associated with stmt)
        /* Looks like somebody forgot to call SQLFetch or SQLFetchScroll */
        return error: HY010 CLI-specific condition-function sequence error
@@ -1863,26 +2180,34 @@ Algorithm:
         for fetching a "bound" Column -- see SQLBindCol for details. */
 
 Notes:
-      ## SQLGetData does not make permanent changes to the ARD. But it can be
+
+## SQLGetData does not make permanent changes to the ARD. But it can be
 thought of as a function which makes a temporary binding for a specified
 Column in a result set, and transferring the Column value to the bound target
 variable.
-      ## It looks like there are two possible strategies for retrieving data
+
+## It looks like there are two possible strategies for retrieving data
 -- with SQLBindCol or with SQLGetData. Let's compare the two:
 
 The SQLBindCol strategy:
-SQLExecDirect(...,"SELECT ...",...);
- SQLBindCol(...,1,&var_1,...);
- SQLBindCol(...,2,&var_2,...);
- for (;;) {
-  if (SQLFetch(...)==100) break; }
-  SQLGetData(...,2,...,&var_2,...); }
+
+::
+
+    SQLExecDirect(...,"SELECT ...",...);
+     SQLBindCol(...,1,&var_1,...);
+     SQLBindCol(...,2,&var_2,...);
+     for (;;) {
+      if (SQLFetch(...)==100) break; }
+      SQLGetData(...,2,...,&var_2,...); }
 
 The SQLGetData strategy:
-SQLExecDirect(...,"SELECT ...",...);
-for (;;) {
-   if (SQLFetch(...)==100) break;
-   SQLGetData(...,1,...,&var_1,...);
+
+::
+
+    SQLExecDirect(...,"SELECT ...",...);
+    for (;;) {
+       if (SQLFetch(...)==100) break;
+       SQLGetData(...,1,...,&var_1,...);
 
 Look hard at where the loop is. The SQLBindCol strategy is apparently more
 efficient, because the binding happens only once. If you use SQLGetData,
@@ -1890,42 +2215,48 @@ you'll have to use it for every iteration of the SQLFetch loop. On the other
 hand, maybe that's exactly what you want to do. There are times when you have
 to be flexible, and change some factor (such as the variable's address) while
 inside the loop. Then SQLGetData is the choice.
-      ## Suppose you bind Column #1 (using SQLBindCol), then you fetch, then
+
+## Suppose you bind Column #1 (using SQLBindCol), then you fetch, then
 you get Column #2 (using SQLGetData). That's legal. But it might not be legal
 to skip Columns, to get Columns out of order or to get Columns twice. The
 ability to get Columns in any order is called the "SQLGetData Extensions"
 feature. You can check whether your DBMS supports it (you'll see how when we
 describe the SQLGetInfo function). But usually there's nothing difficult about
 getting Columns in ascending Column-number order.
-      ## *StrLen_or_Ind points to a 32-bit integer, not a 16-bit integer. Thus
+
+## *StrLen_or_Ind points to a 32-bit integer, not a 16-bit integer. Thus
 the final three parameters -- *TargetValue, BufferLength, *StrLen_or_Ind -- do
 not form a typical example of Character String Retrieval parameters.
-      ## Since SQLGetData cannot take advantage of the full set of ARD fields,
+
+## Since SQLGetData cannot take advantage of the full set of ARD fields,
 it only gets used for simple situations.
 
 Example:
- #include "sqlcli.h"
- #define CHAR_LENGTH 1000
- SQLHSTMT hstmt;
- SQLRETURN sqlreturn;
- SQLINTEGER sIntegerColumn;
- SQLINTEGER IntegerIndicator;
- SQLCHAR szCharColumn[CHAR_LENGTH];
- SQLINTEGER IntegerIndicator;
- ...
- SQLExecDirect(hstmt,"SELECT col_1,col_2 FROM Table_1",SQL_NTS);
- for (;;) {
-   sqlreturn = SQLFetch(hstmt);
-   if (sqlreturn != SQL_SUCCESS && sqlreturn != SQL_SUCCESS_WITH_INFO) {
-    break; }
-   SQLGetData(hstmt,1,SQL_INTEGER,&sIntegerColumn,NULL,&IntegerIndicator);
-   if (IntegerIndicator != SQL_NULL_DATA) {
-    if (sIntegerColumn > 0) {
-     SQLGetData(hstmt,2,SQL_CHAR,szCharColumn,CHAR_LENGTH,&CharIndicator);
-     if (CharIndicator == SQL_NULL_DATA) strcpy(szCharColumn,"");
-     printf("%s.\n",szCharColumn); } } }
- SQLCloseCursor(hstmt);
- ...
+
+::
+
+     #include "sqlcli.h"
+     #define CHAR_LENGTH 1000
+     SQLHSTMT hstmt;
+     SQLRETURN sqlreturn;
+     SQLINTEGER sIntegerColumn;
+     SQLINTEGER IntegerIndicator;
+     SQLCHAR szCharColumn[CHAR_LENGTH];
+     SQLINTEGER IntegerIndicator;
+     ...
+     SQLExecDirect(hstmt,"SELECT col_1,col_2 FROM Table_1",SQL_NTS);
+     for (;;) {
+       sqlreturn = SQLFetch(hstmt);
+       if (sqlreturn != SQL_SUCCESS && sqlreturn != SQL_SUCCESS_WITH_INFO) {
+        break; }
+       SQLGetData(hstmt,1,SQL_INTEGER,&sIntegerColumn,NULL,&IntegerIndicator);
+       if (IntegerIndicator != SQL_NULL_DATA) {
+        if (sIntegerColumn > 0) {
+         SQLGetData(hstmt,2,SQL_CHAR,szCharColumn,CHAR_LENGTH,&CharIndicator);
+         if (CharIndicator == SQL_NULL_DATA) strcpy(szCharColumn,"");
+         printf("%s.\n",szCharColumn); } } }
+     SQLCloseCursor(hstmt);
+     ...
 
 ODBC: SQLGetData has been around since ODBC version 1.0. SQLGetData can be
 used, with char or bit <data type>s, to get data in pieces. This is done by
@@ -1937,57 +2268,71 @@ systems, this was a useful feature.
 SQLBindParameter
 
 Function Prototype:
- SQLRETURN SQLBindParameter (
-   SQLHSTMT hstmt,                  /* 32-bit input */
-   SQLSMALLINT ParameterNumber,     /* 16-bit input: must be > 0 */
-   SQLSMALLINT InputOutputMode,     /* 16-bit input: must be one of:
-                                       1 SQL_PARAM_MODE_IN,
-                                       2 SQL_PARAM_MODE_INOUT,
-                                       4 SQL_PARAM_MODE_OUT */
-   SQLSMALLINT ValueType,           /* 16-bit input ... for the APD
-                                      must be in table of host/SQL <data type>
-                                      correspondences */
-   SQLSMALLINT ParameterType,       /* 16-bit input ... for the IPD
-                                      must be in table of concise types */
-   SQLINTEGER Columnsize,           /* 32-bit input */
-   SQLSMALLINT DecimalDigits,       /* 16-bit input */
-   SQLPOINTER ParameterValue,       /* DEF */
-   SQLINTEGER BufferLength,         /* 32-bit input */
-   SQLINTEGER *StrLen_or_Ind        /* DEF */
-   );
+
+::
+
+     SQLRETURN SQLBindParameter (
+       SQLHSTMT hstmt,                  /* 32-bit input */
+       SQLSMALLINT ParameterNumber,     /* 16-bit input: must be > 0 */
+       SQLSMALLINT InputOutputMode,     /* 16-bit input: must be one of:
+                                           1 SQL_PARAM_MODE_IN,
+                                           2 SQL_PARAM_MODE_INOUT,
+                                           4 SQL_PARAM_MODE_OUT */
+       SQLSMALLINT ValueType,           /* 16-bit input ... for the APD
+                                          must be in table of host/SQL <data type>
+                                          correspondences */
+       SQLSMALLINT ParameterType,       /* 16-bit input ... for the IPD
+                                          must be in table of concise types */
+       SQLINTEGER Columnsize,           /* 32-bit input */
+       SQLSMALLINT DecimalDigits,       /* 16-bit input */
+       SQLPOINTER ParameterValue,       /* DEF */
+       SQLINTEGER BufferLength,         /* 32-bit input */
+       SQLINTEGER *StrLen_or_Ind        /* DEF */
+       );
 
 Job:
+
 Describe one "dynamic parameter specification" (in the IPD), and its host
 variable (in the APD). SQLBindParameter is useful if you pass parameters from
 the application to the DBMS. Such parameters are marked by parameter markers
 (question marks) in SQL statements.
 
 Algorithm:
+
 The algorithm is to complex to show in the usual manner. For this function, we
 will have to make heavy use of texts and charts.
 
 What happens --
-      ## If the function fails and returns -1 (SQL_ERROR): see 07009, HY015
+
+## If the function fails and returns -1 (SQL_ERROR): see 07009, HY015
 and HY090 in our chapter on SQL/CLI diagnostics. (Note: If errors happen, some
 of the IPD and APD fields may be garbaged, although SQL_DESC_COUNT won't
 change.)
-      ## If the function succeeds: some IPD and APD fields are set. The
+
+## If the function succeeds: some IPD and APD fields are set. The
 precise setting depends on a combination of factors, but in general we can say
 that:
-            ## hstmt designates which stmt. The affected descs are the stmt's
-IPD and APD.
-            ## ParameterNumber designates which item descriptor area, within a
-desc. If ParameterNumber is n, then the affected IDAs are IPD.IDA[n] and
-APD.IDA[n].
-            ## ParameterType, Columnsize and DecimalDigits affect IPD.IDA[n].
-            ## ValueType, BufferLength, ParameterValue and Strlen_Or_Ind
-affect APD.IDA[n].
-            ## If ParameterNumber is greater than an APD or IPD's
-SQL_DESC_COUNT field, then that SQL_DESC_COUNT field gets the value in
-ParameterNumber.
-            ## Sometimes passed values are ignored.
-            ## Values should be consistent, but some DBMSs won't perform a
-consistency check until SQLExecute happens.
+
+    ## hstmt designates which stmt. The affected descs are the stmt's
+    IPD and APD.
+
+    ## ParameterNumber designates which item descriptor area, within a
+    desc. If ParameterNumber is n, then the affected IDAs are IPD.IDA[n] and
+    APD.IDA[n].
+
+    ## ParameterType, Columnsize and DecimalDigits affect IPD.IDA[n].
+
+    ## ValueType, BufferLength, ParameterValue and Strlen_Or_Ind
+    affect APD.IDA[n].
+
+    ## If ParameterNumber is greater than an APD or IPD's
+    SQL_DESC_COUNT field, then that SQL_DESC_COUNT field gets the value in
+    ParameterNumber.
+
+    ## Sometimes passed values are ignored.
+
+    ## Values should be consistent, but some DBMSs won't perform a
+    consistency check until SQLExecute happens.
 
 In the charts which follow, we show the effects on particular APD or IPD
 fields. Notice that the usual effect is that the field simply receives the
@@ -1995,13 +2340,16 @@ value of a parameter that you pass, but that sometimes special calculations
 are necessary. Particularly complex are "datetime" and "interval" settings.
 
 SQLBindParameter effect on APD fields:
-Field                           gets
-SQL_DESC_PARAMETER_MODE         InputOutputMode
-SQL_DESC_TYPE                   ValueType
-SQL_DESC_OCTET_LENGTH           BufferLength
-SQL_DESC_DATA_POINTER           ParameterValue (an address)
-SQL_DESC_INDICATOR_POINTER      StrLen_or_Ind (an address)
-SQL_DESC_OCTET_LENGTH_POINTER   StrLen_or_Ind (an address)
+
+::
+
+    Field                           gets
+    SQL_DESC_PARAMETER_MODE         InputOutputMode
+    SQL_DESC_TYPE                   ValueType
+    SQL_DESC_OCTET_LENGTH           BufferLength
+    SQL_DESC_DATA_POINTER           ParameterValue (an address)
+    SQL_DESC_INDICATOR_POINTER      StrLen_or_Ind (an address)
+    SQL_DESC_OCTET_LENGTH_POINTER   StrLen_or_Ind (an address)
 
 For example, if you call SQLBindParameter with ParameterNumber=2,
 InputOutputMode = OUT, ValueType=1 (the code for CHAR <data type>),
@@ -2014,10 +2362,13 @@ address, SQL_DESC_INDICATOR_POINTER = x_char_buffer_indicator address and
 SQL_DESC_OCTET_LENGTH_POINTER = x_char_buffer_indicator address.
 
 SQLBindParameter effect on IPD.IDA fields for numeric <data type>s:
-Field                    gets
-SQL_DESC_TYPE            ParameterType
-SQL_DESC_PRECISION       Columnsize
-SQL_DESC_SCALE           DecimalDigits
+
+::
+
+    Field                    gets
+    SQL_DESC_TYPE            ParameterType
+    SQL_DESC_PRECISION       Columnsize
+    SQL_DESC_SCALE           DecimalDigits
 
 This chart shows the effect on IPD.IDA[n] fields if the value of the passed
 ParameterType is 2 or 3 or 4 or 5 or 6 or 7 or 8 (SQL_NUMERIC or SQL_DECIMAL
@@ -2029,12 +2380,15 @@ the settings are as follows: SQL_DESC_TYPE=3, SQL_DESC_PRECISION=5 and
 SQL_DESC_SCALE=4.
 
 SQLBindParameter effect IPD.IDA fields for datetime <data type>s:
-Field                            Gets for ...
-                                 91 (date)   92 (time)      93 (timestamp)
-SQL_DESC_TYPE                    9           9              9
-SQL_DESC_DATETIME_INTERVAL_CODE  1           2              3
-SQL_DESC_LENGTH (in positions)   Columnsize  Columnsize     Columnsize
-SQL_DESC_PRECISION (frac-sec)    0           DecimalDigits  DecimalDigits
+
+::
+
+    Field                            Gets for ...
+                                     91 (date)   92 (time)      93 (timestamp)
+    SQL_DESC_TYPE                    9           9              9
+    SQL_DESC_DATETIME_INTERVAL_CODE  1           2              3
+    SQL_DESC_LENGTH (in positions)   Columnsize  Columnsize     Columnsize
+    SQL_DESC_PRECISION (frac-sec)    0           DecimalDigits  DecimalDigits
 
 This chart shows the effect on IPD.IDA[n] fields if the value of the passed
 ParameterType is 91 or 92 or 93 (date or time or timestamp). SQL_DESC_LENGTH
@@ -2047,21 +2401,24 @@ SQL_DESC_DATETIME_INTERVAL_CODE=2, SQL_DESC_LENGTH=8 and SQL_DESC_PRECISION=0.
 
 SQLBindParameter effect on IPD.IDA fields for interval year/month <data
 type>s:
-Field                                 Gets for ...
-                                      101 (year)           102 (month)
-SQL_DESC_TYPE                         10                   10
-SQL_DESC_DATETIME_INTERVAL_CODE        1                    2
-SQL_DESC_LENGTH (in positions)        Columnsize           Columnsize
-SQL_DESC_PRECISION (frac-sec)          0                    0
-SQL_DESC_DATETIME_INTERVAL_PRECISION  (lead) Columnsize-1  Columnsize-1
 
-Field                                 Gets for ...
-                                      107 (year to month)
-SQL_DESC_TYPE                         10
-SQL_DESC_DATETIME_INTERVAL_CODE        7
-SQL_DESC_LENGTH (in positions)        Columnsize
-SQL_DESC_PRECISION (frac-sec)          0
-SQL_DESC_DATETIME_INTERVAL_PRECISION  Columnsize-4
+::
+
+    Field                                 Gets for ...
+                                          101 (year)           102 (month)
+    SQL_DESC_TYPE                         10                   10
+    SQL_DESC_DATETIME_INTERVAL_CODE        1                    2
+    SQL_DESC_LENGTH (in positions)        Columnsize           Columnsize
+    SQL_DESC_PRECISION (frac-sec)          0                    0
+    SQL_DESC_DATETIME_INTERVAL_PRECISION  (lead) Columnsize-1  Columnsize-1
+
+    Field                                 Gets for ...
+                                          107 (year to month)
+    SQL_DESC_TYPE                         10
+    SQL_DESC_DATETIME_INTERVAL_CODE        7
+    SQL_DESC_LENGTH (in positions)        Columnsize
+    SQL_DESC_PRECISION (frac-sec)          0
+    SQL_DESC_DATETIME_INTERVAL_PRECISION  Columnsize-4
 
 The charts show the effect on IPD.IDA[n] fields if the value of the passed
 ParameterType is 101 or 102 or 107 (interval year or interval month or
@@ -2077,27 +2434,30 @@ SQL_DESC_DATETIME_INTERVAL_PRECISION=(8-4)=4.
 
 SQLBindParameter effect on IPD.IDA fields for interval day/time <data type>s
 with no SECONDs:
-Field                                 103 (day)            104 (hour)
-SQL_DESC_TYPE                         10                   10
-SQL_DESC_DATETIME_INTERVAL_CODE        3                    4
-SQL_DESC_LENGTH (in positions)        Columnsize           Columnsize
-SQL_DESC_PRECISION (frac-sec)          0                    0
-SQL_DESC_DATETIME_INTERVAL_PRECISION  (lead) Columnsize-1  Columnsize-1
 
-Field                                 105 (minute)  108 (day to   109 (day to
-                                                         hour)         minute)
-SQL_DESC_TYPE                         10            10            10
-SQL_DESC_DATETIME_INTERVAL_CODE        5             8             9
-SQL_DESC_LENGTH (in positions)        Columnsize    Columnsize    Columnsize
-SQL_DESC_PRECISION (frac-sec)          0             0             0
-SQL_DESC_DATETIME_INTERVAL_PRECISION  Columnsize-1  Columnsize-4  Columnsize-7
+::
 
-Field                                 111 (hour to minute)
-SQL_DESC_TYPE                         10
-SQL_DESC_DATETIME_INTERVAL_CODE       11
-SQL_DESC_LENGTH (in positions)        Columnsize
-SQL_DESC_PRECISION (frac-sec)          0
-SQL_DESC_DATETIME_INTERVAL_PRECISION  Columnsize-4
+    Field                                 103 (day)            104 (hour)
+    SQL_DESC_TYPE                         10                   10
+    SQL_DESC_DATETIME_INTERVAL_CODE        3                    4
+    SQL_DESC_LENGTH (in positions)        Columnsize           Columnsize
+    SQL_DESC_PRECISION (frac-sec)          0                    0
+    SQL_DESC_DATETIME_INTERVAL_PRECISION  (lead) Columnsize-1  Columnsize-1
+
+    Field                                 105 (minute)  108 (day to   109 (day to
+                                                             hour)         minute)
+    SQL_DESC_TYPE                         10            10            10
+    SQL_DESC_DATETIME_INTERVAL_CODE        5             8             9
+    SQL_DESC_LENGTH (in positions)        Columnsize    Columnsize    Columnsize
+    SQL_DESC_PRECISION (frac-sec)          0             0             0
+    SQL_DESC_DATETIME_INTERVAL_PRECISION  Columnsize-1  Columnsize-4  Columnsize-7
+
+    Field                                 111 (hour to minute)
+    SQL_DESC_TYPE                         10
+    SQL_DESC_DATETIME_INTERVAL_CODE       11
+    SQL_DESC_LENGTH (in positions)        Columnsize
+    SQL_DESC_PRECISION (frac-sec)          0
+    SQL_DESC_DATETIME_INTERVAL_PRECISION  Columnsize-4
 
 The charts show the effect on IPD.IDA[n] fields if the value of the passed
 ParameterType is 103 or 104 or 105 or 108 or 109 or 111 (interval day or
@@ -2114,41 +2474,44 @@ SQL_DESC_DATETIME_INTERVAL_PRECISION=(3-1)=2.
 
 SQLBindParameter effect on IPD.IDA fields for interval day/time <data type>s
 with SECONDs:
-Field                                 Gets for ...
-                                      106 (second)
-SQL_DESC_TYPE                         10
-SQL_DESC_DATETIME_INTERVAL_CODE        6
-SQL_DESC_LENGTH (in positions)        Columnsize
-SQL_DESC_PRECISION (frac-sec)         DecimalDigits
-SQL_DESC_DATETIME_INTERVAL_PRECISION  (lead) Columnsize-DecimalDigits-2 or
-                                      Columnsize-1
 
-Field                                 Gets for ...
-                                      110 (day to second)
-SQL_DESC_TYPE                         10
-SQL_DESC_DATETIME_INTERVAL_CODE       10
-SQL_DESC_LENGTH (in positions)        Columnsize
-SQL_DESC_PRECISION (frac-sec)         DecimalDigits
-SQL_DESC_DATETIME_INTERVAL_PRECISION  Columnsize-DecimalDigits-11 or
-                                      Columnsize-10
+::
 
-Field                                 Gets for ...
-                                      112 (hour to second)
-SQL_DESC_TYPE                         10
-SQL_DESC_DATETIME_INTERVAL_CODE       12
-SQL_DESC_LENGTH (in positions)        Columnsize
-SQL_DESC_PRECISION (frac-sec)         DecimalDigits
-SQL_DESC_DATETIME_INTERVAL_PRECISION  Columnsize-DecimalDigits-8 or
-                                      Columnsize-7
+    Field                                 Gets for ...
+                                          106 (second)
+    SQL_DESC_TYPE                         10
+    SQL_DESC_DATETIME_INTERVAL_CODE        6
+    SQL_DESC_LENGTH (in positions)        Columnsize
+    SQL_DESC_PRECISION (frac-sec)         DecimalDigits
+    SQL_DESC_DATETIME_INTERVAL_PRECISION  (lead) Columnsize-DecimalDigits-2 or
+                                          Columnsize-1
 
-Field                                 Gets for ...
-                                      113 (minute to second)
-SQL_DESC_TYPE                         10
-SQL_DESC_DATETIME_INTERVAL_CODE       13
-SQL_DESC_LENGTH (in positions)        Columnsize
-SQL_DESC_PRECISION (frac-sec)         DecimalDigits
-SQL_DESC_DATETIME_INTERVAL_PRECISION  Columnsize-DecimalDigits-5 or
-                                      Columnsize-4
+    Field                                 Gets for ...
+                                          110 (day to second)
+    SQL_DESC_TYPE                         10
+    SQL_DESC_DATETIME_INTERVAL_CODE       10
+    SQL_DESC_LENGTH (in positions)        Columnsize
+    SQL_DESC_PRECISION (frac-sec)         DecimalDigits
+    SQL_DESC_DATETIME_INTERVAL_PRECISION  Columnsize-DecimalDigits-11 or
+                                          Columnsize-10
+
+    Field                                 Gets for ...
+                                          112 (hour to second)
+    SQL_DESC_TYPE                         10
+    SQL_DESC_DATETIME_INTERVAL_CODE       12
+    SQL_DESC_LENGTH (in positions)        Columnsize
+    SQL_DESC_PRECISION (frac-sec)         DecimalDigits
+    SQL_DESC_DATETIME_INTERVAL_PRECISION  Columnsize-DecimalDigits-8 or
+                                          Columnsize-7
+
+    Field                                 Gets for ...
+                                          113 (minute to second)
+    SQL_DESC_TYPE                         10
+    SQL_DESC_DATETIME_INTERVAL_CODE       13
+    SQL_DESC_LENGTH (in positions)        Columnsize
+    SQL_DESC_PRECISION (frac-sec)         DecimalDigits
+    SQL_DESC_DATETIME_INTERVAL_PRECISION  Columnsize-DecimalDigits-5 or
+                                          Columnsize-4
 
 The charts show the effect on IPD.IDA[n] fields if the value of the passed
 ParameterType is 106 or 110 or 112 or 113 (interval second or interval
@@ -2167,9 +2530,12 @@ as follows: SQL_DESC_TYPE=10, SQL_DESC_DATETIME_INTERVAL_CODE=10,
 SQL_DESC_LENGTH=12, SQL_DESC_PRECISION=0 and SQL_DESC_DATETIME_INTERVAL_PRECISION=(12-10)=2.
 
 SQLBindParameter Effect on IPD.IDA fields for other <data type>s:
-Field                               Gets
-SQL_DESC_TYPE                       ParameterType
-SQL_DESC_LENGTH (in chars or bits)  Columnsize
+
+::
+
+    Field                               Gets
+    SQL_DESC_TYPE                       ParameterType
+    SQL_DESC_LENGTH (in chars or bits)  Columnsize
 
 The chart shows the effect on IPD.IDA[n] fields if the value of the passed
 ParameterType is 1 or 12 or 14 or 15 or 30 or 40 (CHAR or CHAR VARYING or BIT
@@ -2180,16 +2546,24 @@ Implementation Parameter Desc), the settings are as follows: SQL_DESC_TYPE = 1
 and SQL_DESC_LENGTH = 50.
 
 Notes:
-      ## ValueType might be SQL_C_DEFAULT.
-      ## *StrLen_or_Ind might be SQL_DATA_AT_EXEC.
-      ## *StrLen_or_Ind might be SQL_DATA_NULL.
-      ## Datetime codings are an occasional source of confusion, because the
+
+## ValueType might be SQL_C_DEFAULT.
+
+## *StrLen_or_Ind might be SQL_DATA_AT_EXEC.
+
+## *StrLen_or_Ind might be SQL_DATA_NULL.
+
+## Datetime codings are an occasional source of confusion, because the
 specification was changed a few years ago. Make sure, especially, that
 ParameterType is one of the "Concise Codes" for datetimes.
-      ## The DBMS does not have to perform a consistency check at this time.
+
+## The DBMS does not have to perform a consistency check at this time.
 Contrast SQLSetDescField and SQLSetDescRec, which require a consistency check
 as soon as SQL_DATA_POINTER contents change to a non-zero value.
-      ## Beware if you prepare before you bind. For example:
+
+## Beware if you prepare before you bind. For example:
+
+::
 
    SQLPrepare(hstmt,"UPDATE Table_1 SET int_column =?+5;",SQL_NTS);
    SQLBindParameter(hstmt,...);
@@ -2206,39 +2580,54 @@ of the statements, but you could at least get rid of leftover bound parameters
 by calling SQLFreeStmt(...SQL_RESET_PARAMS).
 
 Example:
-...
-SQLHSTMT hstmt;
-SQLCHAR c[6];
-...
-SQLBindParameter(
-   hstmt,1,SQL_PARAM_MODE_INPUT,SQL_C_CHAR,SQL_CHAR,5,NULL,c,NULL,NULL);
-SQLExecDirect(hstmt,"UPDATE Table_1 SET col_1 = ?;",-3);
+
+::
+
+    ...
+    SQLHSTMT hstmt;
+    SQLCHAR c[6];
+    ...
+    SQLBindParameter(
+       hstmt,1,SQL_PARAM_MODE_INPUT,SQL_C_CHAR,SQL_CHAR,5,NULL,c,NULL,NULL);
+    SQLExecDirect(hstmt,"UPDATE Table_1 SET col_1 = ?;",-3);
 
 This example shows how to bind a character parameter. Here, SQLExecDirect
 contains an SQL statement with a single parameter marker (? is a parameter
 marker). Before executing the SQL statement, we must bind that parameter.
 Let's look at the SQLBindParameter arguments, in order:
-      ## [hstmt] is the stmt handle -- same as in the SQLExecDirect function.
-      ## [1] is ParameterNumber -- it's 1 because we're binding parameter number 1.
-      ## [SQL_PARAM_MODE_INPUT] is InputOutputMode -- this is "input" (from host to DBMS).
-      ## [SQL_C_CHAR] is ValueType -- SQL_C_CHAR = 1, that is, the input is a host 'char' field.
-      ## [SQL_CHAR] is ParameterType -- SQL_CHAR = 1, that is, the input is an SQL CHAR field.
-      ## [5] is Columnsize -- the input is 5 characters long.
-      ## [NULL] is DecimalDigits -- the value here doesn't matter because we're dealing with a char field.
-      ## [c] is ParameterValue -- what we're actually passing here is the address of c.
-      ## [NULL] is BufferLength -- the value here doesn't matter. (Note: Many
+
+## [hstmt] is the stmt handle -- same as in the SQLExecDirect function.
+
+## [1] is ParameterNumber -- it's 1 because we're binding parameter number 1.
+
+## [SQL_PARAM_MODE_INPUT] is InputOutputMode -- this is "input" (from host to DBMS).
+
+## [SQL_C_CHAR] is ValueType -- SQL_C_CHAR = 1, that is, the input is a host 'char' field.
+
+## [SQL_CHAR] is ParameterType -- SQL_CHAR = 1, that is, the input is an SQL CHAR field.
+
+## [5] is Columnsize -- the input is 5 characters long.
+
+## [NULL] is DecimalDigits -- the value here doesn't matter because we're dealing with a char field.
+
+## [c] is ParameterValue -- what we're actually passing here is the address of c.
+
+## [NULL] is BufferLength -- the value here doesn't matter. (Note: Many
 programmers would pass [6] here -- i.e.: the number of octets in c. We deplore
 this misleading practice. If the parameter mode is SQL_PARAM_MODE_INPUT, the
 "octet length" is not determined by what is passed for BufferLength.)
-      ## [NULL] is *StrLen_or_Ind -- in this case we won't supply an indicator pointer.
 
-...
-SQLHSTMT hstmt;
-SQLCHAR date [] = "1994-01-31";
-...
-SQLBindParameter(
-   hstmt,1,SQL_PARAM_MODE_INPUT,SQL_C_CHAR,SQL_TYPE_DATE,10,0,date,11,0);
-SQLExecDirect(hstmt,"SELECT * FROM Table_1 WHERE date_field = ?;",SQL_NTS);
+## [NULL] is *StrLen_or_Ind -- in this case we won't supply an indicator pointer.
+
+::
+
+    ...
+    SQLHSTMT hstmt;
+    SQLCHAR date [] = "1994-01-31";
+    ...
+    SQLBindParameter(
+       hstmt,1,SQL_PARAM_MODE_INPUT,SQL_C_CHAR,SQL_TYPE_DATE,10,0,date,11,0);
+    SQLExecDirect(hstmt,"SELECT * FROM Table_1 WHERE date_field = ?;",SQL_NTS);
 
 This example shows how to bind a date parameter. This is much like the
 previous example, but this time ParameterType is SQL_TYPE_DATE. (Note:
@@ -2247,68 +2636,75 @@ because the number of positions in a date is 10: "yyyy-mm-dd".) In such
 bindings, there is an implicit CAST to DATE. One of the strengths of
 SQLBindParameter is that it makes implicit casts easy. So here's what most
 programmers do:
-      ## Store everything in the host program as character strings.
-      ##  Pass ValueType = SQL_C_CHAR for every SQLBindParameter call.
-      ## Set ParameterType = desired SQL <data type>, forcing the DBMS to perform appropriate conversions.
 
-...
-SQLHSTMT    hstmt;
-SQLINTEGER  i;                /* sqlcli.h has "typedef long SQLINTEGER" */
-SQLINTEGER  i_indicator;
-...
-SQLPrepare(hstmt,"INSERT INTO Table_1 VALUES (?);",SQL_NTS);
-SQLBindParameter(
-      hstmt,                  /* hstmt = "handle of stmt" */
-      1,                      /* ParameterNumber = "parameter #1" */
-      SQL_PARAM_MODE_INPUT,   /* InputOutputType = "input" */
-      SQL_C_LONG,             /* ValueType = "long int" (as seen from C) */
-      SQL_INTEGER,            /* ParameterType = "int" (as seen from SQL) */
-      NULL,                   /* Columnsize "don't care" */
-      NULL,                   /* DecimalDigits "don't care" */
-      &i,                     /* ParameterValue "address of input data" */
-      NULL,                   /* BufferLength "don't care" */
-      &i_indicator);          /* *StrLen_or_Ind "address of indicator" */
-i_indicator=SQL_NULL_DATA;    /* sqlcli.h has "#define SQL_NULL_DATA -1" */
-SQLExecute(hstmt);
+## Store everything in the host program as character strings.
+
+##  Pass ValueType = SQL_C_CHAR for every SQLBindParameter call.
+
+## Set ParameterType = desired SQL <data type>, forcing the DBMS to perform appropriate conversions.
+
+::
+
+    ...
+    SQLHSTMT    hstmt;
+    SQLINTEGER  i;                /* sqlcli.h has "typedef long SQLINTEGER" */
+    SQLINTEGER  i_indicator;
+    ...
+    SQLPrepare(hstmt,"INSERT INTO Table_1 VALUES (?);",SQL_NTS);
+    SQLBindParameter(
+          hstmt,                  /* hstmt = "handle of stmt" */
+          1,                      /* ParameterNumber = "parameter #1" */
+          SQL_PARAM_MODE_INPUT,   /* InputOutputType = "input" */
+          SQL_C_LONG,             /* ValueType = "long int" (as seen from C) */
+          SQL_INTEGER,            /* ParameterType = "int" (as seen from SQL) */
+          NULL,                   /* Columnsize "don't care" */
+          NULL,                   /* DecimalDigits "don't care" */
+          &i,                     /* ParameterValue "address of input data" */
+          NULL,                   /* BufferLength "don't care" */
+          &i_indicator);          /* *StrLen_or_Ind "address of indicator" */
+    i_indicator=SQL_NULL_DATA;    /* sqlcli.h has "#define SQL_NULL_DATA -1" */
+    SQLExecute(hstmt);
 
 This example shows how to bind a nullable integer parameter. Here, the value
 of i does not matter because the indicator variable's value is -1. Ultimately,
 what gets inserted is a NULL value.
 
-#include   "sqlcli.h"
-#include    <math.h>
-#include    <stdio.h>
-input_string char[20];
-SQLHENV     henv;
-SQLHDBC     hdbc;
-SQLHSTMT    hstmt;
-SQLSMALLINT experiment_number;
-SQLREAL   measurement;
-void main ()
-{
- SQLAllocHandle(SQL_HANDLE_ENV,NULL,&henv);
- SQLAllocHandle(SQL_HANDLE_DBC,henv,&hdbc);
- SQLConnect(hdbc,"Exp",SQL_NTS);
- SQLAllocHandle(SQL_HANDLE_HSTMT,hdbc,&hstmt);
- SQLExecDirect(
-   hstmt,"CREATE TABLE Experiments(no INT,measurement REAL);",SQL_NTS);
- SQLPrepare(hstmt,"INSERT INTO Experiments VALUES (?,?);",SQL_NTS);
- SQLBindParameter(
-   hstmt,1,SQL_PARAM_MODE_INPUT,SQL_C_SHORT,SQL_SMALLINT,0,0,
-   &experiment_no,0,0);
-SQLBindParameter(
-   hstmt,2,SQL_PARAM_MODE_INPUT,SQL_C_FLOAT,SQL_REAL,24,0,&measurement,0,0);
- for (experiment_no=0; experiment_no<10; ++experiment_no) {
-   printf("Enter measurement:\n");
-   gets(input_string);
-   measurement=atof(input_string);
-   SQLExecute(hstmt); }
- SQLEndTran(SQL_HANDLE_DBC,hdbc,SQL_COMMIT);
- SQLFreeHandle(SQL_HANDLE_STMT,hstmt);
- SQLDisconnect(hdbc);
- SQLFreeHandle(SQL_HANDLE_DBC,hdbc);
- SQLFreeHandle(SQL_HANDLE_ENV,henv);
-}
+::
+
+    #include   "sqlcli.h"
+    #include    <math.h>
+    #include    <stdio.h>
+    input_string char[20];
+    SQLHENV     henv;
+    SQLHDBC     hdbc;
+    SQLHSTMT    hstmt;
+    SQLSMALLINT experiment_number;
+    SQLREAL   measurement;
+    void main ()
+    {
+     SQLAllocHandle(SQL_HANDLE_ENV,NULL,&henv);
+     SQLAllocHandle(SQL_HANDLE_DBC,henv,&hdbc);
+     SQLConnect(hdbc,"Exp",SQL_NTS);
+     SQLAllocHandle(SQL_HANDLE_HSTMT,hdbc,&hstmt);
+     SQLExecDirect(
+       hstmt,"CREATE TABLE Experiments(no INT,measurement REAL);",SQL_NTS);
+     SQLPrepare(hstmt,"INSERT INTO Experiments VALUES (?,?);",SQL_NTS);
+     SQLBindParameter(
+       hstmt,1,SQL_PARAM_MODE_INPUT,SQL_C_SHORT,SQL_SMALLINT,0,0,
+       &experiment_no,0,0);
+    SQLBindParameter(
+       hstmt,2,SQL_PARAM_MODE_INPUT,SQL_C_FLOAT,SQL_REAL,24,0,&measurement,0,0);
+     for (experiment_no=0; experiment_no<10; ++experiment_no) {
+       printf("Enter measurement:\n");
+       gets(input_string);
+       measurement=atof(input_string);
+       SQLExecute(hstmt); }
+     SQLEndTran(SQL_HANDLE_DBC,hdbc,SQL_COMMIT);
+     SQLFreeHandle(SQL_HANDLE_STMT,hstmt);
+     SQLDisconnect(hdbc);
+     SQLFreeHandle(SQL_HANDLE_DBC,hdbc);
+     SQLFreeHandle(SQL_HANDLE_ENV,henv);
+    }
 
 This example shows how to bind two parameters in a loop: it contains calls to
 SQLPrepare and SQLBindParameter before the loop starts. Note that, for the
@@ -2323,17 +2719,24 @@ than SQL_PARAM_MODE_INPUT. ODBC, in addition to the actions described for
 standard SQL, will change ARD.IDA[n].SQL_DESC_SCALE and ARD.IDA[n].SQL_DESC_PRECISION to "default" values if ARD.IDA[n].SQL_DESC_TYPE becomes SQL_NUMERIC.
 
 Who should populate the IPD?:
+
 We've had to repeat, tiresomely, the phrase "if your DBMS supports
 auto-population of the IPD ..." because this is a major factor of the CLI
 that's implementation-defined. Let's have a last look at what it means.
-      ## If the DBMS supports auto-population of the IPD, then:
-            ## You can find this out by calling SQLGetConnectAttr.
-            ## You can't change the setting by calling SQLSetConnectAttr.
-            ## The IPD IDA fields will be populated by SQLPrepare.
+
+## If the DBMS supports auto-population of the IPD, then:
+
+    ## You can find this out by calling SQLGetConnectAttr.
+
+    ## You can't change the setting by calling SQLSetConnectAttr.
+
+    ## The IPD IDA fields will be populated by SQLPrepare.
 
 The action is analogous to what SQLPrepare does to an IRD (for a SELECT
 statement), so what's the problem? Why don't all DBMSs support
 auto-population? After all, in an SQL statement like this:
+
+::
 
    UPDATE Table_1 SET col_1 = 5.1E4 + ?
 
@@ -2352,6 +2755,9 @@ set up the IPD at the time you write your application.
 SQLColAttribute
 
 Function Prototype:
+
+::
+
  SQLRETURN SQLColAttribute(
    SQLHSTMT hstmt,                  /* 32-bit input */
    SQLSMALLINT ColumnNumber,        /* 16-bit input, base 1, = Column # in result data corresponds to IRD.IDA[n]
@@ -2363,38 +2769,46 @@ Function Prototype:
    );
 
 Job:
+
 Get one field value from an IRD.
 
 Algorithm:
-      If (it's an "ITEM")
-       /* There must be an open Cursor */
-If (FieldIdentifier is ..._CATALOG or ..._SCHEMA or ..._NAME)
- /* The return is a character string, it goes to CharacterAttribute */
- SQLGetDescField (<descriptor handle>,ColumnNumber,FieldIdentifier,
-      CharacterAttribute,BufferLength,&StringLength);
-Else If (FieldIdentifier is ..._TYPE)
- /* The return is an integer, it goes to NumericAttribute */
- If (datetime)
-   NumericAttribute = "concise code value"
- If (interval)
-   NumericAttribute = "concise code value"
- Else
-   NumericAttribute = <data type>
-Else
- SQLGetDescField(
-   <descriptor handle>,ColumnNumber,FieldIdentifier,&NumericAttribute,
-   BufferLength,&StringLength);
+
+::
+
+          If (it's an "ITEM")
+           /* There must be an open Cursor */
+    If (FieldIdentifier is ..._CATALOG or ..._SCHEMA or ..._NAME)
+     /* The return is a character string, it goes to CharacterAttribute */
+     SQLGetDescField (<descriptor handle>,ColumnNumber,FieldIdentifier,
+          CharacterAttribute,BufferLength,&StringLength);
+    Else If (FieldIdentifier is ..._TYPE)
+     /* The return is an integer, it goes to NumericAttribute */
+     If (datetime)
+       NumericAttribute = "concise code value"
+     If (interval)
+       NumericAttribute = "concise code value"
+     Else
+       NumericAttribute = <data type>
+    Else
+     SQLGetDescField(
+       <descriptor handle>,ColumnNumber,FieldIdentifier,&NumericAttribute,
+       BufferLength,&StringLength);
 
 Notes:
-      ## SQLColAttribute stands for "[get] Column Attribute". The word
+
+## SQLColAttribute stands for "[get] Column Attribute". The word
 "attribute" here means "a field in the Implementation Row Descriptor (IRD)".
-      ## The IRD is populated by preparing or executing a SELECT statement.
+
+## The IRD is populated by preparing or executing a SELECT statement.
 For example, when displaying on the screen, it is useful to know the <Column
 name> and the <data type>. Those are two of the pieces of information that
 SQLColAttribute will provide you.
-      ## All of the information that SQLColAttribute returns can also be found
+
+## All of the information that SQLColAttribute returns can also be found
 via the SQLGetDescField function.
-      ## With some DBMSs, it is a bad idea to retrieve IRD fields after
+
+## With some DBMSs, it is a bad idea to retrieve IRD fields after
 SQLPrepare, but before SQLExecute. The reason, once again, is that the driver
 may not have an easy time querying the data source for such "metadata"
 information. In this case, the driver may actually execute a dummy SQL
@@ -2406,6 +2820,9 @@ is executed. If the SQLExecute function call is in a loop, then you should set
 flags appropriately so that the IRD-information function is only called once.
 
 Example:
+
+::
+
       #include "sqlcli.h"
       ...
       name  char[10];
@@ -2441,22 +2858,29 @@ StringLength parameters. These differences have now been resolved.
 SQLDescribeCol
 
 Function Prototype:
- SQLRETURN SQLDescribeCol(
-   SQLHSTMT hstmt,                  /* 32-bit input */
-   SQLSMALLINT ColumnNumber,        /* 16-bit input */
-   SQLCHAR *ColumnName,             /* CHAR* output */
-   SQLSMALLINT BufferLength,        /* 16-bit input */
-   SQLSMALLINT *NameLength,         /* 16-bit output */
-   SQLSMALLINT *DataType,           /* 16-bit output */
-   SQLINTEGER *Columnsize,          /* 32-bit output */
-   SQLSMALLINT *DecimalDigits,      /* 16-bit output */
-   SQLSMALLINT *Nullable);          /* 16-bit output */
+
+::
+
+     SQLRETURN SQLDescribeCol(
+       SQLHSTMT hstmt,                  /* 32-bit input */
+       SQLSMALLINT ColumnNumber,        /* 16-bit input */
+       SQLCHAR *ColumnName,             /* CHAR* output */
+       SQLSMALLINT BufferLength,        /* 16-bit input */
+       SQLSMALLINT *NameLength,         /* 16-bit output */
+       SQLSMALLINT *DataType,           /* 16-bit output */
+       SQLINTEGER *Columnsize,          /* 32-bit output */
+       SQLSMALLINT *DecimalDigits,      /* 16-bit output */
+       SQLSMALLINT *Nullable);          /* 16-bit output */
 
 Job:
+
 Get the following information about one Column in a result set: the <Column
 name>, the <data type>, the Column size, the scale and whether the Column might contain nulls.
 
 Algorithm:
+
+::
+
       If (no statement was prepared with hstmt)
        return error: HY010 CLI-specific condition-function sequence error
       Find the IRD for hstmt.
@@ -2502,20 +2926,24 @@ Algorithm:
       Set *Nullable = IRD.IDA[ColumnNumber].SQL_DESC_NULLABLE
 
 Notes:
-      ## Most of the information that SQLDescribeCol returns can  also be
+
+## Most of the information that SQLDescribeCol returns can  also be
 found via the SQLGetDescField function, or via the SQLColAttribute function.
 So SQLDescribeCol is a redundancy. It continues to be popular because it's a
 handy wrapper: the information that SQLDescribeCol returns is what's commonly
 needed for simple applications.
-      ## The SQL Standard does not provide for the possibility that people may
+
+## The SQL Standard does not provide for the possibility that people may
 wish to pass null pointers for unwanted parameters.
-      ## Sometimes SQLDescribeCol is called in order to provide information
+
+## Sometimes SQLDescribeCol is called in order to provide information
 for a reporting program. In that case, ColumnName and NameLength are used for
 the report-Column headers, DataType is used to determine whether right
 justification is needed, ColumnLength+2 is the maximum Column width,
 DecimalDigits helps COBOL programs decide what the totallers' PICs are and
 Nullable, if true, may cause creation of a separate "null?" Column.
-      ## Sometimes SQLDescribeCol is called in order to provide information
+
+## Sometimes SQLDescribeCol is called in order to provide information
 that can be used by SQLBindCol. In that case, DataType can be passed directly,
 ColumnLength can be passed directly, ColumnLength can be used to decide how
 big a buffer must be malloc'd, DecimalDigits can be passed directly and
@@ -2523,67 +2951,75 @@ Nullable can be used to decide whether an indicator is necessary.
 However, such a scheme cannot be carried out without some advance checking.
 For example, not all <data type>s can be passed directly -- some must be CAST
 to a "char" with length equal to ColumnLength (usually).
-      ## The source field for Columnsize will depend on the <data type>. This
+
+## The source field for Columnsize will depend on the <data type>. This
 chart shows what the effects are of the calculation in the "Algorithm" section:
 
-<data type>            field                  example             example
-                                              definition          Columnsize
-CHAR, VARCHAR, BLOB    SQL_DESC_OCTET_LENGTH  CHAR(18)            18
-DECIMAL, NUMERIC       SQL_DESC_PRECISION     DECIMAL(5,3)         5
-SMALLINT               SQL_DESC_PRECISION [1] SMALLINT             5
-INTEGER                SQL_DESC_PRECISION [1] INTEGER             10
-FLOAT                  SQL_DESC_PRECISION [1] FLOAT(53)           15
-REAL                   SQL_DESC_PRECISION [1] REAL                 7
-DOUBLE PRECISION       SQL_DESC_PRECISION [1] DOUBLE PRECISION    15
-BIT, BIT VARYING       SQL_DESC_LENGTH        BIT(6)               6
-DATE, TIME, TIMESTAMP  SQL_DESC_LENGTH        DATE                10
-INTERVAL               SQL_DESC_LENGTH        INTERVAL SECOND(1)   4 [2]
+::
 
-      * Note 1: This <data type> usually has a binary-radix precision, so the
+    <data type>            field                  example             example
+                                                  definition          Columnsize
+    CHAR, VARCHAR, BLOB    SQL_DESC_OCTET_LENGTH  CHAR(18)            18
+    DECIMAL, NUMERIC       SQL_DESC_PRECISION     DECIMAL(5,3)         5
+    SMALLINT               SQL_DESC_PRECISION [1] SMALLINT             5
+    INTEGER                SQL_DESC_PRECISION [1] INTEGER             10
+    FLOAT                  SQL_DESC_PRECISION [1] FLOAT(53)           15
+    REAL                   SQL_DESC_PRECISION [1] REAL                 7
+    DOUBLE PRECISION       SQL_DESC_PRECISION [1] DOUBLE PRECISION    15
+    BIT, BIT VARYING       SQL_DESC_LENGTH        BIT(6)               6
+    DATE, TIME, TIMESTAMP  SQL_DESC_LENGTH        DATE                10
+    INTERVAL               SQL_DESC_LENGTH        INTERVAL SECOND(1)   4 [2]
+
+* Note 1: This <data type> usually has a binary-radix precision, so the
 value in SQL_DESC_PRECISION is in bits. When this is the case, the DBMS
 converts to the number of decimal digits that would be needed to represent the
 <data type>'s largest literal (not including space for sign, decimal point or exponent).
-      * Note 2: The INTERVAL example is based on an assumption that the
+
+* Note 2: The INTERVAL example is based on an assumption that the
 leading field precision is 2; the specified fractional precision is 1, so a
 typical <literal> would be INTERVAL '-33.5' SECOND.
-      ## Old-timers may recognize that the fields retrieved by SQLDescribeCol
+
+## Old-timers may recognize that the fields retrieved by SQLDescribeCol
 are analogous to the fields of IBM DB2's SQLDA (SQL descriptor area), used for
 embedded SQL DESCRIBE statements in days of yore.
 
 Example:
- #include "sqlcli.h"
- #include stdlib.h
- SQLHSTMT hstmt;
- SQLCHAR column_name[128+1];
- SQLSMALLINT column_name_length;
- SQLSMALLINT data_type;
- SQLINTEGER column_size;
- SQLSMALLINT decimal_digits;
- SQLSMALLINT nullable;
- SQLCHAR *lpBuffer;
- ...
- SQLExecDirect("SELECT col_1 FROM Table_1",SQL_NTS);
- ...
- SQLDescribeCol(
-      hstmt,                        /* handle of stmt */
-      1,                            /* Column number */
-      column_name,                  /* where to put Column name */
-      sizeof(column_name),          /* = 128+1 ... allow for \0 */
-      &column_name_length,          /* where to put name length */
-      &data_type,                   /* where to put <data type> */
-      &column_size,                 /* where to put Column size */
-      &decimal_digits,              /* where to put scale/frac precision */
-      &nullable);                   /* where to put null/not-null flag */
- /* Allocate a buffer that we will fetch into. */
- switch (data_type) {
-   case SQL_BIT:              lpBuffer = malloc(column_size/8+1);
-   case SQL_REAL:             lpBuffer = malloc(column_size+6+1);
-   case SQL_DOUBLE_PRECISION: lpBuffer = malloc(column_size+7+1);
-   case SQL_CHAR:             lpBuffer = malloc(column_size+1);
-   case SQL_DECIMAL:          lpBuffer = malloc(column_size+2+1);
-   case SQL_INTEGER:          lpBuffer = malloc(column_size+1+1);
-   ...
-   }
+
+::
+
+     #include "sqlcli.h"
+     #include stdlib.h
+     SQLHSTMT hstmt;
+     SQLCHAR column_name[128+1];
+     SQLSMALLINT column_name_length;
+     SQLSMALLINT data_type;
+     SQLINTEGER column_size;
+     SQLSMALLINT decimal_digits;
+     SQLSMALLINT nullable;
+     SQLCHAR *lpBuffer;
+     ...
+     SQLExecDirect("SELECT col_1 FROM Table_1",SQL_NTS);
+     ...
+     SQLDescribeCol(
+          hstmt,                        /* handle of stmt */
+          1,                            /* Column number */
+          column_name,                  /* where to put Column name */
+          sizeof(column_name),          /* = 128+1 ... allow for \0 */
+          &column_name_length,          /* where to put name length */
+          &data_type,                   /* where to put <data type> */
+          &column_size,                 /* where to put Column size */
+          &decimal_digits,              /* where to put scale/frac precision */
+          &nullable);                   /* where to put null/not-null flag */
+     /* Allocate a buffer that we will fetch into. */
+     switch (data_type) {
+       case SQL_BIT:              lpBuffer = malloc(column_size/8+1);
+       case SQL_REAL:             lpBuffer = malloc(column_size+6+1);
+       case SQL_DOUBLE_PRECISION: lpBuffer = malloc(column_size+7+1);
+       case SQL_CHAR:             lpBuffer = malloc(column_size+1);
+       case SQL_DECIMAL:          lpBuffer = malloc(column_size+2+1);
+       case SQL_INTEGER:          lpBuffer = malloc(column_size+1+1);
+       ...
+       }
 
 ODBC: The SQLDescribeCol function has been around since ODBC 1.0. The
 differences between the ODBC and Standard's specifications are only minor.
@@ -2595,36 +3031,48 @@ ColumnLength of datetime, interval or bit <data type>s.
 SQLNumResultCols
 
 Function Prototype:
- SQLRETURN SQLNumResultCols(
-   SQLHSTMT hstmt,                  /* 32-bit input */
-   SQLSMALLINT *ColumnCount);       /* pointer to 16-bit output */
-   );
+
+::
+
+     SQLRETURN SQLNumResultCols(
+       SQLHSTMT hstmt,                  /* 32-bit input */
+       SQLSMALLINT *ColumnCount);       /* pointer to 16-bit output */
+       );
 
 Job:
+
 Find out how many Columns are in a result set.
 
 Algorithm:
+
 If (there is no prepared statement associated with StatementHandle)
 return error: HY010 CLI-specific condition-function sequence error
 Set *ColumnCount = IRD.SQL_DESC_COUNT
 
 Notes:
-      ## All this function does is retrieve the "count" field in the IRD,
+
+## All this function does is retrieve the "count" field in the IRD,
 which is zero if the last prepared/executed SQL statement was a non-query, or
 -- if the last prepared/executed SQL statement was a query -- is the number of
 Columns in the select list.
-      ## SQLNumResultCols(hstmt,&column_count) is effectively the same as:
+
+## SQLNumResultCols(hstmt,&column_count) is effectively the same as:
+
+::
 
    SQLGetStmtAttr(hstmt,SQL_ATTR_IMP_ROW_DESC,&hdesc,NULL,NULL);
    SQLGetDescField(hdesc,NULL,SQL_DESC_COUNT,&column_count,NULL,NULL);
 
-      ## Some applications call SQLNumResultCols in order to find out whether
+## Some applications call SQLNumResultCols in order to find out whether
 the last executed statement was a query. If it was something else -- INSERT,
 for instance -- then *ColumnCount would be 0. This is a reliable test, but
 SQL3 programmers can use desc.SQL_DESC_DYNAMIC_FUNCTION_CODE for a slightly
 more precise answer.
 
 Example:
+
+::
+
       #include "sqlcli.h"
       SQLSMALLINT column_count;
       ...
@@ -2641,82 +3089,101 @@ ODBC: The SQLNumResultCols function has been around since ODBC 1.0.
 SQLGetParamData
 
 Function Prototype:
- SQLRETURN SQLGetParamData(
-   SQLHSTMT StatementHandle,        /* 32-bit input */
-   SQLSMALLINT ParameterNumber,     /* 16-bit input */
-   SQLSMALLINT TargetType,          /* 16-bit input */
-   SQLPOINTER TargetValue,          /* ANY* output */
-   SQLINTEGER BufferLength,         /* 32-bit input */
-   SQLINTEGER *StrLen_or_Ind        /* 32-bit output */
-   );
+
+::
+
+     SQLRETURN SQLGetParamData(
+       SQLHSTMT StatementHandle,        /* 32-bit input */
+       SQLSMALLINT ParameterNumber,     /* 16-bit input */
+       SQLSMALLINT TargetType,          /* 16-bit input */
+       SQLPOINTER TargetValue,          /* ANY* output */
+       SQLINTEGER BufferLength,         /* 32-bit input */
+       SQLINTEGER *StrLen_or_Ind        /* 32-bit output */
+       );
 
 Job:
+
 Get the value of an unbound <output parameter.
 
 SQLGetParamData is rare. You only need it if all these things are true:
-      ## You have executed an SQL statement which begins with the word CALL.
-      ## The called procedure has "output parameters" (direction of flow is from DBMS to host-language buffers).
-      ## You did not bind the output parameters in advance with SQLBindParameter,SQLSetDescRec or SQLSetDescField.
+
+## You have executed an SQL statement which begins with the word CALL.
+
+## The called procedure has "output parameters" (direction of flow is from DBMS to host-language buffers).
+
+## You did not bind the output parameters in advance with SQLBindParameter,SQLSetDescRec or SQLSetDescField.
 
 Algorithm:
-If the last statement for hstmt was not a CALL statement:
- return error: HY010 CLI-specific condition-function sequence error
-If the parameter referred to by ParameterNumber doesn't exist, or was bound as
-"input" parameter, or (implementation-defined restriction) has already been
-transferred:
- return error: 07009 dynamic SQL error-invalid descriptor index
-Transfer data from DBMS internal buffers to variables in the host-language
-program. The algorithm is the same as the SQLGetData algorithm; the only
-important difference is that the desc is an APD rather than an ARD.
+
+::
+
+    If the last statement for hstmt was not a CALL statement:
+     return error: HY010 CLI-specific condition-function sequence error
+    If the parameter referred to by ParameterNumber doesn't exist, or was bound as
+    "input" parameter, or (implementation-defined restriction) has already been
+    transferred:
+     return error: 07009 dynamic SQL error-invalid descriptor index
+    Transfer data from DBMS internal buffers to variables in the host-language
+    program. The algorithm is the same as the SQLGetData algorithm; the only
+    important difference is that the desc is an APD rather than an ARD.
 
 Note:
-      ## It is implementation-defined whether the parameters must be accessed
+
+## It is implementation-defined whether the parameters must be accessed
 in ascending parameter-number order. You can call
 SQLGetInfo(...SQL_GETPARAMDATA_EXTENSIONS...) to find out whether your DBMS
 supports getting any parameter in any order.
-      ## The "source" is already described in the IPD; you only need to pass a
+
+## The "source" is already described in the IPD; you only need to pass a
 description of the "target".
-      ## The possible values of TargetType are:
-SQL_C_CHARACTER    1
-SQL_C_INTEGER      4
-SQL_C_SMALLINT     5
-SQL_C_REAL         7
-SQL_C_DOUBLE       8
-SQL_C_DEFAULT     99 (use IPD <data type>, precision, scale)
-SQL_APD_TYPE     -99 (APD specifies <data type> already)
-We recommend against using SQL_C_DEFAULT because "type, precision, scale" is
-often insufficient information.
+
+## The possible values of TargetType are:
+
+::
+
+    SQL_C_CHARACTER    1
+    SQL_C_INTEGER      4
+    SQL_C_SMALLINT     5
+    SQL_C_REAL         7
+    SQL_C_DOUBLE       8
+    SQL_C_DEFAULT     99 (use IPD <data type>, precision, scale)
+    SQL_APD_TYPE     -99 (APD specifies <data type> already)
+    We recommend against using SQL_C_DEFAULT because "type, precision, scale" is
+    often insufficient information.
 
 Example:
+
 Scenario: You have a procedure named Withdraw. It takes five parameters. The
 first three parameters are input parameters. The fourth parameter is an output
 parameter which is pre-bound with SQLBindParameter. The fifth parameter is an
 output parameter which you will pick up with SQLGetParamData.
 
-SQLCHAR      amount[10];
-SQLINTEGER   teller_id;
-SQLINTEGER   customer_id;
-SQLCHAR      message1[101];
-SQLCHAR      message2[101];
-SQLINTEGER   message2_indicator;
-...
-SQLBindParameter(
- hstmt,1,SQL_PARAM_MODE_INPUT,SQL_C_CHAR,SQL_DECIMAL,6,2,amount,0,NULL);
-SQLBindParameter(
- hstmt,2,SQL_PARAM_MODE_INPUT,SQL_C_LONG,SQL_INTEGER,0,0,&teller_id,0,NULL);
-SQLBindParameter(
- hstmt,3,SQL_PARAM_MODE_INPUT,SQL_C_LONG,SQL_INTEGER,0,0,&customer_id,0,NULL);
-SQLBindParameter(
- hstmt,4,SQL_PARAM_MODE_OUTPUT,SQL_CHAR,SQL_C_CHAR,100,0,message1,0,NULL);
-strcpy(amount,"15.33");
-teller_id = 44;
-customer_id = 90182;
-SQLExecDirect(hstmt,"CALL Withdraw (?,?,?,?,?);",24);
-SQLGetParamData(hstmt,5,
-      SQL_C_DEFAULT,                /* TargetType */
-      message2,                     /* TargetValue */
-      100,                          /* BufferLength */
-      &message2_indicator);         /* *StrLen_or_Ind */
+::
+
+    SQLCHAR      amount[10];
+    SQLINTEGER   teller_id;
+    SQLINTEGER   customer_id;
+    SQLCHAR      message1[101];
+    SQLCHAR      message2[101];
+    SQLINTEGER   message2_indicator;
+    ...
+    SQLBindParameter(
+     hstmt,1,SQL_PARAM_MODE_INPUT,SQL_C_CHAR,SQL_DECIMAL,6,2,amount,0,NULL);
+    SQLBindParameter(
+     hstmt,2,SQL_PARAM_MODE_INPUT,SQL_C_LONG,SQL_INTEGER,0,0,&teller_id,0,NULL);
+    SQLBindParameter(
+     hstmt,3,SQL_PARAM_MODE_INPUT,SQL_C_LONG,SQL_INTEGER,0,0,&customer_id,0,NULL);
+    SQLBindParameter(
+     hstmt,4,SQL_PARAM_MODE_OUTPUT,SQL_CHAR,SQL_C_CHAR,100,0,message1,0,NULL);
+    strcpy(amount,"15.33");
+    teller_id = 44;
+    customer_id = 90182;
+    SQLExecDirect(hstmt,"CALL Withdraw (?,?,?,?,?);",24);
+    SQLGetParamData(hstmt,5,
+          SQL_C_DEFAULT,                /* TargetType */
+          message2,                     /* TargetValue */
+          100,                          /* BufferLength */
+          &message2_indicator);         /* *StrLen_or_Ind */
 
 A possible result from this code would be: message2 contains the null-terminated string "abc" and message2_indicator contains 3.
 

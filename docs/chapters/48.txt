@@ -19,6 +19,9 @@ SQLDataSources
 ==============
 
 Function Prototype:
+
+::
+
   SQLRETURN SQLDataSources(
     SQLHENV henv,                   /* 32-bit input */
     SQLSMALLINT Direction,          /* 16-bit input, =
@@ -32,9 +35,13 @@ Function Prototype:
     );
 
 Job:
+
 Return names of data sources -- that is, servers or databases.
 
 Algorithm:
+
+::
+
       If (henv is not really an env handle or env is skeleton)
         return error: CLI-specific condition-invalid handle
       Empty the diagnostics area associated with henv.
@@ -52,13 +59,15 @@ Algorithm:
       /* The usual Character Set Retrieval rules apply. */
 
 Notes:
-      ## The SQL Standard is firm about the meaning of the term "data source":
+
+## The SQL Standard is firm about the meaning of the term "data source":
 the SQLDataSources function is supposed to return names of SQL-servers. For
 some single-tier desktop DBMSs (which are not based on a client-server
 architecture), it is more reasonable to expect that the names returned here
 will be names of databases. In any case, the name is something you can use in
 a SQLConnect call.
-      ## You would use this function for browsing ("What servers can I connect
+
+## You would use this function for browsing ("What servers can I connect
 to?") or for checking availability ("Is server X up yet?"). In many commercial
 installations the application is tightly linked to a particular server, so
 calling SQLDataSources has no point -- either you can call SQLConnect and
@@ -66,13 +75,16 @@ succeed, or you cannot. There is a big implementation-defined question here,
 namely, how does anybody know what servers are out there? That depends on how
 the system is configured, but -- sometimes -- there is a query to see what
 names are established on the network, or a directory search for Catalog files.
-      ## In theory, the maximum length of ServerName should be the
+
+## In theory, the maximum length of ServerName should be the
 implementation-defined maximum length of a VARCHAR string. In practice, the
 maximum length of ServerName is 128 characters.
-      ## This is one of the very few functions for which the input handle is a
+
+## This is one of the very few functions for which the input handle is a
 henv. You can call SQLGetDataSources before allocating a dbc or connecting.
 There might be several data sources associated with an env.
-      ## Imagine that there is a Table "Data Sources" containing two CHAR
+
+## Imagine that there is a Table "Data Sources" containing two CHAR
 Columns: "servername" or "databasename", and "description". The SQLDataSources
 function will FETCH a single row from this Table. SQLDataSources would have
 been implemented as a Catalog function -- that is, it would have returned a
@@ -80,34 +92,37 @@ result set -- if it were not for the inconvenient fact that we want to
 retrieve data sources information before we connect.
 
 Example:
+
 This example displays a list of available servers; assume that the "Data Sources" Table looks like this:
 
-"Data Sources"
-"servername"   "description"
-Wally          A server on the organization's main computer
-Sammy          A local server used for test purposes
+::
 
-  #include "sqlcli.h"
-  SQLHENV henv;
-  SQLCHAR name[128+1], description[1024];
-  SQLSMALLINT name_length, description_length;
-  SQLRETURN sqlreturn;
-  ...
-  SQLAllocHandle(SQL_HANDLE_ENV,NULL,&henv);
-  for (;;) {
-    sqlreturn = SQLDataSources(
-      henv,                         /* henv parameter */
-      SQL_FETCH_NEXT,               /* Direction */
-      name,                         /* *ServerName */
-      sizeof(name),                 /* BufferLength1 */
-      &name_length,                 /* *NameLength1 */
-      description,                  /* *Description */
-      sizeof(description),          /* BufferLength2 */
-      &description_length           /* NameLength2 */
-      );
-    if (sqlreturn == SQL_NO_DATA) break;
-   printf("ServerName = %s. Description = %s.\n",name,description); }
-  SQLFreeHandle(SQL_HANDLE_ENV,henv);
+    "Data Sources"
+    "servername"   "description"
+    Wally          A server on the organization's main computer
+    Sammy          A local server used for test purposes
+
+      #include "sqlcli.h"
+      SQLHENV henv;
+      SQLCHAR name[128+1], description[1024];
+      SQLSMALLINT name_length, description_length;
+      SQLRETURN sqlreturn;
+      ...
+      SQLAllocHandle(SQL_HANDLE_ENV,NULL,&henv);
+      for (;;) {
+        sqlreturn = SQLDataSources(
+          henv,                         /* henv parameter */
+          SQL_FETCH_NEXT,               /* Direction */
+          name,                         /* *ServerName */
+          sizeof(name),                 /* BufferLength1 */
+          &name_length,                 /* *NameLength1 */
+          description,                  /* *Description */
+          sizeof(description),          /* BufferLength2 */
+          &description_length           /* NameLength2 */
+          );
+        if (sqlreturn == SQL_NO_DATA) break;
+       printf("ServerName = %s. Description = %s.\n",name,description); }
+      SQLFreeHandle(SQL_HANDLE_ENV,henv);
 
 ODBC: This function has been available since ODBC 1.0. The Driver Manager
 handles the call, by checking the registry of data sources which have been
@@ -123,6 +138,9 @@ SQLGetFunctions
 ===============
 
 Function Prototype:
+
+::
+
   SQLRETURN  SQLGetFunctions(
     SQLHDBC hdbc,                   /* 32-bit input */
     SQLSMALLINT FunctionId,         /* 32-bit input */
@@ -130,98 +148,105 @@ Function Prototype:
     );
 
 Job:
+
 Find out whether a specified CLI function is supported. The legal list of
 FunctionID values, as defined (with #define) in sqlcli.h, follows -- function
 codes are in alphabetical order; the version of standard SQL, or ODBC, which
 requires support of the function is noted after the function's numeric code:
-#define SQL_API_SQLALLOCCONNECT          1 SQL-92
-#define SQL_API_SQLALLOCENV              2 SQL-92
-#define SQL_API_SQLALLOCHANDLE        1001 SQL-92
-#define SQL_API_SQLALLOCHANDLESTD       74 X/Open
-#define SQL_API_SQLALLOCSTMT             3 SQL-92
-#define SQL_API_SQLBINDCOL               4 SQL-92
-#define SQL_API_SQLBINDPARAM          1002 ODBC 3
-#define SQL_API_SQLBINDPARAMETER        72 SQL-92
-#define SQL_API_SQLBROWSECONNECT        55 ODBC 3
-#define SQL_API_SQLBULKOPERATIONS       24 ODBC 3
-#define SQL_API_SQLCANCEL                5 SQL-92
-#define SQL_API_SQLCLOSECURSOR        1003 SQL-92
-#define SQL_API_SQLCOLATTRIBUTE          6 SQL-92
-#define SQL_API_SQLCOLATTRIBUTES         6 ODBC 2
-#define SQL_API_SQLCOLUMNPRIVILEGES     56 SQL-92
-#define SQL_API_SQLCOLUMNS              40 SQL3
-#define SQL_API_SQLCONNECT               7 SQL-92
-#define SQL_API_SQLCOPYDESC           1004 SQL-92
-#define SQL_API_SQLDATASOURCES          57 SQL-92
-#define SQL_API_SQLDESCRIBECOL           8 SQL-92
-#define SQL_API_SQLDESCRIBEPARAM        58 ODBC 3
-#define SQL_API_SQLDISCONNECT            9 SQL-92
-#define SQL_API_SQLDRIVERCONNECT        41 ODBC 3
-#define SQL_API_SQLDRIVERS              71 ODBC 3
-#define SQL_API_SQLENDTRAN            1005 SQL-92
-#define SQL_API_SQLERROR                10 SQL-92
-#define SQL_API_SQLEXECDIRECT           11 SQL-92
-#define SQL_API_SQLEXECUTE              12 SQL-92
-#define SQL_API_SQLEXTENDEDFETCH        59 ODBC 3
-#define SQL_API_SQLFETCH                13 SQL-92
-#define SQL_API_SQLFETCHSCROLL        1021 SQL-92
-#define SQL_API_SQLFOREIGNKEYS          60 SQL-92
-#define SQL_API_SQLFREECONNECT          14 SQL-92
-#define SQL_API_SQLFREEENV              15 SQL-92
-#define SQL_API_SQLFREEHANDLE         1006 SQL-92
-#define SQL_API_SQLFREELOCATOR        1031 SQL3
-#define SQL_API_SQLFREESTMT             16 SQL-92
-#define SQL_API_SQLGETCONNECTATTR     1007 SQL-92
-#define SQL_API_SQLGETCONNECTOPTION     42 ODBC 2
-#define SQL_API_SQLGETCURSORNAME        17 SQL-92
-#define SQL_API_SQLGETDATA              43 SQL-92
-#define SQL_API_SQLGETDESCFIELD       1008 SQL-92
-#define SQL_API_SQLGETDESCREC         1009 SQL-92
-#define SQL_API_SQLGETDIAGFIELD       1010 SQL-92
-#define SQL_API_SQLGETDIAGREC         1011 SQL-92
-#define SQL_API_SQLGETENVATTR         1012 SQL-92
-#define SQL_API_SQLGETFUNCTIONS         44 SQL-92
-#define SQL_API_SQLGETINFO              45 SQL-92
-#define SQL_API_SQLGETLENGTH          1022 SQL-92
-#define SQL_API_SQLGETPARAMDATA       1025 SQL-92
-#define SQL_API_SQLGETPOSITION        1023 SQL-92
-#define SQL_API_SQLGETSTMTATTR        1014 SQL-92
-#define SQL_API_SQLGETSTMTOPTIONS       46 ODBC 2
-#define SQL_API_SQLGETSUBSTRING       1024 SQL3
-#define SQL_API_SQLGETTYPEINFO          47 SQL-92
-#define SQL_API_SQLMORERESULTS          61 SQL-92
-#define SQL_API_SQLNATIVESQL            62 ODBC 3
-#define SQL_API_SQLNUMPARAMS            63 ODBC 3
-#define SQL_API_SQLNUMRESULTCOLS        18 SQL-92
-#define SQL_API_SQLPARAMDATA            48 SQL-92
-#define SQL_API_SQLPARAMETERS         2002 SQL-92
-#define SQL_API_SQLPARAMOPTIONS         64 ODBC 3
-#define SQL_API_SQLPREPARE              19 SQL-92
-#define SQL_API_SQLPRIMARYKEYS          65 SQL-92
-#define SQL_API_SQLPROCEDURECOLUMNS     66 ODBC 3
-#define SQL_API_SQLPROCEDURES           67 ODBC 3
-#define SQL_API_SQLPUTDATA              49 SQL-92
-#define SQL_API_SQLROUTINEPRIVILEGES  1026 SQL-92
-#define SQL_API_SQLROUTINES           2003 SQL-92
-#define SQL_API_SQLROWCOUNT             20 SQL-92
-#define SQL_API_SQLSETCONNECTATTR     1016 SQL-92
-#define SQL_API_SQLSETCONNECTOPTION     50 ODBC 2
-#define SQL_API_SQLSETCURSORNAME        21 SQL-92
-#define SQL_API_SQLSETDESCFIELD       1017 SQL-92
-#define SQL_API_SQLSETDESCREC         1018 SQL-92
-#define SQL_API_SQLSETENVATTR         1019 SQL-92
-#define SQL_API_SQLSETPARAM              2 ODBC 2
-#define SQL_API_SQLSETPOS               68 ODBC 2
-#define SQL_API_SQLSETSCROLLOPTIONS     69 ODBC 2
-#define SQL_API_SQLSETSTMTATTR        1020 SQL-92
-#define SQL_API_SQLSETSTMTOPTION        51 ODBC 2
-#define SQL_API_SQLSPECIALCOLUMNS       52 SQL3
-#define SQL_API_SQLSTATISTICS           53 X/Open
-#define SQL_API_SQLTABLEPRIVILEGES      70 SQL-92
-#define SQL_API_SQLTABLES               54 SQL3
-#define SQL_API_SQLTRANSACT             23 ODBC 2
+
+::
+
+    #define SQL_API_SQLALLOCCONNECT          1 SQL-92
+    #define SQL_API_SQLALLOCENV              2 SQL-92
+    #define SQL_API_SQLALLOCHANDLE        1001 SQL-92
+    #define SQL_API_SQLALLOCHANDLESTD       74 X/Open
+    #define SQL_API_SQLALLOCSTMT             3 SQL-92
+    #define SQL_API_SQLBINDCOL               4 SQL-92
+    #define SQL_API_SQLBINDPARAM          1002 ODBC 3
+    #define SQL_API_SQLBINDPARAMETER        72 SQL-92
+    #define SQL_API_SQLBROWSECONNECT        55 ODBC 3
+    #define SQL_API_SQLBULKOPERATIONS       24 ODBC 3
+    #define SQL_API_SQLCANCEL                5 SQL-92
+    #define SQL_API_SQLCLOSECURSOR        1003 SQL-92
+    #define SQL_API_SQLCOLATTRIBUTE          6 SQL-92
+    #define SQL_API_SQLCOLATTRIBUTES         6 ODBC 2
+    #define SQL_API_SQLCOLUMNPRIVILEGES     56 SQL-92
+    #define SQL_API_SQLCOLUMNS              40 SQL3
+    #define SQL_API_SQLCONNECT               7 SQL-92
+    #define SQL_API_SQLCOPYDESC           1004 SQL-92
+    #define SQL_API_SQLDATASOURCES          57 SQL-92
+    #define SQL_API_SQLDESCRIBECOL           8 SQL-92
+    #define SQL_API_SQLDESCRIBEPARAM        58 ODBC 3
+    #define SQL_API_SQLDISCONNECT            9 SQL-92
+    #define SQL_API_SQLDRIVERCONNECT        41 ODBC 3
+    #define SQL_API_SQLDRIVERS              71 ODBC 3
+    #define SQL_API_SQLENDTRAN            1005 SQL-92
+    #define SQL_API_SQLERROR                10 SQL-92
+    #define SQL_API_SQLEXECDIRECT           11 SQL-92
+    #define SQL_API_SQLEXECUTE              12 SQL-92
+    #define SQL_API_SQLEXTENDEDFETCH        59 ODBC 3
+    #define SQL_API_SQLFETCH                13 SQL-92
+    #define SQL_API_SQLFETCHSCROLL        1021 SQL-92
+    #define SQL_API_SQLFOREIGNKEYS          60 SQL-92
+    #define SQL_API_SQLFREECONNECT          14 SQL-92
+    #define SQL_API_SQLFREEENV              15 SQL-92
+    #define SQL_API_SQLFREEHANDLE         1006 SQL-92
+    #define SQL_API_SQLFREELOCATOR        1031 SQL3
+    #define SQL_API_SQLFREESTMT             16 SQL-92
+    #define SQL_API_SQLGETCONNECTATTR     1007 SQL-92
+    #define SQL_API_SQLGETCONNECTOPTION     42 ODBC 2
+    #define SQL_API_SQLGETCURSORNAME        17 SQL-92
+    #define SQL_API_SQLGETDATA              43 SQL-92
+    #define SQL_API_SQLGETDESCFIELD       1008 SQL-92
+    #define SQL_API_SQLGETDESCREC         1009 SQL-92
+    #define SQL_API_SQLGETDIAGFIELD       1010 SQL-92
+    #define SQL_API_SQLGETDIAGREC         1011 SQL-92
+    #define SQL_API_SQLGETENVATTR         1012 SQL-92
+    #define SQL_API_SQLGETFUNCTIONS         44 SQL-92
+    #define SQL_API_SQLGETINFO              45 SQL-92
+    #define SQL_API_SQLGETLENGTH          1022 SQL-92
+    #define SQL_API_SQLGETPARAMDATA       1025 SQL-92
+    #define SQL_API_SQLGETPOSITION        1023 SQL-92
+    #define SQL_API_SQLGETSTMTATTR        1014 SQL-92
+    #define SQL_API_SQLGETSTMTOPTIONS       46 ODBC 2
+    #define SQL_API_SQLGETSUBSTRING       1024 SQL3
+    #define SQL_API_SQLGETTYPEINFO          47 SQL-92
+    #define SQL_API_SQLMORERESULTS          61 SQL-92
+    #define SQL_API_SQLNATIVESQL            62 ODBC 3
+    #define SQL_API_SQLNUMPARAMS            63 ODBC 3
+    #define SQL_API_SQLNUMRESULTCOLS        18 SQL-92
+    #define SQL_API_SQLPARAMDATA            48 SQL-92
+    #define SQL_API_SQLPARAMETERS         2002 SQL-92
+    #define SQL_API_SQLPARAMOPTIONS         64 ODBC 3
+    #define SQL_API_SQLPREPARE              19 SQL-92
+    #define SQL_API_SQLPRIMARYKEYS          65 SQL-92
+    #define SQL_API_SQLPROCEDURECOLUMNS     66 ODBC 3
+    #define SQL_API_SQLPROCEDURES           67 ODBC 3
+    #define SQL_API_SQLPUTDATA              49 SQL-92
+    #define SQL_API_SQLROUTINEPRIVILEGES  1026 SQL-92
+    #define SQL_API_SQLROUTINES           2003 SQL-92
+    #define SQL_API_SQLROWCOUNT             20 SQL-92
+    #define SQL_API_SQLSETCONNECTATTR     1016 SQL-92
+    #define SQL_API_SQLSETCONNECTOPTION     50 ODBC 2
+    #define SQL_API_SQLSETCURSORNAME        21 SQL-92
+    #define SQL_API_SQLSETDESCFIELD       1017 SQL-92
+    #define SQL_API_SQLSETDESCREC         1018 SQL-92
+    #define SQL_API_SQLSETENVATTR         1019 SQL-92
+    #define SQL_API_SQLSETPARAM              2 ODBC 2
+    #define SQL_API_SQLSETPOS               68 ODBC 2
+    #define SQL_API_SQLSETSCROLLOPTIONS     69 ODBC 2
+    #define SQL_API_SQLSETSTMTATTR        1020 SQL-92
+    #define SQL_API_SQLSETSTMTOPTION        51 ODBC 2
+    #define SQL_API_SQLSPECIALCOLUMNS       52 SQL3
+    #define SQL_API_SQLSTATISTICS           53 X/Open
+    #define SQL_API_SQLTABLEPRIVILEGES      70 SQL-92
+    #define SQL_API_SQLTABLES               54 SQL3
+    #define SQL_API_SQLTRANSACT             23 ODBC 2
 
 Algorithm:
+
+::
+
       If (hdbc is not really a handle of a dbc)
         return error: CLI-specific condition-invalid handle
       Empty the dbc's diagnostics area.
@@ -233,10 +258,12 @@ Algorithm:
         Set *Supported = 0 (false).
 
 Notes:
-      ## SQL_API_SQLCOLATTRIBUTE and SQL_API_SQLCOLATTRIBUTES have the same
+
+## SQL_API_SQLCOLATTRIBUTE and SQL_API_SQLCOLATTRIBUTES have the same
 value: 6. This error is no longer important, since SQLColAttributes was only
 an ODBC 2.0 function.
-      ## Calling SQLGetFunctions(...,SQL_API_SQLGETFUNCTION,...) looks a
+
+## Calling SQLGetFunctions(...,SQL_API_SQLGETFUNCTION,...) looks a
 little like asking a person "Are you awake?", i.e.: the answer is either "yes"
 or you get no answer at all. But in some contexts it's a perfectly reasonable
 question. For instance, all versions of ODBC include a Driver Manager -- a DLL
@@ -244,18 +271,23 @@ layer which is separate from the DBMS itself (the "driver" and the "data
 source"). In an ODBC context, you're really asking the Driver Manager a
 question about the driver, and that's a question you can expect either a "yes"
 or a "no" answer for.
-      ## It's clear from the FunctionID value chart that some CLI functions
+
+## It's clear from the FunctionID value chart that some CLI functions
 are old, some are new, some are implementation-specific, some are standard.
 That's why it makes sense to call SQLGetFunctions right after connecting, and
 branch to an appropriate path depending on which functions are supported. The
 SQLGetInfo function is useful for the same sort of purpose.
-      ## If you are using MS-Windows and you are calling the DBMS directly,
+
+## If you are using MS-Windows and you are calling the DBMS directly,
 the question you really want to ask is: is the function name exported?
 
 Example:
+
 Although Microsoft's documentation marks the ODBC function SQLStatistics() as
 "ISO 92", it's not an ISO Standard function. So before using it, we will ask
 whether our DBMS supports it. Here's how.
+
+::
 
       #include "sqlcli.h"
       /* In case SQL_API_STATISTICS isn't in sqlcli.h, we define it here. */
@@ -285,6 +317,9 @@ SQLGetInfo
 ==========
 
 Function Prototype:
+
+::
+
   SQLRETURN  SQLGetInfo(
     SQLHDBC hdbc,                   /* 32-bit input */
     SQLSMALLINT InfoType,           /* 16-bit input */
@@ -294,18 +329,23 @@ Function Prototype:
     );
 
 Job:
+
 Ask whether a DBMS supports a specified feature, and if it does, which of several possible syntax variations the DBMS uses.
 
 The SQLGetInfo function's InfoType parameter has 47 possible values, which
 we'll describe in the following paragraphs. In what follows, each paragraph
 begins with a value (the InfoType value), a name (the #define of this value in
 sqlcli.h) and the <data type> of the value that SQLGetInfo returns, followed by a few remarks.
-      ## 24 SQL_ACCESSIBLE_ROUTINES -- CHAR(1)
+
+## 24 SQL_ACCESSIBLE_ROUTINES -- CHAR(1)
+
 The result is 'Y' if routines metadata -- such as the rows in
 INFORMATION_SCHEMA.ROUTINES -- is accessible only to users who hold EXECUTE
 Privileges on routines; otherwise the result is 'N'. In ODBC, this code does
 not exist; 24 is the code for SQL_CURSOR_ROLLBACK_BEHAVIOR.
-      ## 19 SQL_ACCESSIBLE_TABLES -- CHAR(1)
+
+## 19 SQL_ACCESSIBLE_TABLES -- CHAR(1)
+
 The result is 'Y' if Tables metadata -- such as the rows in
 INFORMATION_SCHEMA.TABLES -- is accessible only to users who hold SELECT
 Privileges on Tables; otherwise the result is 'N'. A standard DBMS should
@@ -314,24 +354,41 @@ any Privilege, not just the SELECT Privilege. This code determines the
 operation of the CLI Catalog functions: SQLColumnPrivileges, SQLColumns,
 SQLForeignKeys, SQLPrimaryKeys, SQLResultSetStructure, SQLSpecialColumns,
 SQLTablePrivileges, SQLTables. In ODBC, this code exists, but the meaning is different.
-      ## 86 SQL_ALTER_TABLE -- INTEGER
+
+## 86 SQL_ALTER_TABLE -- INTEGER
+
 The return is a bit map: one bit on for each ALTER TABLE clause the DBMS supports:
-            ## If ALTER TABLE ... ADD COLUMN:
+
+## If ALTER TABLE ... ADD COLUMN:
+
 0001 hex (SQL_AT_ADD_COLUMN)
-            ## If ALTER TABLE ... DROP COLUMN:
+
+## If ALTER TABLE ... DROP COLUMN:
+
 0002 hex (SQL_AT_DROP_COLUMN)
-            ## If ALTER TABLE ... ALTER COLUMN:
+
+## If ALTER TABLE ... ALTER COLUMN:
+
 0004 hex (SQL_AT_ALTER_COLUMN)
-            ## If ALTER TABLE ... ADD CONSTRAINT:
+
+## If ALTER TABLE ... ADD CONSTRAINT:
+
 0008 hex (SQL_AT_ADD_CONSTRAINT)
-            ## If ALTER TABLE ... DROP CONSTRAINT:
+
+## If ALTER TABLE ... DROP CONSTRAINT:
+
 0010 hex (SQL_AT_DROP_CONSTRAINT)
+
 Any SQL-92 DBMS must return 001b hex (all bits except "ALTER COLUMN" on). Any
 SQL3 DBMS must return 001f hex (all bits on). In ODBC, this code exists but the meaning is different.
-      ## 10003 SQL_CATALOG_NAME -- CHAR(1)
+
+## 10003 SQL_CATALOG_NAME -- CHAR(1)
+
 The return is 'Y' if the DBMS supports <Catalog name>s (as qualifiers,
 presumably); 'N' if not. Any SQL-92 DBMS must return 'Y'.
-      ## 10004 SQL_COLLATING_SEQUENCE -- CHAR(254)
+
+## 10004 SQL_COLLATING_SEQUENCE -- CHAR(254)
+
 The return is the <identifier> of "the default Collation of [the server]" --
 which is ambiguous. Probably it's the <identifier> of the default Collation of
 the dbc's default Character set -- which is useless. If you want the Schema's
@@ -339,239 +396,402 @@ Character set, SELECT from INFORMATION_SCHEMA.SCHEMATA. If you want the
 Collation of a Base table's Column, SELECT from INFORMATION_SCHEMA.COLUMNS. If
 you want the Collation of a result set Column, call the SQLGetDescField
 function. In ODBC, the designation for this code is SQL_COLLATION_SEQ, and "ISO 8859-1" or "EBCDIC" are possible returns.
-      ## 23 SQL_CURSOR_COMMIT_BEHAVIOR -- SMALLINT
+
+## 23 SQL_CURSOR_COMMIT_BEHAVIOR -- SMALLINT
+
 The return is a bit map, with one bit on, determined by what actions the DBMS takes when COMMIT happens:
-            ## [close Cursor, delete prepared statements] DELETE:
+
+## [close Cursor, delete prepared statements] DELETE:
+
 0000 hex (SQL_CB_DELETE)
-            ## [close Cursor, keep prepared statements] CLOSE:
+
+## [close Cursor, keep prepared statements] CLOSE:
+
 0001 hex (SQL_CB_CLOSE)
-            ## [keep Cursor open, keep prepared statements] PRESERVE:
+
+
+## [keep Cursor open, keep prepared statements] PRESERVE:
+
 0002 hex (SQL_CB_PRESERVE)
+
 A standard SQL DBMS should return 0000 hex (SQL_CB_DELETE).
-      ## XXX CURSOR HOLDABLE -- XXX
+
+## XXX CURSOR HOLDABLE -- XXX
+
 The return is 1 (SQL_HOLDABLE) if the DBMS supports holdable Cursors;
 otherwise it is 0 (SQL_NONHOLDABLE).
-      ## 10001 SQL_CURSOR_SENSITIVITY -- INTEGER
+
+## 10001 SQL_CURSOR_SENSITIVITY -- INTEGER
+
 The return is a bit map, with zero or more bits on, determined by the DBMS's behaviour when rows are updated outside the Cursor:
-            ## [don't see rows updated during same transaction]:
+
+## [don't see rows updated during same transaction]:
+
 0001 hex (SQL_INSENSITIVE)
-            ## [see rows updated during same transaction]:
+
+## [see rows updated during same transaction]:
+
 0002 hex (SQL_SENSITIVE)
-            ## [can't tell whether we see them or not]:
+
+## [can't tell whether we see them or not]:
+
 0000 hex (SQL_UNSPECIFIED) or 0000 hex (SQL_ASENSITIVE)
-      ## 2 SQL_DATA_SOURCE_NAME -- CHAR(128)
+
+## 2 SQL_DATA_SOURCE_NAME -- CHAR(128)
+
 The return is the name of a data source (in client/server terms: a server name). This is the name that was passed in the SQLConnect call.
-      ## 25 SQL_DATA_SOURCE_READ_ONLY -- CHAR(1)
+
+## 25 SQL_DATA_SOURCE_READ_ONLY -- CHAR(1)
+
 The return is 'Y' if the data source (in client/server terms: the server)
 cannot allow data to be "modified" -- an undefined word. Presumably, the
 meaning is: every transaction begins with the implicit statement SET TRANSACTION READ ONLY.
-      ## 17 SQL_DBMS_NAME -- CHAR(254)
+
+## 17 SQL_DBMS_NAME -- CHAR(254)
+
 The return is the name of the DBMS. It's implementation-defined, but one can
 assume that there will be a vendor name here. The sqlcli.h file does not contain SQL_DBMS_NAME.
-      ## 18 SQL_DBMS_VERSION -- CHAR(254)
+
+ ## 18 SQL_DBMS_VERSION -- CHAR(254)
+
 The return is the version number of the DBMS, in a rigid format: nn.nn.nnnn[optional description], where n is any decimal digit. Examples: "00.00.0000", "01.02.03 Vendor X's Version #1 Release #2 Patch #3". In ODBC, the name is SQL_DBMS_VER.
-      ## 26 SQL_DEFAULT_TRANSACTION_ISOLATION -- INTEGER
+
+## 26 SQL_DEFAULT_TRANSACTION_ISOLATION -- INTEGER
+
 The return is a bitmask, with one bit on for the default transaction isolation
 level -- that is, what the transaction isolation level is if you can't execute
-"SET TRANSACTION ISOLATION LEVEL {READ COMMITTED | READ UNCOMMITTED | REPEATABLE READ | SERIALIZABLE}". The possible values are:
-            ## 0001 hex (SQL_TXN_READ_UNCOMMITTED)
-            ## 0002 hex (SQL_TXN_READ_COMMITTED)
-            ## 0004 hex (SQL_TXN_REPEATABLE_READ)
-            ## 0008 hex (SQL_TXN_SERIALIZABLE)
+
+::
+
+    "SET TRANSACTION ISOLATION LEVEL {READ COMMITTED | READ UNCOMMITTED | REPEATABLE READ | SERIALIZABLE}". The possible values are:
+                ## 0001 hex (SQL_TXN_READ_UNCOMMITTED)
+                ## 0002 hex (SQL_TXN_READ_COMMITTED)
+                ## 0004 hex (SQL_TXN_REPEATABLE_READ)
+                ## 0008 hex (SQL_TXN_SERIALIZABLE)
+
 A standard DBMS should return SQL_TXN_SERIALIZABLE.
-      ## 10002 SQL_DESCRIBE_PARAMETER -- CHAR(1)
+
+
+## 10002 SQL_DESCRIBE_PARAMETER -- CHAR(1)
+
 The return is 'Y' if the DBMS is capable of "describing dynamic parameters" --
 which is ambiguous. Apparently, the return has nothing to do with the DBMS's
 ability to support "auto-populate of IPD" or the non-standard
 SQLDescribeParameter function. Apparently, all DBMSs which support the
 embedded SQL DESCRIBE INPUT statement should return 'Y'; otherwise they should return 'N'.
-      ## 8 SQL_FETCH_DIRECTION -- INTEGER
+
+## 8 SQL_FETCH_DIRECTION -- INTEGER
+
 The return is a bitmask, with zero or more bits on, depending on the options
 one can use with the SQLFetchScroll function. The possible values are:
-            ## 0001 hex (SQL_FD_FETCH_NEXT)
-            ## 0002 hex (SQL_FD_FETCH_FIRST)
-            ## 0004 hex (SQL_FD_FETCH_LAST)
-            ## 0008 hex (SQL_FD_FETCH_PRIOR)
-            ## 0010 hex (SQL_FD_FETCH_ABSOLUTE)
-            ## 0020 hex (SQL_FD_FETCH_RELATIVE)
- A standard DBMS should return 003f hex -- that is, all bits on.
-      ## 81 SQL_GETDATA_EXTENSIONS -- INTEGER
+
+## 0001 hex (SQL_FD_FETCH_NEXT)
+
+## 0002 hex (SQL_FD_FETCH_FIRST)
+
+## 0004 hex (SQL_FD_FETCH_LAST)
+
+## 0008 hex (SQL_FD_FETCH_PRIOR)
+
+## 0010 hex (SQL_FD_FETCH_ABSOLUTE)
+
+## 0020 hex (SQL_FD_FETCH_RELATIVE)
+
+A standard DBMS should return 003f hex -- that is, all bits on.
+
+## 81 SQL_GETDATA_EXTENSIONS -- INTEGER
 The return is a bitmask, with zero or more bits on, depending on the DBMS's
 ability to handle out-of-order SQLGetData calls. Minimally, a DBMS allows
 SQLGetData only for Columns that were not bound with SQLBindCol, and only in
 sequence (that is, after getting information for Column "n", you can only get
 information for Column "n+1"). The possible options are:
-            ## [if you can call SQLGetData for bound Columns]:
+
+## [if you can call SQLGetData for bound Columns]:
 0001 hex (SQL_GD_ANY_COLUMN)
-            ## [if you can call SQLGetData in any order]:
+
+## [if you can call SQLGetData in any order]:
 0002 hex (SQL_GD_ANY_ORDER)
-      ## 20000 SQL_GETPARAMDATA_EXTENSIONS -- INTEGER
+
+## 20000 SQL_GETPARAMDATA_EXTENSIONS -- INTEGER
+
 The return is a bitmask, with zero or more bits on, depending on the DBMS's
 ability to handle out-of-order SQLGetParamData calls. Minimally, a DBMS allows
 SQLGetParamData only for Columns that were not bound, and only in sequence
 (that is, after getting information for parameter "n" you can only get
 information for parameter "n+1"). The possible options are:
-            ## [if you can call SQLGetParamData for bound Columns]:
+
+## [if you can call SQLGetParamData for bound Columns]:
+
 0001 hex (SQL_GPD_ANY_COLUMN)
-            ## [if you can call SQLGetParamData in any order]:
+
+## [if you can call SQLGetParamData in any order]:
+
 0002 hex (SQL_GPD_ANY_ORDER)
+
 Compare this with SQL_GETDATA_EXTENSIONS.
-      ## 28 SQL_<identifier>_CASE -- SMALLINT
+
+## 28 SQL_<identifier>_CASE -- SMALLINT
+
 Returns a number between 1 and 4, depending how the DBMS stores <regular identifier>s. The possible options are:
-            ## [change to upper case]:
+
+## [change to upper case]:
+
 1 (SQL_IC_UPPER)
-            ## [change to lower case]:
+
+## [change to lower case]:
+
 2 (SQL_IC_LOWER)
-            ## [don't change case]:
+
+## [don't change case]:
+
 3 (SQL_IC_SENSITIVE)
-            ## [don't change case, but do case-insensitive searches]:
+
+## [don't change case, but do case-insensitive searches]:
+
 4 (SQL_IC_MIXED)
+
 A standard DBMS should always return SQL_IC_UPPER, since only <delimited identifier>s are stored in mixed case.
-      ## 73 SQL_INTEGRITY -- CHAR(1)
+
+## 73 SQL_INTEGRITY -- CHAR(1)
+
 The return is 'Y' if the DBMS supports basic integrity Constraints: NOT NULL,
 UNIQUE, PRIMARY KEY, FOREIGN KEY ... NO ACTION, CHECK and Column defaults.
 Otherwise the return is 'N'. A standard DBMS should return 'Y'. In ODBC, code
 73 is SQL_OPT_IEF, and the return is 'Y' if the DBMS supports the optional
 integrity enhancement facility of SQL-89.
-      ## 34 SQL_MAXIMUM_CATALOG_NAME_LENGTH -- SMALLINT
+
+## 34 SQL_MAXIMUM_CATALOG_NAME_LENGTH -- SMALLINT
+
 The return is the length, in characters, of the largest possible <Catalog
 name>, without qualifiers or introducers. Expect 18 for an SQL-89 DBMS, 128 for a later DBMS.
-      ## 30 SQL_MAXIMUM_COLUMN_NAME_LENGTH -- SMALLINT
+
+## 30 SQL_MAXIMUM_COLUMN_NAME_LENGTH -- SMALLINT
+
 The return is the length, in characters, of the largest possible <Column
 name>, without qualifiers or introducers. Expect 18 for an SQL-89 DBMS, 128 for a later DBMS.
-      ## 97 SQL_MAXIMUM_COLUMNS_IN_GROUP_BY -- SMALLINT
+
+## 97 SQL_MAXIMUM_COLUMNS_IN_GROUP_BY -- SMALLINT
+
 The return is the largest number of Columns that a GROUP BY clause can hold
 (zero if that's unknown or unlimited). Expect 6 for a DBMS that meets the FIPS
 127-2 entry-level spec, 15 for a DBMS that meets the FIPS 127-2 intermediate-level spec.
-      ## 99 SQL_MAXIMUM_COLUMNS_IN_ORDER_BY -- SMALLINT
+
+## 99 SQL_MAXIMUM_COLUMNS_IN_ORDER_BY -- SMALLINT
+
 The return is the largest number of Columns that an ORDER BY clause can hold
 (zero if that's unknown or unlimited). Expect 6 for a DBMS that meets the FIPS
 127-2 entry-level spec, 15 for a DBMS that meets the FIPS 127-2 intermediate-level spec.
-      ## 100 SQL_MAXIMUM_COLUMNS_IN_SELECT -- SMALLINT
+
+## 100 SQL_MAXIMUM_COLUMNS_IN_SELECT -- SMALLINT
+
 The return is the largest number of Columns that a select list can hold (zero
 if that's unknown or unlimited). Expect 100 for a DBMS that meets the FIPS
 127-2 entry-level spec, 250 for a DBMS that meets the FIPS 127-2 intermediate-level spec.
-      ## 101 SQL_MAXIMUM_COLUMNS_IN_TABLE -- SMALLINT
+
+## 101 SQL_MAXIMUM_COLUMNS_IN_TABLE -- SMALLINT
+
 The return is the largest number of Columns that a Base table can hold (zero
 if that's unknown or unlimited). Expect 100 for a DBMS that meets the FIPS
 127-2 entry-level spec, 250 for a DBMS that meets the FIPS 127-2 intermediate-level spec.
-      ## 1 SQL_MAXIMUM_CONCURRENT_ACTIVITIES -- SMALLINT
+
+## 1 SQL_MAXIMUM_CONCURRENT_ACTIVITIES -- SMALLINT
+
 The return is the largest number of stmts that can be active at the same time.
 With some implementations, it might be possible to allocate two stmts, i.e.:
 call SQLAllocHandle(SQL_HANDLE_STMT,...) twice, but impossible to "select"
 with both hstmt#1 and hstmt#2. The return is zero if maximum concurrent
 activities is unknown. (A stmt is "active" if it is associated with an open Cursor or a deferred parameter.)
-      ## 31 SQL_MAXIMUM_CURSOR_NAME_LENGTH -- SMALLINT
+
+## 31 SQL_MAXIMUM_CURSOR_NAME_LENGTH -- SMALLINT
+
 The return is the length, in characters, of the largest possible <Cursor
 name>, without qualifiers or introducers. Expect 18 for an SQL-89 DBMS, 128 for a later DBMS.
-      ## 0 SQL_MAXIMUM_DRIVER_CONNECTIONS -- SMALLINT
+
+## 0 SQL_MAXIMUM_DRIVER_CONNECTIONS -- SMALLINT
+
 The return is the maximum number of connections between one driver and one
 server, or the maximum number of connections period, or zero if the maximum is not fixed.
-      ## 10005 SQL_MAXIMUM_<identifier>_LENGTH -- SMALLINT
+
+## 10005 SQL_MAXIMUM_<identifier>_LENGTH -- SMALLINT
+
 The return is the length, in characters, of the largest possible <identifier>
 for any kind of Object. This value won't be greater than any of the
 SQL_MAXIMUM_..._NAME_LENGTH values. Expect 18 for an SQL-89 DBMS, 128 for a later DBMS.
-      ## 32 SQL_MAXIMUM_SCHEMA_NAME_LENGTH -- SMALLINT
+
+## 32 SQL_MAXIMUM_SCHEMA_NAME_LENGTH -- SMALLINT
+
 The return is the length, in characters, of the largest possible <Schema
 name>, without qualifiers or introducers. Expect 18 for an SQL-89 DBMS, 128 for a later DBMS.
-      ## 20000 SQL_MAXIMUM_STMT_OCTETS -- SMALLINT
+
+## 20000 SQL_MAXIMUM_STMT_OCTETS -- SMALLINT
+
 << XXX the number is wrong, 20000 is SQL_GETPARAMDATA_EXTENSIONS >>
 The return is the maximum number of octets that can exist in any SQL
 statement, or zero if there's no fixed limit. This is the maximum size of the
 string parameter in an SQLPrepare or SQLExecDirect function call. In ODBC,
 this code does not exist; the ODBC code SQL_MAXIMUM_STATEMENT_LENGTH is a different value.
-      ## 20001 SQL_MAXIMUM_STMT_OCTETS_DATA -- SMALLINT
+
+## 20001 SQL_MAXIMUM_STMT_OCTETS_DATA -- SMALLINT
+
 The return is the maximum number of octets that can exist in an SQL-data statement (such as INSERT), or zero if there's no fixed limit.
-      ## 20002 SQL_MAXIMUM_STMT_OCTETS_SCHEMA -- SMALLINT
+
+## 20002 SQL_MAXIMUM_STMT_OCTETS_SCHEMA -- SMALLINT
+
 The return is the maximum number of octets that can exist in an SQL-Schema statement (such as CREATE SCHEMA), or zero if there's no fixed limit.
-      ## 35 SQL_MAXIMUM_TABLE_NAME_LENGTH -- SMALLINT
+
+## 35 SQL_MAXIMUM_TABLE_NAME_LENGTH -- SMALLINT
+
 The return is the length, in characters, of the largest possible <Table name>,
 without qualifiers or introducers. Expect 18 for an SQL-89 DBMS, 128 for a
 later DBMS. But don't be surprised if it's smaller: many implementations treat
 <Table name> as "file name", and are therefore subject to whatever constraints the operating system imposes.
-      ## 106 SQL_MAXIMUM_TABLES_IN_SELECT -- SMALLINT
+
+## 106 SQL_MAXIMUM_TABLES_IN_SELECT -- SMALLINT
+
 The return is the maximum number of <Table name>s which may appear in a
 query's FROM clause -- that is, after SELECT ... FROM. This will be less than
 or equal to the maximum number of joins, and will be less than or equal to the
 maximum number of <Table reference>s in an SQL statement as a whole, after
 Views are expanded. A FIPS entry-level DBMS would return 15 for the maximum
 number of <Table reference>s in an SQL statement, a FIPS intermediate-level DBMS would return 50.
-      ## 107 SQL_MAXIMUM_USER_NAME_LENGTH -- SMALLINT
+
+## 107 SQL_MAXIMUM_USER_NAME_LENGTH -- SMALLINT
+
 The return is the length, in characters, of the largest possible
 <AuthorizationID>, without introducers or qualifiers. The value is the same as
 the contents of SESSION_USER. Expect 18 from an SQL-89 or FIPS 127-2 entry
 level DBMS, expect 128 from a more powerful DBMS -- unless the DBMS gets
 <AuthorizationID>s from an outside source, such as the operating system's
 login name. In that case, the limit ultimately depends on what the operating system says.
-      ## 85 SQL_NULL_COLLATION -- SMALLINT
+
+## 85 SQL_NULL_COLLATION -- SMALLINT
+
 Returns a number between 1 and 2, depending on the placement of NULL values in sort sequences (ORDER BY). The possible options are:
-            ## [treat NULLs as "greater than" all other values]:
+
+## [treat NULLs as "greater than" all other values]:
+
 1 (SQL_NC_HIGH)
-            ## [treat NULLs as "less than" all other values]:
+
+## [treat NULLs as "less than" all other values]:
+
 2 (SQL_NC_LOW)
-      ## 90 SQL_ORDER_BY_COLUMNS_IN_SELECT -- CHAR(1)
+
+## 90 SQL_ORDER_BY_COLUMNS_IN_SELECT -- CHAR(1)
+
 Returns 'Y' if the DBMS allows only those ORDER BY Columns which also appear
 in the select list; otherwise 'N'. For example: "SELECT column_1 FROM Table_1
 ORDER BY column_2;" is illegal in SQL-92 (so an SQL-92 DBMS would return 'Y'), but is legal in SQL3.
-      ## 115 SQL_OUTER_JOIN_CAPABILITIES -- INTEGER
+
+## 115 SQL_OUTER_JOIN_CAPABILITIES -- INTEGER
+
 (Not CHAR(1), there was an error in early versions of the SQL Standard.)
+
 The return is a bitmask, with zero or more bits on, depending on the outer join variations that the DBMS supports. The possible options are:
-            ## [simple LEFT OUTER JOIN]:
+
+## [simple LEFT OUTER JOIN]:
+
 0001 hex (SQL_OUTER_JOIN_LEFT)
-            ## [simple RIGHT OUTER JOIN]:
+
+## [simple RIGHT OUTER JOIN]:
+
 0002 hex (SQL_OUTER_JOIN_RIGHT)
-            ## [FULL OUTER JOIN works]:
+
+## [FULL OUTER JOIN works]:
+
 0004 hex(SQL_OUTER_JOIN_FULL)
-            ## [outer joins may be nested]:
+
+## [outer joins may be nested]:
+
 0008 hex(SQL_OUTER_JOIN_NESTED)
-            ## [ON-clause Columns needn't be in Table order]:
+
+## [ON-clause Columns needn't be in Table order]:
+
 0010 hex (SQL_OUTER_JOIN_NOT_ORDERED)
-            ## [inner Table can be INNER JOIN]:
+
+## [inner Table can be INNER JOIN]:
+
 0020 hex (SQL_OUTER_JOIN_INNER)
-            ## [ON predicate needn't be "=" comparison]:
+
+## [ON predicate needn't be "=" comparison]:
+
 0040 hex (SQL_OUTER_JOIN_ALL_COMPARISON_OPS)
-      ## 20003 SQL_REF_LENGTH -- SMALLINT
+
+## 20003 SQL_REF_LENGTH -- SMALLINT
+
 The return is the length, in octets, of a <reference type>
-      ## 43 SQL_SCROLL_CONCURRENCY -- INTEGER
+
+## 43 SQL_SCROLL_CONCURRENCY -- INTEGER
+
 The return is a bitmask, with zero or more bits on, depending on the DBMS's
 ability to handle concurrency (multi-user) problems while dealing with scroll Cursors. The possible options are:
-            ## [read-only scrollable Cursors are okay]:
+
+## [read-only scrollable Cursors are okay]:
+
 0001 hex (SQL_SCCO_READ_ONLY)
-            ## [updatable scrollable Cursors are okay in conjunction with lowest locking level]:
+
+## [updatable scrollable Cursors are okay in conjunction with lowest locking level]:
+
 0002 hex (SQL_SCCO_LOCK)
-            ## [updatable scrollable Cursors are okay in conjunction with optimistic concurrency -- row <identifier>s or timestamps]:
+
+## [updatable scrollable Cursors are okay in conjunction with optimistic concurrency -- row <identifier>s or timestamps]:
+
 0004 hex SQL_SCCO_OPT_ROWVER)
-            ## [updatable scrollable Cursors are okay in conjunction with optimistic concurrency -- comparing values]:
+
+## [updatable scrollable Cursors are okay in conjunction with optimistic concurrency -- comparing values]:
+
 0008 hex (SQL_SCCO_OPT_VALUES)
-      ## 14 SQL_SEARCH_PATTERN_ESCAPE -- CHAR(1)
+
+## 14 SQL_SEARCH_PATTERN_ESCAPE -- CHAR(1)
+
 The return is the fixed escape character which can be used for pattern
 matching in some of the CLI Catalog functions (e.g.: SQLTables). Conceptually:
 if the search-pattern-escape is '~', then the metadata search conducted for
 such functions implicitly contains a clause "... LIKE ... ESCAPE '~' ...". In
 ODBC, the DBMS may return '' if search-pattern escape is not supported for Catalog functions.
-      ## 13 SQL_SERVER_NAME -- CHAR(128)
+
+## 13 SQL_SERVER_NAME -- CHAR(128)
+
 The return is a character string: the implementation-defined character string
 which is the "actual name" of a server. This often will be the same as the
 string returned for SQL_DATA_SOURCE_NAME, but some implementations make a distinction between "data source" and "server".
-      ## 94 SQL_SPECIAL_CHARACTERS -- CHAR(254)
+
+## 94 SQL_SPECIAL_CHARACTERS -- CHAR(254)
+
 The return is a character string containing all characters "other than upper
 case letters, lower case letters, digits and underscore" which can appear in <regular identifier>s.
-            ## Note 1: This definition has nothing to do with the SQL Standard's definition for special characters.
-            ## Note 2: This definition is not the same as the definition ODBC uses.
-            ## Note 3: An SQL standard DBMS will return a blank string here.
+
+## Note 1: This definition has nothing to do with the SQL Standard's definition for special characters.
+
+## Note 2: This definition is not the same as the definition ODBC uses.
+
+## Note 3: An SQL standard DBMS will return a blank string here.
+
 If you want to use strange non-alphabetic characters in names, use <delimited identifier>s.
-      ## 46 SQL_TRANSACTION_CAPABLE -- SMALLINT
+
+## 46 SQL_TRANSACTION_CAPABLE -- SMALLINT
+
 The return is a number indicating what sort of SQL statements the DBMS allows within a transaction. The possible options are:
-            ## [transactions are not supported at all]:
+
+## [transactions are not supported at all]:
+
 0 (SQL_TC_NONE)
-            ## [DML only, DDL causes error]:
+
+## [DML only, DDL causes error]:
+
 1 (SQL_TC_DML)
-            ## [DML okay, DDL okay]:
+
+## [DML okay, DDL okay]:
+
 2 (SQL_TC_ALL)
-            ## [DML okay, DDL causes COMMIT]:
+
+## [DML okay, DDL causes COMMIT]:
+
 3 (SQL_TC_COMMIT)
-            ## [DML okay, DDL is ignored]:
+
+## [DML okay, DDL is ignored]:
+
 4 (SQL_TC_IGNORE)
+
 DML stands for "data manipulation language" (SELECT, INSERT, etc.); DDL stands
 for "data definition language" (ALTER, DROP, GRANT, CREATE, REVOKE). This
 addresses one of the implementation-defined questions in standard SQL: is a
@@ -579,16 +799,27 @@ DDL statement just like any other or does it have to be in a transaction of
 its own? Since many DBMSs will automatically COMMIT before and after a DDL
 statement, you can expect the most common return to be SQL_TC_COMMIT. No
 standard SQL DBMS will return SQL_TC_NONE. In ODBC, the code name is SQL_TXN_CAPABLE.
-      ## 72 SQL_TRANSACTION_ISOLATION_OPTION -- INTEGER
+
+## 72 SQL_TRANSACTION_ISOLATION_OPTION -- INTEGER
+
 The return is a bitmask, with zero or more bits on, depending on the isolation levels the DBMS supports. The possible options are:
-            ## [supports READ UNCOMMITTED level]:
+
+## [supports READ UNCOMMITTED level]:
+
 0001 hex (SQL_TRANSACTION_READ_UNCOMMITTED)
-            ## [supports READ COMMITTED level]:
+
+## [supports READ COMMITTED level]:
+
 0002 hex (SQL_TRANSACTION_READ_COMMITTED)
-            ## [supports REPEATABLE READ level]:
+
+## [supports REPEATABLE READ level]:
+
 0004 hex (SQL_TRANSACTION_REPEATABLE_READ)
-            ## [supports SERIALIZABLE level]:
+
+## [supports SERIALIZABLE level]:
+
 0008 hex (SQL_TRANSACTION_SERIALIZABLE)
+
 Standard SQL DBMSs will at least return SQL_TRANSACTION_SERIALIZABLE, since
 SERIALIZABLE must be the default isolation level. Standard SQL DBMSs will
 allow all four options in SET TRANSACTION statements, but it's
@@ -596,10 +827,15 @@ implementation-defined whether a DBMS can in fact go to a higher level. For
 instance, the DBMS may respond to a "SET TRANSACTION ISOLATION LEVEL
 REPEATABLE READ;" request by setting the isolation level to SERIALIZABLE, a
 higher level. In ODBC, the code name is SQL_TXN_ISOLATION_OPTION.
-      ## 47 SQL_USER_NAME -- CHAR(128)
+
+## 47 SQL_USER_NAME -- CHAR(128)
+
 The return is a character string which is the same value CURRENT_USER function.
 
 Algorithm:
+
+::
+
       If (hdbc is not a handle of a dbc)
         return error: CLI-specific condition-invalid handle
       If (dbc is not connected)
@@ -609,58 +845,65 @@ Algorithm:
         return error: HY096 CLI-specific condition-invalid information type
 
 Notes:
-      ## You want to write a portable DBMS application? Then you have to keep
+
+## You want to write a portable DBMS application? Then you have to keep
 asking yourself: does every DBMS support the feature(s) you're using, in the
 way you use them? Hint: the answer is no. We've come a long way in the last
 few years, and the support for "standard SQL" is a lot better than it once
 was. But there are always DBMSs behind the curve, and always applications that
 push the envelope. The SQLGetInfo function is designed to provide information
 for the most common questions and unresolved issues.
-      ## Many SQLGetInfo variants ask about non-standard features or
+
+## Many SQLGetInfo variants ask about non-standard features or
 non-standard behaviour. If you know that your DBMS is completely standard,
 then you shouldn't have to ask these questions.
 
 Example:
+
 In this code snippet we will use the four main types of SQLGetInfo returns: to
 a smallint, to a bitmask, to a CHAR(1) string and to a long string. We assume
 that SQLConnect has happened already.
 
-#include "sqlcli.h"
-...
-SQLSMALLINT max_columns;
-char  y_or_n      ## [2]:
-;
-SQLSMALLINT fd;
-CHAR  server_name ## [129]:
-;
-SQLINTEGER server_name_size;
-...
-SQLGetInfo(hdbc,SQL_ORDER_BY_COLUMNS_IN_SELECT,y_or_n,2,NULL);
-if (y_or_n  ## [0]:
-=='Y')
-  /* order-by Columns must be in the select list */;
-SQLGetInfo(hdbc,SQL_MAXIMUM_COLUMNS_IN_TABLE,&max_columns,NULL,NULL);
-if (max_columns > 10)
-  /* more than 10 Columns are allowed in a select list * */
-SQLGetInfo(hdbc,SQL_FETCH_DIRECTION,&fdirection,NULL,NULL);
-if ( fetchdirection & FD_FETCH_ABSOLUTE)
-  /* SQLFetchScroll can be done with FETCH ABSOLUTE */;
-SQLGetInfo(hdbc,SQL_SERVER_NAME,server_name,129,&server_name_size);
-if (server_name_size>0) {
-  /* server_name has the name of a server, null-terminated. */;
+::
+
+    #include "sqlcli.h"
+    ...
+    SQLSMALLINT max_columns;
+    char  y_or_n      ## [2]:
+    ;
+    SQLSMALLINT fd;
+    CHAR  server_name ## [129]:
+    ;
+    SQLINTEGER server_name_size;
+    ...
+    SQLGetInfo(hdbc,SQL_ORDER_BY_COLUMNS_IN_SELECT,y_or_n,2,NULL);
+    if (y_or_n  ## [0]:
+    =='Y')
+      /* order-by Columns must be in the select list */;
+    SQLGetInfo(hdbc,SQL_MAXIMUM_COLUMNS_IN_TABLE,&max_columns,NULL,NULL);
+    if (max_columns > 10)
+      /* more than 10 Columns are allowed in a select list * */
+    SQLGetInfo(hdbc,SQL_FETCH_DIRECTION,&fdirection,NULL,NULL);
+    if ( fetchdirection & FD_FETCH_ABSOLUTE)
+      /* SQLFetchScroll can be done with FETCH ABSOLUTE */;
+    SQLGetInfo(hdbc,SQL_SERVER_NAME,server_name,129,&server_name_size);
+    if (server_name_size>0) {
+      /* server_name has the name of a server, null-terminated. */;
 
 ODBC: The SQLGetInfo function has been around since ODBC 1.0.
 
 Compare the ODBC prototype for SQLGetInfo with the standard SQL prototype:
 
-ODBC                          Standard SQL
-  SQLRETURN  SQLGetInfo(        SQLRETURN SQLGetInfo(
-    SQLHDBC hdbc,                 SQLHDBC hdbc,
-    SQLSMALLINT InfoType,         SQLSMALLINT InfoType,
-    SQLPOINTER InfoValue,         SQLPOINTER InfoValue,
-    SQLSMALLINT BufferLength,     SQLINTEGER BufferLength,
-    SQLSMALLINT *StringLength     SQLINTEGER *StringLength
-    );                            );
+::
+
+    ODBC                          Standard SQL
+      SQLRETURN  SQLGetInfo(        SQLRETURN SQLGetInfo(
+        SQLHDBC hdbc,                 SQLHDBC hdbc,
+        SQLSMALLINT InfoType,         SQLSMALLINT InfoType,
+        SQLPOINTER InfoValue,         SQLPOINTER InfoValue,
+        SQLSMALLINT BufferLength,     SQLINTEGER BufferLength,
+        SQLSMALLINT *StringLength     SQLINTEGER *StringLength
+        );                            );
 
 The types are incompatible! This will probably be fixed by the time you read
 this -- check this book's web site to see how the matter was resolved.

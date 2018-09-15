@@ -19,22 +19,382 @@ To get the rules of good SQL style for you, we culled them from actual rules of 
 Layout Rules
 ============
 
-1. Capitals. Write SQL s in upper case. Write
-s with an initial capital, small letters after that; when a
-has two parts, use an initial capital for each part. Write s in lower case. For example: CREATE TABLE Widgets ( width SMALLINT); UPDATE Temporary_Personnel SET discharge_date = CURRENT_DATE; Names of other, non-Column, Objects should also have an initial capital. For example: GRANT UPDATE ON Widgets TO Sandra, Maria; Exception: If a name is an acronym -- e.g.: NATO or SQL or NIST -- use all capital letters. Alternative: Some write everything in lower case -- it's easier to remember. And we've seen examples written entirely in upper case -- but not recent examples. You should remember that are stored in upper case, but it's been a long time since any DBMS insisted that Object names must be entered in upper case in the first place. 2. Spaces. Put a single space after every SQL -- that is, after every and after s and after operators such as * or + or =. For example: SELECT width * 5 ... Exception: There need be no spaces after scalar or set function names, or within parentheses. For example: SELECT MAX(width) ... Exception: There should be no space before comma (,) or semicolon (;). There should, however, be a space after the comma. For example: SELECT width, length ... ... DECIMAL (7, 2) ... Exception: There should be no space at the end of a line. Exception: In a qualified name, there should be no space before or after the period (.). Alternative: Some would omit spaces around comparison operators or arithmetic operators. For example: ... (a=b) OR (b=c) ... 3. Line Breaks. [ Skip this rule if you use SQL/CLI or direct SQL ] There are alternate rules for "when to switch to a new line", usually called "breaking". The common rule is to break on every clause-start . In a SELECT statement, the clause-start s are: SELECT itself, FROM, ON, WHERE, GROUP, HAVING, ORDER; the Boolean operators AND / OR are usually considered to be equivalent to clause-start s. Additionally, some prescribe a break after every full expression. For example: SELECT width, length+5 FROM Widgets, Foobars WHERE width > 5 AND length >= 5 ORDER BY width; Others will place multiple items on a line if there aren't too many to fit. For example: SELECT width, length + 5 FROM Widgets, Foobars WHERE width > 5 AND length >= 5 ORDER BY width; Notice the indentation at the start of each line -- or lack thereof! It is rare to find, say, a SELECT statement starting on Column #1 but all subsequent clauses starting on Column #3. In any case, to accomplish the lined-up effect, one uses spaces rather than tab characters. The indentation seen in the above SELECT statements is to Column position 10 to accommodate "ORDER BY "; with non-SELECT statements indent is random. Exception: One group prefers to right-justify the main s. For example: SELECT width, length + 5 FROM Widgets, Foobars WHERE width > 5 AND length >= 5 ORDER BY width; There is a universal rule in all languages: if it's nested, indent. So further indentation will be necessary for subqueries. For example: SELECT width, length, width + 10 FROM Widgets WHERE width <> 7 AND length = (SELECT expression FROM t); Notice the position of the ( preceding the word SELECT. Alternative: Put the ( at the end of the previous line. However, placing a closing ) on the same line as the end of the statement is normal -- even though this differs from the way many C programmers use {} braces and differs from the way many Pascal programmers write begin ... end blocks. Alternative: Put the initial of a major clause on a line of its own, as is done with WHERE and AND in this example: SELECT length FROM widgets WHERE (rowid = 5) AND (specialty = 'FUN'); Note also the different indentation of the conditional clauses. Alternative: Put ORed conditions on the same line, but break for AND. For example: SELECT length FROM widgets WHERE (rowid = 5 OR rowid = 6 OR rowid = 7) AND width > 1; Alternative: Add line breaks for each level of a nested function. For example: SELECT SUBSTRING( UPPER(title) FROM 1 TO 5) FROM Books; Make a new line for UNION. Treat AND NOT as a single operator. 3a. Continuation Lines. When room is unavailable on a line, break if possible at a comma or equal sign or other operator . If there are too many s to fit in one line, break thus: SELECT Column_1, Column_2, Column_3, Column_4, Column_5, Column_6, Column_7, Column_8, Column_9, Column_10 ... Alternative: There is a minority view that commas should be shifted. For example: SELECT Column_1, Column_2, Column_3, Column_4, Column_5 ,Column_6, Column_7, Column_8, Column_9, Column_10 ... 3b. Indenting CREATEs. In a CREATE TABLE statement, every new Column goes on a new line. When it helps, you may indent so that each part of the is at the same position on the line -- but nobody does that all the time. Here's an example: CREATE TABLE Transactions (transactionid INTEGER NOT NULL, amount DECIMAL(7, 2), partid INTEGER, comments VARCHAR(3000)); Usually CREATE TABLE statements will also have Constraint clauses. We have split them out here, adding the Constraints in later ALTER TABLE statements. Constraints are in fact separate from Tables, but if you find that splitting up the Table definition into separate statements is unacceptable, you're not alone. The other part of this illustration shows our preference for giving names to everything, including Constraints -- see Rule 16. Here's an example: ALTER Table Transactions ADD CONSTRAINT transaction_primary_key PRIMARY KEY (transactionid); ALTER Table Transactions ADD CONSTRAINT transaction_references_inventory FOREIGN KEY partid REFERENCES Inventory(partid) ON UPDATE CASCADE ON DELETE CASCADE; 3c. Indenting INSERTs. Here is an INSERT statement formed according to the same rules as discussed. Notice that the SELECT in the example is not indented like a subquery would be. INSERT INTO Recreation_players (playerno, name, town, phoneno) SELECT playerno, name, town, phoneno FROM Players WHERE leagueno IS NULL; For streams of INSERT statements, one relaxes the rules to squeeze to one line. For example: INSERT INTO Personnel VALUES (1, 2, 3, 'Maximum'); INSERT INTO Personnel VALUES (7, 4, 166, 'Minimum'); INSERT INTO Personnel VALUES (15, -6, 0, NULL); It might appear nice to line up the values in this example, but that's not what people do. 3d. Indenting UPDATEs. If we apply the rules consistently, then an UPDATE statement should look like this: UPDATE Contacts SET first_grade = 'A', second_grade = 'B', third_grade = 'C'; Alternative: The more common style is to break for each assignment. For example: UPDATE Contacts SET first_grade = 'A', second_grade = 'B', third_grade = 'C'; 4. Statement end. End statements with a semicolon without a preceding space. For example: COMMIT; Exception: Where the semicolon is inappropriate, omit it (for example, in COBOL shops or where the vendor won't accept it). 5. Comments. A simple comment begins with a double minus sign (--) and ends at the next line. Unfortunately, if an SQL statement comes from keyboard input, then the dialog manager will strip the line breaks. And, OSs disagree whether a line break is one character (LF) or two (CR+LF). Because of the danger that presents to the parser, many eschew all comments in the SQL statement and put them in the host language code. For example: /* Here is a C comment preceding an embedded SQL statement */ EXEC SQL SELECT width, length FROM Widgets; /* Here is a C comment following an embedded SQL statement */ The problem disappears if your DBMS supports SQL3, which allows C-like comments -- i.e.: comments that begin with /* and end with */. Although C-like comments are far from universal, they are the preferred style among Microsoft SQL Server users. Occasionally they are even used for section headings, thus: /************************************* The Table creations *************************************/ CREATE Table ... CREATE Table ... /************************************* The procedure definitions *************************************/ CREATE PROCEDURE ... CREATE PROCEDURE ... Speaking of comments, Weinberg (The Psychology of Computer Programming) suggested that code and comments should be written in separate columns. This would make it easier to focus on the code when debugging (if a program has bugs then the comments are probably lies). 6. Qualifiers. When an SQL statement contains references to more than one Table, use s rather than s. This is particularly true for joins. For example: SELECT Widgets.length, Foobars.width FROM Widgets, Foobars WHERE Widgets.length = Foobars.width; Not only does the qualification of a help the reader see which Table a Column belongs to, it guards against later breakage of the code (if, for instance, a new Column named WIDTH is someday added to FOOBARS). Sometimes the qualification may have to include Schema and s too. If qualification starts to get at all lengthy, use s. 7. Shorthands. 7a. Shorthands for lists. Do not use "SELECT * ..." to mean "SELECT all Columns ...". List the Columns you want by name. For example: SELECT length, width FROM Widgets; Exception: In the set function COUNT(*), the asterisk is necessary and in "EXISTS (SELECT * ..." the asterisk is preferred. Do not use an INSERT statement without a Column list. List the Columns you want by name. For example: INSERT INTO Widgets (length, width) VALUES (1, 2); Exception: Streams of INSERT statements contain no Column list, see rule 3c. Do not use GRANT ALL PRIVILEGES or REVOKE ALL PRIVILEGES for a Privilege list. List the Privileges you want by name. For example: GRANT SELECT, UPDATE ON TABLE Widgets TO Sandra, Joan; 7b. Shorthands for expressions. Usually, expression shorthands involve learning new syntax. For example, "COALESCE(a,b)" is short for "CASE WHEN a IS NOT NULL THEN a ELSE b END". But we'd guess that some people would have to look up COALESCE to find out what it means. On the other hand, they might be able to puzzle out the longer CASE expression, because they've seen similar constructs in most other computer languages. The consensus seems to be to use the longer expression, rather than the shorthand -- unless the shorthand itself is a common and well-understood construct. 8. Short forms. For s, use short forms: CHAR rather than CHARACTER, VARCHAR rather than CHARACTER VARYING, INT rather than INTEGER, BLOB rather than BINARY LARGE OBJECT. Speaking of shortness -- though this has nothing to do with Rule 8 -- a too-long name is: Parts_Which_Have_No_Serial_Numbers. 9. Redundancy. 9a. Noise s. Where a is optional and eliminating it would cause no change in meaning, eliminate it. One example: GRANT UPDATE, INSERT ON Widgets ... instead of: GRANT UPDATE, INSERT ON TABLE Widgets ... Another example: SELECT width FROM Widgets ORDER BY width; instead of: SELECT width FROM Widgets ORDER BY width ASC; Another example: COMMIT; instead of: COMMIT WORK; Another example: SELECT width FROM Widgets; instead of: SELECT ALL width FROM Widgets; Remember Shannon and information theory: when a word adds nothing to the meaning, it is not information. It is noise. Exception: It's never bad to add unnecessary parentheses if there is any chance that a reader might not guess what the precedence of operators might be. For example: SELECT (width * 5) + 4 FROM Widgets; Exception: Although UNION DISTINCT is not in common use, it is clear that SQL3's designers believe that explicitly saying DISTINCT is good. 9b. Superfluous clauses. Most SQL programmers are willing to say the same thing twice "to make the meaning clearer". We give two examples of this bad but normal practice. The first shows a superfluous NOT NULL clause: CREATE TABLE Widgets (width INT NOT NULL, CONSTRAINT widget_pkey PRIMARY KEY(width)); In SQL-92 and SQL3, a primary key is automatically NOT NULL. The second example shows a superfluous predicate: SELECT width FROM Widgets WHERE spoffo BETWEEN 'A' AND 'AZZZ' AND spoffo LIKE 'A%'; The BETWEEN clause is unnecessary. It's probably there for "optimization" reasons which are outside the scope of this chapter. 9c. Explicitizing. You don't need to start any program with the SQL statement: CONNECT TO DEFAULT; because the DBMS would "CONNECT TO DEFAULT" anyway. So should you bother? According to one DBMS expert: yes. In general, if some critical process is "implicit" (performed automatically as default behaviour), you might do good by making it "explicit" (specified in the instruction). You're making your intentions clear not only to the reader, but also to the DBMS, so this act is more than a mere comment. In this view, the first SQL executed statement should be CONNECT. 10. Literals. Enter s using maximum scale but without lead zeros and without leading + signs. For example: UPDATE Widgets SET maximality = 10.00; Exception: When using s in arithmetic expressions, use the scale that you want to the result to have. (Note: If you want to be emphatic about what specific numeric you are using, consider using CAST.) Even if a search of a character string Column is probably case-insensitive, use both upper and lower case as you would if you were inserting. For example: SELECT surname FROM Widgets WHERE surname = 'Smith'; Do not put trailing spaces in s unless they are necessary for comparisons with PAD SPACE Collations. For binary items, use X'....' rather than B'....' notation. For example: INSERT INTO Widgets (bobbet) VALUES (X'427A'); 11. Specify Character sets. We can't call this "common practice" because we haven't seen much of _introducer use, but it would be consistent with the preceding to say that if a character string has, or will have, non-Latin letters, and the default Character set is not obvious, specify the Character set. 12. Statement splitting. Most SQL programmers are willing to write very long SQL statements. There is some practical justification for this tendency: (a) if any form of "auto-commit" is in effect, then splitting up SQL statements could leave the database in an inconsistent state and (b) most DBMSs optimize at the statement level, so putting everything in one statement might provide useful information to the optimizer. Alternative: A minority view (which we espouse) holds that separate thoughts belong in separate sentences, as in any ordinary language. For example, we've suggested before that it's a good idea to add Constraints later (with ALTER TABLE), rather than mix all Constraints with s in the original CREATE TABLE statement. 13. Impossibilities Consider this example of a CASE expression: CASE Column_of_doom WHEN > 5 THEN '>5' WHEN <= 5 THEN '<=5' END It's hard to be sure, but it looks like the writers didn't ask "what if COLUMN_OF_DOOM is NULL?". There should be an explicit ELSE clause, here to allow for that. Defensive programmers code for the "default" or "otherwise" case, even if the case can't possibly happen. 14. Precise comparisons Comparisons with ">" and "<" operators are sometimes vaguer than they need be. For example: name > 'X' /* what if somebody is named 'X'? */ position < 1 /* you mean position <= 0? */ By rephrasing the comparison with a ">=" or "<=" operator, you can sometimes catch such problems. 15. Distributing NOTs "Neither a borrower nor a lender be." -- Polonius Instead of saying "be not a borrower or a lender" Polonius said "neither a borrower nor a lender be" -- using a separate negation word for each negated thing. This was an application of one of DeMorgan's Rules: NOT (A OR B) can be changed to NOT(A) AND NOT(B) NOT (A AND B) can be changed to NOT(A) OR NOT(B) Since the changed form is closer to the way that people actually talk, it is easier to read.
+1. Capitals. Write SQL s in upper case. Write s with an initial capital, small
+letters after that; when a has two parts, use an initial capital for each part.
+Write s in lower case. For example: CREATE TABLE Widgets ( width SMALLINT);
+UPDATE Temporary_Personnel SET discharge_date = CURRENT_DATE; Names of other,
+non-Column, Objects should also have an initial capital. For example: GRANT
+UPDATE ON Widgets TO Sandra, Maria; Exception: If a name is an acronym -- e.g.:
+NATO or SQL or NIST -- use all capital letters. Alternative: Some write
+everything in lower case -- it's easier to remember. And we've seen examples
+written entirely in upper case -- but not recent examples. You should remember
+that are stored in upper case, but it's been a long time since any DBMS
+insisted that Object names must be entered in upper case in the first place. 2.
+Spaces. Put a single space after every SQL -- that is, after every and after s
+and after operators such as * or + or =. For example: SELECT width * 5 ...
+Exception: There need be no spaces after scalar or set function names, or
+within parentheses. For example: SELECT MAX(width) ... Exception: There should
+be no space before comma (,) or semicolon (;). There should, however, be a
+space after the comma. For example: SELECT width, length ... ... DECIMAL (7, 2)
+... Exception: There should be no space at the end of a line. Exception: In a
+qualified name, there should be no space before or after the period (.).
+Alternative: Some would omit spaces around comparison operators or arithmetic
+operators. For example: ... (a=b) OR (b=c) ... 3. Line Breaks. [ Skip this rule
+if you use SQL/CLI or direct SQL ] There are alternate rules for "when to
+switch to a new line", usually called "breaking". The common rule is to break
+on every clause-start . In a SELECT statement, the clause-start s are: SELECT
+itself, FROM, ON, WHERE, GROUP, HAVING, ORDER; the Boolean operators AND / OR
+are usually considered to be equivalent to clause-start s. Additionally, some
+prescribe a break after every full expression. For example: SELECT width,
+length+5 FROM Widgets, Foobars WHERE width > 5 AND length >= 5 ORDER BY width;
+Others will place multiple items on a line if there aren't too many to fit. For
+example: SELECT width, length + 5 FROM Widgets, Foobars WHERE width > 5 AND
+length >= 5 ORDER BY width; Notice the indentation at the start of each line --
+or lack thereof! It is rare to find, say, a SELECT statement starting on Column
+#1 but all subsequent clauses starting on Column #3. In any case, to accomplish
+the lined-up effect, one uses spaces rather than tab characters. The
+indentation seen in the above SELECT statements is to Column position 10 to
+accommodate "ORDER BY "; with non-SELECT statements indent is random.
+Exception: One group prefers to right-justify the main s. For example: SELECT
+width, length + 5 FROM Widgets, Foobars WHERE width > 5 AND length >= 5 ORDER
+BY width; There is a universal rule in all languages: if it's nested, indent.
+So further indentation will be necessary for subqueries. For example: SELECT
+width, length, width + 10 FROM Widgets WHERE width <> 7 AND length = (SELECT
+expression FROM t); Notice the position of the ( preceding the word SELECT.
+Alternative: Put the ( at the end of the previous line. However, placing a
+closing ) on the same line as the end of the statement is normal -- even though
+this differs from the way many C programmers use {} braces and differs from the
+way many Pascal programmers write begin ... end blocks. Alternative: Put the
+initial of a major clause on a line of its own, as is done with WHERE and AND
+in this example: SELECT length FROM widgets WHERE (rowid = 5) AND (specialty =
+'FUN'); Note also the different indentation of the conditional clauses.
+Alternative: Put ORed conditions on the same line, but break for AND. For
+example: SELECT length FROM widgets WHERE (rowid = 5 OR rowid = 6 OR rowid = 7)
+AND width > 1; Alternative: Add line breaks for each level of a nested
+function. For example: SELECT SUBSTRING( UPPER(title) FROM 1 TO 5) FROM Books;
+Make a new line for UNION. Treat AND NOT as a single operator. 3a. Continuation
+Lines. When room is unavailable on a line, break if possible at a comma or
+equal sign or other operator . If there are too many s to fit in one line,
+break thus: SELECT Column_1, Column_2, Column_3, Column_4, Column_5, Column_6,
+Column_7, Column_8, Column_9, Column_10 ... Alternative: There is a minority
+view that commas should be shifted. For example: SELECT Column_1, Column_2,
+Column_3, Column_4, Column_5 ,Column_6, Column_7, Column_8, Column_9, Column_10
+... 3b. Indenting CREATEs. In a CREATE TABLE statement, every new Column goes
+on a new line. When it helps, you may indent so that each part of the is at the
+same position on the line -- but nobody does that all the time. Here's an
+example: CREATE TABLE Transactions (transactionid INTEGER NOT NULL, amount
+DECIMAL(7, 2), partid INTEGER, comments VARCHAR(3000)); Usually CREATE TABLE
+statements will also have Constraint clauses. We have split them out here,
+adding the Constraints in later ALTER TABLE statements. Constraints are in fact
+separate from Tables, but if you find that splitting up the Table definition
+into separate statements is unacceptable, you're not alone. The other part of
+this illustration shows our preference for giving names to everything,
+including Constraints -- see Rule 16. Here's an example: ALTER Table
+Transactions ADD CONSTRAINT transaction_primary_key PRIMARY KEY
+(transactionid); ALTER Table Transactions ADD CONSTRAINT
+transaction_references_inventory FOREIGN KEY partid REFERENCES
+Inventory(partid) ON UPDATE CASCADE ON DELETE CASCADE; 3c. Indenting INSERTs.
+Here is an INSERT statement formed according to the same rules as discussed.
+Notice that the SELECT in the example is not indented like a subquery would be.
+INSERT INTO Recreation_players (playerno, name, town, phoneno) SELECT playerno,
+name, town, phoneno FROM Players WHERE leagueno IS NULL; For streams of INSERT
+statements, one relaxes the rules to squeeze to one line. For example: INSERT
+INTO Personnel VALUES (1, 2, 3, 'Maximum'); INSERT INTO Personnel VALUES (7, 4,
+166, 'Minimum'); INSERT INTO Personnel VALUES (15, -6, 0, NULL); It might
+appear nice to line up the values in this example, but that's not what people
+do. 3d. Indenting UPDATEs. If we apply the rules consistently, then an UPDATE
+statement should look like this: UPDATE Contacts SET first_grade = 'A',
+second_grade = 'B', third_grade = 'C'; Alternative: The more common style is to
+break for each assignment. For example: UPDATE Contacts SET first_grade = 'A',
+second_grade = 'B', third_grade = 'C'; 4. Statement end. End statements with a
+semicolon without a preceding space. For example: COMMIT; Exception: Where the
+semicolon is inappropriate, omit it (for example, in COBOL shops or where the
+vendor won't accept it). 5. Comments. A simple comment begins with a double
+minus sign (--) and ends at the next line. Unfortunately, if an SQL statement
+comes from keyboard input, then the dialog manager will strip the line breaks.
+And, OSs disagree whether a line break is one character (LF) or two (CR+LF).
+Because of the danger that presents to the parser, many eschew all comments in
+the SQL statement and put them in the host language code. For example: /* Here
+is a C comment preceding an embedded SQL statement */ EXEC SQL SELECT width,
+length FROM Widgets; /* Here is a C comment following an embedded SQL statement
+*/ The problem disappears if your DBMS supports SQL3, which allows C-like
+comments -- i.e.: comments that begin with /* and end with */. Although C-like
+comments are far from universal, they are the preferred style among Microsoft
+SQL Server users. Occasionally they are even used for section headings, thus:
+/************************************* The Table creations
+*************************************/ CREATE Table ... CREATE Table ...
+/************************************* The procedure definitions
+*************************************/ CREATE PROCEDURE ... CREATE PROCEDURE
+... Speaking of comments, Weinberg (The Psychology of Computer Programming)
+suggested that code and comments should be written in separate columns. This
+would make it easier to focus on the code when debugging (if a program has bugs
+then the comments are probably lies). 6. Qualifiers. When an SQL statement
+contains references to more than one Table, use s rather than s. This is
+particularly true for joins. For example: SELECT Widgets.length, Foobars.width
+FROM Widgets, Foobars WHERE Widgets.length = Foobars.width; Not only does the
+qualification of a help the reader see which Table a Column belongs to, it
+guards against later breakage of the code (if, for instance, a new Column named
+WIDTH is someday added to FOOBARS). Sometimes the qualification may have to
+include Schema and s too. If qualification starts to get at all lengthy, use s.
+7. Shorthands. 7a. Shorthands for lists. Do not use "SELECT * ..." to mean
+"SELECT all Columns ...". List the Columns you want by name. For example:
+SELECT length, width FROM Widgets; Exception: In the set function COUNT(*), the
+asterisk is necessary and in "EXISTS (SELECT * ..." the asterisk is preferred.
+Do not use an INSERT statement without a Column list. List the Columns you want
+by name. For example: INSERT INTO Widgets (length, width) VALUES (1, 2);
+Exception: Streams of INSERT statements contain no Column list, see rule 3c. Do
+not use GRANT ALL PRIVILEGES or REVOKE ALL PRIVILEGES for a Privilege list.
+List the Privileges you want by name. For example: GRANT SELECT, UPDATE ON
+TABLE Widgets TO Sandra, Joan; 7b. Shorthands for expressions. Usually,
+expression shorthands involve learning new syntax. For example, "COALESCE(a,b)"
+is short for "CASE WHEN a IS NOT NULL THEN a ELSE b END". But we'd guess that
+some people would have to look up COALESCE to find out what it means. On the
+other hand, they might be able to puzzle out the longer CASE expression,
+because they've seen similar constructs in most other computer languages. The
+consensus seems to be to use the longer expression, rather than the shorthand
+-- unless the shorthand itself is a common and well-understood construct. 8.
+Short forms. For s, use short forms: CHAR rather than CHARACTER, VARCHAR rather
+than CHARACTER VARYING, INT rather than INTEGER, BLOB rather than BINARY LARGE
+OBJECT. Speaking of shortness -- though this has nothing to do with Rule 8 -- a
+too-long name is: Parts_Which_Have_No_Serial_Numbers. 9. Redundancy. 9a. Noise
+s. Where a is optional and eliminating it would cause no change in meaning,
+eliminate it. One example: GRANT UPDATE, INSERT ON Widgets ... instead of:
+GRANT UPDATE, INSERT ON TABLE Widgets ... Another example: SELECT width FROM
+Widgets ORDER BY width; instead of: SELECT width FROM Widgets ORDER BY width
+ASC; Another example: COMMIT; instead of: COMMIT WORK; Another example: SELECT
+width FROM Widgets; instead of: SELECT ALL width FROM Widgets; Remember Shannon
+and information theory: when a word adds nothing to the meaning, it is not
+information. It is noise. Exception: It's never bad to add unnecessary
+parentheses if there is any chance that a reader might not guess what the
+precedence of operators might be. For example: SELECT (width * 5) + 4 FROM
+Widgets; Exception: Although UNION DISTINCT is not in common use, it is clear
+that SQL3's designers believe that explicitly saying DISTINCT is good. 9b.
+Superfluous clauses. Most SQL programmers are willing to say the same thing
+twice "to make the meaning clearer". We give two examples of this bad but
+normal practice. The first shows a superfluous NOT NULL clause: CREATE TABLE
+Widgets (width INT NOT NULL, CONSTRAINT widget_pkey PRIMARY KEY(width)); In
+SQL-92 and SQL3, a primary key is automatically NOT NULL. The second example
+shows a superfluous predicate: SELECT width FROM Widgets WHERE spoffo BETWEEN
+'A' AND 'AZZZ' AND spoffo LIKE 'A%'; The BETWEEN clause is unnecessary. It's
+probably there for "optimization" reasons which are outside the scope of this
+chapter. 9c. Explicitizing. You don't need to start any program with the SQL
+statement: CONNECT TO DEFAULT; because the DBMS would "CONNECT TO DEFAULT"
+anyway. So should you bother? According to one DBMS expert: yes. In general, if
+some critical process is "implicit" (performed automatically as default
+behaviour), you might do good by making it "explicit" (specified in the
+instruction). You're making your intentions clear not only to the reader, but
+also to the DBMS, so this act is more than a mere comment. In this view, the
+first SQL executed statement should be CONNECT. 10. Literals. Enter s using
+maximum scale but without lead zeros and without leading + signs. For example:
+UPDATE Widgets SET maximality = 10.00; Exception: When using s in arithmetic
+expressions, use the scale that you want to the result to have. (Note: If you
+want to be emphatic about what specific numeric you are using, consider using
+CAST.) Even if a search of a character string Column is probably
+case-insensitive, use both upper and lower case as you would if you were
+inserting. For example: SELECT surname FROM Widgets WHERE surname = 'Smith'; Do
+not put trailing spaces in s unless they are necessary for comparisons with PAD
+SPACE Collations. For binary items, use X'....' rather than B'....' notation.
+For example: INSERT INTO Widgets (bobbet) VALUES (X'427A'); 11. Specify
+Character sets. We can't call this "common practice" because we haven't seen
+much of _introducer use, but it would be consistent with the preceding to say
+that if a character string has, or will have, non-Latin letters, and the
+default Character set is not obvious, specify the Character set. 12. Statement
+splitting. Most SQL programmers are willing to write very long SQL statements.
+There is some practical justification for this tendency: (a) if any form of
+"auto-commit" is in effect, then splitting up SQL statements could leave the
+database in an inconsistent state and (b) most DBMSs optimize at the statement
+level, so putting everything in one statement might provide useful information
+to the optimizer. Alternative: A minority view (which we espouse) holds that
+separate thoughts belong in separate sentences, as in any ordinary language.
+For example, we've suggested before that it's a good idea to add Constraints
+later (with ALTER TABLE), rather than mix all Constraints with s in the
+original CREATE TABLE statement. 13. Impossibilities Consider this example of a
+CASE expression: CASE Column_of_doom WHEN > 5 THEN '>5' WHEN <= 5 THEN '<=5'
+END It's hard to be sure, but it looks like the writers didn't ask "what if
+COLUMN_OF_DOOM is NULL?". There should be an explicit ELSE clause, here to
+allow for that. Defensive programmers code for the "default" or "otherwise"
+case, even if the case can't possibly happen. 14. Precise comparisons
+Comparisons with ">" and "<" operators are sometimes vaguer than they need be.
+For example: name > 'X' /* what if somebody is named 'X'? */ position < 1 /*
+you mean position <= 0? */ By rephrasing the comparison with a ">=" or "<="
+operator, you can sometimes catch such problems. 15. Distributing NOTs "Neither
+a borrower nor a lender be." -- Polonius Instead of saying "be not a borrower
+or a lender" Polonius said "neither a borrower nor a lender be" -- using a
+separate negation word for each negated thing. This was an application of one
+of DeMorgan's Rules: NOT (A OR B) can be changed to NOT(A) AND NOT(B) NOT (A
+AND B) can be changed to NOT(A) OR NOT(B) Since the changed form is closer to
+the way that people actually talk, it is easier to read.
 
 Naming Rules
 ============
 
-Everyone says that onomatopoeia is the oldest profession. Or, at least, they would say that, if they knew that onomatopoeia originally meant "the making of names", and that Adam's first job was to name all the beasts in the Garden of Eden. 16. Give everything a name. The DBMS often lets you skip giving an Object a name: it just assigns a default name. But this default name is arbitrary. And besides, no two DBMSs use the same rules for default names. So, give explicit names to expressions in select lists. For example: SELECT (length + width) AS length_and_width FROM Widgets; Consider giving explicit names to Constraints in CREATE TABLE, ALTER TABLE, CREATE DOMAIN and ALTER DOMAIN statements. If you don't, how will you drop the Constraints later? And how will you interpret the diagnostics, which include s? Here's an example: CREATE TABLE Widgets (length INT, CONSTRAINT Widgets_Length_Checker CHECK (length > 0)); Exception: Usually one does not give names to simple Column Constraints like NOT NULL or PRIMARY KEY. Actually, naming is just one prominent example of a case where the DBMS will assign some "implementation-dependent" value if you don't specify one yourself. In all such cases, it's probably safer to specify. 17. When a name has two parts, separate the parts with the underscore character (_). For example: ytd_sales, initial_extent. Alternative: For
-s especially, you can keep the parts unseparated but capitalize the second word. For example: OrderItems, DepartmentNumbers. 18. Avoid names that might be reserved words in some SQL dialect. The way to do this is to use names that refer to objects in the real world that you're modelling with your database. You can be fairly sure that names like CandyStores, book_title or swather are not names that the DBMS needs for its own purposes. If you must be absolutely sure, you can take further measures -- but there are problems with all of them. ## You can use the list of s, in our chapter on general SQL concept. This list includes reserved words used in major SQL dialects, as well as reserved words used in all standard SQL variations at the time of printing. It's better to look it up here rather than depend on a vendor's manual. But it's impossible to keep such a list up to date. ## You can check by passing to your DBMS an SQL statement containing the and looking for an error message. For example, try to execute something like "CREATE TABLE ( INT);" If the SQL statement works, is not a reserved word. However, this won't tell you if some other DBMS reserves that word, or if the next version of your DBMS will reserve it. ## You can put underscores (_) in names. This is unpopular. The SQL Standards committee doesn't intend to add s containing underscores in any future SQL version. However, there are some exceptions: words that begin with CURRENT_ or SESSION_ or SYSTEM_, or words that end with _LENGTH. Underscores have special meanings when used with introducers, with LIKE predicates and with SIMILAR predicates. The SQL Standards committee will also avoid s containing digits in all future versions. So try Mussels4. But first read Rule 25. ## You can enclose all names with quotes (""). But s cause their own problems: see Rule 19. 19. Avoid s. The troubles with them are, first, that double quote marks are false signals to many people who are used to thinking that quote marks appear around strings instead of names. Second, there's case sensitivity -- "X" is not the same as "x". Third, quote marks are ugly. Exception:
-s might require s, because some DBMSs use files for Tables. File names include special characters -- . or / or \ or : -- that are illegal in regular s. Exception: Microsoft Access programmers often use s for
-s (Access is a non-standard SQL which uses []s instead of ""s to mark the delimitation). Exception: Applications which generate SQL statements, such as user interfaces, might automatically enclose all s inside ""s. Exception: Of course, if you use SQL s in your names, you must use s. With all these exceptions, you might decide to take the minority line and use s regularly. If you do, at least avoid names that have lead or trailing spaces. Some DBMSs' processes include an automatic TRIM. 20. Names of Tables are plural; names of all other Objects are singular. Thus, in the INFORMATION_SCHEMA, we have a View named SCHEMATA and the Columns of this View are: CATALOG_NAME, SCHEMA_NAME and so on. Often a plural is a collective noun, for example: INVENTORY. Admittedly, this means that
-s will be longer (at least in English), but it's a subtle signal that distinguishes
-s from other s. Alternative: The dissenting minority points out that the English phrases for many tabular items are singular: "ADDRESS BOOK" (not "ADDRESSES BOOK"), "PHONE BOOK", "INVESTMENT PORTFOLIO", "RESTAURANT LIST", etc. 21. Use words in your national language. The fact that SQL s look like English is irrelevant. For example, this sample SQL statement appeared in an article in a Polish magazine: UPDATE studenci SET nazwisko='Kowalski'; This does mean that names will sometimes include characters outside the regular English alphabet. Obviously the effect on portability is unfortunate, but if your DBMS doesn't support accented characters in names then it doubtless won't properly support them in data values either, so why would you use such a DBMS anyway? Precisely because you don't know what a nazwisko is, you can see that a Pole would have trouble understanding the word that you use instead of nazwisko. 22. Don't worry about how s appear when a Table is displayed on the screen. That's something that changes anyway (use AS clauses). Instead, worry about how names appear if you print out a program. Remember: The goal is long-term comprehension, so ephemeral considerations such as screen-display deserve low priority. 23. Names should be descriptive, but not too descriptive. Minimally, you should avoid algebra like "UPDATE k SET k1=4" -- where no one could possibly guess what k and k1 are supposed to represent. Medianly, you should avoid non-specific descriptors like PHONE_NUMBER -- where no one can be sure whether the referent is a home- or office- or general-contact- telephone number. But stop there! Avoid names like SOLDIERS_IN_THE_ARMY because (presumably) all the soldiers in the database are in the army; the "in the army" bit is only helpful if you also have soldiers in the navy and you have to distinguish between them. This part of the rule -- avoid making accidents part of the identification -- is analogous to one of the normalization rules. 24. If two Columns from different Tables are based on the same Domain, they should have the same name. In fact, they should have the Domain's name. For example: CREATE DOMAIN surname VARCHAR(25); CREATE TABLE Students (surname surname, ...); CREATE TABLE Professors (surname surname, ...); This rule would apply even if your DBMS doesn't support explicit creation of Domains, or if you use SQL3's user-defined type feature -- you're still using the concept of Domains. Exception: This rule does not apply for two Columns in the same Table. Incidentally, when s are the same, NATURAL JOIN is easier. That's usually a blessing, but some caution is required -- you certainly don't want to cause a join over two Columns which have the same name by accident. 25. Digits are a bad sign. Too often we use digits as arbitrary distinguishers -- e.g.: Lines_1 / Lines_2 -- when there is some intrinsic difference between Lines_1 and Lines_2 that could be expressed in the names, for example, Lines_Freshwater and Lines_Longitude. Particularly bad are the digits '0' and '1', which look too much like the letters 'O' and 'l'. 26. Try to stop a name at 18 characters: that was the maximum length allowed in SQL-89. Mainly, it's hard to remember a long name. For example, do you remember if the name mentioned in rule 8 was Parts_Which_Have_No_Serial_Numbers? Or was it Parts_Which_Have_No_Serialnumber? 27. Repeat the
-in the ... not. Firstly, you'd end up violating rule 24. Secondly, if you make a View of the Table you'll have to either violate this rule, or make View s not equal to Table s. For example, the INFORMATION_SCHEMA View called GRANTS has a Column called IS_GRANTABLE instead of GRANT_IS_GRANTABLE. Remember, if you really need to make it clear what Table the Column is in, you can use a : GRANTS.IS_GRANTABLE. Exception: A Column which is part of the primary key of the Table could include the
-, in the singular. For example, the INFORMATION_SCHEMA View called SCHEMATA has a Column called SCHEMA_NAME -- and any foreign keys that reference SCHEMATA would be Columns called SCHEMA_NAME too (assuming that Views could have such Constraints). There are several conflicting conventions for foreign keys. In any case, though, it is not part of your mandate to ensure that all s in the database must be unique. 28. Depend on a dialect ... not. This can be subtle, e.g.: UCASE is a function name that some people seem to think is standard SQL (in fact it's ODBC). Write with lowest-common-denominator syntax when you can, but test it first with an SQL3 parser to make sure you're not going to violate a rule when you upgrade. 29. Sometimes s (or aliases) are simply necessary because the actual
-is unwieldy, containing qualifiers or lengthy path names. In Oracle, use of s actually helps the optimizer. But should you always use s? No -- they're most appropriate in SELECT statements where s must be qualified. 30. Abbreviations. Legacy SQL code has frequent abbreviations: PROV for PROVINCE, DEPT for DEPARTMENT, LEN for LENGTH, FNAME for FIRST NAME and so on. Judging from trends in other computer languages, this taste will become obsolete. At this moment it's still a matter of taste. A few abbreviated prefixes/suffixes are used for some common Domains: _id for single-Column candidate key (e.g.: author_id, program_id), _no for ordinal number (e.g.: player_no, receipt_no), qty_ for quantity (e.g.: qty_of_goods_sold), avg_ for average (e.g.: avg_qty_of_goods_sold), min_ for minimum (e.g.: min_weight), max_ for maximum (e.g.: max_length) and sum_ for total (e.g.: sum_balance). Notice that some of the prefixes are derived from SQL s. ## Examples of s/s Some names that we have seen in use in databases for banking/libraries /retail shops/government include: firstname, lastname or surname, street, houseno, aptno or unitno or suiteno, city, state or province, country, phoneno or email, sex, birth_date, account_id, balance, account_open_date, account_close_date, transaction_code, author_firstname, author_lastname, title, callno, isbn, year_published, checkout_date, loan_type, amount, itemno, transaction_time, transaction_code. Certainly we've seen many other names too, in many styles. We picked ones that generally fit the criteria that we've described heretofore. 31. Host language conventions. There is certainly an argument that this C code snippet looks fine: EXEC SQL INSERT INTO Recordings (szRecording) VALUES (:szRecording); The point here is that the C host variable szRecording associates with the SQL Column szRecording. Hence the same name. In general we could say that SQL Object names are often influenced by conventions used in the most common host language, such as C in this case. We don't condemn this practice, we just ignore it, since our concern is SQL conventions rather than host language conventions. One detail about the szRecording in the preceding example: it's in a Polish notation, that is, the sz in the name indicates the data type (string zero). We will concern ourselves solely with the question: is it good SQL to embed information in names, for example szrecording or name_char or (more subtly) namestring? The answer, judging as usual from what seems to be common practice, is yes that's okay, but nobody is doing so systematically. Sometimes we do see s that end in _date or num[eric], but we don't see consistency. For the narrower concept -- Domains -- we have Rule 24. 32. User Names If you have control over user names, prefer first names: Ralph, Mike, Lucien. Where necessary add the first letter of the last name: JeanC, RalphK, LucienB. This convention appears to derive from names on the Internet. Often there is no choice in this regard, because the operating system feeds user names to the DBMS. 33. Comma Lists Whenever a list is disordered, people wonder why. For example, these SQL statements look a trifle curious: SELECT firstname, travel_allowance, surname FROM SalesPersons; SELECT * FROM States WHERE state_abbreviation IN('WY','MI','AK','CO'); If there is some hidden order, add a note explaining what it is. Otherwise, change to a natural or alphabetical order.
+Everyone says that onomatopoeia is the oldest profession. Or, at least, they
+would say that, if they knew that onomatopoeia originally meant "the making of
+names", and that Adam's first job was to name all the beasts in the Garden of
+Eden. 16. Give everything a name. The DBMS often lets you skip giving an Object
+a name: it just assigns a default name. But this default name is arbitrary. And
+besides, no two DBMSs use the same rules for default names. So, give explicit
+names to expressions in select lists. For example: SELECT (length + width) AS
+length_and_width FROM Widgets; Consider giving explicit names to Constraints in
+CREATE TABLE, ALTER TABLE, CREATE DOMAIN and ALTER DOMAIN statements. If you
+don't, how will you drop the Constraints later? And how will you interpret the
+diagnostics, which include s? Here's an example: CREATE TABLE Widgets (length
+INT, CONSTRAINT Widgets_Length_Checker CHECK (length > 0)); Exception: Usually
+one does not give names to simple Column Constraints like NOT NULL or PRIMARY
+KEY. Actually, naming is just one prominent example of a case where the DBMS
+will assign some "implementation-dependent" value if you don't specify one
+yourself. In all such cases, it's probably safer to specify. 17. When a name
+has two parts, separate the parts with the underscore character (_). For
+example: ytd_sales, initial_extent. Alternative: For s especially, you can keep
+the parts unseparated but capitalize the second word. For example: OrderItems,
+DepartmentNumbers. 18. Avoid names that might be reserved words in some SQL
+dialect. The way to do this is to use names that refer to objects in the real
+world that you're modelling with your database. You can be fairly sure that
+names like CandyStores, book_title or swather are not names that the DBMS needs
+for its own purposes. If you must be absolutely sure, you can take further
+measures -- but there are problems with all of them. ## You can use the list of
+s, in our chapter on general SQL concept. This list includes reserved words
+used in major SQL dialects, as well as reserved words used in all standard SQL
+variations at the time of printing. It's better to look it up here rather than
+depend on a vendor's manual. But it's impossible to keep such a list up to
+date. ## You can check by passing to your DBMS an SQL statement containing the
+and looking for an error message. For example, try to execute something like
+"CREATE TABLE ( INT);" If the SQL statement works, is not a reserved word.
+However, this won't tell you if some other DBMS reserves that word, or if the
+next version of your DBMS will reserve it. ## You can put underscores (_) in
+names. This is unpopular. The SQL Standards committee doesn't intend to add s
+containing underscores in any future SQL version. However, there are some
+exceptions: words that begin with CURRENT_ or SESSION_ or SYSTEM_, or words
+that end with _LENGTH. Underscores have special meanings when used with
+introducers, with LIKE predicates and with SIMILAR predicates. The SQL
+Standards committee will also avoid s containing digits in all future versions.
+So try Mussels4. But first read Rule 25. ## You can enclose all names with
+quotes (""). But s cause their own problems: see Rule 19. 19. Avoid s. The
+troubles with them are, first, that double quote marks are false signals to
+many people who are used to thinking that quote marks appear around strings
+instead of names. Second, there's case sensitivity -- "X" is not the same as
+"x". Third, quote marks are ugly. Exception: s might require s, because some
+DBMSs use files for Tables. File names include special characters -- . or / or
+\ or : -- that are illegal in regular s. Exception: Microsoft Access
+programmers often use s for s (Access is a non-standard SQL which uses []s
+instead of ""s to mark the delimitation). Exception: Applications which
+generate SQL statements, such as user interfaces, might automatically enclose
+all s inside ""s. Exception: Of course, if you use SQL s in your names, you
+must use s. With all these exceptions, you might decide to take the minority
+line and use s regularly. If you do, at least avoid names that have lead or
+trailing spaces. Some DBMSs' processes include an automatic TRIM. 20. Names of
+Tables are plural; names of all other Objects are singular. Thus, in the
+INFORMATION_SCHEMA, we have a View named SCHEMATA and the Columns of this View
+are: CATALOG_NAME, SCHEMA_NAME and so on. Often a plural is a collective noun,
+for example: INVENTORY. Admittedly, this means that s will be longer (at least
+in English), but it's a subtle signal that distinguishes s from other s.
+Alternative: The dissenting minority points out that the English phrases for
+many tabular items are singular: "ADDRESS BOOK" (not "ADDRESSES BOOK"), "PHONE
+BOOK", "INVESTMENT PORTFOLIO", "RESTAURANT LIST", etc. 21. Use words in your
+national language. The fact that SQL s look like English is irrelevant. For
+example, this sample SQL statement appeared in an article in a Polish magazine:
+UPDATE studenci SET nazwisko='Kowalski'; This does mean that names will
+sometimes include characters outside the regular English alphabet. Obviously
+the effect on portability is unfortunate, but if your DBMS doesn't support
+accented characters in names then it doubtless won't properly support them in
+data values either, so why would you use such a DBMS anyway? Precisely because
+you don't know what a nazwisko is, you can see that a Pole would have trouble
+understanding the word that you use instead of nazwisko. 22. Don't worry about
+how s appear when a Table is displayed on the screen. That's something that
+changes anyway (use AS clauses). Instead, worry about how names appear if you
+print out a program. Remember: The goal is long-term comprehension, so
+ephemeral considerations such as screen-display deserve low priority. 23. Names
+should be descriptive, but not too descriptive. Minimally, you should avoid
+algebra like "UPDATE k SET k1=4" -- where no one could possibly guess what k
+and k1 are supposed to represent. Medianly, you should avoid non-specific
+descriptors like PHONE_NUMBER -- where no one can be sure whether the referent
+is a home- or office- or general-contact- telephone number. But stop there!
+Avoid names like SOLDIERS_IN_THE_ARMY because (presumably) all the soldiers in
+the database are in the army; the "in the army" bit is only helpful if you also
+have soldiers in the navy and you have to distinguish between them. This part
+of the rule -- avoid making accidents part of the identification -- is
+analogous to one of the normalization rules. 24. If two Columns from different
+Tables are based on the same Domain, they should have the same name. In fact,
+they should have the Domain's name. For example: CREATE DOMAIN surname
+VARCHAR(25); CREATE TABLE Students (surname surname, ...); CREATE TABLE
+Professors (surname surname, ...); This rule would apply even if your DBMS
+doesn't support explicit creation of Domains, or if you use SQL3's user-defined
+type feature -- you're still using the concept of Domains. Exception: This rule
+does not apply for two Columns in the same Table. Incidentally, when s are the
+same, NATURAL JOIN is easier. That's usually a blessing, but some caution is
+required -- you certainly don't want to cause a join over two Columns which
+have the same name by accident. 25. Digits are a bad sign. Too often we use
+digits as arbitrary distinguishers -- e.g.: Lines_1 / Lines_2 -- when there is
+some intrinsic difference between Lines_1 and Lines_2 that could be expressed
+in the names, for example, Lines_Freshwater and Lines_Longitude. Particularly
+bad are the digits '0' and '1', which look too much like the letters 'O' and
+'l'. 26. Try to stop a name at 18 characters: that was the maximum length
+allowed in SQL-89. Mainly, it's hard to remember a long name. For example, do
+you remember if the name mentioned in rule 8 was
+Parts_Which_Have_No_Serial_Numbers? Or was it Parts_Which_Have_No_Serialnumber?
+27. Repeat the in the ... not. Firstly, you'd end up violating rule 24.
+Secondly, if you make a View of the Table you'll have to either violate this
+rule, or make View s not equal to Table s. For example, the INFORMATION_SCHEMA
+View called GRANTS has a Column called IS_GRANTABLE instead of
+GRANT_IS_GRANTABLE. Remember, if you really need to make it clear what Table
+the Column is in, you can use a : GRANTS.IS_GRANTABLE. Exception: A Column
+which is part of the primary key of the Table could include the , in the
+singular. For example, the INFORMATION_SCHEMA View called SCHEMATA has a Column
+called SCHEMA_NAME -- and any foreign keys that reference SCHEMATA would be
+Columns called SCHEMA_NAME too (assuming that Views could have such
+Constraints). There are several conflicting conventions for foreign keys. In
+any case, though, it is not part of your mandate to ensure that all s in the
+database must be unique. 28. Depend on a dialect ... not. This can be subtle,
+e.g.: UCASE is a function name that some people seem to think is standard SQL
+(in fact it's ODBC). Write with lowest-common-denominator syntax when you can,
+but test it first with an SQL3 parser to make sure you're not going to violate
+a rule when you upgrade. 29. Sometimes s (or aliases) are simply necessary
+because the actual is unwieldy, containing qualifiers or lengthy path names. In
+Oracle, use of s actually helps the optimizer. But should you always use s? No
+-- they're most appropriate in SELECT statements where s must be qualified. 30.
+Abbreviations. Legacy SQL code has frequent abbreviations: PROV for PROVINCE,
+DEPT for DEPARTMENT, LEN for LENGTH, FNAME for FIRST NAME and so on. Judging
+from trends in other computer languages, this taste will become obsolete. At
+this moment it's still a matter of taste. A few abbreviated prefixes/suffixes
+are used for some common Domains: _id for single-Column candidate key (e.g.:
+author_id, program_id), _no for ordinal number (e.g.: player_no, receipt_no),
+qty_ for quantity (e.g.: qty_of_goods_sold), avg_ for average (e.g.:
+avg_qty_of_goods_sold), min_ for minimum (e.g.: min_weight), max_ for maximum
+(e.g.: max_length) and sum_ for total (e.g.: sum_balance). Notice that some of
+the prefixes are derived from SQL s. ## Examples of s/s Some names that we have
+seen in use in databases for banking/libraries /retail shops/government
+include: firstname, lastname or surname, street, houseno, aptno or unitno or
+suiteno, city, state or province, country, phoneno or email, sex, birth_date,
+account_id, balance, account_open_date, account_close_date, transaction_code,
+author_firstname, author_lastname, title, callno, isbn, year_published,
+checkout_date, loan_type, amount, itemno, transaction_time, transaction_code.
+Certainly we've seen many other names too, in many styles. We picked ones that
+generally fit the criteria that we've described heretofore. 31. Host language
+conventions. There is certainly an argument that this C code snippet looks
+fine: EXEC SQL INSERT INTO Recordings (szRecording) VALUES (:szRecording); The
+point here is that the C host variable szRecording associates with the SQL
+Column szRecording. Hence the same name. In general we could say that SQL
+Object names are often influenced by conventions used in the most common host
+language, such as C in this case. We don't condemn this practice, we just
+ignore it, since our concern is SQL conventions rather than host language
+conventions. One detail about the szRecording in the preceding example: it's in
+a Polish notation, that is, the sz in the name indicates the data type (string
+zero). We will concern ourselves solely with the question: is it good SQL to
+embed information in names, for example szrecording or name_char or (more
+subtly) namestring? The answer, judging as usual from what seems to be common
+practice, is yes that's okay, but nobody is doing so systematically. Sometimes
+we do see s that end in _date or num[eric], but we don't see consistency. For
+the narrower concept -- Domains -- we have Rule 24. 32. User Names If you have
+control over user names, prefer first names: Ralph, Mike, Lucien. Where
+necessary add the first letter of the last name: JeanC, RalphK, LucienB. This
+convention appears to derive from names on the Internet. Often there is no
+choice in this regard, because the operating system feeds user names to the
+DBMS. 33. Comma Lists Whenever a list is disordered, people wonder why. For
+example, these SQL statements look a trifle curious: SELECT firstname,
+travel_allowance, surname FROM SalesPersons; SELECT * FROM States WHERE
+state_abbreviation IN('WY','MI','AK','CO'); If there is some hidden order, add
+a note explaining what it is. Otherwise, change to a natural or alphabetical
+order.
 
 Examples of statements in formal style
 ======================================

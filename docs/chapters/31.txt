@@ -37,30 +37,305 @@ s are the same in the subquery and in the outer statement. When this happens, it
 Quantified Comparisons
 ======================
 
-In our chapters on the various s, we showed you which of them could be used in an expression that compared a value of that with the collection of values returned by a Table subquery. Here's a more detailed explanation of quantified comparisons using the quantifiers ALL, SOME, ANY. ALL: The required syntax for an ALL quantified comparison is: scalar_expression comparison_operator ALL
-Here, "scalar_expression" may be any expression that evaluates to a single value and "comparison_operator" may be any one of: = or > or < or >= or <= or <>. ALL returns TRUE if the Table subquery returns zero rows or if the comparison operator returns TRUE for every row returned by the Table subquery. ALL returns FALSE if the comparison operator returns FALSE for at least one row returned by the Table subquery. Suppose that TABLE_1 has one Column, defined as DECIMAL(6,2). Here's what will happen, for different values in the rows of TABLE_1, for this expression: ... WHERE 1000.00 > ALL (SELECT column_1 FROM Table_1) ... ## If TABLE_1 contains the values {100.00, 200.00, 300.00}, the expression is TRUE: all of TABLE_1's values are less than 1000.00. ## If TABLE_1 contains the values {100.00, 2000.00, 300.00}, the expression is FALSE: one of TABLE_1's values is greater than 1000.00. ## If TABLE_1 contains the values {1000.00, 200.00, 300.00}, the expression is FALSE too: one of TABLE_1's values is equal to 1000.00. ## If TABLE_1 contains no values, the expression is TRUE: when the set is empty, ALL is TRUE. ## If TABLE_1 contains the values {100.00, NULL, 300.00}, the expression is UNKNOWN: when NULLs are involved, ALL is UNKNOWN. ANY or SOME: The required syntax for an ANY or SOME quantified comparison is: scalar_expression comparison_operator ANY
+In our chapters on the various s, we showed you which of them could be used in
+an expression that compared a value of that with the collection of values
+returned by a Table subquery. Here's a more detailed explanation of quantified
+comparisons using the quantifiers ALL, SOME, ANY. ALL: The required syntax for
+an ALL quantified comparison is: scalar_expression comparison_operator ALL
+Here, "scalar_expression" may be any expression that evaluates to a single
+value and "comparison_operator" may be any one of: = or > or < or >= or <= or
+<>. ALL returns TRUE if the Table subquery returns zero rows or if the
+comparison operator returns TRUE for every row returned by the Table subquery.
+ALL returns FALSE if the comparison operator returns FALSE for at least one row
+returned by the Table subquery. Suppose that TABLE_1 has one Column, defined as
+DECIMAL(6,2). Here's what will happen, for different values in the rows of
+TABLE_1, for this expression: ... WHERE 1000.00 > ALL (SELECT column_1 FROM
+Table_1) ... ## If TABLE_1 contains the values {100.00, 200.00, 300.00}, the
+expression is TRUE: all of TABLE_1's values are less than 1000.00. ## If
+TABLE_1 contains the values {100.00, 2000.00, 300.00}, the expression is FALSE:
+one of TABLE_1's values is greater than 1000.00. ## If TABLE_1 contains the
+values {1000.00, 200.00, 300.00}, the expression is FALSE too: one of TABLE_1's
+values is equal to 1000.00. ## If TABLE_1 contains no values, the expression is
+TRUE: when the set is empty, ALL is TRUE. ## If TABLE_1 contains the values
+{100.00, NULL, 300.00}, the expression is UNKNOWN: when NULLs are involved, ALL
+is UNKNOWN. ANY or SOME: The required syntax for an ANY or SOME quantified
+comparison is: scalar_expression comparison_operator ANY
 | scalar_expression comparison_operator SOME
-Once again, "scalar_expression" may be any expression that evaluates to a single value and "comparison_operator" may be any one of: = > < >= <= <>. SOME and ANY are synonyms. They return TRUE if the comparison operator returns TRUE for at least one row returned by the Table subquery. They return FALSE if the Table subquery returns zero rows or if the comparison operator returns FALSE for every row returned by the Table subquery. Suppose, once again, that TABLE_1 has one Column, defined as DECIMAL(6,2). Here's what will happen, for different values in the rows of TABLE_1, for this expression: ... WHERE 1000.00 > ANY (SELECT column_1 FROM Table_1) ... ## If TABLE_1 contains the values {100.00, 200.00, 300.00}, the expression is TRUE: all of TABLE_1's values are less than 1000.00. ## If TABLE_1 contains the values {100.00, 2000.00, 300.00}, the expression is TRUE too: at least some of TABLE_1's values are less than 1000.00. ## If TABLE_1 contains no values, the expression is FALSE: when the set is empty, ANY is FALSE. ## If TABLE_1 contains the values {1000.00, 2000.00, 3000.00}, the expression is FALSE too: all of TABLE_1's values are greater than or equal to 1000.00. ## If TABLE_1 contains the values {100.00, NULL, 300.00}, the expression is UNKNOWN: when NULLs are involved, ANY is UNKNOWN. There is a small trap when one considers the expression "... 1000.00 <> ANY () ...". Such an expression could be carelessly read as "... 1000 is not equal to any subquery result ..." -- that is, 1000 is not equal to every row returned by the subquery. That is not the correct way to read such expressions because it leads to the English-language ambiguity that "any" can mean "every". There are three ways to avoid such ambiguities: ## Don't use the ANY . Use its synonym, SOME, instead. ## When negatives are involved, replace ANY with ALL. Logic tells us that these transformations are possible: expression <> ANY subquery --> expression = ALL subquery NOT (expression = ANY subquery) --> expression <> ALL subquery as long as the subquery does not return an empty set. ## Use a completely different syntax, for example, the EXISTS predicate, which we'll discuss later in this chapter. Quantified retrieval: Here's some examples of comparisons with subqueries, using the sample database we defined in our chapter on simple search conditions. To find the records for the employees reporting to a manager named D. Black: SELECT * FROM Employee WHERE dept = (SELECT dept FROM Department WHERE manager='BLACK D'); The result is: EMPNUM DEPT SURNAME GNAME ADDRESS 4 D MORGAN CHUCK 963 SOUTH Because there is only one possible row in the DEPARTMENT Table with a manager named "BLACK D", the equals operator can be used in this subquery without a quantifier. If more than one value is possible, either ALL, ANY or SOME is needed to quantify the comparison operator, as in this example: SELECT manager FROM Department WHERE dept = ANY (SELECT dept FROM Employee WHERE empnum, the , the and the . Each will return a boolean value: either TRUE, FALSE or UNKNOWN. : The required syntax for an is: ::= row_expression [ NOT ] IN ::=
-| (scalar_expression [ {,scalar_expression}... ]) An compares a value to a collection of values and returns either TRUE, FALSE or UNKNOWN. (If any argument is NULL, the returns UNKNOWN.) IN searches for data that matches any one of a specified collection of values. NOT IN searches for data that doesn't match any of the values in the collection. Note the words we've used in this explanation: IN can be used to replace the quantified comparison "= ANY" -- that is, these two expressions are equivalent: ... WHERE 'A' IN (SELECT column_1 FROM Table_1) ... ... WHERE 'A' = ANY (SELECT column_1 FROM Table_1) ... This example shows one of the two variants of IN. The other variant is: IN () This syntax has nothing to do with subqueries, but while we're on the subject, these two expressions are also equivalent: ... WHERE column_1 IN ('A','B','C') ... ... WHERE column_1 = 'A' OR column_1 = 'B' OR column_1 = 'C' ... Some general rules: ## All the expressions must be comparable. You can use [NOT] IN to compare one or more values to a collection: "row_expression" may be any expression which evaluates either to a single value, or to a row of values. In the first case, if you're comparing to a Table subquery, it must evaluate to a one-Column Table whose is comparable to the result of "row_expression" -- and if you're comparing to a list of values, the list may contain only one value with a that is comparable to the result of "row_expression" ("scalar_expression" may be any expression which evaluates to a single value). In the second case, if you're comparing to a Table subquery, it must evaluate to a Table with the same number of Columns as the result of "row_expression" has, and each corresponding pair of values must have mutually comparable s -- and if you're comparing to a list of values, the list must contain the same number of values as the result of "row_expression" has, and each corresponding pair of values must have mutually comparable s. ## The can't be used with BLOBs, CLOBs, NCLOBs, REFs and ARRAYs. The is TRUE if the value of "row_expression" is found within the . For example, these s are both TRUE: 1 IN (1,2,3) 1 IN (SELECT column_1 FROM Table_1 where column_1 = 1) NOT IN is simply the negation of IN so these predicates are also TRUE: 1 NOT IN (5,6,7) 1 NOT IN (SELECT column_1 FROM Table_1 where column_1 = 15) In other words, the has two variants, both of which are merely shorthands for some other comparison syntax, so the same rules that apply for comparisons of specific s apply to IN as well. In both cases, IN appears to be more popular than the wordings it replaces. If you want to restrict your code to Core SQL, make sure that all "scalar_expressions" in an are either s, references to a host variables or SQL parameters, s, or CURRENT_PATH, CURRENT_ROLE, CURRENT_USER, SESSION_USER, SYSTEM_USER, USER. ## Retrieval with IN Here's some examples of the , using the sample database we defined in our chapter on simple search conditions. To find the addresses of the employees working in either department C or department D (retrieve values which match any of a list of specified values): SELECT dept,empnum,address FROM Employee WHERE dept IN ('C','D'); The result is: DEPT EMPNUM ADDRESS C 3 567 NORTH D 4 963 SOUTH To find the employee numbers of the employees whose pay rate is not 5.00, 9.00, or 16.00 (retrieve values which do not match any of a specified list): SELECT empnum FROM Payroll WHERE rate NOT IN (5,9,16); The result is: EMPNUM 1 4 To find the names of employees earning a rate of 8.00 (retrieve values which match any returned by a subquery): SELECT surname FROM Employee WHERE empnum IN (SELECT empnum FROM Payroll WHERE rate=8); The result is: SURNAME MORGAN In this example, the subquery is first evaluated to find the payroll records with a rate of 8.00. The employee numbers of the result are then compared to the employee numbers of the EMPLOYEE Table to retrieve the surnames for the final result. To find the employees located in the warehouse: SELECT surname FROM Employee WHERE empnum IN (SELECT empnum FROM Payroll WHERE location='WAREHOUSE'); The result is: SURNAME JONES FRANCIS To find the names of the employees who report to A Smith : SELECT gname,surname FROM Employees WHERE dept IN (SELECT dept FROM Department WHERE manager='SMITH A'); The result is: GNAME SURNAME SARA KOO ALICE SMITH IN expressions can be nested. To find the manager of employees working in the warehouse: SELECT manager FROM Department WHERE dept IN (SELECT dept FROM Employee WHERE empnum IN (SELECT empnum FROM Payroll WHERE location='WAREHOUSE')); The result is: MANAGER BROWN C GREEN E To find the names of employees who don't work on the 10th floor (retrieve values which don't match any returned by a subquery): SELECT gname,surname FROM Employees WHERE empnum IN (SELECT empnum FROM Payroll WHERE location<>'10TH FLOOR'); The result is: GNAME SURNAME JOHN MARSH MABEL JONES CHUCK MORGAN ALICE SMITH BOB JONES CHRIS FRANCIS LINDA TURNER : The required syntax for an is: ::= [ NOT ] EXISTS
-An is a test for a non-empty set and returns either TRUE or FALSE. EXISTS is TRUE if the Table subquery returns at least one row; otherwise it is FALSE. NOT EXISTS is TRUE if the Table subquery returns zero rows; otherwise it is FALSE. By tradition, the
-following an begins with "SELECT *". In this case, the asterisk is not a shorthand for a list of Columns, it merely stands for "some Column". Unless you're using Core SQL, it doesn't actually matter what you put here -- but in Core SQL, the Table subquery's select list must either be just an asterisk, or it must evaluate to a single derived Column. Whatever you use, the result is the same: if the subquery returns any rows, EXISTS is TRUE -- regardless of the number of Columns that the subquery result contains. Here's an example: SELECT column_1 FROM Table_1 WHERE EXISTS (SELECT * FROM Table_2); If there are any rows at all in TABLE_2, then the search condition is TRUE and all values of TABLE_1.COLUMN_1 will be selected. This is a rare example of a rather static subquery. Much more often, the Table subquery will be a correlated subquery. If you use EXISTS, followed by a correlated subquery with a single outer reference, you are accomplishing the same thing as you would accomplish with a quantified ANY comparison. For example, here are two equivalent SQL statements: -- query using "> ANY" and a simple subquery SELECT * FROM Table_1 WHERE column_1 > ANY (SELECT column_1 FROM Table_2 WHERE Table_2.column_2 = 5); -- the same query, using EXISTS and a correlated subquery SELECT * FROM Table_1 WHERE EXISTS (SELECT * FROM Table_2 WHERE Table_2.column_2 = 5 AND Table_1.column_1 > Table_2.column_1); The EXISTS version of the request is more cumbersome, but it's a better choice if there are several items to compare between the outer statement and the subquery. NOT EXISTS is merely the negation of EXISTS, but it deserves attention as a separate operator. The interesting case is a double-nested NOT EXISTS predicate, which can solve questions of the general form: find all the As which are related to all of the Bs. Logicians call these FORALL questions. An example of a FORALL question is "list the students who are in a class for every course that the school offers". Expressed with a double-nested NOT EXISTS predicate, this question is answered with: SELECT student_name FROM Students WHERE NOT EXISTS (SELECT * FROM Courses WHERE NOT EXISTS (SELECT * FROM Classes WHERE Classes.course_id = Courses.course_id AND Classes.student_id = Students.student_id)); In other words: "look for the case where there exists no student where there exists no course where there exists a class for the course containing the student". We can't say that quickly three times, but it doesn't matter: you can use this example as a template for FORALL questions. ## Retrieval with EXISTS Here's some examples of the , using the sample database we defined in our chapter on simple search conditions. To find the names of employees earning a rate of 8.00 (retrieve a value only if some condition exists): SELECT surname FROM Employee WHERE EXISTS (SELECT * FROM Payroll WHERE rate=8 AND empnum=Employee.Empnum); The result is: SURNAME MORGAN To find the employees located in the warehouse: SELECT surname FROM Employee WHERE EXISTS (SELECT * FROM Payroll WHERE location='WAREHOUSE' AND empnum=Employee.empnum); The result is: SURNAME JONES FRANCIS EXISTS expressions can be nested. To find the managers of employees working in the warehouse: SELECT MANAGER FROM Department WHERE EXISTS (SELECT * FROM employee WHERE dept=Department.dept AND EXISTS (SELECT * FROM Payroll WHERE location='WAREHOUSE' AND empnum=Employee.empnum)); The result is: MANAGER BROWN C GREEN E : The required syntax for a is: ::= [ NOT ] UNIQUE
-A is a test for duplicate rows and returns either TRUE or FALSE. UNIQUE returns TRUE if the Table subquery returns zero rows or one row, or if every row returned by the Table subquery is unique (that is, every row contains a different set of non-null values than every other row); otherwise it returns FALSE. NOT UNIQUE returns TRUE if any row returned by the Table subquery is an exact duplicate of another row; otherwise it returns FALSE. The can't be used if the Table subquery returns Columns with a of BLOB, CLOB, NCLOB or ARRAY. For an example of how UNIQUE works, suppose that TABLE_1 has one Column, defined as DECIMAL(6,2). Here's what will happen, for different values in the rows of TABLE_1, for this expression: ... WHERE UNIQUE (SELECT column_1 FROM Table_1) ... ## If TABLE_1 contains the values {100.00, 200.00, 300.00}, the expression is TRUE: all of TABLE_1's rows are different. ## If TABLE_1 contains only {100.00}, the expression is TRUE too: all of TABLE_1's rows are different, since there is only one. ## If TABLE_1 contains no values, the expression is also TRUE: when the set is empty, UNIQUE is TRUE. ## If TABLE_1 contains the values {100.00, 2000.00, 100.00}, the expression is FALSE: at least two of TABLE_1's rows are the same. ## If TABLE_1 contains the values {100.00, NULL, 300.00}, the expression is TRUE: when NULLs are involved, UNIQUE ignores them and looks at the remaining values. In this case, all of TABLE_1's remaining rows are different. ## If TABLE_1 contains the values {100.00, NULL, 100.00}, the expression is FALSE: after eliminating NULLs, at least two of TABLE_1's remaining rows are the same. The was introduced to SQL with SQL-92 but is still not much used in application programs. Its main purpose is to expose the operation which the DBMS uses to handle UNIQUE Constraints. For example, in this pair of SQL statements, the first is a UNIQUE Constraint definition and the second is a statement that the DBMS implicitly uses to enforce the Constraint: -- UNIQUE Constraint definition ALTER TABLE Table_1 ADD CONSTRAINT unique_constraint UNIQUE(column_1); -- implicitly-used enforcement statement SELECT * FROM Table_1 WHERE UNIQUE (SELECT column_1 FROM Table_1); If you want to restrict your code to Core SQL, don't use the . : The required syntax for a is: ::= row_expression MATCH [ UNIQUE ] [ SIMPLE | PARTIAL | FULL ]
-A is a test for matching rows and returns either TRUE or FALSE. The "row_expression" can be any expression which evaluates to one row of values; this row must be comparable to the rows returned by the Table subquery -- that is, "row_expression" and Table subquery must return rows with the same number of values, and each pair of corresponding values must have comparable s. The can't be used if either "row_expression" or the Table subquery returns values with a of BLOB, CLOB, NCLOB or ARRAY. The has eight possible forms: ## row_expression MATCH Table subquery ## row_expression MATCH SIMPLE Table subquery ## row_expression MATCH UNIQUE Table subquery ## row_expression MATCH UNIQUE SIMPLE Table subquery ## row_expression MATCH PARTIAL Table subquery ## row_expression MATCH UNIQUE PARTIAL Table subquery ## row_expression MATCH FULL Table subquery ## row_expression MATCH UNIQUE FULL Table subquery The first forms are equivalent, as are the third and fourth forms: if none of {SIMPLE | PARTIAL | UNIQUE} is specified, the default is SIMPLE. The expression "row_expression MATCH SIMPLE Table subquery" is TRUE only in two cases: ## It is TRUE if the result of "row_expression" contains at least one NULL -- e.g.: if "row_expression" evaluates to {100, NULL, 300}. ## It is TRUE if the result of "row_expression" contains no NULLs and the Table subquery returns at least one row that is equal to "row_expression". (Remember that if a row returned by the Table subquery contains any NULLs, the result of the comparison to "row_expression" would be UNKNOWN, so such rows would make the predicate return FALSE). The expression "row_expression MATCH UNIQUE SIMPLE Table subquery" is TRUE only in two cases: ## It is TRUE if the result of "row_expression" contains at least one NULL. ## It is TRUE if the result of "row_expression" contains no NULLs and the Table subquery returns exactly one row that is equal to "row_expression". The expression "row_expression MATCH PARTIAL Table subquery" is TRUE only in two cases: ## It is TRUE if the result of "row_expression" contains only NULLs -- e.g.: if "row_expression" evaluates to {NULL, NULL, NULL}. ## It is TRUE if the Table subquery returns at least one row whose values equal their corresponding non-null values in "row_expression" -- e.g.: if "row_expression" evaluates to {100, NULL, 300}, at least one row returned by the subquery must be {100, , 300}. The expression "row_expression MATCH UNIQUE PARTIAL Table subquery" is TRUE only in two cases: ## It is TRUE if the result of "row_expression" contains only NULLs. ## It is TRUE if the Table subquery returns exactly one row whose values equal their corresponding non-null values in "row_expression". The expression "row_expression MATCH FULL Table subquery" is TRUE only in two cases: ## It is TRUE if the result of "row_expression" contains only NULLs. ## It is TRUE if the result of "row_expression" contains no NULLs and the Table subquery returns at least one row that is equal to "row_expression". The expression "row_expression MATCH UNIQUE FULL Table subquery" is TRUE only in two cases: ## It is TRUE if the result of "row_expression" contains only NULLs. ## It is TRUE if the result of "row_expression" contains no NULLs and the Table subquery returns exactly one row that is equal to "row_expression". Assume a Table called TABLE_1, defined with three Columns and containing this data: TABLE_1 COLUMN_1 COLUMN_2 COLUMN_3 10 10 10 10 10 10 10 NULL 10 10 10 20 Using TABLE_1, here are some examples of expressions, all of which are TRUE: ... WHERE ROW(10,NULL,10) MATCH SIMPLE (SELECT * FROM Table_1) ... ... WHERE ROW(10,10,10) MATCH SIMPLE (SELECT * FROM Table_1) ... ... WHERE ROW(10,NULL,10) MATCH UNIQUE SIMPLE (SELECT * FROM Table_1) ... ... WHERE ROW(NULL,NULL,NULL) MATCH PARTIAL (SELECT * FROM Table_1) ... ... WHERE ROW(10,NULL,10) MATCH PARTIAL (SELECT * FROM Table_1) ... ... WHERE ROW(NULL,NULL,NULL) MATCH UNIQUE PARTIAL (SELECT * FROM Table_1) ... ... WHERE ROW(NULL,NULL,NULL) MATCH FULL (SELECT * FROM Table_1) ... ... WHERE ROW(10,10,10) MATCH FULL (SELECT * FROM Table_1) ... Still using TABLE_1, here are some examples of expressions, all of which are FALSE: ... WHERE ROW(10,10,10) MATCH UNIQUE SIMPLE (SELECT * FROM Table_1) ... ... WHERE ROW(10,NULL,10) MATCH UNIQUE PARTIAL (SELECT * FROM Table_1) ... ... WHERE ROW(10,NULL,10) MATCH FULL (SELECT * FROM Table_1) ... ... WHERE ROW(10,10,10) MATCH UNIQUE FULL (SELECT * FROM Table_1) ... If you want to restrict your code to Core SQL, don't use the . : The required syntax for a is: ::= FOR ALL
-list () | FOR ANY
-list () | FOR SOME
-list ()
-list ::=
-[ {,
-} ... ] A is a three-valued comparison test: it takes the Cartesian product of "
-list", compares the resulting rows to the search condition specified and returns either TRUE, FALSE or UNKNOWN. The
-list may contain one or more
-s or expressions that evaluate to Tables. The s work the same way that the regular quantifiers do -- that is: ## FOR ALL returns TRUE if the search condition is TRUE for every row of the result of "
-list", returns TRUE if the result of "
-list" is zero rows, returns FALSE if the search condition is FALSE for at least one row of the result of "
-list", and otherwise returns UNKNOWN. ## FOR ANY returns TRUE if the search condition is TRUE for at least one row of the result of "
-list", returns FALSE if the search condition is FALSE for every row of the result of "
-list", returns FALSE if the result of "
-list" is zero rows, and otherwise returns UNKNOWN. (As usual, FOR SOME is a synonym for FOR ANY.) Subqueries are good for answering many complex analytical questions, but they can be hard to understand. As a good example, consider the "double NOT EXISTS" method, which handles FORALL questions in an ugly manner. The SQL3 Standard tries to resolve this by introducing FOR ALL and FOR ANY -- two new predicates, which work only with Tables. Syntactically, the quantified predicates don't have to involve subqueries. But there are times when they could be replacements for subqueries (particularly the confusing NOT EXISTS syntax). Here are some simple examples: ... FOR ALL (SELECT * FROM Employee AS Emps) (Emps.empnum>50) evaluates to FALSE if there are no employees with employee numbers greater than 50. ... FOR ANY (SELECT * FROM Payroll AS Pay) (Pay.location='BASEMENT') evaluates to TRUE if at least one employee works in the basement. If you want to restrict your code to Core SQL, don't use the .
+Once again, "scalar_expression" may be any expression that evaluates to a
+single value and "comparison_operator" may be any one of: = > < >= <= <>. SOME
+and ANY are synonyms. They return TRUE if the comparison operator returns TRUE
+for at least one row returned by the Table subquery. They return FALSE if the
+Table subquery returns zero rows or if the comparison operator returns FALSE
+for every row returned by the Table subquery. Suppose, once again, that TABLE_1
+has one Column, defined as DECIMAL(6,2). Here's what will happen, for different
+values in the rows of TABLE_1, for this expression: ... WHERE 1000.00 > ANY
+(SELECT column_1 FROM Table_1) ... ## If TABLE_1 contains the values {100.00,
+200.00, 300.00}, the expression is TRUE: all of TABLE_1's values are less than
+1000.00. ## If TABLE_1 contains the values {100.00, 2000.00, 300.00}, the
+expression is TRUE too: at least some of TABLE_1's values are less than
+1000.00. ## If TABLE_1 contains no values, the expression is FALSE: when the
+set is empty, ANY is FALSE. ## If TABLE_1 contains the values {1000.00,
+2000.00, 3000.00}, the expression is FALSE too: all of TABLE_1's values are
+greater than or equal to 1000.00. ## If TABLE_1 contains the values {100.00,
+NULL, 300.00}, the expression is UNKNOWN: when NULLs are involved, ANY is
+UNKNOWN. There is a small trap when one considers the expression "... 1000.00
+<> ANY () ...". Such an expression could be carelessly read as "... 1000 is not
+equal to any subquery result ..." -- that is, 1000 is not equal to every row
+returned by the subquery. That is not the correct way to read such expressions
+because it leads to the English-language ambiguity that "any" can mean "every".
+There are three ways to avoid such ambiguities: ## Don't use the ANY . Use its
+synonym, SOME, instead. ## When negatives are involved, replace ANY with ALL.
+Logic tells us that these transformations are possible: expression <> ANY
+subquery --> expression = ALL subquery NOT (expression = ANY subquery) -->
+expression <> ALL subquery as long as the subquery does not return an empty
+set. ## Use a completely different syntax, for example, the EXISTS predicate,
+which we'll discuss later in this chapter. Quantified retrieval: Here's some
+examples of comparisons with subqueries, using the sample database we defined
+in our chapter on simple search conditions. To find the records for the
+employees reporting to a manager named D. Black: SELECT * FROM Employee WHERE
+dept = (SELECT dept FROM Department WHERE manager='BLACK D'); The result is:
+EMPNUM DEPT SURNAME GNAME ADDRESS 4 D MORGAN CHUCK 963 SOUTH Because there is
+only one possible row in the DEPARTMENT Table with a manager named "BLACK D",
+the equals operator can be used in this subquery without a quantifier. If more
+than one value is possible, either ALL, ANY or SOME is needed to quantify the
+comparison operator, as in this example: SELECT manager FROM Department WHERE
+dept = ANY (SELECT dept FROM Employee WHERE empnum, the , the and the . Each
+will return a boolean value: either TRUE, FALSE or UNKNOWN. : The required
+syntax for an is: ::= row_expression [ NOT ] IN ::=
+| (scalar_expression [ {,scalar_expression}... ]) An compares a value to a
+| collection of values and returns either TRUE, FALSE or UNKNOWN. (If any
+| argument is NULL, the returns UNKNOWN.) IN searches for data that matches any
+| one of a specified collection of values. NOT IN searches for data that
+| doesn't match any of the values in the collection. Note the words we've used
+| in this explanation: IN can be used to replace the quantified comparison "=
+| ANY" -- that is, these two expressions are equivalent: ... WHERE 'A' IN
+| (SELECT column_1 FROM Table_1) ... ... WHERE 'A' = ANY (SELECT column_1 FROM
+| Table_1) ... This example shows one of the two variants of IN. The other
+| variant is: IN () This syntax has nothing to do with subqueries, but while
+| we're on the subject, these two expressions are also equivalent: ... WHERE
+| column_1 IN ('A','B','C') ... ... WHERE column_1 = 'A' OR column_1 = 'B' OR
+| column_1 = 'C' ... Some general rules: ## All the expressions must be
+| comparable. You can use [NOT] IN to compare one or more values to a
+| collection: "row_expression" may be any expression which evaluates either to
+| a single value, or to a row of values. In the first case, if you're comparing
+| to a Table subquery, it must evaluate to a one-Column Table whose is
+| comparable to the result of "row_expression" -- and if you're comparing to a
+| list of values, the list may contain only one value with a that is comparable
+| to the result of "row_expression" ("scalar_expression" may be any expression
+| which evaluates to a single value). In the second case, if you're comparing
+| to a Table subquery, it must evaluate to a Table with the same number of
+| Columns as the result of "row_expression" has, and each corresponding pair of
+| values must have mutually comparable s -- and if you're comparing to a list
+| of values, the list must contain the same number of values as the result of
+| "row_expression" has, and each corresponding pair of values must have
+| mutually comparable s. ## The can't be used with BLOBs, CLOBs, NCLOBs, REFs
+| and ARRAYs. The is TRUE if the value of "row_expression" is found within the
+| . For example, these s are both TRUE: 1 IN (1,2,3) 1 IN (SELECT column_1 FROM
+| Table_1 where column_1 = 1) NOT IN is simply the negation of IN so these
+| predicates are also TRUE: 1 NOT IN (5,6,7) 1 NOT IN (SELECT column_1 FROM
+| Table_1 where column_1 = 15) In other words, the has two variants, both of
+| which are merely shorthands for some other comparison syntax, so the same
+| rules that apply for comparisons of specific s apply to IN as well. In both
+| cases, IN appears to be more popular than the wordings it replaces. If you
+| want to restrict your code to Core SQL, make sure that all
+| "scalar_expressions" in an are either s, references to a host variables or
+| SQL parameters, s, or CURRENT_PATH, CURRENT_ROLE, CURRENT_USER, SESSION_USER,
+| SYSTEM_USER, USER. ## Retrieval with IN Here's some examples of the , using
+| the sample database we defined in our chapter on simple search conditions. To
+| find the addresses of the employees working in either department C or
+| department D (retrieve values which match any of a list of specified values):
+| SELECT dept,empnum,address FROM Employee WHERE dept IN ('C','D'); The result
+| is: DEPT EMPNUM ADDRESS C 3 567 NORTH D 4 963 SOUTH To find the employee
+| numbers of the employees whose pay rate is not 5.00, 9.00, or 16.00 (retrieve
+| values which do not match any of a specified list): SELECT empnum FROM
+| Payroll WHERE rate NOT IN (5,9,16); The result is: EMPNUM 1 4 To find the
+| names of employees earning a rate of 8.00 (retrieve values which match any
+| returned by a subquery): SELECT surname FROM Employee WHERE empnum IN (SELECT
+| empnum FROM Payroll WHERE rate=8); The result is: SURNAME MORGAN In this
+| example, the subquery is first evaluated to find the payroll records with a
+| rate of 8.00. The employee numbers of the result are then compared to the
+| employee numbers of the EMPLOYEE Table to retrieve the surnames for the final
+| result. To find the employees located in the warehouse: SELECT surname FROM
+| Employee WHERE empnum IN (SELECT empnum FROM Payroll WHERE
+| location='WAREHOUSE'); The result is: SURNAME JONES FRANCIS To find the names
+| of the employees who report to A Smith : SELECT gname,surname FROM Employees
+| WHERE dept IN (SELECT dept FROM Department WHERE manager='SMITH A'); The
+| result is: GNAME SURNAME SARA KOO ALICE SMITH IN expressions can be nested.
+| To find the manager of employees working in the warehouse: SELECT manager
+| FROM Department WHERE dept IN (SELECT dept FROM Employee WHERE empnum IN
+| (SELECT empnum FROM Payroll WHERE location='WAREHOUSE')); The result is:
+| MANAGER BROWN C GREEN E To find the names of employees who don't work on the
+| 10th floor (retrieve values which don't match any returned by a subquery):
+| SELECT gname,surname FROM Employees WHERE empnum IN (SELECT empnum FROM
+| Payroll WHERE location<>'10TH FLOOR'); The result is: GNAME SURNAME JOHN
+| MARSH MABEL JONES CHUCK MORGAN ALICE SMITH BOB JONES CHRIS FRANCIS LINDA
+| TURNER : The required syntax for an is: ::= [ NOT ] EXISTS
+An is a test for a non-empty set and returns either TRUE or FALSE. EXISTS is
+TRUE if the Table subquery returns at least one row; otherwise it is FALSE. NOT
+EXISTS is TRUE if the Table subquery returns zero rows; otherwise it is FALSE.
+By tradition, the following an begins with "SELECT *". In this case, the
+asterisk is not a shorthand for a list of Columns, it merely stands for "some
+Column". Unless you're using Core SQL, it doesn't actually matter what you put
+here -- but in Core SQL, the Table subquery's select list must either be just
+an asterisk, or it must evaluate to a single derived Column. Whatever you use,
+the result is the same: if the subquery returns any rows, EXISTS is TRUE --
+regardless of the number of Columns that the subquery result contains. Here's
+an example: SELECT column_1 FROM Table_1 WHERE EXISTS (SELECT * FROM Table_2);
+If there are any rows at all in TABLE_2, then the search condition is TRUE and
+all values of TABLE_1.COLUMN_1 will be selected. This is a rare example of a
+rather static subquery. Much more often, the Table subquery will be a
+correlated subquery. If you use EXISTS, followed by a correlated subquery with
+a single outer reference, you are accomplishing the same thing as you would
+accomplish with a quantified ANY comparison. For example, here are two
+equivalent SQL statements: -- query using "> ANY" and a simple subquery SELECT
+* FROM Table_1 WHERE column_1 > ANY (SELECT column_1 FROM Table_2 WHERE
+Table_2.column_2 = 5); -- the same query, using EXISTS and a correlated
+subquery SELECT * FROM Table_1 WHERE EXISTS (SELECT * FROM Table_2 WHERE
+Table_2.column_2 = 5 AND Table_1.column_1 > Table_2.column_1); The EXISTS
+version of the request is more cumbersome, but it's a better choice if there
+are several items to compare between the outer statement and the subquery. NOT
+EXISTS is merely the negation of EXISTS, but it deserves attention as a
+separate operator. The interesting case is a double-nested NOT EXISTS
+predicate, which can solve questions of the general form: find all the As which
+are related to all of the Bs. Logicians call these FORALL questions. An example
+of a FORALL question is "list the students who are in a class for every course
+that the school offers". Expressed with a double-nested NOT EXISTS predicate,
+this question is answered with: SELECT student_name FROM Students WHERE NOT
+EXISTS (SELECT * FROM Courses WHERE NOT EXISTS (SELECT * FROM Classes WHERE
+Classes.course_id = Courses.course_id AND Classes.student_id =
+Students.student_id)); In other words: "look for the case where there exists no
+student where there exists no course where there exists a class for the course
+containing the student". We can't say that quickly three times, but it doesn't
+matter: you can use this example as a template for FORALL questions. ##
+Retrieval with EXISTS Here's some examples of the , using the sample database
+we defined in our chapter on simple search conditions. To find the names of
+employees earning a rate of 8.00 (retrieve a value only if some condition
+exists): SELECT surname FROM Employee WHERE EXISTS (SELECT * FROM Payroll WHERE
+rate=8 AND empnum=Employee.Empnum); The result is: SURNAME MORGAN To find the
+employees located in the warehouse: SELECT surname FROM Employee WHERE EXISTS
+(SELECT * FROM Payroll WHERE location='WAREHOUSE' AND empnum=Employee.empnum);
+The result is: SURNAME JONES FRANCIS EXISTS expressions can be nested. To find
+the managers of employees working in the warehouse: SELECT MANAGER FROM
+Department WHERE EXISTS (SELECT * FROM employee WHERE dept=Department.dept AND
+EXISTS (SELECT * FROM Payroll WHERE location='WAREHOUSE' AND
+empnum=Employee.empnum)); The result is: MANAGER BROWN C GREEN E : The required
+syntax for a is: ::= [ NOT ] UNIQUE A is a test for duplicate rows and returns
+either TRUE or FALSE. UNIQUE returns TRUE if the Table subquery returns zero
+rows or one row, or if every row returned by the Table subquery is unique (that
+is, every row contains a different set of non-null values than every other
+row); otherwise it returns FALSE. NOT UNIQUE returns TRUE if any row returned
+by the Table subquery is an exact duplicate of another row; otherwise it
+returns FALSE. The can't be used if the Table subquery returns Columns with a
+of BLOB, CLOB, NCLOB or ARRAY. For an example of how UNIQUE works, suppose that
+TABLE_1 has one Column, defined as DECIMAL(6,2). Here's what will happen, for
+different values in the rows of TABLE_1, for this expression: ... WHERE UNIQUE
+(SELECT column_1 FROM Table_1) ... ## If TABLE_1 contains the values {100.00,
+200.00, 300.00}, the expression is TRUE: all of TABLE_1's rows are different.
+## If TABLE_1 contains only {100.00}, the expression is TRUE too: all of
+TABLE_1's rows are different, since there is only one. ## If TABLE_1 contains
+no values, the expression is also TRUE: when the set is empty, UNIQUE is TRUE.
+## If TABLE_1 contains the values {100.00, 2000.00, 100.00}, the expression is
+FALSE: at least two of TABLE_1's rows are the same. ## If TABLE_1 contains the
+values {100.00, NULL, 300.00}, the expression is TRUE: when NULLs are involved,
+UNIQUE ignores them and looks at the remaining values. In this case, all of
+TABLE_1's remaining rows are different. ## If TABLE_1 contains the values
+{100.00, NULL, 100.00}, the expression is FALSE: after eliminating NULLs, at
+least two of TABLE_1's remaining rows are the same. The was introduced to SQL
+with SQL-92 but is still not much used in application programs. Its main
+purpose is to expose the operation which the DBMS uses to handle UNIQUE
+Constraints. For example, in this pair of SQL statements, the first is a UNIQUE
+Constraint definition and the second is a statement that the DBMS implicitly
+uses to enforce the Constraint: -- UNIQUE Constraint definition ALTER TABLE
+Table_1 ADD CONSTRAINT unique_constraint UNIQUE(column_1); -- implicitly-used
+enforcement statement SELECT * FROM Table_1 WHERE UNIQUE (SELECT column_1 FROM
+Table_1); If you want to restrict your code to Core SQL, don't use the . : The
+required syntax for a is: ::= row_expression MATCH [ UNIQUE ] [ SIMPLE |
+PARTIAL | FULL ] A is a test for matching rows and returns either TRUE or
+FALSE. The "row_expression" can be any expression which evaluates to one row of
+values; this row must be comparable to the rows returned by the Table subquery
+-- that is, "row_expression" and Table subquery must return rows with the same
+number of values, and each pair of corresponding values must have comparable s.
+The can't be used if either "row_expression" or the Table subquery returns
+values with a of BLOB, CLOB, NCLOB or ARRAY. The has eight possible forms: ##
+row_expression MATCH Table subquery ## row_expression MATCH SIMPLE Table
+subquery ## row_expression MATCH UNIQUE Table subquery ## row_expression MATCH
+UNIQUE SIMPLE Table subquery ## row_expression MATCH PARTIAL Table subquery ##
+row_expression MATCH UNIQUE PARTIAL Table subquery ## row_expression MATCH FULL
+Table subquery ## row_expression MATCH UNIQUE FULL Table subquery The first
+forms are equivalent, as are the third and fourth forms: if none of {SIMPLE |
+PARTIAL | UNIQUE} is specified, the default is SIMPLE. The expression
+"row_expression MATCH SIMPLE Table subquery" is TRUE only in two cases: ## It
+is TRUE if the result of "row_expression" contains at least one NULL -- e.g.:
+if "row_expression" evaluates to {100, NULL, 300}. ## It is TRUE if the result
+of "row_expression" contains no NULLs and the Table subquery returns at least
+one row that is equal to "row_expression". (Remember that if a row returned by
+the Table subquery contains any NULLs, the result of the comparison to
+"row_expression" would be UNKNOWN, so such rows would make the predicate return
+FALSE). The expression "row_expression MATCH UNIQUE SIMPLE Table subquery" is
+TRUE only in two cases: ## It is TRUE if the result of "row_expression"
+contains at least one NULL. ## It is TRUE if the result of "row_expression"
+contains no NULLs and the Table subquery returns exactly one row that is equal
+to "row_expression". The expression "row_expression MATCH PARTIAL Table
+subquery" is TRUE only in two cases: ## It is TRUE if the result of
+"row_expression" contains only NULLs -- e.g.: if "row_expression" evaluates to
+{NULL, NULL, NULL}. ## It is TRUE if the Table subquery returns at least one
+row whose values equal their corresponding non-null values in "row_expression"
+-- e.g.: if "row_expression" evaluates to {100, NULL, 300}, at least one row
+returned by the subquery must be {100, , 300}. The expression "row_expression
+MATCH UNIQUE PARTIAL Table subquery" is TRUE only in two cases: ## It is TRUE
+if the result of "row_expression" contains only NULLs. ## It is TRUE if the
+Table subquery returns exactly one row whose values equal their corresponding
+non-null values in "row_expression". The expression "row_expression MATCH FULL
+Table subquery" is TRUE only in two cases: ## It is TRUE if the result of
+"row_expression" contains only NULLs. ## It is TRUE if the result of
+"row_expression" contains no NULLs and the Table subquery returns at least one
+row that is equal to "row_expression". The expression "row_expression MATCH
+UNIQUE FULL Table subquery" is TRUE only in two cases: ## It is TRUE if the
+result of "row_expression" contains only NULLs. ## It is TRUE if the result of
+"row_expression" contains no NULLs and the Table subquery returns exactly one
+row that is equal to "row_expression". Assume a Table called TABLE_1, defined
+with three Columns and containing this data: TABLE_1 COLUMN_1 COLUMN_2 COLUMN_3
+10 10 10 10 10 10 10 NULL 10 10 10 20 Using TABLE_1, here are some examples of
+expressions, all of which are TRUE: ... WHERE ROW(10,NULL,10) MATCH SIMPLE
+(SELECT * FROM Table_1) ... ... WHERE ROW(10,10,10) MATCH SIMPLE (SELECT * FROM
+Table_1) ... ... WHERE ROW(10,NULL,10) MATCH UNIQUE SIMPLE (SELECT * FROM
+Table_1) ... ... WHERE ROW(NULL,NULL,NULL) MATCH PARTIAL (SELECT * FROM
+Table_1) ... ... WHERE ROW(10,NULL,10) MATCH PARTIAL (SELECT * FROM Table_1)
+... ... WHERE ROW(NULL,NULL,NULL) MATCH UNIQUE PARTIAL (SELECT * FROM Table_1)
+... ... WHERE ROW(NULL,NULL,NULL) MATCH FULL (SELECT * FROM Table_1) ... ...
+WHERE ROW(10,10,10) MATCH FULL (SELECT * FROM Table_1) ... Still using TABLE_1,
+here are some examples of expressions, all of which are FALSE: ... WHERE
+ROW(10,10,10) MATCH UNIQUE SIMPLE (SELECT * FROM Table_1) ... ... WHERE
+ROW(10,NULL,10) MATCH UNIQUE PARTIAL (SELECT * FROM Table_1) ... ... WHERE
+ROW(10,NULL,10) MATCH FULL (SELECT * FROM Table_1) ... ... WHERE ROW(10,10,10)
+MATCH UNIQUE FULL (SELECT * FROM Table_1) ... If you want to restrict your code
+to Core SQL, don't use the . : The required syntax for a is: ::= FOR ALL list
+() | FOR ANY list () | FOR SOME list () list ::= [ {,
+} ... ] A is a three-valued comparison test: it takes the Cartesian product of
+} "
+list", compares the resulting rows to the search condition specified and
+returns either TRUE, FALSE or UNKNOWN. The list may contain one or more s or
+expressions that evaluate to Tables. The s work the same way that the regular
+quantifiers do -- that is: ## FOR ALL returns TRUE if the search condition is
+TRUE for every row of the result of " list", returns TRUE if the result of "
+list" is zero rows, returns FALSE if the search condition is FALSE for at least
+one row of the result of " list", and otherwise returns UNKNOWN. ## FOR ANY
+returns TRUE if the search condition is TRUE for at least one row of the result
+of " list", returns FALSE if the search condition is FALSE for every row of the
+result of " list", returns FALSE if the result of " list" is zero rows, and
+otherwise returns UNKNOWN. (As usual, FOR SOME is a synonym for FOR ANY.)
+Subqueries are good for answering many complex analytical questions, but they
+can be hard to understand. As a good example, consider the "double NOT EXISTS"
+method, which handles FORALL questions in an ugly manner. The SQL3 Standard
+tries to resolve this by introducing FOR ALL and FOR ANY -- two new predicates,
+which work only with Tables. Syntactically, the quantified predicates don't
+have to involve subqueries. But there are times when they could be replacements
+for subqueries (particularly the confusing NOT EXISTS syntax). Here are some
+simple examples: ... FOR ALL (SELECT * FROM Employee AS Emps) (Emps.empnum>50)
+evaluates to FALSE if there are no employees with employee numbers greater than
+50. ... FOR ANY (SELECT * FROM Payroll AS Pay) (Pay.location='BASEMENT')
+evaluates to TRUE if at least one employee works in the basement. If you want
+to restrict your code to Core SQL, don't use the .
 
 Joins versus Subqueries
 =======================
@@ -70,7 +345,7 @@ Often, SQL statements containing subqueries can be re-formulated as statements c
 Subquery Examples
 =================
 
- The following examples are derived, with much editing, from an SQL application suite for a public library. They illustrate the most common situations where subqueries have proven to be useful tools. When a query is on one Table, but requires a quick look at a Column in another Table -- for example, "show the number of books checked out for a particular patron". Here's a subquery that answers this: SELECT COUNT(*) FROM Circulations WHERE patron_id = ANY (SELECT patron_id FROM Patrons WHERE Surname = 'Jones'); When detail and summary data are retrieved or compared in the same SQL statement -- for example, "set a report item to show the average cost of books". Here's a subquery that does this: UPDATE Reports SET average_book_cost = (SELECT AVG(book_cost) FROM Books); When a selection involves some calculation or complexity that has nothing to do with the contents of what is ultimately selected -- for example, "who has taken out books from either branch 9 or branch 10". Here's a subquery that answers this: SELECT DISTINCT patron_id FROM Circulations WHERE book_copy_id = ANY (SELECT book_copy_id FROM Book_Copies WHERE branch = 9 OR branch = 10);
+The following examples are derived, with much editing, from an SQL application suite for a public library. They illustrate the most common situations where subqueries have proven to be useful tools. When a query is on one Table, but requires a quick look at a Column in another Table -- for example, "show the number of books checked out for a particular patron". Here's a subquery that answers this: SELECT COUNT(*) FROM Circulations WHERE patron_id = ANY (SELECT patron_id FROM Patrons WHERE Surname = 'Jones'); When detail and summary data are retrieved or compared in the same SQL statement -- for example, "set a report item to show the average cost of books". Here's a subquery that does this: UPDATE Reports SET average_book_cost = (SELECT AVG(book_cost) FROM Books); When a selection involves some calculation or complexity that has nothing to do with the contents of what is ultimately selected -- for example, "who has taken out books from either branch 9 or branch 10". Here's a subquery that answers this: SELECT DISTINCT patron_id FROM Circulations WHERE book_copy_id = ANY (SELECT book_copy_id FROM Book_Copies WHERE branch = 9 OR branch = 10);
 
 Subquery Tips
 =============

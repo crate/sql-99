@@ -18,15 +18,17 @@ ORDER BY clause
 
 The required syntax for the ORDER BY clause is:
 
-<query expression> [ ORDER BY <sort specification list> ]
+::
 
-   <sort specification list> ::=
-   <sort specification> [ {,<sort specification> }... ]
+    <query expression> [ ORDER BY <sort specification list> ]
 
-      <sort specification> ::=
-      <sort key> [ COLLATE <Collation name> ] [ {ASC | DESC} ]
+       <sort specification list> ::=
+       <sort specification> [ {,<sort specification> }... ]
 
-         <sort key> ::= scalar_expression
+          <sort specification> ::=
+          <sort key> [ COLLATE <Collation name> ] [ {ASC | DESC} ]
+
+             <sort key> ::= scalar_expression
 
 An ORDER BY clause may optionally appear after a <query expression>: it
 specifies the order rows should have when returned from that query (if you
@@ -45,6 +47,8 @@ can be any expression that evaluates to a single value that identifies a
 Column of the final result Table -- this is almost always a <Column name>.
 Here's a simple example:
 
+::
+
    SELECT   column_1
    FROM     Table_1
    ORDER BY column_1;
@@ -52,12 +56,16 @@ Here's a simple example:
 This SQL statement retrieves all COLUMN_1 values from TABLE_1, returning them
 in ascending order. This SQL statement does exactly the same:
 
+::
+
    SELECT   column_1
    FROM     Table_1
    ORDER BY column_1 ASC;
 
 This SQL statement also retrieves all COLUMN_1 values from TABLE_1 -- but
 returns them in descending order:
+
+::
 
    SELECT   column_1
    FROM     Table_1
@@ -71,6 +79,8 @@ If you omit the sort <keyword>, it defaults to ASC.
 Note that, because ORDER BY may operate only on a final result, you can't put
 it in a subquery or before a set function -- that is, these two SQL statements
 are illegal:
+
+::
 
    SELECT column_1
    FROM   Table_1
@@ -96,6 +106,8 @@ Column expressions may be given explicit names using "[AS <Column name>]"
 clauses. The "[AS <Column name>]" clause can also be useful for "unioned"
 SELECTs. For example:
 
+::
+
   SELECT   column_1 AS column_1_or_column_2
   FROM     Table_1
   UNION ALL
@@ -112,6 +124,9 @@ If ORDER BY contains multiple <sort key>s, the primary ordering is by the
 first <sort key>, the secondary ordering is by the second <sort key> and so on
 -- this is called major-to-minor ordering. For example, here's an extract from
 a telephone book:
+
+::
+
    Dunbar L   11407 141 Ave    456-4478
    Duncan J   9419 101A Ave    423-0541
    Duncan J   14705 103 Ave    452-9565
@@ -122,34 +137,43 @@ As one would expect in a telephone book, the entries are sorted (a) by surname
 and then (b) by first initial. In SQL, this order would be accomplished with a
 SELECT statement like this one:
 
+::
+
    SELECT   surname, initial, address, phone
    FROM     Clients
    ORDER BY surname, initial;
 
 Sorting NULLs:
+
 It isn't usually possible to make meaningful comparisons with null values, so
 the following comparison rules are applicable only in the context of an ORDER
 BY clause:
-      ## A NULL is "equal" to a NULL for sorting purposes.
-      ## [NON-PORTABLE] Either a NULL is greater than all non-null values or a
+
+## A NULL is "equal" to a NULL for sorting purposes.
+
+## [NON-PORTABLE] Either a NULL is greater than all non-null values or a
 NULL is less than all non-null values -- it's non-standard because the SQL
 Standard requires implementors to define whether NULLs sort high or low. Most
 vendors say "NULLs are greater than all non-null values" -- in this case, a
 Table with these rows: {7,5,-1,NULL} will end up in this order: {-1,5,7,NULL}
 if you ask for an ascending sort.
-            [OCELOT Implementation] The OCELOT DBMS that comes with this book
+
+[OCELOT Implementation] The OCELOT DBMS that comes with this book
 sorts NULLs low: a NULL is less than all non-null values.
 
 The effect of DESC:
+
 We've already said that if you put the <keyword> DESC after a <sort key>, the
 ordering will be reversed for that <sort key>. Unfortunately, we have to
 belabor what appears to  be an obvious and simple fact, because some pundits
 have mis-stated it. The following statements, taken from SQL books available
 at your book store, are drivel:
-      ## "DESC is a sticky flag, so if you say "ORDER BY a DESC, b" then both
+
+## "DESC is a sticky flag, so if you say "ORDER BY a DESC, b" then both
 a and b will appear in descending order." If anyone knows how this myth got
 started, please write to us: we're curious.
-      ## "If a vendor says that NULLs are greater than non-NULLs, then (for
+
+## "If a vendor says that NULLs are greater than non-NULLs, then (for
 standard SQL) they should appear last, even if DESC is specified." In other
 words -- taking the example we used in the last section -- if you asked for an
 ascending sort of a Table with these rows: {7,5,-1,NULL}, you'd get {-
@@ -158,8 +182,11 @@ fact, standard SQL requires that the descending result be what a sane person
 would expect: {NULL,7,5,-1}.
 
 Deprecated SQL-92 Syntax:
+
 The following examples, taken from real working programs, illustrate syntax
 that you should avoid or change for SQL3.
+
+::
 
    SELECT   E.dept FROM Employees E
    WHERE    age < 21
@@ -169,6 +196,8 @@ Get rid of any <Column reference>s in an ORDER BY clause -- the actual name of
 the Column in the select list is merely DEPT, despite appearances. Use an AS
 clause to give the Column another name if there is resulting ambiguity.
 
+::
+
    SELECT   balance, (balance - amount) FROM Accounts
    ORDER BY 1, 2;
 
@@ -177,12 +206,17 @@ using ordinals as Column numbers is frowned on by SQL-92 and banned by SQL3.
 Again, the solution is to use an AS clause, so the Columns have explicit names
 -- for example:
 
+::
+
    SELECT    balance, (balance - amount) AS balance_minus_amount
    FROM     Accounts
    ORDER BY balance, balance_minus_amount;
 
 SQL3 features:
+
 These three SQL statements, which are illegal in SQL-92, are legal in SQL3:
+
+::
 
    SELECT   column_1 FROM Table_1
    ORDER BY column_2;
@@ -191,6 +225,8 @@ The <sort key> COLUMN_2 is not in the select list, but it does belong to
 TABLE_1 so this type of ORDER BY works, provided that the query does not
 contain DISTINCT, a grouped Table, a set function or a set operator.
 
+::
+
    SELECT   column_1 + 5 FROM Table_1
    ORDER BY column_1 + 5;
 
@@ -198,6 +234,8 @@ The <sort key> "COLUMN_1 + 5" is an unnamed value expression, but this type of
 ORDER BY is legal because "COLUMN_1 + 5" appears in the query's select list.
 Your DBMS will find it by comparing the expressions, rather than comparing
 <Column name>s.
+
+::
 
    SELECT   char_column FROM Table_1
    ORDER BY char_column COLLATE Schema_1.Polish;
@@ -211,6 +249,8 @@ in the result select list. These three SQL statements, equivalent to the ones
 we've just shown you, are better code -- and are legal in both SQL-92 and
 SQL3:
 
+::
+
    SELECT   column_1, column_2 FROM Table_1
    ORDER BY column_2;
 
@@ -221,9 +261,12 @@ SQL3:
    ORDER BY colpolish;
 
 Sorted retrievals:
+
 Here's some examples of sorted retrievals, using the sample database we
 defined in our chapter on simple search conditions. To retrieve an
 alphabetical list of departments, either of these SQL statements will work:
+
+::
 
    SELECT dept FROM Department ORDER BY dept ASC;
 
@@ -231,84 +274,102 @@ alphabetical list of departments, either of these SQL statements will work:
 
 The result is:
 
-DEPT
-A
-B
-C
-D
-E
+::
+
+    DEPT
+    A
+    B
+    C
+    D
+    E
 
 ORDER BY defaults to a sort in ascending order when no sort order is
 specified.
 
 To retrieve departments in descending order:
 
+::
+
    SELECT dept FROM Department ORDER BY dept DESC;
 
 This time, the result is:
 
-DEPT
-E
-D
-C
-B
-A
+::
+
+    DEPT
+    E
+    D
+    C
+    B
+    A
 
 To find an alphabetic list of employee names grouped by their departments
 sorted in descending order (retrieve multiple Columns with nested sort
 levels):
 
+::
+
    SELECT dept,surname FROM Employee ORDER BY dept DESC,surname;
 
 The result is:
 
-DEPT  SURNAME
-E     FRANCIS
-E     OLSEN
-D     MORGAN
-C     JONES
-B     JONES
-B     MARSH
-B     TURNER
-B     WARREN
-A     KOO
-A     SMITH
+::
+
+    DEPT  SURNAME
+    E     FRANCIS
+    E     OLSEN
+    D     MORGAN
+    C     JONES
+    B     JONES
+    B     MARSH
+    B     TURNER
+    B     WARREN
+    A     KOO
+    A     SMITH
 
 To find employee numbers and rates for employees with employee numbers less
 than 20, and to sort these by employee number within descending pay rate
 order, within descending location order:
+
+::
 
    SELECT   empnum,rate,location FROM Payroll WHERE empnum<20
    ORDER BY location DESC,rate DESC,empnum;
 
 The result is:
 
-EMPNUM   RATE   LOCATION
- 3        5.00  WAREHOUSE
- 4        8.00  BASEMENT
-10       16.00  16TH FLOOR
-11       16.00  16TH FLOOR
- 2        5.00  16TH FLOOR
- 1        6.00  10TH FLOOR
+::
+
+    EMPNUM   RATE   LOCATION
+     3        5.00  WAREHOUSE
+     4        8.00  BASEMENT
+    10       16.00  16TH FLOOR
+    11       16.00  16TH FLOOR
+     2        5.00  16TH FLOOR
+     1        6.00  10TH FLOOR
 
 To sort employee numbers in descending order within the daily pay rate:
+
+::
 
    SELECT   empnum,'Daily Rate=' AS comment, RATE*8 AS d_rate  FROM Payroll
    ORDER BY d_rate,empnum DESC;
 
 The result is:
 
-EMPNUM   COMMENT       D_RATE
- 3       Daily Rate=    40.00
- 2       Daily Rate=    40.00
- 1       Daily Rate=    48.00
- 4       Daily Rate=    64.00
-35       Daily Rate=    72.00
-20       Daily Rate=    72.00
-40       Daily Rate=   128.00
-11       Daily Rate=   128.00
-10       Daily Rate=   128.00
-28       Daily Rate=   NULL
+::
+
+    EMPNUM   COMMENT       D_RATE
+     3       Daily Rate=    40.00
+     2       Daily Rate=    40.00
+     1       Daily Rate=    48.00
+     4       Daily Rate=    64.00
+    35       Daily Rate=    72.00
+    20       Daily Rate=    72.00
+    40       Daily Rate=   128.00
+    11       Daily Rate=   128.00
+    10       Daily Rate=   128.00
+    28       Daily Rate=   NULL
 
 Dialects
 ========

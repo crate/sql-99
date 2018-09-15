@@ -7,9 +7,13 @@ Chapter 52 -- Module Binding Style
 SQL DBMSs communicate with SQL applications through a common programming
 language interface that is invoked through one of the SQL Standard-defined
 binding styles, or interface options. There are three main approaches to writing complete programs with SQL:
-      ## With embedded SQL, you can put SQL statements directly into host programs. We described this binding style earlier.
-      ## With SQL/CLI, you can call a SQL DBMS's library from a host program. This binding style was the subject of the last several chapters.
-      ## With the Module language, you can dispense with host programs and write entire Modules in SQL. You'll still have to call these Modules from one of the standard host languages though.
+
+## With embedded SQL, you can put SQL statements directly into host programs. We described this binding style earlier.
+
+## With SQL/CLI, you can call a SQL DBMS's library from a host program. This binding style was the subject of the last several chapters.
+
+## With the Module language, you can dispense with host programs and write entire Modules in SQL. You'll still have to call these Modules from one of the standard host languages though.
+
 The Module language binding style is the subject of this  chapter.
 
 Because we believe that SQL/CLI will quickly become the SQL interface of choice, this chapter omits large amounts of detail, in favour of providing the necessary detail in our chapters on SQL/CLI.
@@ -49,24 +53,26 @@ MODULE statement
 
 The MODULE statement defines an SQL-client Module. The required syntax for the MODULE statement is:
 
-<SQL-client Module definition> ::=
-MODULE [ <SQL-client Module name> ]
- NAMES ARE <Character set name>
- LANGUAGE {ADA | C |COBOL | FORTRAN | MUMPS | PASCAL | PLI}
- <Module authorization clause>
- [ PATH <Schema name> {,<Schema name>}... ]
- [ TRANSFORM GROUP {<group name> | {<group name> FOR TYPE <UDT name>} , ...} ]
- [ DECLARE TABLE statement(s) ]
- <Module contents>...
+::
 
-      <Module authorization clause> ::=
-      SCHEMA <Schema name> |
-      AUTHORIZATION <AuthorizationID> |
-      SCHEMA <Schema name> AUTHORIZATION <AuthorizationID>
+    <SQL-client Module definition> ::=
+    MODULE [ <SQL-client Module name> ]
+     NAMES ARE <Character set name>
+     LANGUAGE {ADA | C |COBOL | FORTRAN | MUMPS | PASCAL | PLI}
+     <Module authorization clause>
+     [ PATH <Schema name> {,<Schema name>}... ]
+     [ TRANSFORM GROUP {<group name> | {<group name> FOR TYPE <UDT name>} , ...} ]
+     [ DECLARE TABLE statement(s) ]
+     <Module contents>...
 
-      <Module contents> ::=
-      DECLARE CURSOR statement(s) |
-      PROCEDURE statement(s)
+          <Module authorization clause> ::=
+          SCHEMA <Schema name> |
+          AUTHORIZATION <AuthorizationID> |
+          SCHEMA <Schema name> AUTHORIZATION <AuthorizationID>
+
+          <Module contents> ::=
+          DECLARE CURSOR statement(s) |
+          PROCEDURE statement(s)
 
 An SQL-client Module doesn't have to be named (unless the Module's LANGUAGE
 clause specifies ADA, in which case you must give the Module a valid Ada
@@ -84,11 +90,13 @@ The LANGUAGE clause provides the name of the host language that will invoke the 
 
 The Module authorization clause provides either the Module's default Schema,
 the Module's <AuthorizationID> or both (at least one must be included).
-      ## SCHEMA <Schema name> provides an explicit <Schema name> -- this will
+
+## SCHEMA <Schema name> provides an explicit <Schema name> -- this will
 be the default <Schema name> qualifier for any Objects referred to in the
 Module without explicit qualifiers. If you omit this clause, the default
 <Schema name> defaults to the value in the AUTHORIZATION clause.
-      ## AUTHORIZATION <AuthorizationID> provides an explicit
+
+## AUTHORIZATION <AuthorizationID> provides an explicit
 <AuthorizationID> to be the owner of the Module -- this will be the
 <AuthorizationID> whose Privileges will be checked when the Module's SQL
 statements are executed. If you omit this clause, your DBMS will treat the
@@ -118,14 +126,16 @@ PROCEDURE statement
 
 The PROCEDURE statement defines an externally-invoked procedure. The required syntax for the PROCEDURE statement is:
 
-PROCEDURE <procedure name>
-{(<host parameter declaration> [ {,<host parameter declaration>}... ] ) |
-<host parameter declaration>...};
-SQL procedure statement;
+::
 
-   <host parameter declaration> ::=
-   :<host parameter name> <data type> [ AS LOCATOR ] |
-   SQLSTATE
+    PROCEDURE <procedure name>
+    {(<host parameter declaration> [ {,<host parameter declaration>}... ] ) |
+    <host parameter declaration>...};
+    SQL procedure statement;
+
+       <host parameter declaration> ::=
+       :<host parameter name> <data type> [ AS LOCATOR ] |
+       SQLSTATE
 
 An externally-invoked procedure is an SQL procedure that is called from a host
 language program. It belongs to an SQL-client Module, and must have a
@@ -151,20 +161,30 @@ statements, the SQL-control statements, the SQL-transaction statements, the
 SQL-Connection statements, the SQL-session statements and the SQL diagnostics statement.
 
 If you calling the procedure from:
-      ## Ada -- then use only these <data type>s in your <host parameter
+
+## Ada -- then use only these <data type>s in your <host parameter
 declaration>s: CHARACTER, BIT, SMALLINT, INTEGER, REAL, DOUBLE PRECISION,
 declare SQLSTATE's base type as SQL_STANDARD.SQLSTATE_TYPE, and identify the
 procedure by its <procedure name>, as if it was declared within an Ada library
 unit specification that has a name equal to the name of the SQL-client Module that contains the procedure.
-      ## C -- then use only these <data type>s in your <host parameter declaration>s: CHARACTER, CHARACTER VARYING, BIT, INTEGER, SMALLINT, REAL, DOUBLE PRECISION, and declare SQLSTATE as a C char with length 6.
-      ## COBOL -- then use only these <data type>s in your <host parameter declaration>s: CHARACTER, BIT, NUMERIC, INTEGER, SMALLINT, and declare SQLSTATE as a COBOL PICTURE X(5).
-      ## Fortran -- then use only these <data type>s in your <host parameter declaration>s: CHARACTER, BIT, INTEGER, REAL, DOUBLE PRECISION, and declare SQLSTATE as a Fortran CHARACTER with length 5.
-      ## MUMPS -- then use only these <data type>s in your <host parameter declaration>s: CHARACTER VARYING, INTEGER, DECIMAL, REAL, and declare SQLSTATE as a MUMPS character with maximum length greater than or equal to 5.
-      ## Pascal -- then use only these <data type>s in your <host parameter declaration>s: CHARACTER, BIT, INTEGER, REAL, and declare SQLSTATE as a Pascal PACKED ARRAY [1..5] OF CHAR.
-      ## PL/I -- then use only these <data type>s in your <host parameter declaration>s: CHARACTER, CHARACTER VARYING, BIT, BIT VARYING, DECIMAL, INTEGER, SMALLINT, FLOAT, and declare SQLSTATE as a PL/I CHARACTER(5).
+
+## C -- then use only these <data type>s in your <host parameter declaration>s: CHARACTER, CHARACTER VARYING, BIT, INTEGER, SMALLINT, REAL, DOUBLE PRECISION, and declare SQLSTATE as a C char with length 6.
+
+## COBOL -- then use only these <data type>s in your <host parameter declaration>s: CHARACTER, BIT, NUMERIC, INTEGER, SMALLINT, and declare SQLSTATE as a COBOL PICTURE X(5).
+
+## Fortran -- then use only these <data type>s in your <host parameter declaration>s: CHARACTER, BIT, INTEGER, REAL, DOUBLE PRECISION, and declare SQLSTATE as a Fortran CHARACTER with length 5.
+
+## MUMPS -- then use only these <data type>s in your <host parameter declaration>s: CHARACTER VARYING, INTEGER, DECIMAL, REAL, and declare SQLSTATE as a MUMPS character with maximum length greater than or equal to 5.
+
+## Pascal -- then use only these <data type>s in your <host parameter declaration>s: CHARACTER, BIT, INTEGER, REAL, and declare SQLSTATE as a Pascal PACKED ARRAY [1..5] OF CHAR.
+
+## PL/I -- then use only these <data type>s in your <host parameter declaration>s: CHARACTER, CHARACTER VARYING, BIT, BIT VARYING, DECIMAL, INTEGER, SMALLINT, FLOAT, and declare SQLSTATE as a PL/I CHARACTER(5).
+
 For a list of the correspondences between SQL <data type>s and host data types, see "Host Variables" in our chapter on embedded SQL.
 
 Here's an example of an SQL-client Module:
+
+::
 
    MODULE module_1
       NAMES ARE ASCII_FULL
