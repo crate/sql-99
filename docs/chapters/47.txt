@@ -66,6 +66,11 @@ Chapter 47 -- SQL/CLI: Diagnostic Functions
 
     The descriptions of these four functions follow.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 SQLGetDiagField
 ===============
 

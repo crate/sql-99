@@ -37,6 +37,11 @@ Chapter 27 -- User-defined Types
     familiar (which they're supposed to be -- that's the point). However, you must
     start with a good recollection of the earlier chapters on <data type>s, procedures and SQL syntax.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 UDTs
 ====
 

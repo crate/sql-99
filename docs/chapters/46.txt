@@ -18,6 +18,11 @@ Chapter 46 -- SQL/CLI: desc Functions
     SQLGetDescField, SQLSetDescField, SQLGetDescRec, SQLSetDescRec, SQLCopyDesc and others.
           ## Functions which attack descs indirectly: SQLBindParameter, SQLBindCol, SQLColAttribute, SQLDescribeCol and others.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 Descriptor Areas
 ================
 

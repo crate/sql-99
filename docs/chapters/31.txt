@@ -8,6 +8,11 @@ Chapter 31 -- Searching with Subqueries
 
     A subquery is a parenthesized query enclosed within some outer SQL statement. Most queries are SELECTs, so this means that a subquery usually takes the form "(SELECT ...)", nested somewhere inside an expression. Queries return result sets, or Tables, and the values in such Tables can be used when the syntax of the outer expression calls for a value of the appropriate . Subqueries make an SQL statement look structured, and indeed it was the presence of subqueries that gave the original SQL its distinctive look (the letters SQL used to stand for "Structured Query Language"). Nowadays subqueries are less essential because there other ways (particularly joins and UNION/EXCEPT/INTERSECT operators) to reach the same ends. Nevertheless, they are important because they provide these benefits: ## SQL statements with subqueries are readable. Most people, especially if they are familiar with the role of subordinate clauses in English, can figure that a subquery-containing SQL statement can be read "from the inside out" -- that is, they can focus on the subquery's workings first, and then on the separate analysis of the outer statement. Statements with joins, by contrast, must be read all at once. ## Certain types of problems can be stated more concisely, and more efficiently, with subqueries.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 Subquery syntax
 ===============
 

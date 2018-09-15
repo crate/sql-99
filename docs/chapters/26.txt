@@ -36,6 +36,11 @@ Chapter 26 -- PSM: Not just Persistent Stored Modules
     be implemented independently. For example, some DBMSs allow "assignment"
     statements to be used within Triggers, even though they have no support for persistent stored modules.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 Persistent Stored Modules
 =========================
 

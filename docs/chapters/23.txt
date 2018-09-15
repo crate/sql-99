@@ -10,6 +10,11 @@ Chapter 23 -- SQL Translation
 
     In this chapter, we'll describe SQL Translations in detail, and show you the syntax to use to create, alter and destroy them.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 Translation
 ===========
 

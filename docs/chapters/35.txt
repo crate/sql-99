@@ -26,6 +26,11 @@ Chapter 35 -- Changing SQL-data
     the SQL data-change statements taken in isolation. But we give you fair
     warning: we'll revisit some of these points when we put them in context later on.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 The SQL-data Change Statements
 ==============================
 

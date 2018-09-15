@@ -35,6 +35,11 @@ Chapter 40 -- SQL/CLI Binding Style
     functions which can be called from a host language. Each function has a name,
     a parameter list and a required algorithm (what the DBMS must do when you call it using this function).
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 EXAMPLE1.C
 ==========
 

@@ -22,6 +22,11 @@ Chapter 41 -- SQL/CLI: env Functions
           v v
           ... to dbcs
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 Null Termination
 ================
 

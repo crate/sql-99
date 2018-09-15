@@ -69,6 +69,11 @@ Chapter 44 -- SQL/CLI Statement Functions
           - done -
           --------
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 Preparable SQL statements
 =========================
 

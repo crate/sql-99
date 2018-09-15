@@ -13,6 +13,11 @@ Chapter 32 -- Searching with Set Operators
     ). If you want to restrict your code to Core SQL, don't use TABLE
     . ## A Table constructor is the VALUES followed by a comma- delimited, parenthesized list of rows or an expression that evaluates to a Table. Here's an example of the first case: ... VALUES (10,'hello',B'1011'), (20,'goodbye',B'1111'), (30,'bobby',B'0000') ... is a Table constructor that constructs a three-Column Table with three rows. (Each value inside the VALUES clause may be any expression that evaluates to a single value.) Here's another example, this time of the second case: ... VALUES (SELECT column_1, column_5 FROM Table_1 WHERE column_1=10) ... is a Table constructor that constructs a two-Column Table. If you want to restrict your code to Core SQL, don't use a Table constructor that involves a Table expression, don't use a Table constructor anywhere but in an INSERT statement and make all your Table constructors contain exactly one row.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 Set Operation Syntax
 ====================
 

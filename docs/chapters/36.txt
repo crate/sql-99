@@ -65,6 +65,11 @@ Chapter 36 -- SQL Transactions
 
     It's your job to figure out what operations fit together as a logical unit of work. It's the DBMS's job to ensure that the operations will all fail, or all succeed, together.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 Initiating Transactions
 =======================
 

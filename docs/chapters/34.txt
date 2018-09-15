@@ -10,6 +10,11 @@ Chapter 34 -- Sorting Search Results
     you're using Direct SQL, you're always using an implied Cursor, and so we'll
     describe the ORDER BY clause now.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 ORDER BY clause
 ===============
 

@@ -28,6 +28,11 @@ Chapter 42 -- SQL/CLI: dbc Functions
 
     There are eight CLI functions for creating dbcs, dropping dbcs, getting dbc attributes, setting dbc attributes, connecting and  disconnecting. Their descriptions follow.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 SQLAllocHandle(SQL_HANDLE_DBC,...)
 ==================================
 

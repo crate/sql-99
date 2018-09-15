@@ -52,6 +52,11 @@ Chapter 49 -- SQL/CLI: Deferred Parameter Functions
     (for example, packet transfers). You will not see deferred parameters in
     embedded SQL or PSM applications.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 How to pass deferred parameters
 ===============================
 

@@ -13,6 +13,11 @@ Chapter 9 -- Boolean values
     condition) that evaluates to a truth value. Boolean values are stored in the
     Boolean <data type>: BOOLEAN.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 <Boolean literal>s
 ==================
 

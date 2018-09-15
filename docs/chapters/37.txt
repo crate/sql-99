@@ -34,6 +34,11 @@ Chapter 37 -- SQL Transaction Concurrency
     application plans. ** Footnote -- Though we use the singular word "DBMS", we
     note once again that there may in fact be several co-operating agencies responsible for transaction management.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 Isolation Phenomena
 ===================
 

@@ -11,6 +11,11 @@ Chapter 50 -- SQL/CLI: Locator Functions
     BLOBs and CLOBs. They are new in SQL3; as far as we know, no DBMS supports
     them. Our description is therefore fairly brief.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 What is a Locator?
 ==================
 

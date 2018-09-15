@@ -12,6 +12,11 @@ Chapter 48 -- SQL/CLI: General Functions
     Generalized applications need to find out what is available, as part of a long
     initialization process. Here are the descriptions of the three general functions.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 SQLDataSources
 ==============
 

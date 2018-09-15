@@ -11,6 +11,11 @@ Chapter 17 -- SQL Schema
     they depend on some Schema. In this chapter, we'll describe SQL Schemas in
     detail, and show you the syntax to use to create, alter and destroy them.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 Schema
 ======
 

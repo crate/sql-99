@@ -10,6 +10,11 @@ Chapter 12 -- Reference types
 
     In SQL, a <reference type> is a pointer: a scalar constructed SQL <data type>.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 Reference <data type>s
 ======================
 

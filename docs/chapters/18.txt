@@ -29,6 +29,11 @@ Chapter 18 -- SQL Table and View
 
     SQL supports two types of Tables: the physically existent, named Base table and the derived, named View. We use the word "Table" to mean both Base tables and Views throughout this book. (SQL also supports the concept of unnamed derived tables -- these are tables which are derived from a <query expression>, so we won't discuss them here.)
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 Base Table
 ==========
 

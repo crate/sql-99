@@ -15,6 +15,11 @@ Chapter 33 -- Searching with Groups
     summarize it to be: "three Smiths, two Joneses". Such a summary is known in
     SQL as a grouped Table.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 GROUP BY clause
 ===============
 

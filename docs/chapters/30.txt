@@ -28,6 +28,11 @@ Chapter 30 -- Searching with Joins
 
     The first insight is the basis of relational-database theory. The second is a warning that we want to minimize the undesirable consequences of joined Tables.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 Joined Tables
 =============
 

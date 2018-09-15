@@ -73,6 +73,11 @@ Chapter 39 -- Embedded SQL Binding Style
     the "Weltanschauung" problem (handling one-row-at-a-time rather than
     whole-set-at-a-time) and the "control" problem (adjusting host program flow based on SQL execution information).
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 What is embedded SQL?
 =====================
 

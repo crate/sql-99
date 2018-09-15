@@ -36,6 +36,11 @@ Chapter 51 -- SQL/CLI: Catalog Functions
     Catalogs and use the simple mechanisms you already know. It's cleaner to
     SELECT from a View in INFORMATION_SCHEMA.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 Some necessary preliminaries
 ============================
 

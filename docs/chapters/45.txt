@@ -60,6 +60,11 @@ Chapter 45 -- SQL/CLI: Cursor Functions
     There are six CLI functions for creating Cursors, dropping Cursors, getting
     Cursor attributes and fetching from Cursors. Their descriptions follow.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 SQLFetch
 ========
 

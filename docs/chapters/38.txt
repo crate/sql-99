@@ -57,6 +57,11 @@ Chapter 38 -- SQL Sessions
     diagnostics area limit, the value of all valid locators and information of any
     active SQL-invoked routines.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 SQL-Connections
 ===============
 

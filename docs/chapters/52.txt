@@ -22,6 +22,11 @@ Chapter 52 -- Module Binding Style
     procedures, an SQL-session Module contains only SQL statements prepared in
     that SQL-session and an SQL-server Module -- the SQL/PSM type -- is a Schema Object that contains only SQL-invoked routines.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 SQL-client Modules
 ==================
 

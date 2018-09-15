@@ -14,6 +14,11 @@ Chapter 11 -- Row types
     can represent the rows of a Table, so that complete rows can be stored in
     variables, passed as arguments to routines and returned by functions.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 Row <data type>s
 ================
 

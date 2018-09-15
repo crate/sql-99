@@ -11,6 +11,11 @@ Chapter 28 -- Introduction to SQL-data operations
     data work. [Obscure Rule] applies to everything we talk about here, but the
     definitions are a necessary evil for understanding some of what lies ahead.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 <value specification>
 =====================
 

@@ -29,6 +29,11 @@ Chapter 43 -- SQL/CLI: stmt Functions
 
     There are six CLI functions for creating stmts, dropping stmts, getting stmt attributes and setting stmt attributes. Their descriptions follow.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 SQLAllocHandle(SQL_HANDLE_STMT,...)
 ===================================
 

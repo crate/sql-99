@@ -28,6 +28,11 @@ Chapter 8 -- Temporal values
     represented in the interval. All interval values are signed. Intervals are
     stored in the INTERVAL <data type>.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 Some Preliminaries
 ==================
 

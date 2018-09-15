@@ -45,6 +45,11 @@ Chapter 13 -- NULLs
     This example teaches us three things: (a) that Ronald Reagan was a sage, (b) that some data can be "unknown" (a data collection failure) or "not applicable" (a database definition anomaly), and (c) that it's better to admit
     the deficiencies in a way that the DBMS can account for. This is unpleasant and mathematically unsound, but it's what we've got.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 Representing Missing Data with NULL
 ===================================
 

@@ -11,6 +11,11 @@ Chapter 24 -- SQL Trigger
 
     In this chapter, we'll describe SQL Triggers in detail, and show you the syntax to use to create, alter and destroy them.
 
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
 Trigger
 =======
 
