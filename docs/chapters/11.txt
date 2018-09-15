@@ -4,8 +4,6 @@
 Chapter 11 -- Row types
 =======================
 
-::
-
 [Obscure Rule] applies for this entire chapter.
 
 In SQL, a <row type> is a row of data: a composite constructed SQL <data
@@ -21,8 +19,6 @@ variables, passed as arguments to routines and returned by functions.
 
 Row <data type>s
 ================
-
-::
 
 A <row type> is defined by a descriptor that contains three pieces of information:
       ## The <data type>'s name: ROW.
@@ -266,8 +262,6 @@ front of your element_expression and don't use a subquery to construct your row.
 Row Operations
 ==============
 
-::
-
 A row is compatible with, and comparable to, any row with compatible Fields --
 that is, rows are mutually comparable and mutually assignable only if they
 have the same number of Fields and each corresponding pair of Fields are
@@ -372,8 +366,6 @@ search conditions.
 
 Comprehensive Example
 =====================
-
-::
 
 Now that we've described SQL's <row type>, let's look at some example SQL statements that put it to use.
 

@@ -4,8 +4,6 @@
 Chapter 26 -- PSM: Not just Persistent Stored Modules
 =====================================================
 
-::
-
 The initials "PSM" refer to the specifications of a document labelled "ISO/IEC
 9075-4 Information Technology - Database Languages - SQL: Part 4: Persistent
 Stored Modules (SQL/PSM)". Part 4 is one of the standard SQL documents, but it
@@ -43,8 +41,6 @@ statements to be used within Triggers, even though they have no support for pers
 
 Persistent Stored Modules
 =========================
-
-::
 
 In SQL, the word "persistent" is applied to Schema Objects that survive over
 SQL-sessions (as "persistent Base tables" do). And the sort of Modules we're
@@ -125,8 +121,6 @@ Here are some examples of <Module name>s:
 CREATE MODULE statement
 =======================
 
-::
-
 The CREATE MODULE statement creates an SQL-server Module: a Module that belongs to a Schema. The required syntax for the CREATE MODULE statement is:
 
 CREATE MODULE <Module name>
@@ -199,8 +193,6 @@ Note: The DECLARE <keyword> before "PROCEDURE" is optional.
 ALTER MODULE statement
 ======================
 
-::
-
 The ALTER MODULE statement lets you change a Module's definition. The required syntax for the ALTER MODULE statement is:
 
 ALTER MODULE <Module name>
@@ -219,8 +211,6 @@ After the execution of this ALTER MODULE statement, the EMPLOYEES_MODULE Module 
 
 DROP MODULE statement
 =====================
-
-::
 
 The DROP MODULE statement destroys an SQL-server Module. The required syntax for the DROP MODULE statement is:
 
@@ -257,8 +247,6 @@ behaviour, so that all Privileges held on the Module by any other
 
 BEGIN ... END: compound statement
 =================================
-
-::
 
 Advance warning: BEGIN ... END has several optional clauses. We are going to
 start with the simplest form, and examine the options in following sections.
@@ -544,8 +532,6 @@ everything is within the compound statement and, by contrast, the Module definit
 SIGNAL statement
 ================
 
-::
-
 The SIGNAL statement is used to clear the diagnostics area. The required syntax for the SIGNAL statement is:
 
 SIGNAL <condition name or sqlstate value>
@@ -568,8 +554,6 @@ Note: You'll find the list of <condition information item name>s in our chapter 
 RESIGNAL statement
 ==================
 
-::
-
 The RESIGNAL statement is used to pass conditions on to another handler. The required syntax for the RESIGNAL statement is:
 
 RESIGNAL [ <condition name or sqlstate value> ]
@@ -586,8 +570,6 @@ first condition area in the diagnostics area is changed to the value indicated.
 
 Program Control
 ===============
-
-::
 
 Essential SQL has almost nothing that can control the program flow (except for
 the CALL and RETURN statements which are associated with SQL routines). By
@@ -806,8 +788,6 @@ end. Here's an example:
 Should everything be in SQL?
 ============================
 
-::
-
 PSM is an extension package which makes SQL3 a reasonably complete language.
 There are still some things you can't do (such as disk or screen I/O), but
 anybody could write external-routine libraries which would plug the remaining gaps.
@@ -835,8 +815,6 @@ most convincing. At the moment, PSM is not (yet) the popular way to go.
 
 Dialects
 ========
-
-::
 
 PSM's features are vaguely similar to Oracle's PL/SQL, which also has: BEGIN
 ... END, LOOP, WHILE, and (using different keywords) assignment statements and

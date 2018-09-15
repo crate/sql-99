@@ -4,8 +4,6 @@
 Chapter 36 -- SQL Transactions
 ==============================
 
-::
-
 "An SQL-transaction (transaction) is a sequence of executions of
 SQL-statements that is atomic with respect to recovery. That is to say: either
 the execution result is completely successful, or it has no effect on any SQL-schemas or SQL-data."
@@ -73,8 +71,6 @@ It's your job to figure out what operations fit together as a logical unit of wo
 Initiating Transactions
 =======================
 
-::
-
 A transaction begins, if it hasn't already begun, when one of these SQL statements is executed:
       ## Any SQL-Schema statement: ALTER, CREATE, DROP, GRANT, REVOKE.
       ## The SQL-data statements OPEN, CLOSE, FETCH, SELECT, INSERT, UPDATE, DELETE, FREE LOCATOR, HOLD LOCATOR.
@@ -112,8 +108,6 @@ statements in our chapter on SQL-sessions.)
 
 Terminating Transactions
 ========================
-
-::
 
 There are two transaction-terminating statements: COMMIT and ROLLBACK. The
 first saves all changes, while the second destroys all changes. Although they
@@ -464,8 +458,6 @@ If you want to restrict your code to Core SQL, don't use the RELEASE SAVEPOINT s
 Using savepoints
 ================
 
-::
-
 A savepoint may be thought of as a label of a moment between operations. For illustration, suppose a transaction that consists of these SQL statements:
 
    INSERT INTO Table_1 (column_1) VALUES (5);
@@ -502,8 +494,6 @@ ROLLBACK alone or ROLLBACK TO SAVEPOINT is used.
 Transaction Tips
 ================
 
-::
-
 The following tips are viable only if the DBMS is alone, is following the SQL
 Standard's specifications and uses logs as we have described them. But if not,
 there shouldn't be much harm done by at least considering them.
@@ -532,8 +522,6 @@ Security (consistency) first, performance second.
 See Also
 ========
 
-::
-
 All SQL operations have something to do with transactions. This chapter has
 singled out only the major points, with particular attention to the COMMIT and
 the ROLLBACK statements. There is more relevant information in our chapter on
@@ -542,8 +530,6 @@ chapter on concurrency (particularly with regard to the SET TRANSACTION statemen
 
 Dialects
 ========
-
-::
 
 SQL has supported transaction work since the early days (SQL-86). There are
 some packages which graft SQL-like statements onto non-SQL environments (dBASE

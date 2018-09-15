@@ -4,8 +4,6 @@
 Chapter 38 -- SQL Sessions
 ==========================
 
-::
-
 An SQL-session spans the execution of one or more consecutive SQL statements
 by a single user. In order to execute any SQL statements, your DBMS has to
 establish an SQL-Connection (using the CONNECT statement) -- the SQL-session
@@ -64,8 +62,6 @@ active SQL-invoked routines.
 
 SQL-Connections
 ===============
-
-::
 
 You can establish an SQL-Connection either explicitly, by issuing a CONNECT
 statement; or implicitly, by invoking a procedure that works on SQL-data when
@@ -368,8 +364,6 @@ If you want to restrict your code to Core SQL, don't use the DISCONNECT statemen
 
 SQL-session management
 ======================
-
-::
 
 SQL provides four statements that help you manage your SQL-session. Each one
 lets you specify a value for one or more SQL-session characteristics. The SQL-session management statements are SET SESSION CHARACTERISTICS, SET SESSION AUTHORIZATION, SET ROLE and SET TIME ZONE.

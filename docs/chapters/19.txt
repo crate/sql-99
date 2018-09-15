@@ -4,8 +4,6 @@
 Chapter 19 -- SQL Domain
 ========================
 
-::
-
 In this chapter, we'll describe SQL Domains in detail, and show you the syntax to use to create, alter and destroy them.
 
 .. rubric:: Table of Contents
@@ -15,8 +13,6 @@ In this chapter, we'll describe SQL Domains in detail, and show you the syntax t
 
 Domain
 ======
-
-::
 
 A Schema may contain zero or more Domains. An SQL Domain is a named, user-defined set of valid values. Domains are dependent on some Schema -- the
 <Domain name> must be unique within the Schema the Domain belongs to (it may
@@ -67,8 +63,6 @@ Here are some examples of <Domain name>s:
 
 CREATE DOMAIN statement
 =======================
-
-::
 
 The CREATE DOMAIN statement names a new Domain and defines the Domain's set of valid values. The required syntax for the CREATE DOMAIN statement is:
 
@@ -268,8 +262,6 @@ If you want to restrict your code to Core SQL, don't use the CREATE DOMAIN state
 ALTER DOMAIN statement
 ======================
 
-::
-
 The ALTER DOMAIN statement changes a Domain's definition. The required syntax for the ALTER DOMAIN statement is:
 
 ALTER DOMAIN <Domain name> <alter domain action>
@@ -345,8 +337,6 @@ If you want to restrict your code to Core SQL, don't use the ALTER DOMAIN statem
 DROP DOMAIN statement
 =====================
 
-::
-
 The DROP DOMAIN statement destroys a Domain. The required syntax for the DROP DOMAIN statement is:
 
 DROP DOMAIN <Domain name> {RESTRICT | CASCADE}
@@ -391,8 +381,6 @@ If you want to restrict your code to Core SQL, don't use the DROP DOMAIN stateme
 
 Frequently-used numeric Domains
 ===============================
-
-::
 
 Any business needs to store "money" -- usually a signed decimal with two fixed
 digits after the decimal point; and "interest" -- usually an unsigned decimal

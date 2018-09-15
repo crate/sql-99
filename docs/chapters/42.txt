@@ -4,8 +4,6 @@
 Chapter 42 -- SQL/CLI: dbc Functions
 ====================================
 
-::
-
 In this chapter, we'll describe the second essential CLI resource: the dbc.
 For CLI programs, the dbc is at the level below env and above stmt. The env
 may contain multiple dbcs, and the dbc may contain multiple stmts (the dbc may
@@ -35,8 +33,6 @@ There are eight CLI functions for creating dbcs, dropping dbcs, getting dbc attr
 
 SQLAllocHandle(SQL_HANDLE_DBC,...)
 ==================================
-
-::
 
 Function Prototype:
   SQLRETURN SQLAllocHandle (
@@ -76,8 +72,6 @@ not be available until you call the "connect" function.
 SQLAllocConnect
 ===============
 
-::
-
 Function Prototype:
   SQLRETURN SQLAllocConnect (
     SQLHENV henv,       /* 32-bit input, must be a henv */
@@ -109,8 +103,6 @@ ODBC: The SQLAllocConnect routine has been in ODBC since version 1.0. The ODBC 3
 
 SQLConnect
 ==========
-
-::
 
 Function Prototype:
   SQLRETURN  SQLConnect(
@@ -233,8 +225,6 @@ analogue: SQLDisconnect, SQLEndTran(...SQL_COMMIT) and SQLEndTran(...SQL_ROLLBAC
 SQLDisconnect
 =============
 
-::
-
 Function Prototype:
   SQLRETURN SQLDisconnect(
     SQLHDBC hdbc                    /* 32-bit input */
@@ -299,8 +289,6 @@ connection.
 
 SQLGetConnectAttr
 =================
-
-::
 
 Function Prototype:
   SQLRETURN  SQLGetConnectAttr(
@@ -383,8 +371,6 @@ to ODBC's optional features (timeout, trace file, network packet size, etc.).
 SQLSetConnectAttr
 =================
 
-::
-
 Function Prototype:
   SQLRETURN SQLSetConnectAttr(
     SQLHDBC hdbc,             /* 32-bit input -- SQL-connection handle */
@@ -425,8 +411,6 @@ broadly similar function (SQLSetConnectOption). ODBC allows for 16 dbc attribute
 SQLFreeHandle(SQL_HANDLE_DBC,...)
 =================================
 
-::
-
 Function Prototype:
   SQLRETURN SQLFreeHandle(    /* function returns SMALLINT */
       SQLSMALLINT HandleType, /* 16-bit input, = SQL_HANDLE_DBC */
@@ -465,8 +449,6 @@ ODBC: The SQLFreeHandle function is new in ODBC 3.0. There will be some differen
 
 SQLFreeConnect
 ==============
-
-::
 
 Function Prototype:
   SQLRETURN SQLFreeConnect(

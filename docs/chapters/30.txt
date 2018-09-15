@@ -4,8 +4,6 @@
 Chapter 30 -- Searching with Joins
 ==================================
 
-::
-
 It's France in the 1600s. Rene Descartes is playing cards with Madame du
 Barry. The game is War. Each player has a deck. Rene plays a card from the top
 of his deck. Madame du Barry plays a card from the top of her deck. If Rene's
@@ -35,8 +33,6 @@ The first insight is the basis of relational-database theory. The second is a wa
 
 Joined Tables
 =============
-
-::
 
 The SQL definition for a joined Table is: a Table derived from a Cartesian
 product, an inner join, an outer join or a union join. The required syntax for a joined Table is:
@@ -537,8 +533,6 @@ the UPDATE operation will fail: your DBMS will return the SQLSTATE error 22014
 Syntax rules
 ============
 
-::
-
 Now that we've shown you an example of each type of join, here's a list of the
 formal syntax rules you'll have to follow when forming a join expression.
 First, we'll repeat the join syntax itself:
@@ -737,8 +731,6 @@ The values in either Table that have no match are matched with a NULL (or defaul
 
 Dialects
 ========
-
-::
 
 Since "modern" syntax is relatively new to SQL, various products support different syntax for the types of joins we've illustrated here. For example:
       ## Oracle uses "WHERE Table_1.column (+) = Table_2.column" for a LEFT OUTER JOIN.

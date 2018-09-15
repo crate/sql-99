@@ -4,8 +4,6 @@
 Chapter 52 -- Module Binding Style
 ==================================
 
-::
-
 SQL DBMSs communicate with SQL applications through a common programming
 language interface that is invoked through one of the SQL Standard-defined
 binding styles, or interface options. There are three main approaches to writing complete programs with SQL:
@@ -30,8 +28,6 @@ that SQL-session and an SQL-server Module -- the SQL/PSM type -- is a Schema Obj
 SQL-client Modules
 ==================
 
-::
-
 SQL-client Modules are programming modules that contain externally-invoked
 procedures -- that is, SQL procedures that are invoked by a host language.
 Generally speaking, this methodology is really the basic SQL binding style:
@@ -50,8 +46,6 @@ are called externally-invoked procedures because they are invoked by the host la
 
 MODULE statement
 ================
-
-::
 
 The MODULE statement defines an SQL-client Module. The required syntax for the MODULE statement is:
 
@@ -121,8 +115,6 @@ If you want to restrict your code to Core SQL, don't use the NAMES ARE clause, t
 
 PROCEDURE statement
 ===================
-
-::
 
 The PROCEDURE statement defines an externally-invoked procedure. The required syntax for the PROCEDURE statement is:
 

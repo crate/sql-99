@@ -4,8 +4,6 @@
 Chapter 44 -- SQL/CLI Statement Functions
 =========================================
 
-::
-
 Of the 62 CLI functions, only three actually handle what we know as "SQL
 statements". There are two steps in SQL statement handling: the "prepare" step
 and the "execute" step. You can do these steps separately, using the
@@ -77,8 +75,6 @@ the SQLExecDirect function. The following flowchart shows the steps involved:
 Preparable SQL statements
 =========================
 
-::
-
 Some SQL statements are not preparable. Here's the list of all possibilities, showing whether the SQL statement can be prepared.
 
 SQL STATEMENT         SQL STATEMENT CLASS  PREPARABLE?
@@ -128,8 +124,6 @@ there is an SQLEndTran ("end transaction") function.
 
 SQLPrepare
 ==========
-
-::
 
 Function Prototype:
   SQLRETURN SQLPrepare(
@@ -237,8 +231,6 @@ ODBC: The SQLPrepare function has been part of ODBC since ODBC version 1.0.
 SQLExecute
 ==========
 
-::
-
 Function Prototype:
   SQLRETURN SQLExecute(
     SQLHSTMT hstmt                        /* 32-bit input */
@@ -292,8 +284,6 @@ ODBC: The SQLExecute function has been around since ODBC 1.0.
 
 SQLExecDirect
 =============
-
-::
 
 Function Prototype:
   SQLRETURN  SQLExecDirect(
@@ -374,8 +364,6 @@ ODBC: The SQLExecDirect function has been around since ODBC 1.0.
 
 SQLEndTran
 ==========
-
-::
 
 Function Prototype:
   SQLRETURN SQLEndTran(

@@ -4,8 +4,6 @@
 Chapter 8 -- Temporal values
 ============================
 
-::
-
 In SQL, a temporal value is either a datetime (i.e.: a date, a clock time or a
 timestamp) or an interval (i.e.: a span of time). They consist of a contiguous
 subset of one or more of the datetime fields (in their order of significance):
@@ -35,8 +33,6 @@ stored in the INTERVAL <data type>.
 
 Some Preliminaries
 ==================
-
-::
 
 Before we talk about datetimes and intervals, there is some necessary
 background to go through. We provide most of this information mainly for
@@ -333,8 +329,6 @@ evaluates to UTC 16:00 (subtract the 4 hours).
 
 Temporal <literal>s
 ===================
-
-::
 
 A temporal <literal> is any temporal value in one of two categories: datetimes
 and intervals.
@@ -802,8 +796,6 @@ If you want to restrict your code to Core SQL, don't use <interval literal>s.
 
 Temporal <data type>s
 =====================
-
-::
 
 A temporal <data type> is either a datetime <data type> or an interval <data type>.
 
@@ -1573,8 +1565,6 @@ two rows, then search for any interval that doesn't equal 30 seconds.
 
 Temporal Operations
 ===================
-
-::
 
 A temporal value is only compatible with, and comparable to, a matching
 temporal value; that is, only temporal values of the same type, that also
@@ -2543,8 +2533,6 @@ If you want to restrict your code to Core SQL, don't use the OVERLAPS predicate.
 Dialects
 ========
 
-::
-
 The "typical" SQL DBMS supports date, time and timestamp data types but
 interval (as a separate data type) is not common yet. The majority of SQL
 DBMSs can't handle time zones, can't handle fractional seconds and can't
@@ -2573,8 +2561,6 @@ EXTRACT(SECOND ...            SECOND
 
 The SQL Library
 ===============
-
-::
 
 Before we finish discussing temporal values, it's time to add something to our
 SQL library. To be worthy of addition to the SQL library, a routine must (a)

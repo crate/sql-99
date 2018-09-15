@@ -4,8 +4,6 @@
 Chapter 48 -- SQL/CLI: General Functions
 ========================================
 
-::
-
 In this chapter, we discuss SQLDataSources, SQLGetFunctions and SQLGetInfo. We
 call these the "general" functions because they are used primarily in
 applications which are not tied to a specific DBMS or a specific database.
@@ -19,8 +17,6 @@ initialization process. Here are the descriptions of the three general functions
 
 SQLDataSources
 ==============
-
-::
 
 Function Prototype:
   SQLRETURN SQLDataSources(
@@ -125,8 +121,6 @@ Windows95, the ODBC driver information is stored in the registry.
 
 SQLGetFunctions
 ===============
-
-::
 
 Function Prototype:
   SQLRETURN  SQLGetFunctions(
@@ -289,8 +283,6 @@ ODBC: The SQLGetFunctions function has been around since ODBC version 1.0. The t
 
 SQLGetInfo
 ==========
-
-::
 
 Function Prototype:
   SQLRETURN  SQLGetInfo(

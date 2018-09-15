@@ -4,8 +4,6 @@
 Chapter 50 -- SQL/CLI: Locator Functions
 ========================================
 
-::
-
 In this chapter, we'll describe the CLI locator functions: SQLGetLength,
 SQLGetPosition and SQLGetSubstring. These functions are used with locators of
 BLOBs and CLOBs. They are new in SQL3; as far as we know, no DBMS supports
@@ -18,8 +16,6 @@ them. Our description is therefore fairly brief.
 
 What is a Locator?
 ==================
-
-::
 
 When you assign the value of a BLOB, CLOB, NCLOB, UDT or ARRAY to an embedded
 host language variable or a host language parameter, your DBMS generates and
@@ -96,8 +92,6 @@ The rest of this chapter describes the three CLI locator functions.
 SQLGetLength
 ============
 
-::
-
 Function Prototype:
   SQLRETURN  SQLGetLength(
     SQLHSTMT hstmt,                 /* 32-bit input */
@@ -160,8 +154,6 @@ ODBC: Since this is an SQL3 function, it is not in ODBC 3.0.
 SQLGetPosition
 ==============
 
-::
-
 Function Prototype:
   SQLRETURN SQLGetPosition(
     SQLHSTMT StatementHandle,         /* 32-bit input */
@@ -206,8 +198,6 @@ ODBC: Since this is an SQL3 function, it is not in ODBC 3.0.
 
 SQLGetSubstring
 ===============
-
-::
 
 Function Prototype
   SQLRETURN  SQLGetSubString(

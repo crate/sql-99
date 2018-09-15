@@ -4,8 +4,6 @@
 Chapter 15 -- SQL Authorizationid
 =================================
 
-::
-
 In this chapter, we'll describe SQL <AuthorizationID>s in detail, and show you the syntax to use to create, alter and destroy them.
 
 .. rubric:: Table of Contents
@@ -15,8 +13,6 @@ In this chapter, we'll describe SQL <AuthorizationID>s in detail, and show you t
 
 <AuthorizationID>
 =================
-
-::
 
 A Cluster may contain zero or more <AuthorizationID>s. An SQL
 <AuthorizationID>, or Authorization Identifier, is a character string which
@@ -154,8 +150,6 @@ standard because the SQL Standard requires implementors to define what a valid <
 CREATE ROLE statement
 =====================
 
-::
-
 The CREATE ROLE statement defines new Role. The required syntax for the CREATE ROLE statement is:
 
 CREATE ROLE <Role name> [ WITH ADMIN <grantor> ]
@@ -193,8 +187,6 @@ If you want to restrict your code to Core SQL, don't use the CREATE ROLE stateme
 
 Privilege
 =========
-
-::
 
 An SQL Privilege allows an <AuthorizationID> to perform a given action on a
 specific Table, Column, Domain, Character set, Collation, Translation,
@@ -350,8 +342,6 @@ with a <Column name> list) and don't specify the INSERT Privilege as a Column Pr
 GRANT statement
 ===============
 
-::
-
 The GRANT statement defines both Privilege grants and Role authorizations and
 so has two different syntaxes. The first is identified as the <grant privilege
 statement> and the second as the <grant role statement>.
@@ -487,8 +477,6 @@ of an Object to hold a grantable Privilege.
 
 Data Control
 ============
-
-::
 
 You need explicit permission to perform any action on any SQL Object. SQL's
 security system is discretionary (meaning that your rights vary depending on
@@ -818,8 +806,6 @@ specifically allows him to -- thus, the REFERENCES Privilege.
 REVOKE statement
 ================
 
-::
-
 By the time we finish setting up a Catalog and granting appropriate Privileges
 to our users, we probably have several thousand Privilege descriptors in
 INFORMATION_SCHEMA -- more than the count for all other Schema Objects
@@ -991,8 +977,6 @@ the GRANT OPTION FOR clause. Also, when revoking, make sure that your current
 DROP ROLE statement
 ===================
 
-::
-
 The DROP ROLE statement destroys a Role. The required syntax for the DROP ROLE statement is:
 
 DROP ROLE <Role name>
@@ -1012,8 +996,6 @@ If you want to restrict your code to Core SQL, don't use the DROP ROLE statement
 
 What Privileges do I Have?
 ==========================
-
-::
 
 Earlier in this chapter, we said that every Privilege is defined by a
 descriptor stored in INFORMATION_SCHEMA. You can thus find out what Privileges
@@ -1048,8 +1030,6 @@ to observe these limits:
 
 Violating the security system
 =============================
-
-::
 
 Each of the following depends on a "hole" in the Standard SQL security wall.
 Perhaps the vendor of your particular DBMS hasn't plugged the hole. What fun it would be to find out ...
@@ -1097,8 +1077,6 @@ in a loop, for "x" = all possible SMALLINT values. If, and only if, UPDATE succe
 
 User functions
 ==============
-
-::
 
 The SQL Standard defines four types of <AuthorizationID> whose values can be
 obtained through the use of the scalar user functions USER, CURRENT_USER,
@@ -1173,8 +1151,6 @@ If you want to restrict your code to Core SQL, don't use CURRENT_USER, SESSION_U
 
 Dialects
 ========
-
-::
 
 Many vendors have added their own Privileges to the SQL Standard's set. For example:
       ## IBM's DB2 has a SYSADM (system  administrator) who can CREATE and

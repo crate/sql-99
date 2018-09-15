@@ -1,10 +1,8 @@
 .. highlight:: text
 
-=============================
+==========================
 Chapter 12 -- Reference types
 =============================
-
-::
 
 [Obscure Rule] applies for this entire chapter.
 
@@ -16,9 +14,7 @@ In SQL, a <reference type> is a pointer: a scalar constructed SQL <data type>.
     :local:
 
 Reference <data type>s
-======================
-
-::
+===================
 
 A <reference type> is defined by a descriptor that contains three pieces of information:
       ## The <data type>'s name: REF.
@@ -111,8 +107,6 @@ If you want to restrict your code to Core SQL, don't use the REF <data type>.
 
 Reference Operations
 ====================
-
-::
 
 A <reference type> is compatible with, and comparable to, all other <reference
 type>s of the same referenced type -- that is, <reference type>s are mutually

@@ -4,8 +4,6 @@
 Chapter 46 -- SQL/CLI: desc Functions
 =====================================
 
-::
-
 ** When we talk about data type correspondences, make changes according to
 ** chart in 70clig.tx2.
 
@@ -25,8 +23,6 @@ SQLGetDescField, SQLSetDescField, SQLGetDescRec, SQLSetDescRec, SQLCopyDesc and 
 
 Descriptor Areas
 ================
-
-::
 
 Here is a piece of CLI code:
 
@@ -123,8 +119,6 @@ store desc information with this structure.
 
 The desc Fields
 ===============
-
-::
 
 On first reading, we suggest that you skip quickly through this section. But
 bookmark this page -- you'll have to refer to the desc field descriptions many times.
@@ -774,8 +768,6 @@ IPD  user                          SQLPrepare[I], user
 
 The desc Functions
 ==================
-
-::
 
 We are now ready to describe the individual desc functions. There is a good
 deal of redundancy here, because several functions are available which do the

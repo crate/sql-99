@@ -4,8 +4,6 @@
 Chapter 39 -- Embedded SQL Binding Style
 ========================================
 
-::
-
 SQL DBMSs communicate with SQL applications through a common programming
 language interface that is invoked through one of the SQL Standard-defined
 binding styles, or interface options. The programming language used -- either
@@ -81,8 +79,6 @@ whole-set-at-a-time) and the "control" problem (adjusting host program flow base
 What is embedded SQL?
 =====================
 
-::
-
 Embedded SQL was once the predominant standard way to mix SQL statements with
 host languages. It lets you mix SQL statements directly into an application
 program written in some common computer programming language. It is especially
@@ -129,8 +125,6 @@ To make it all possible, you have to follow rigid conventions:
 Precompilers
 ============
 
-::
-
 Most precompilers are standalone utility programs. A few are integrated with
 the compiler itself. Regardless of their startup method, all precompilers must
 do a certain series of operations which turn an embedded-SQL module into a
@@ -171,8 +165,6 @@ In theory, a precompiler could act differently provided it met the functional sp
 SQL Prefixes and Terminators
 ============================
 
-::
-
 The precompiler lacks the smarts to figure out the syntax of the host language
 program. After all, host language code can get pretty complex. All the
 precompiler can do is look for signals that say "embedded SQL starts here" or
@@ -207,8 +199,6 @@ statements or comments have no place here. Aside from that, format is fairly fre
 
 Host Variables
 ==============
-
-::
 
 Embedded SQL statements can contain host language variables in the same places
 that any other scalar expression can be placed. The host variables allow you
@@ -531,8 +521,6 @@ results, as output host variables, from SQL to the host language: the SQL Cursor
 
 Cursors
 =======
-
-::
 
 The most famous of the impedance-mismatch problems is that SQL operates on
 sets, while host languages operate on set members. Therefore an SQL query --
@@ -904,8 +892,6 @@ A Cursor is also closed by ROLLBACK and (unless it's a holdable Cursor) by COMMI
 Embedded SQL Examples
 =====================
 
-::
-
 Here is an example program which selects and fetches ten rows in Table T, and
 displays the contents. This program watches for NULL values, which it
 indicates by displaying a question mark rather than a number. (The use of "?"
@@ -931,8 +917,6 @@ to mean "NULL" is conventional in displays and printouts, but sometimes blanks a
 
 Diagnostics
 ===========
-
-::
 
 "I beseech you in the bowels of Christ, consider that you may be wrong."
    -- Cromwell
@@ -1125,8 +1109,6 @@ SQL/CLI's SQLGetDiagRec and SQLGetDiagField functions.
 Dynamic SQL
 ===========
 
-::
-
 In the examples so far, we've assumed that we know some things in advance
 about the database and the SQL statements we're going to execute. For example,
 in our FETCH loop examples, we make the assumptions that the <Table name> is
@@ -1214,8 +1196,6 @@ As with GET DIAGNOSTICS, we'll defer the detailed discussion of the descriptor a
 Summary
 =======
 
-::
-
 An embedded SQL host language program is an application program that contains
 both host language programming statements and SQL statements. Embedded SQL
 programs may be written in any of the high-level languages -- ADA, C, COBOL,
@@ -1264,8 +1244,6 @@ externally-invoked procedure that, when executed, has an effect equivalent [to] 
 
 Dialects
 ========
-
-::
 
 Embedded SQL is well specified by part five of the SQL Standard: ISO/IEC
 9075-2 Part 5: SQL/Bindings. The differences between SQL-92 and SQL3 in this

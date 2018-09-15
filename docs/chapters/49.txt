@@ -4,8 +4,6 @@
 Chapter 49 -- SQL/CLI: Deferred Parameter Functions
 ===================================================
 
-::
-
 This short chapter describes an option for passing input parameters after
 execution begins. [Obscure Rule] applies for the whole thing.
 
@@ -60,8 +58,6 @@ embedded SQL or PSM applications.
 How to pass deferred parameters
 ===============================
 
-::
-
 The mechanism for passing deferred parameters involves a package of signals
 and functions:
       ## Setting the last parameter = SQL_DATA_AT_EXEC (-2). Technically:
@@ -94,8 +90,6 @@ as well.
 
 SQLParamData
 ============
-
-::
 
 Function Prototype:
   SQLRETURN SQLParamData(
@@ -156,8 +150,6 @@ ODBC: SQLParamData has been around since ODBC 1.0.
 
 SQLPutData
 ==========
-
-::
 
 Function Prototype:
  SQLRETURN SQLPutData (
@@ -280,8 +272,6 @@ ODBC: SQLPutData has been around since ODBC 1.0.
 
 SQLCancel
 =========
-
-::
 
 Function Prototype:
   SQLRETURN SQLCancel(

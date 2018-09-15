@@ -4,8 +4,6 @@
 Chapter 37 -- SQL Transaction Concurrency
 =========================================
 
-::
-
 Although there is never more than one current SQL transaction between your
 DBMS and your application program at any point in time, the operational
 problem -- although perhaps we should call it a "challenge" or an
@@ -41,8 +39,6 @@ note once again that there may in fact be several co-operating agencies responsi
 
 Isolation Phenomena
 ===================
-
-::
 
 What sort of errors and inconsistencies can creep in during concurrent
 operations? Database groupies generally use four categories, which they call
@@ -111,8 +107,6 @@ measures to signal "no phantoms please".
 Pessimistic Concurrency: LOCKING
 ================================
 
-::
-
 The most common and best-known way to eliminate some or all of the transaction concurrency phenomena is locking. Typically, a lock works like this:
 
       Txn#1                               Txn#2
@@ -168,8 +162,6 @@ locks", the great majority of which turn out to be unnecessary because only a re
 Optimistic Concurrency: TIMESTAMPING
 ====================================
 
-::
-
 There are several ways to control concurrency without locking. The most common
 ones can be grouped together as the "optimistic assumption" ways, and the most
 common of those ways is timestamping. With timestamping, there are no locks
@@ -190,8 +182,6 @@ Most optimistic concurrency mechanisms are not particularly good for detecting N
 
 SET TRANSACTION statement
 =========================
-
-::
 
 By now, we've come to expect that SQL statements aren't used to specify
 methods. Instead, they state what the requirements are. That's the idea behind
@@ -402,8 +392,6 @@ If you want to restrict your code to Core SQL, don't use SET LOCAL TRANSACTION a
 START TRANSACTION statement
 ===========================
 
-::
-
 In SQL3, you don't need the SET TRANSACTION statement, except for setting the
 characteristics of local transactions. Instead, you can use the START
 TRANSACTION statement to both initiate the start of a new transaction and to
@@ -437,8 +425,6 @@ If you want to restrict your code to Core SQL, don't use the START TRANSACTION s
 Special problems
 ================
 
-::
-
 The SQL-Schema change statements (CREATE, ALTER, DROP, GRANT, REVOKE) require
 drastic solutions to ensure concurrency. Typically, a DBMS must lock all the
 INFORMATION_CATALOG descriptors. That means that SQL-Schema statements cannot run concurrently with anything else.
@@ -466,8 +452,6 @@ The implication is that standard SQL DBMSs have to lock the whole database when 
 
 Transactions and Constraint Checking
 ====================================
-
-::
 
 There is one other SQL transaction management statement: SET CONSTRAINTS. We
 talked about SET CONSTRAINTS a bit in our chapter on constraints and
@@ -562,8 +546,6 @@ which temporarily puts your data into an unsound state and can thus be very usef
 Dialects
 ========
 
-::
-
 Some DBMSs support locking, some support timestamping, some support both. Beyond that fundamental point of difference, there are many implementation-dependent features.
 For example: the granularity (by Column or row or page or Table or database), the number of distinct isolation levels that are actually supported (remember
 that pseudo-support is possible by simply upgrading to  the next level), and whether to support SQL-92 or SQL3 syntax. Regrettably, most DBMSs are still idiosyncratic with respect to support for the SET TRANSACTION statement.
@@ -579,8 +561,6 @@ Oracle has Locks Display and other utilities that help administrators to monitor
 
 Goodies
 =======
-
-::
 
 The OCELOT DBMS that comes with this book supports concurrency. These are the specifications:
    Concurrency Resolution Mechanism:          Locking

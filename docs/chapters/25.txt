@@ -4,8 +4,6 @@
 Chapter 25 -- SQL-invoked Routine
 =================================
 
-::
-
 In this chapter, we'll describe SQL-invoked routines in detail, and show you the syntax to use to create, alter and destroy them.
 
 .. rubric:: Table of Contents
@@ -15,8 +13,6 @@ In this chapter, we'll describe SQL-invoked routines in detail, and show you the
 
 Routine
 =======
-
-::
 
 A Schema may contain zero or more SQL-invoked routines. An SQL-invoked routine
 (or SQL routine), is the generic name for either a procedure (SQL-invoked
@@ -150,8 +146,6 @@ An <SQL parameter name> is a <regular identifier> or a <delimited identifier> th
 
 CREATE PROCEDURE/FUNCTION statement
 ===================================
-
-::
 
 The CREATE PROCEDURE/FUNCTION statement names a new SQL-invoked procedure or
 function and defines the routine's SQL parameters, characteristics and routine
@@ -396,8 +390,6 @@ interface description here. Clearly, the body of the routine is what really matt
 Routine Parameters
 ==================
 
-::
-
 A routine's SQL parameter declaration list is a parenthesized, comma-delimited
 list of definitions for the routine's parameters. Here's the required syntax
 for a parameter definition in a CREATE PROCEDURE/CREATE FUNCTION statement again:
@@ -453,8 +445,6 @@ Here's an example of a parameter declaration list for a CREATE FUNCTION statemen
 
 Invoking routines
 =================
-
-::
 
 Creating a routine is complex. Invoking a routine can be easy. The secret is: don't use the same <Routine name> twice in the same Schema.
 
@@ -521,8 +511,6 @@ Your current <AuthorizationID> must have the EXECUTE Privilege on a function to 
 
 Routine examples
 ================
-
-::
 
 Here are four examples of SQL-invoked routines that might be used in real-life situations.
 
@@ -654,8 +642,6 @@ on a Table" but an "EXECUTE Privilege on a routine".
 RETURN statement
 ================
 
-::
-
 The RETURN statement returns a value from an SQL-invoked function. The required syntax for the RETURN statement is:
 
 RETURN <value expression> | NULL
@@ -666,8 +652,6 @@ the function's result is a null value, the <keyword> NULL.
 
 External Routines
 =================
-
-::
 
 "Host calls DBMS: no story. DBMS calls host: story!"
    -- Journalist's man-bites-dog rule, slightly adapted
@@ -755,8 +739,6 @@ name>s when defining an SQL-invoked routine and don't define any SQL-invoked met
 DROP ROUTINE/PROCEDURE/FUNCTION statement
 =========================================
 
-::
-
 The DROP ROUTINE/PROCEDURE/FUNCTION statement destroys an SQL-invoked procedure or function. The required syntax for the DROP ROUTINE/PROCEDURE/FUNCTION statement is:
 
 DROP <specific routine designator> {RESTRICT | CASCADE}
@@ -822,8 +804,6 @@ If you want to restrict your code to Core SQL, don't use the CASCADE drop behavi
 
 Dialects
 ========
-
-::
 
 One way or another, DBMSs have been calling routines for several years. The
 oldest example we can think of is ibm DB2's EDITPROC and VALIDPROC functions,

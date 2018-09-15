@@ -4,8 +4,6 @@
 Chapter 45 -- SQL/CLI: Cursor Functions
 =======================================
 
-::
-
 When you execute a query, you are implicitly opening a Cursor. For example,
 the function call:
 
@@ -67,8 +65,6 @@ Cursor attributes and fetching from Cursors. Their descriptions follow.
 
 SQLFetch
 ========
-
-::
 
 Function Prototype:
 SQLRETURN SQLFetch (
@@ -206,8 +202,6 @@ functions. Until then, remember: Rover is still holding the stick.
 SQLFetchScroll
 ==============
 
-::
-
 Function Prototype:
   SQLRETURN SQLFetchScroll(
     SQLHSTMT hstmt,                      /* 32-bit input. handle */
@@ -320,8 +314,6 @@ using "bookmarks" (which are a special sort row address).
 SQLCloseCursor
 ==============
 
-::
-
 Function Prototype:
   SQLRETURN SQLCloseCursor(
     SQLHSTMT hstmt                        /* 32-bit input */
@@ -386,8 +378,6 @@ be opened.)
 SQLGetCursorName
 ================
 
-::
-
 Function Prototype:
   SQLRETURN SQLGetCursorName(
     SQLHSTMT hstmt,           /* 32-bit input Handle*/
@@ -441,8 +431,6 @@ implicit <Cursor name>s always begin with SQL_CUR (not SQLCUR).
 SQLSetCursorName
 ================
 
-::
-
 Function Prototype:
   SQLRETURN SQLSetCursorName(
     SQLHSTMT hstmt,                 /* 32-bit input */
@@ -491,8 +479,6 @@ the <Cursor name> already exists, ODBC requires that the SQLSTATE should be
 
 Embedded SQL versus CLI
 =======================
-
-::
 
 Here is an embedded SQL example which uses a Cursor:
 
@@ -659,8 +645,6 @@ Cursors are not supported in SQL-92, in ISO SQL3 or in ODBC.
 
 SQLMoreResults
 ==============
-
-::
 
 Function Prototype:
   SQLRETURN SQLMoreResults(

@@ -4,8 +4,6 @@
 Chapter 14 -- SQL Cluster
 =========================
 
-::
-
 The SQL Standard describes the concepts on which SQL is based in terms of
 Objects, such as Tables. Each SQL Object is defined in terms of the
 characteristics (e.g.: its name) that describe it; the Standard calls this the
@@ -53,8 +51,6 @@ In this chapter, we'll describe SQL Clusters in detail, and show you the syntax 
 
 Cluster
 =======
-
-::
 
 An SQL Cluster is the group of Catalogs available to an SQL-session at any
 point in time; that is, it contains all the SQL-data you may access through a

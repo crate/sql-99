@@ -4,8 +4,6 @@
 Chapter 34 -- Sorting Search Results
 ====================================
 
-::
-
 In SQL, you can only sort search results returned by a Cursor. However, when
 you're using Direct SQL, you're always using an implied Cursor, and so we'll
 describe the ORDER BY clause now.
@@ -17,8 +15,6 @@ describe the ORDER BY clause now.
 
 ORDER BY clause
 ===============
-
-::
 
 The required syntax for the ORDER BY clause is:
 
@@ -316,8 +312,6 @@ EMPNUM   COMMENT       D_RATE
 
 Dialects
 ========
-
-::
 
 All SQL DBMSs support the ORDER BY clause. Some of them even allow the "ORDER
 BY <expression>" syntax described above as an SQL3 feature, or some variant

@@ -4,8 +4,6 @@
 Chapter 23 -- SQL Translation
 =============================
 
-::
-
 [Obscure Rule] applies to this entire chapter.
 
 In this chapter, we'll describe SQL Translations in detail, and show you the syntax to use to create, alter and destroy them.
@@ -17,8 +15,6 @@ In this chapter, we'll describe SQL Translations in detail, and show you the syn
 
 Translation
 ===========
-
-::
 
 A Schema may contain zero or more Translations. An SQL Translation is a set of
 rules that maps the characters from a source Character set to the characters
@@ -97,8 +93,6 @@ If you want to restrict your code to Core SQL, don't use any <Translation name>s
 
 CREATE TRANSLATION statement
 ============================
-
-::
 
 The CREATE TRANSLATION statement names a new user-defined Translation and
 specifies the Translation's source and target Character sets as well as the
@@ -188,8 +182,6 @@ If you want to restrict your code to Core SQL, don't use the CREATE TRANSLATION 
 
 DROP TRANSLATION statement
 ==========================
-
-::
 
 The DROP TRANSLATION statement destroys a user-defined Translation. The required syntax for the DROP TRANSLATION statement is:
 

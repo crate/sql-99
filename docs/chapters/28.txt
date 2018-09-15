@@ -4,8 +4,6 @@
 Chapter 28 -- Introduction to SQL-data operations
 =================================================
 
-::
-
 In this chapter, we'll describe some common SQL constructs. We'll be using
 these constructs in the following chapters, to describe how operations on SQL-
 data work. [Obscure Rule] applies to everything we talk about here, but the
@@ -18,8 +16,6 @@ definitions are a necessary evil for understanding some of what lies ahead.
 
 <value specification>
 =====================
-
-::
 
 A <value specification> is a scalar expression that specifies either a
 <literal>, a host language variable parameter or an SQL parameter as a source
@@ -107,8 +103,6 @@ If you want to restrict your code to Core SQL, don't use an <element reference> 
 <value expression>
 ==================
 
-::
-
 A <value expression> is a scalar expression that specifies a data value. In
 this book, we most often use the term "scalar_expression" to show you where a
 <value expression> is allowed in SQL syntax. The required syntax for a <value expression> is:
@@ -155,8 +149,6 @@ to force a collating sequence for any value.
 <row value constructor>
 =======================
 
-::
-
 A <row value constructor> defines an ordered set of values that make up one row of data. The required syntax for a <row value constructor> is:
 
 <row value constructor> ::=
@@ -189,8 +181,6 @@ is that single row. (Note: a <row subquery> may not return more than one row.)
 
 <target specification>
 ======================
-
-::
 
 A <target specification> is a scalar expression that specifies a host language
 variable parameter, an SQL parameter or a Column as the target for a data

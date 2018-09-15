@@ -4,8 +4,6 @@
 Chapter 22 -- SQL Collation
 ===========================
 
-::
-
 [Obscure Rule] applies to this entire chapter.
 
 In this chapter, we'll describe SQL Collations in detail, and show you the syntax to use to create, alter and destroy them.
@@ -17,8 +15,6 @@ In this chapter, we'll describe SQL Collations in detail, and show you the synta
 
 Collation
 =========
-
-::
 
 A Schema may contain zero or more Collations. An SQL Collation is a set of
 rules that determines the result when characters from a Character set are
@@ -164,8 +160,6 @@ If you want to restrict your code to Core SQL, don't use any <Collation name>s o
 CREATE COLLATION statement
 ==========================
 
-::
-
 The CREATE COLLATION statement names a new user-defined Collation and
 specifies the Collation's PAD characteristic and the Character set that the
 Collation is for. The required syntax for the CREATE COLLATION statement is:
@@ -270,8 +264,6 @@ If you want to restrict your code to Core SQL, don't use the CREATE COLLATION st
 
 DROP COLLATION statement
 ========================
-
-::
 
 The DROP COLLATION statement destroys a user-defined Collation. The required syntax for the DROP COLLATION statement is:
 

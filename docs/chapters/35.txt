@@ -4,8 +4,6 @@
 Chapter 35 -- Changing SQL-data
 ===============================
 
-::
-
 The SQL-data change statements are INSERT, UPDATE and DELETE. Many people call
 these the SQL "update" statements -- which is okay, provided you don't mix up
 "update" (lower case, meaning INSERT or UPDATE or DELETE) with UPDATE (upper
@@ -33,8 +31,6 @@ warning: we'll revisit some of these points when we put them in context later on
 
 The SQL-data Change Statements
 ==============================
-
-::
 
 In SQL, there are fundamentally only three conceivable data-change operations
 that can be performed at the row level: the addition of a new row, the editing
@@ -113,8 +109,6 @@ probation": it's not too late to take your move back until COMMIT time.
 
 INSERT statement
 ================
-
-::
 
 The INSERT statement's job is to tentatively add new rows to a Table. If
 INSERT succeeds, there will be a number (zero or more) of new rows in your
@@ -400,8 +394,6 @@ DEFAULT VALUES form of the INSERT statement and make sure all your INSERT
 UPDATE statement
 ================
 
-::
-
 The UPDATE statement's job is to tentatively edit existing rows in a Table. If
 UPDATE succeeds, there will be a number (zero or more) of changed rows in your
 target Table. The required syntax for the UPDATE statement is:
@@ -582,8 +574,6 @@ no <Correlation name>s or <derived Column list>s.
 DELETE statement
 ================
 
-::
-
 The DELETE statement's job is to tentatively remove existing rows from a
 Table. If DELETE succeeds, there will be a fewer number (zero or more) of rows
 in your target Table. The required syntax for the DELETE statement is:
@@ -650,8 +640,6 @@ no <Correlation name>s or <derived Column list>s.
 
 Data Change Operations
 ======================
-
-::
 
 Generalizing shamelessly, we compare here the steps required to do an UPDATE
 with the step required to do a SELECT:
@@ -742,8 +730,6 @@ Often it's just a matter of anticipating what other jobs are likely to come up i
 
 Dialects
 ========
-
-::
 
 Data change is a stable section of SQL. All vendors support it, few vendors
 offer any variations or extensions. The ones that you might run into are:

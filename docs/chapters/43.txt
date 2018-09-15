@@ -4,8 +4,6 @@
 Chapter 43 -- SQL/CLI: stmt Functions
 =====================================
 
-::
-
 In this chapter, we'll describe the third essential CLI resource: the stmt.
 For CLI programs, the stmt is at the level below dbc and (usually) above desc.
 The dbc may contain multiple stmts, and the stmt may contain four descs.
@@ -36,8 +34,6 @@ There are six CLI functions for creating stmts, dropping stmts, getting stmt att
 
 SQLAllocHandle(SQL_HANDLE_STMT,...)
 ===================================
-
-::
 
 Function Prototype:
   SQLRETURN SQLAllocHandle (
@@ -93,8 +89,6 @@ ODBC: The SQLAllocHandle function is new in ODBC 3.0.
 SQLAllocStmt
 ============
 
-::
-
 Function Prototype:
   SQLRETURN SQLAllocStmt(
     SQLHDBC hdbc,             /* 32-bit input, must be a hdbc */
@@ -127,8 +121,6 @@ SQLAllocHandle(SQL_HANDLE_STMT...).
 
 SQLGetStmtAttr
 ==============
-
-::
 
 Function Prototype:
   SQLRETURN SQLGetStmtAttr(
@@ -241,8 +233,6 @@ nearly-equivalent function, SQLGetStmtOption).
 SQLSetStmtAttr
 ==============
 
-::
-
 Function Prototype:
   SQLRETURN SQLSetStmtAttr(
     SQLHSTMT hstmt,              /* 32-bit input - statement handle */
@@ -346,8 +336,6 @@ ODBC: The SQLSetStmtAttr function is new in ODBC 3.0 but there was a similar fun
 SQLFreeHandle(SQL_HANDLE_STMT,...)
 ==================================
 
-::
-
 Function Prototype:
   SQLRETURN SQLFreeHandle(    /* function returns SMALLINT */
       SQLSMALLINT HandleType, /* 16-bit input, = SQL_HANDLE_STMT */
@@ -395,8 +383,6 @@ ODBC: The SQLFreeHandle function is new in ODBC 3.0.
 
 SQLFreeStmt
 ===========
-
-::
 
 Function Prototype:
   SQLRETURN SQLFreeStmt(

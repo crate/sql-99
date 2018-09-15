@@ -4,8 +4,6 @@
 Chapter 13 -- NULLs
 ===================
 
-::
-
 "The problem isn't what they don't know. It's what they do know that ain't so."
    -- Ronald Reagan
 
@@ -53,8 +51,6 @@ the deficiencies in a way that the DBMS can account for. This is unpleasant and 
 Representing Missing Data with NULL
 ===================================
 
-::
-
 Those missing values that we represented with question marks in our list are what SQL calls NULLs. The NULL value is an amorphous thing, but it does have certain properties which we now enumerate.
       ## NULL is a value. Oh, it's true that it represents missing data, but that doesn't mean that it is missing data -- you can put NULL into Columns and you can take it out again. Those operations are only possible with values,
 therefore NULL is a value.
@@ -84,8 +80,6 @@ because your DBMS wouldn't be able to guess what the <data type> is.
 
 The Meaning of NULL
 ===================
-
-::
 
 "The cat is neither alive nor dead."
    -- Erwin Schr”dinger
@@ -147,8 +141,6 @@ NULL is not the same as any value in the Domain of character strings.
 Three-Valued Logic
 ==================
 
-::
-
 Most logical systems rest on two values: is/isn't, yes/no, 0/1, TRUE/FALSE.
 SQL's system is more like: true/false/unknown, is/isn't/could-be,
 yes/no/maybe, 0/1/?, TRUE/FALSE/UNKNOWN. The  UNKNOWN truth value will
@@ -194,8 +186,6 @@ If you want to restrict your code to Core SQL, don't use this expression: "NULL 
 Nullability
 ===========
 
-::
-
 There are times when you'll want to ensure that a null value can't be put in a
 Column. The obvious case is when it's a primary key: in our example at the
 beginning of this chapter, the '?' symbol makes no sense for a NAME -- first,
@@ -227,8 +217,6 @@ nullable" if a non-deferrable Constraint on the Column is a PRIMARY KEY Constrai
 The Duplicate Loophole
 ======================
 
-::
-
 "Identification for duplicate removal is at a lower level of detail than equality testing in the evaluation of retrieval conditions. Hence it is possible to adopt a different rule."
    -- E.F. Codd
 
@@ -250,8 +238,6 @@ There are several operations that this loophole will affect. Specifically:
 
 Fun with NULLs
 ==============
-
-::
 
 There are many operations which are affected by the presence of NULLs. Our choice has been to describe the exceptional situation when we describe the operation.
 So this is just a quick summary; for full effects read the appropriate section in another chapter.
@@ -301,8 +287,6 @@ In our chapters on the Call Level Interface, you'll notice that many functions r
 Problems For Optimizers
 =======================
 
-::
-
 If you were to write a DBMS optimizer, you'd want to take advantage of certain
 "transformation rules". Usually these rules depend on two-valued logic, for
 instance the idea that everything is "either A or not-A". We will give only
@@ -336,8 +320,6 @@ optimizer by ensuring that Columns which will be used in complex queries are alw
 
 Nulloclasts vs. Nullodules
 ==========================
-
-::
 
 If you know any Byzantine history at all, you know about the hundred-year
 struggle between the Iconoclasts ("smashers of icons") and the Iconodules

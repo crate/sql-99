@@ -4,8 +4,6 @@
 Chapter 21 -- SQL Character set
 ===============================
 
-::
-
 [Obscure Rule] applies to this entire chapter.
 
 In this chapter, we'll describe SQL Character sets in detail, and show you the
@@ -18,8 +16,6 @@ syntax to use to create, alter and destroy them.
 
 Character set
 =============
-
-::
 
 A Schema may contain zero or more Character sets. As we explained in our
 chapter on character strings, an SQL Character set is a combination of a
@@ -121,8 +117,6 @@ If you want to restrict your code to Core SQL, don't use any <Character set name
 CREATE CHARACTER SET statement
 ==============================
 
-::
-
 The CREATE CHARACTER SET statement names a new user-defined Character set and
 specifies the Character set's repertoire and default Collation. The required
 syntax for the CREATE CHARACTER SET statement is:
@@ -205,8 +199,6 @@ If you want to restrict your code to Core SQL, don't use the CREATE CHARACTER SE
 
 DROP CHARACTER SET statement
 ============================
-
-::
 
 The DROP CHARACTER SET statement destroys a user-defined Character set. The required syntax for the DROP CHARACTER SET statement is:
 

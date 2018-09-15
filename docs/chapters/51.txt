@@ -4,8 +4,6 @@
 Chapter 51 -- SQL/CLI: Catalog Functions
 ========================================
 
-::
-
 The CLI Catalog functions are so called because they involve implicit searches
 of the metadata -- what in pre-SQL-92 days was known as the system catalog.
 Nowadays the metadata is in INFORMATION_SCHEMA. The functions, and the
@@ -43,8 +41,6 @@ SELECT from a View in INFORMATION_SCHEMA.
 
 Some necessary preliminaries
 ============================
-
-::
 
 Calling a Catalog function is equivalent to calling SQLExecDirect with an
 argument containing a SELECT statement. That means that data is returned in a
@@ -123,8 +119,6 @@ and ODBC here, but they won't matter if you follow two policies. One: avoid
 SQLColumnPrivileges
 ===================
 
-::
-
 Function Prototype:
   SQLRETURN SQLColumnPrivileges(
     SQLHSTMT hstmt,                 /* 32-bit input */
@@ -182,8 +176,6 @@ Preliminaries".
 
 SQLColumns
 ==========
-
-::
 
 Function Prototype:
   SQLRETURN SQLColumns(
@@ -436,8 +428,6 @@ Columns (UDT_CAT, UDT_SCHEM, UDT_NAME) do not appear in ODBC.
 SQLForeignKeys
 ==============
 
-::
-
 Function Prototype:
   SQLRETURN SQLForeignKeys(
     SQLHSTMT hstmt,              /* 32-bit input */
@@ -617,8 +607,6 @@ could reference unique keys.
 SQLGetTypeInfo
 ==============
 
-::
-
 Function Prototype:
   SQLRETURN SQLGetTypeInfo(
     SQLHSTMT hstmt,                 /* 32-bit input */
@@ -682,8 +670,6 @@ BY DATA_TYPE".
 
 SQLParameters
 =============
-
-::
 
 Function Prototype:
   SQLRETURN SQLParameters (
@@ -768,8 +754,6 @@ ODBC: There is no ODBC equivalent of SQLParameters.
 SQLPrimaryKeys
 ==============
 
-::
-
 Function Prototype:
   SQLRETURN SQLPrimaryKeys(
     SQLHSTMT hstmt,                 /* 32-bit input */
@@ -830,8 +814,6 @@ the fifth returned Column is KEY_SEQ instead of ORDINAL_POSITION.
 
 SQLRoutinePrivileges
 ====================
-
-::
 
 Function Prototype:
   SQLRETURN SQLRoutinePrivileges(
@@ -895,8 +877,6 @@ ODBC: SQLRoutinePrivileges is not in ODBC 3.0.
 
 SQLRoutines
 ===========
-
-::
 
 Function Prototype:
   SQLRETURN SQLRoutines(
@@ -1018,8 +998,6 @@ ODBC: SQLRoutines is not in ODBC 3.0.
 
 SQLSpecialColumns
 =================
-
-::
 
 Function Prototype:
   SQLRETURN SQLSpecialColumns(
@@ -1149,8 +1127,6 @@ update (e.g.: Sybase's TIMESTAMP Column).
 SQLTablePrivileges
 ==================
 
-::
-
 Function Prototype:
   SQLRETURN SQLTablePrivileges(
     SQLHSTMT      hstmt,            /* 32-bit input */
@@ -1225,8 +1201,6 @@ ODBC: The SQLTablePrivileges function has been around since ODBC version 1.0.
 
 SQLTables
 =========
-
-::
 
 Function Prototype:                  /* not in SQL-92, but in SQL3 */
   SQLRETURN SQLTables(
@@ -1384,8 +1358,6 @@ probably be the case.
 
 THE END
 =======
-
-::
 
 The description of SQL/CLI is -- at long last -- finished. Here's a summary of
 some of the good and the bad and the ugly points that we've talked about in

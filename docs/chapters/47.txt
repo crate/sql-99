@@ -4,8 +4,6 @@
 Chapter 47 -- SQL/CLI: Diagnostic Functions
 ===========================================
 
-::
-
 What if something goes wrong? Every env and dbc and stmt and desc has a
 structure called the Diagnostics Area. The DBMS fills it with information
 about what happened during the last function call. The diagnostics area has
@@ -73,8 +71,6 @@ The descriptions of these four functions follow.
 
 SQLGetDiagField
 ===============
-
-::
 
 Function Prototype:
     SQLRETURN SQLGetDiagField(
@@ -683,8 +679,6 @@ records by row number.
 SQLGetDiagRec
 =============
 
-::
-
 Function Prototype:
    SQLRETURN  SQLGetDiagRec(
      SQLSMALLINT HandleType,              /* 16-bit input */
@@ -815,8 +809,6 @@ the names "SqlState", "Msg" and "rc" where we have tended to use "SQLSTATE",
 SQLError
 ========
 
-::
-
 Function Prototype:
   SQLRETURN  SQLError(
     SQLHENV henv,                   /* 32-bit input */
@@ -912,8 +904,6 @@ labelled "deprecated" and ODBC's driver manager will map it to SQLGetDiagRec.
 SQLRowCount
 ===========
 
-::
-
 Function Prototype:
   SQLRETURN SQLRowCount(
     SQLHSTMT hstmt,           /* 32-bit input -- statement handle */
@@ -976,8 +966,6 @@ Standard's SQLSTATE codes.
 
 SQLSTATE Codes
 ==============
-
-::
 
 The SQL status parameter SQLSTATE is a 5-character string value, with 2 parts:
 the first 2 characters represent a class value, the following 3 characters

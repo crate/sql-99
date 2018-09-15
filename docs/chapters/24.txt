@@ -4,8 +4,6 @@
 Chapter 24 -- SQL Trigger
 =========================
 
-::
-
 "If you press the SECOND dorsal fin-spine on a trigger fish, an amazing event occurs. The FIRST dorsal fin-spine goes down too."
    -- Applied Ichthyology
 
@@ -18,8 +16,6 @@ In this chapter, we'll describe SQL Triggers in detail, and show you the syntax 
 
 Trigger
 =======
-
-::
 
 A Schema may contain zero or more Triggers. An SQL Trigger is a named chain
 reaction that you set off with an SQL data change statement: it specifies a
@@ -88,8 +84,6 @@ Here are some examples of <Trigger name>s:
 
 CREATE TRIGGER statement
 ========================
-
-::
 
 The CREATE TRIGGER statement names a new Trigger and defines the Trigger's Table, action time, event and body. The required syntax for the CREATE TRIGGER statement is:
 
@@ -374,8 +368,6 @@ If you want to restrict your code to Core SQL, don't use the CREATE TRIGGER stat
 Activation of Triggers
 ======================
 
-::
-
 In our discussion of the CREATE TRIGGER statement, we made this true, but imprecise statement: "When the Trigger event occurs, the Trigger is activated." Let's get more precise about the meaning of "when" and "activated".
 
 The meaning of "when" depends on the Trigger action time (BEFORE or AFTER) and
@@ -425,8 +417,6 @@ Trigger might have affected.
 
 Trigger Examples
 ================
-
-::
 
 The following four scenarios show the use of a Trigger in a real-life situation.
 
@@ -564,8 +554,6 @@ to fail: it will return the SQLSTATE error 27000 "triggered data change violatio
 Triggers versus Constraints
 ===========================
 
-::
-
 The essential idea of a Trigger is that if you change a Table, you cause a
 given set of SQL statements to be executed. This idea is good: it allows you
 to associate "rules" with Tables. And it can be efficient in a client-server
@@ -592,8 +580,6 @@ Triggers, if you can. Triggers are tricky.
 DROP TRIGGER statement
 ======================
 
-::
-
 The DROP TRIGGER statement destroys a Trigger. The required syntax for the DROP TRIGGER statement is:
 
 DROP TRIGGER <Trigger name>
@@ -613,8 +599,6 @@ If you want to restrict your code to Core SQL, don't use the DROP TRIGGER statem
 
 Dialects
 ========
-
-::
 
 Triggers are not part of SQL-92 or the SQL3 Core SQL specifications, but many
 DBMSs have had them for years -- particularly "client-server" DBMSs. Since

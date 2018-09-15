@@ -4,8 +4,6 @@
 Chapter 40 -- SQL/CLI Binding Style
 ===================================
 
-::
-
 SQL DBMSs communicate with SQL applications through a common programming
 language interface that is invoked through one of the SQL Standard-defined
 binding styles, or interface options. There are three main approaches to
@@ -42,8 +40,6 @@ a parameter list and a required algorithm (what the DBMS must do when you call i
 
 EXAMPLE1.C
 ==========
-
-::
 
 Here's a short C program that uses the CLI (the prototypes and short code
 examples that follow throughout our description of the CLI are all in C):
@@ -108,8 +104,6 @@ directly. Instead, we use a henv or a hdbc or a hstmt.
 SQLCHAR, SQLINTEGER and other typedefs
 ======================================
 
-::
-
 Here are the type definitions in the sqlcli.h header file. We use these names for declarations of C variables in all our examples.
 
 typedef unsigned char  SQLCHAR;      /* 8-bit-octet strings */
@@ -130,8 +124,6 @@ versions of the ODBC header file, the names were HENV, HDBC, HSTMT, etc.
 SQLRETURN
 =========
 
-::
-
 All CLI functions return a 16-bit value. We refer to this value as the SQLRETURN value because sqlcli.h contains this line:
 
   typedef SQLSMALLINT SQLRETURN;
@@ -148,8 +140,6 @@ Programs should check these values, but for space reasons we leave SQLRETURN out
 
 Handle relationships
 ====================
-
-::
 
 A handle is a 32-bit integer which can be used as a unique identifier of a
 "resource". The following chart shows all the resources which have handles.
@@ -172,8 +162,6 @@ ARD     APD     IRD     IPD
 
 How to run example programs
 ===========================
-
-::
 
 This book contains several example programs that we use to illustrate the
 SQL/CLI. Each example program is also included on the CD that came with this
@@ -203,8 +191,6 @@ deliberately kept out "implementation-defined" features when we wrote this DBMS.
 
 "Standard SQL CLI" equals "Core ODBC API"
 =========================================
-
-::
 
 History: Microsoft published the ODBC 1.0 specification in 1992. It became
 popular. Soon there were supporting interfaces for all the major DBMSs that
@@ -251,8 +237,6 @@ CLI. And we note only once -- now -- that any feature which is marked "SQL3" is 
 
 How Each CLI Function Will Be Described
 =======================================
-
-::
 
 In these chapters, we will describe each CLI function separately. We've put
 them in order according to this rule: if we can't describe A without knowing
@@ -356,8 +340,6 @@ you a sample function description, using a common CLI function subroutine -- Cha
 
 CharacterStringRetrieval
 ========================
-
-::
 
 Function Prototype:
   void CharacterStringRetrieval (

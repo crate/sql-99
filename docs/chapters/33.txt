@@ -4,8 +4,6 @@
 Chapter 33 -- Searching with Groups
 ===================================
 
-::
-
 This chapter deals with three optional points of a SELECT statement: the GROUP
 BY clause, the set functions {AVG, COUNT, MAX, MIN, SUM, EVERY, ANY, SOME,
 GROUPING} and the HAVING clause. Often these things appear together: the
@@ -22,8 +20,6 @@ SQL as a grouped Table.
 
 GROUP BY clause
 ===============
-
-::
 
 The GROUP BY clause is an optional portion of the SELECT statement. It defines
 a grouped Table. The required syntax for the GROUP BY clause is:
@@ -468,8 +464,6 @@ don't add a COLLATE clause to any grouping Column reference.
 Set Functions
 =============
 
-::
-
 The SQL set functions -- more commonly called aggregate functions -- are AVG,
 COUNT, MAX, MIN, SUM, EVERY, ANY, SOME. Each one takes the collection of
 values from a Column and reduces the collection to a single value. The
@@ -849,8 +843,6 @@ COUNT(Column) or COUNT(ALL Column) at all.
 HAVING clause
 =============
 
-::
-
 What departments have four employees? In which branches is the smallest book's
 size less than 40mm? Those are two questions that require comparison of an
 absolute value with a set function, and thus represent the commonest
@@ -980,8 +972,6 @@ D
 Views of Groups
 ===============
 
-::
-
 It's a straightforward exercise to make a View which is based on a grouping
 operation -- the result is a grouped View. Here's an example:
 
@@ -1033,8 +1023,6 @@ error message.
 
 Dialects
 ========
-
-::
 
 The older (pre-1992) DBMSs had these restrictions on grouping:
       ## Any set functions in the HAVING clause had to appear in the select

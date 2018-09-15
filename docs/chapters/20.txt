@@ -4,8 +4,6 @@
 Chapter 20 -- SQL Constraint and Assertion
 ==========================================
 
-::
-
 In this chapter, we'll describe SQL Constraints and SQL Assertions in detail,
 and show you the syntax to use to create, alter and destroy them.
 
@@ -16,8 +14,6 @@ and show you the syntax to use to create, alter and destroy them.
 
 Constraint
 ==========
-
-::
 
 A Schema may contain zero or more integrity Constraints (an Assertion is just
 a special type of integrity Constraint: it is not necessarily dependent on a
@@ -293,8 +289,6 @@ Constraint is a restriction (or description) of that set of values.
 Constraint Descriptors
 ======================
 
-::
-
 A UNIQUE Constraint is defined by a descriptor that contains five pieces of
 information:
       ## The <Constraint name>, qualified by the <Schema name> of the Schema
@@ -372,8 +366,6 @@ more Base Tables to be TRUE or UNKNOWN for the condition.
 
 Constraint Definition
 =====================
-
-::
 
 A Constraint definition creates a <Table Constraint>, a <Column Constraint> or
 a <Domain Constraint>. Used in a CREATE TABLE, ALTER TABLE, CREATE DOMAIN or
@@ -574,8 +566,6 @@ IMMEDIATE.)
 Constraint_type -- UNIQUE Constraint
 ====================================
 
-::
-
 A UNIQUE Constraint is either a <Table Constraint> or a <Column Constraint>
 and defines a rule that constrains a unique key to non-duplicate values only.
 The required syntax for a UNIQUE Constraint is:
@@ -662,8 +652,6 @@ Column that is part of a unique key for a UNIQUE Constraint.
 
 Constraint_type -- PRIMARY KEY Constraint
 =========================================
-
-::
 
 A PRIMARY KEY Constraint is either a <Table Constraint> or a <Column
 Constraint> and defines a rule that constrains a unique key to non-duplicate,
@@ -780,8 +768,6 @@ avoidance of first-normal form if you try to put it into one Table.
 
 Constraint_type -- FOREIGN KEY Constraint
 =========================================
-
-::
 
 A FOREIGN KEY Constraint is either a <Table Constraint> or a <Column
 Constraint> and defines a rule that constrains a foreign key to values that
@@ -1408,8 +1394,6 @@ Constraints with a MATCH clause, an ON UPDATE clause or an ON DELETE clause.
 Constraint_type -- NOT NULL Constraint
 ======================================
 
-::
-
 A NOT NULL Constraint is a <Column Constraint>, defining a rule that
 constrains a key to non-null values only. The required syntax for a NOT NULL
 Constraint is:
@@ -1455,8 +1439,6 @@ contain NULL.
 
 Constraint_type -- CHECK Constraint
 ===================================
-
-::
 
 A CHECK Constraint is either a <Table Constraint>, a <Column Constraint> or a
 <Domain Constraint> and defines a rule that constrains the set of valid values
@@ -1670,8 +1652,6 @@ isn't needed to create a CHECK Constraint.
 CREATE ASSERTION statement
 ==========================
 
-::
-
 The CREATE ASSERTION statement names a new Constraint and defines the
 Constraint's deferral mode, initial constraint check time and its CHECK search
 condition. The required syntax for the CREATE ASSERTION statement is:
@@ -1828,8 +1808,6 @@ statement.
 Interlocking references
 =======================
 
-::
-
 An example of an interlocking reference is:
       ## Every Employee must be in a department.
       ## Every Department must have at least one employee.
@@ -1948,8 +1926,6 @@ on tricks.
 Dropping Constraints
 ====================
 
-::
-
 Dropping a Constraint is straightforward, providing that you know the
 <Constraint name> -- that's why we recommend that you explicitly give every
 Constraint a name when you make it (even a NOT NULL Constraint). <Table
@@ -1960,8 +1936,6 @@ DOMAIN statement and Assertions are dropped with the DROP ASSERTION statement.
 
 DROP ASSERTION statement
 ========================
-
-::
 
 The DROP ASSERTION statement destroys an Assertion. The required syntax for
 the DROP ASSERTION statement is:
@@ -1992,8 +1966,6 @@ statement.
 
 Dialects
 ========
-
-::
 
 In most DBMSs, it's common that the UNIQUE specification is not supported, but
 you'll often see a (non-SQL) CREATE UNIQUE INDEX statement that gives you the

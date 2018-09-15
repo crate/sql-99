@@ -4,8 +4,6 @@
 Chapter 41 -- SQL/CLI: env Functions
 ====================================
 
-::
-
 In this chapter, we'll describe the first essential CLI resource: the env. For
 CLI programs, the env is the all-encompassing context area -- all CLI programs
 begin by establishing an env. The env contains some information directly
@@ -29,8 +27,6 @@ Here's a closeup view of an env:
 
 Null Termination
 ================
-
-::
 
 Traditionally, there have been three ways to define character strings:
       ## They are fixed length. Example: a COBOL PIC X(5) variable.
@@ -66,8 +62,6 @@ attributes and setting env attributes. Their descriptions follow.
 
 SQLAllocHandle(SQL_HANDLE_ENV,...)
 ==================================
-
-::
 
 Function Prototype:
   SQLRETURN SQLAllocHandle(
@@ -152,8 +146,6 @@ not be available until you call the "connect" function.
 SQLAllocEnv
 ===========
 
-::
-
 Function prototype:
   SQLRETURN SQLAllocEnv(
     SQLHENV *henv                   /* pointer to 32-bit output, a henv */
@@ -201,8 +193,6 @@ manual deprecates it, suggesting that users should switch to using SQLAllocHandl
 SQLGetEnvAttr
 =============
 
-::
-
 Function Prototype:
   SQLRETURN  SQLGetEnvAttr(
     SQLHENV henv,                   /* 32-bit input */
@@ -244,8 +234,6 @@ other env options which are specific to ODBC.
 
 SQLSetEnvAttr
 =============
-
-::
 
 Function Prototype:
   SQLRETURN  SQLSetEnvAttr(
@@ -305,8 +293,6 @@ example, to explicitly state that your application is written for ODBC version
 SQLFreeHandle(SQL_HANDLE_ENV,...)
 =================================
 
-::
-
 Function Prototype:
   SQLRETURN SQLFreeHandle(
     SQLSMALLINT HandleType,   /* 16-bit input */
@@ -338,8 +324,6 @@ ODBC: The SQLFreeHandle function is new in ODBC 3.0.
 
 SQLFreeEnv
 ==========
-
-::
 
 Function Prototype:
   SQLRETURN SQLFreeEnv(

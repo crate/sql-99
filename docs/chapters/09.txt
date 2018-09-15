@@ -4,8 +4,6 @@
 Chapter 9 -- Boolean values
 ===========================
 
-::
-
 In SQL, a Boolean value -- either TRUE, FALSE or UNKNOWN -- is a truth value.
 A Boolean value may be a <literal>, the value of a parameter or a host
 language variable or the result of any expression or argument (including a
@@ -21,8 +19,6 @@ Boolean <data type>: BOOLEAN.
 <Boolean literal>s
 ==================
 
-::
-
 A <Boolean literal> is one of these three words:
       ## TRUE
       ## FALSE
@@ -35,8 +31,6 @@ If you want to restrict your code to Core SQL, don't use <Boolean literal>s.
 
 Boolean <data type>s
 ====================
-
-::
 
 A Boolean <data type> is defined by a descriptor that contains one piece of information:
       ## The <data type>'s name: BOOLEAN.
@@ -83,8 +77,6 @@ then search for a pair of equal Column values.
 
 Boolean Operations
 ==================
-
-::
 
 A Boolean value is compatible with, and comparable to, all other Boolean
 values and all SQL truth values (for example, the truth values returned by an

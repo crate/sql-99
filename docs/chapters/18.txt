@@ -4,8 +4,6 @@
 Chapter 18 -- SQL Table and View
 ================================
 
-::
-
 In this chapter, we'll describe SQL Tables in detail, and show you the syntax
 to use to create, alter and destroy them.
 
@@ -36,8 +34,6 @@ SQL supports two types of Tables: the physically existent, named Base table and 
 
 Base Table
 ==========
-
-::
 
 A Base table is either a Schema Object (that is, its definition is part of a
 Schema definition) or a Module Object (that is, its definition is part of a
@@ -155,8 +151,6 @@ use the ALTER TABLE statement. To destroy a Base table, use the DROP TABLE state
 View
 ====
 
-::
-
 A View is a named, derived (or "virtual") Table: it doesn't physically exist,
 although its definition is persistent. Instead, a View is logically derived
 from one or more existing Tables, and can be thought of as another way of
@@ -183,8 +177,6 @@ then redefine it. To destroy a View, use the DROP VIEW statement.
 
 Table names
 ===========
-
-::
 
 A <Table name> identifies a Base table or a View. During a transaction, you
 can represent a Table with a <Correlation name> -- usually to prevent
@@ -300,8 +292,6 @@ even if you're never going to refer to some of the Columns again.
 Column
 ======
 
-::
-
 A Table may contain one or more Columns. An SQL Column is a collection of
 similar data values that describe the same attribute of the entity that is
 fully described by the Table that owns the Column. Columns are dependent on
@@ -401,8 +391,6 @@ the Table specification from a <Column reference>, it will default to the
 
 CREATE TABLE statement
 ======================
-
-::
 
 The CREATE TABLE statement names a new Base table and defines the Table's
 Columns and Constraints. The required syntax for the CREATE TABLE statement is:
@@ -690,8 +678,6 @@ statement.
 <Column definition>
 ===================
 
-::
-
 A <Column definition> is used to create or alter a Column of a Base table.
 Used in a CREATE TABLE or an ALTER TABLE statement, it names a Column and
 defines the Column's <data type>, default value and Constraints. The required
@@ -933,8 +919,6 @@ your <Column definition>s, don't base your Columns on Domains, don't name your
 <default clause>
 ================
 
-::
-
 A <default clause> defines the default value for a Column, a Domain or an
 attribute of a UDT. The required syntax for a <default clause> is:
 
@@ -1060,8 +1044,6 @@ If you want to restrict your code to Core SQL, don't use "DEFAULT CURRENT_PATH" 
 
 ALTER TABLE statement
 =====================
-
-::
 
 The ALTER TABLE statement changes a Base table's definition. The required syntax for the ALTER TABLE statement is:
 
@@ -1324,8 +1306,6 @@ a Table.
 DROP TABLE statement
 ====================
 
-::
-
 The DROP TABLE statement destroys a Base table. The required syntax for the
 DROP TABLE statement is:
 
@@ -1375,8 +1355,6 @@ behaviour for your DROP TABLE statements.
 
 CREATE VIEW statement
 =====================
-
-::
 
 The CREATE VIEW statement names a new View and defines the query which, when
 evaluated, determines the rows of data that are shown in the View. The
@@ -1925,8 +1903,6 @@ your check clauses -- always define Views only with WITH CHECK OPTION alone.
 Getting More Out Of Views
 =========================
 
-::
-
 A View's virtue is that it isn't the whole picture. Something is hidden.
 Hidden is good. In the following descriptions, which all show Views being put
 to some useful purpose, the same refrain could be sung each time: Views Hide -- Good.
@@ -1987,8 +1963,6 @@ Table in INFORMATION_SCHEMA, e.g.:
 DROP VIEW statement
 ===================
 
-::
-
 The DROP VIEW statement destroys a View. The required syntax for the DROP VIEW statement is:
 
 DROP VIEW <Table name> {RESTRICT | CASCADE}
@@ -2027,8 +2001,6 @@ If you want to restrict your code to Core SQL, don't use the CASCADE drop behavi
 
 DECLARE TABLE statement
 =======================
-
-::
 
 The DECLARE TABLE statement names a new declared local temporary Base table
 and defines the Table's Columns and Constraints. The required syntax for the
@@ -2138,8 +2110,6 @@ If you want to restrict your code to Core SQL, don't use the DECLARE LOCAL TEMPO
 
 Dialects
 ========
-
-::
 
 Some vendors relax the rules on what may be an updatable View. For example,
 IBM's DB2 will let you DELETE from Views whose queries contain arithmetic

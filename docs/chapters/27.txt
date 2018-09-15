@@ -4,8 +4,6 @@
 Chapter 27 -- User-defined Types
 ================================
 
-::
-
 [Obscure Rule] applies for this entire chapter.
 
 SQL began life as a procedurally oriented language, or -- properly speaking --
@@ -44,8 +42,6 @@ start with a good recollection of the earlier chapters on <data type>s, procedur
 
 UDTs
 ====
-
-::
 
 Until now, all the SQL <data type>s we've described have predefined <data
 type>s, sometimes called "built-in" or "primitive" <data type>s -- although
@@ -112,8 +108,6 @@ SCHEMA clause or AUTHORIZATION clause of the MODULE statement that defines that 
 UDT example
 ===========
 
-::
-
 Here's an example of a UDT definition:
 
 CREATE TYPE book_udt AS                -- the UDT name will be book_udt
@@ -141,8 +135,6 @@ Attributes do. Some people would call PROFIT a "derived Attribute".
 
 Columns based on UDTs
 =====================
-
-::
 
 Let us begin by making a Table, one of whose Columns is a UDT:
 
@@ -296,8 +288,6 @@ uses when it needs to figure out what routine you're really trying to call.
 
 Defining a Typed Table based on a UDT
 =====================================
-
-::
 
 It's one thing to base Columns on UDTs. It's quite another thing to base
 Tables on UDTs. Tables based on UDTs are called "typed Tables" (or
@@ -456,8 +446,6 @@ Here endeth the tutorial.
 
 CREATE TYPE statement
 =====================
-
-::
 
 The CREATE TYPE statement defines a UDT. The required syntax for the CREATE TYPE statement is:
 
@@ -629,8 +617,6 @@ object-orientation analogies -- such as "UDTs are classes" -- we have structured
 CREATE TABLE statement
 ======================
 
-::
-
 We've already shown you the CREATE TABLE statement in our chapter on Tables.
 However, there are two options to add to that description now, for Object/Relational Tables.
 
@@ -677,8 +663,6 @@ it is legal to create ta1 UNDER ta2 -- but it is not legal to create ta2 UNDER t
 
 CREATE CAST statement
 =====================
-
-::
 
 With uDTS, you'll need some way of assigning UDT values to predefined <data
 type> targets, or vice versa. Further, if you have two distinct UDTs -- say
@@ -798,8 +782,6 @@ should DROP the cast that the DBMS created and then explicitly make it again -
 CREATE ORDERING statement
 =========================
 
-::
-
 For UDT values, you'll need some way of knowing that "udt-value-1 is greater
 than udt-value-2" -- or less, or equal. Otherwise you'll be unable to use UDTs
 in search conditions, or in ORDER BY clauses, or in GROUP BY clauses, or after
@@ -870,8 +852,6 @@ less urgent because subtypes inherit from their supertypes.
 
 Other processes for Object/Relational Users
 ===========================================
-
-::
 
 There are several other SQL statements and expression which are useful, but
 not vital, when working with Object/Relational SQL. All of these statements
@@ -986,8 +966,6 @@ DEREF (<reference type> expression>)
 Is Object/Relational really Object Oriented?
 ============================================
 
-::
-
 Is O/R really OO? Lets go through the features that are considered to be
 standard parts of an object-oriented specification and see whether SQL3
 delivers them. (In this list, "UDT" means "UDTs which are structured types".)
@@ -1035,8 +1013,6 @@ Given these goals, Object/Relational SQL3 is a reasonable development. We now wa
 
 Dialects
 ========
-
-::
 
 Some SQL vendors have already introduced Object/Relational features. We give especial note to:
 
