@@ -4,19 +4,17 @@
 Chapter 2 -- General Concepts
 =============================
 
-A database system can be described as essentially nothing more than a
-computerized record-keeping system. A database, then, is simply a
-collection of structured data files and any associated indexes.
-The user of such a system must be able to add, insert, retrieve, update,
-and delete data and files as necessary. Although the SQL Standard doesn't
-actually define the nebulous concept "database", SQL provides all of these
-functions and more.
+A *database system* can be described as essentially nothing more than a
+computerized record-keeping system. A *database*, then, is simply a collection
+of structured data files and any associated indexes. The user of such a system
+must be able to add, insert, retrieve, update, and delete data and files as
+necessary. Although the SQL Standard doesn't actually define the nebulous
+concept "database", SQL provides all of these functions and more.
 
-In this chapter, we'll briefly discuss SQL's fundamental concepts
--- how the language fits into its overall environment, the data
-Objects you can expect to work with, and how SQL-data and SQL
-statements are structured. Then, in subsequent chapters, we'll
-revisit each of these areas in greater detail.
+In this chapter, we'll briefly discuss SQL's fundamental concepts -- how the
+language fits into its overall environment, the data Objects you can expect to
+work with, and how SQL-data and SQL statements are structured. Then, in
+subsequent chapters, we'll revisit each of these areas in greater detail.
 
 .. rubric:: Table of Contents
 
@@ -28,252 +26,235 @@ Set Theory
 
 ::
 
-   Georg Cantor was a German.
-   He invented Set Theory.
-   He was committed to a mental institution.
-   He died in 1918.
+    Georg Cantor was a German.
+    He invented Set Theory.
+    He was committed to a mental institution.
+    He died in 1918.
 
-We can explain the preceding statements using Georg Cantor's own
-theory: a set is any collection of definite distinguishable
-things. We can conceive of the set as a whole, and in fact we
-often do: for example, we speak of "the Germans" (a set) and can
-rephrase our first statement as "Georg Cantor was a member (or
-element) of the set of Germans". By rephrasing, we emphasize the
-collection of individual things over the individual things
-themselves. That much is intuitive. But Cantor was careful in his
-choice of words. By "distinguishable" (or distinct), he meant that
-in looking at any two things which fit in the set, we must be able
-to decide whether they are different. By "definite", he meant that if
-we know what the set is and we know what the thing is, we can
-decide whether the thing is a member of the set. Therefore, to
-know what a set "is", it is sufficient to know what the members are.
+We can explain the preceding statements using Georg Cantor's own theory: a
+*set* is any collection of definite distinguishable things. We can conceive of
+the set as a whole, and in fact we often do: for example, we speak of "the
+Germans" (a set) and can rephrase our first statement as "Georg Cantor was a
+member (or element) of the set of Germans". By rephrasing, we emphasize the
+collection of individual things over the individual things themselves. That
+much is intuitive. But Cantor was careful in his choice of words. By
+"distinguishable" (or distinct), he meant that in looking at any two things
+which fit in the set, we must be able to decide whether they are different. By
+"definite", he meant that if we know what the set is and we know what the thing
+is, we can decide whether the thing is a member of the set. Therefore, to know
+what a set "is", it is sufficient to know what the members are.
 
-Here are a few examples. The "Germans" set also included Kaiser
-Wilhelm. However, it can be proved from historical records that
-Cantor was not a pseudonym or alias that the Kaiser used while
-off duty -- therefore, the two members are distinguishable. At the
-same time, we know that there were several million other Germans,
-also distinguishable, and we could define the set by taking a
-census of all the Germans. There might be some difficulty
-deciding the individual question "What is a German?", but once
-that was done there would be no difficulty deciding the
-collective question "What are the Germans?". Therefore, the
-members define the set, i.e., the members are definite.
+Here are a few examples. The "Germans" set also included Kaiser Wilhelm.
+However, it can be proved from historical records that Cantor was not a
+pseudonym or alias that the Kaiser used while off duty -- therefore, the two
+members are distinguishable. At the same time, we know that there were several
+million other Germans, also distinguishable, and we could define the set by
+taking a census of all the Germans. There might be some difficulty deciding the
+individual question "What is a German?", but once that was done there would be
+no difficulty deciding the collective question "What are the Germans?".
+Therefore, the members define the set, i.e., the members are definite.
 
-The census we spoke of is possible because the Germans were a
-finite set (a fact which would have bored Cantor because he
-developed his theory to explain various gradations of infinity).
-We could enumerate the set thus:
+The census we spoke of is possible because the Germans were a finite set (a
+fact which would have bored Cantor because he developed his theory to explain
+various gradations of infinity). We could enumerate the set thus:
 
 ::
 
    {Georg Cantor, Kaiser Wilhelm, ...}
 
-In this enumeration, we used braces to indicate "we are
-enumerating a set" and an ellipsis to indicate "and so on" --
-that is, the list could go on but we felt it unnecessary to
-continue for the sake of our exposition. These are standard
-conventions and we will use braces and ellipses again.
+In this enumeration, we used braces to indicate "we are enumerating a set" and
+an ellipsis to indicate "and so on" -- that is, the list could go on but we
+felt it unnecessary to continue for the sake of our exposition. These are
+standard conventions and we will use braces and ellipses again.
 
-Enumeration is unwieldy for large sets, so let us revisit the
-question "What is a German?" by taking the bounds stated in the
-song "Deutschland Ueber Alles" -- a German is a person living
-between the Maas, the Memel, the Esch and the Belt (four bodies
-of water which now lie respectively in Holland, Russia, Austria,
-and Denmark). In Cantor's terms, that formula expresses a
-defining property. It is either true or it is false. If it is
-true, the person is in the set. If it is false, the person is outside the set.
+Enumeration is unwieldy for large sets, so let us revisit the question "What is
+a German?" by taking the bounds stated in the song "Deutschland Ueber Alles" --
+a German is a person living between the Maas, the Memel, the Esch and the Belt
+(four bodies of water which now lie respectively in Holland, Russia, Austria,
+and Denmark). In Cantor's terms, that formula expresses a defining property. It
+is either true or it is false. If it is true, the person is in the set. If it
+is false, the person is outside the set.
 
-Without stating the defining property in advance, the German
-census-takers would be unable to put together their forms and
-plan their information collection. The objective, though, is to
-produce an enumeration of all Germans. In computer terminology, we
-call the definition the database design and the enumeration the
-database itself. The "Germans" set can be broken up into several
-subsets such as:
+Without stating the defining property in advance, the German census-takers
+would be unable to put together their forms and plan their information
+collection. The objective, though, is to produce an enumeration of all Germans.
+In computer terminology, we call the definition the *database design* and the
+enumeration the *database* itself. The "Germans" set can be broken up into
+several subsets such as:
 
 ::
 
    {Berliners, Frankfurters, Hamburgers, ...}
 
-These subsets are also sets, with defining properties (city of
-residence), and presumably, with members -- but that is not
-necessary. For example, the set of Germans who live in the Rhine
-River is an empty set, i.e., it has no members, but it is still a
-set. The implicit breaking-up that happens when we ask "Among the
-Germans which ones are Frankfurters?" is an example of a set
-operation. A set operation is something we do with sets that
-results in the production of more sets.
+These subsets are also sets, with defining properties (city of residence), and
+presumably, with members -- but that is not necessary. For example, the set of
+Germans who live in the Rhine River is an empty set, i.e., it has no members,
+but it is still a set. The implicit breaking-up that happens when we ask "Among
+the Germans which ones are Frankfurters?" is an example of a set operation. A
+*set operation* is something we do with sets that results in the production of
+more sets.
 
-Relations
----------
+*Relations*
+-----------
 
-First, let's consider first a binary relation -- that is, a relation
-between two things. The things don't have to be of the same type;
-all we are concerned with is that they have some type of bond,
-and that they be in order. Getting back to our hero ... there is a
-relationship between Georg Cantor and the concept Set Theory (he
-invented it). There is also a relationship between Kaiser Wilhelm
-and World War I (he started it). We could use our braces notation
-to enumerate this:
+First, let's consider first a binary relation -- that is, a relation between
+two things. The things don't have to be of the same type; all we are concerned
+with is that they have some type of bond, and that they be in order. Getting
+back to our hero ... there is a relationship between Georg Cantor and the
+concept Set Theory (he invented it). There is also a relationship between
+Kaiser Wilhelm and World War I (he started it). We could use our braces
+notation to enumerate this:
 
 ::
+
     { (Georg Cantor, Set Theory), {Kaiser Wilhelm, World War I) }
 
 but it looks clearer when diagrammed as a two-dimensional Table:
 
-::
 
-    NAME            ACTIVITY
-    Georg Cantor    Set Theory
-    Kaiser Wilhelm  World War I
++----------------+--------------+
+| ``NAME``       | ``ACTIVITY`` |
++----------------+--------------+
+| Georg Cantor   | Set Theory   |
++----------------+--------------+
+| Kaiser Wilhelm | World War I  |
++----------------+--------------+
 
 There are some points to note about this diagram.
 
-1. The Table shows ordered pairs -- we couldn't reverse
-   them because Set Theory didn't invent Georg Cantor and World War I didn't
-   cause Kaiser Wilhelm -- the relationship between the "NAME" and "ACTIVITY"
-   values is directional. Note, however, that the word "ordered" refers only to
-   the horizontal order in the illustration -- across the relation. We don't
-   care which member of the set is listed first.
+1. The Table shows ordered pairs -- we couldn't reverse them because Set Theory
+   didn't invent Georg Cantor and World War I didn't cause Kaiser Wilhelm --
+   there lationship between the ``NAME`` and ``ACTIVITY`` values is
+   directional. Note, however, that the word "ordered" refers only to the
+   horizontal order in the illustration -- across the relation. We don't care
+   which member of the set is listed first.
 
-2. The Table shows binary pairs -- there is no space
-   on the line for marking Georg Cantor's other achievements. Under "What did
-   he do?" we can only express one thing. So: ordered means ordered, and pair
-   means pair.
+2. The Table shows binary pairs -- there is no space on the line for marking
+   Georg Cantor's other achievements. Under "What did he do?" we can only
+   express one thing. So: ordered means ordered, and pair means pair.
 
-So what, precisely, is the "relation" here? Well, it's the whole
-thing. The relationship is the set of all the ordered pairs, and
-the ordering itself (i.e., how part A relates to part B). What we
-have in the preceding diagram is a picture of a relation and nothing
-but a relation.
+So what, precisely, is the "relation" here? Well, it's the whole thing. The
+*relationship* is the set of all the ordered pairs, and the ordering itself
+(i.e., how part A relates to part B). What we have in the preceding diagram is
+a picture of a *relation* and nothing but a relation.
 
-This relation is a set. It has members. The members define the
-set. However, the members are no longer "elements", but ordered
-pairs. There's no reason to limit ourselves to ordered pairs,
-though. That's just the simplest relation, the binary relation,
-which is sometimes called "a relation of degree 2" (because there
-are two columns). We could have relations of degree 3, degree 4,
-degree 5, degree 6, degree 7, and so on, i.e., relations which are not
-binary but triple, quadruple, pentuple, sextuple, septuple ...
-Did you notice how after a while all the words ended in
-"-tuple"? That's why the general term for a relation with n
-elements is n-tuple. Here is a relation of degree 4 showing all
-the information we have so far:
+This relation is a set. It has members. The members define the set. However,
+the members are no longer "elements", but ordered pairs. There's no reason to
+limit ourselves to ordered pairs, though. That's just the simplest relation,
+the *binary relation*, which is sometimes called "a relation of degree 2"
+(because there are two columns). We could have relations of degree 3, degree 4,
+degree 5, degree 6, degree 7, and so on, i.e., relations which are not binary
+but triple, quadruple, pentuple, sextuple, septuple ... Did you notice how
+after a while all the words ended in "-tuple"? That's why the general term for
+a relation with *n* elements is *n-tuple*. Here is a relation of degree 4
+showing all the information we have so far:
 
-::
++----------------+--------------+--------------------+-------------------+
+| ``NAME``       | ``ACTIVITY`` | ``RESIDENCE``      | ``DATE_OF_DEATH`` |
++----------------+--------------+--------------------+-------------------+
+| Georg Cantor   | Set Theory   | Mental Institution | 1918              |
++----------------+--------------+--------------------+-------------------+
+| Kaiser Wilhelm | World War    | I Imperial Palace  | ???               |
++----------------+--------------+--------------------+-------------------+
 
-    NAME            ACTIVITY     RESIDENCE           DATE_OF_DEATH
-    Georg Cantor    Set Theory   Mental Institution  1918
-    Kaiser Wilhelm  World War I  Imperial Palace     ????
-    ...
+``...``
 
-Some differences now appear between the words Cantor used ("set
-theory terminology") and the words we use ("database
-terminology"). The line:
+Some differences now appear between the words Cantor used ("set theory
+terminology") and the words we use ("database terminology"). The line:
 
 ::
 
    {Georg Cantor, Set Theory,Mental Institution,1918}
 
-would be one tuple to Cantor, but in SQL, we prefer the word row.
-
-Or, to be precise: the row value is the four-element:
+would be one tuple to Cantor, but in SQL, we prefer the word *row*. Or, to be
+precise: the *row value* is the four-element:
 
 ::
 
    {Georg Cantor,Set Theory,Mental Institution,1918)
 
-and the row is the box that holds that information. (We don't
-usually need to be so precise in ordinary discussion.) Meanwhile,
-going down rather than across, Cantor would say that we have four
-attributes, labelled NAME, ACTIVITY, RESIDENCE and
-DATE_OF_DEATH. But in SQL, we prefer the word column instead
-and we call each element going down (such as 'Georg Cantor' or
-'Kaiser Wilhelm') a column value.
+and the row is the box that holds that information. (We don't usually need to
+be so precise in ordinary discussion.) Meanwhile, going down rather than
+across, Cantor would say that we have four attributes, labelled ``NAME``,
+``ACTIVITY``, ``RESIDENCE`` and ``DATE_OF_DEATH``. But in SQL, we prefer the
+word column instead and we call each element going down (such as 'Georg Cantor'
+or 'Kaiser Wilhelm') a *column value*.
 
-Here's a quick summary. Moving across the relation are tuples
-(but don't use that word) or rows. Moving up-and-down the relation
-are attributes (but don't use that word) or columns. The
-contents of a row is a row value. The intersection of a row and a
-column is a column value. The column value is "atomic" -- it has
-only one element. There is always exactly one column value in
-each atomic box that's formed by the intersection of a row with a column.
+Here's a quick summary. Moving across the relation are tuples (but don't use
+that word) or rows. Moving up-and-down the relation are attributes (but don't
+use that word) or columns. The contents of a row is a row value. The
+intersection of a row and a column is a column value. The column value is
+"atomic" -- it has only one element. There is always exactly one column value
+in each atomic box that's formed by the intersection of a row with a column.
 
-Incidentally, in the diagram we used an ellipsis once more, to
-mean "and so on" -- there are more Germans in the set. We also used
-the symbol "????" for the column value of "When did he die?" for
-Kaiser Wilhelm. This is not a standard symbol -- there is no
-standard way of expressing the fact that not only do we not know
-when Kaiser Wilhelm died (i.e., "value is Unknown"), but we're not
-even sure that he's dead (i.e., "category is Not Applicable").
-This is not a problem for Set Theory, but it is a problem in
-practice and we'll return to it later. When we do, we'll call the
-"????" a NULL, or null value.
+Incidentally, in the diagram we used an ellipsis once more, to mean "and so on"
+-- there are more Germans in the set. We also used the symbol "???" for the
+column value of "When did he die?" for Kaiser Wilhelm. This is not a standard
+symbol -- there is no standard way of expressing the fact that not only do we
+not know when Kaiser Wilhelm died (i.e., "value is Unknown"), but we're not
+even sure that he's dead (i.e., "category is Not Applicable"). This is not a
+problem for Set Theory, but it is a problem in practice and we'll return to it
+later. When we do, we'll call the "???" a NULL, or null value.
 
-And there we have it. A relation is an ordered n-tuple set, with
-all members having the same degree, which is representable as a
-table of rows and columns. It really does seem appropriate that
-we should know what a relation is, because (we trust the following
-is not an unpleasant surprise) SQL is a relational database
-management system, and that means the database is made of
-relations. To quote the Kellogg's Rice Krispies (tm) commercial,
-"What the heck did you think they were made of?"
+And there we have it. A relation is an ordered *n*-tuple set, with all members
+having the same degree, which is representable as a table of rows and columns.
+It really does seem appropriate that we should know what a relation is, because
+(we trust the following is not an unpleasant surprise) SQL is a relational
+database management system, and that means the database is made of relations.
+To quote the Kellogg's Rice Krispies (tm) commercial, "What the heck did you
+*think* they were made of?"
 
-Admittedly, when anything looks that obvious, it must be a lie.
-And it is. Relational databases are actually made of tables,
-rather than relations. What's the difference? Well, with a table
-we can have two Georg Cantors. This clearly breaks Cantor's
-"distinguishable" rule, and it's quite a big break; we all know
+Admittedly, when anything looks that obvious, it must be a lie. And it is.
+Relational databases are actually made of tables, rather than relations. What's
+the difference? Well, with a table we can have two Georg Cantors. This clearly
+breaks Cantor's "distinguishable" rule, and it's quite a big break; we all know
 that the famous "Set Of Integers"  doesn't go
 
 ::
 
    {1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,...}
 
-By definition, a set has no duplicates. A relation is a set, so a
-relation has no duplicates. But a table can have duplicates. This
-is a concession to practicalities, since we know that duplicate
-data happens in the "real world". However, if our database
-contains two Georg Cantors who really are the same person, then
-we have an error -- while if it contains two Georg Cantors whom
-we can't distinguish from one another, then we have a design
-flaw. The long and the short of it all is: (a) a relational
-database consists of tables, (b) a table is not a relation, but
-the only difference between them is that a table may have rows
-with duplicate row values, (c) you should get rid of duplicates
-regardless, therefore (d) therefore all relational databases should
-consist of relations. (By the way, a table is sometimes called a
-"multiset" to distinguish it from a regular set. You'll see the
-word multiset in some Microsoft publications.)
+By definition, a set has no duplicates. A relation is a set, so a relation has
+no duplicates. But a table can have duplicates. This is a concession to
+practicalities, since we know that duplicate data happens in the "real world".
+However, if our database contains two Georg Cantors who really are the same
+person, then we have an error -- while if it contains two Georg Cantors whom we
+can't distinguish from one another, then we have a design flaw. The long and
+the short of it all is: (*a*) a relational database consists of tables, (*b*) a
+table is not a relation, but the only difference between them is that a table
+may have rows with duplicate row values, (*c*) you should get rid of duplicates
+regardless, therefore (*d*) therefore all relational databases should consist
+of relations. (By the way, a table is sometimes called a *multiset* to
+distinguish it from a regular set. You'll see the word multiset in some
+Microsoft publications.)
 
-Set Operations
---------------
+*Set Operations*
+----------------
 
-Since SQL operates on sets, there must be such things as "set
-operations" that SQL can perform. In fact, SQL borrows all the
-standard operations from Set Theory textbooks, along with the
-terminology. Mercifully, it does not also borrow the notation. So
-to describe the set operations in this book, we've been able to
-use some English-looking terms which, in fact, have fairly precise
-meanings in Set Theory, and some English-looking terms which, in
-fact, are SQL words for our notation. In the following quick
-introduction, we will describe a sequence of set
-operations. A sequence, also known as a series, is an ordered
-set. The order that we'll follow is the order of execution of the
-clauses of the most famous of SQL statement types: the query, or
-SELECT statement.
+Since SQL operates on sets, there must be such things as "set operations" that
+SQL can perform. In fact, SQL borrows all the standard operations from Set
+Theory textbooks, along with the terminology. Mercifully, it does not also
+borrow the notation. So to describe the set operations in this book, we've been
+able to use some English-looking terms which, in fact, have fairly precise
+meanings in Set Theory, and some English-looking terms which, in fact, are SQL
+words for our notation. In the following quick introduction, we will describe a
+sequence of set operations. A *sequence*, also known as a *series*, is an
+ordered set. The order that we'll follow is the order of execution of the
+clauses of the most famous of SQL statement types: the query, or ``SELECT``
+statement.
 
-IDENTITY
+Identy
 --------
 
 The easiest operation is take a copy of the table we started with:
 
-::
-
-    NAME            ACTIVITY
-    Georg Cantor    Set Theory
-    Kaiser Wilhelm  World War I
++----------------+-------------+
+| ``NAME``       | ``ACTIVITY``|
++----------------+-------------+
+| Georg Cantor   | Set Theory  |
++----------------+-------------+
+| Kaiser Wilhelm | World War I |
++----------------+-------------+
 
 The SQL for this is:
 
@@ -281,19 +262,17 @@ The SQL for this is:
 
    ... FROM Germans ...
 
-Because this is the first time we've said something "in SQL", we'll
-regard it as our equivalent of the famous "hello world" -- so,
-some introductions are in order. We've used the ellipsis before.
-As usual, it means "and so on", so you can see that there's some
-stuff both before and after "... FROM Germans ..." that we're not
-going to spell out just here. We need the ellipsis to indicate
-that we're not illustrating a whole statement, merely one clause,
-called the FROM clause. The word FROM is an SQL keyword and the
-word Germans is an SQL Table name. So: the FROM clause takes the
-Germans table and ends up with a result table that is the same as
-the Germans table.
+Because this is the first time we've said something "in SQL", we'll regard it
+as our equivalent of the famous "hello world" -- so, some introductions are in
+order. We've used the ellipsis before. As usual, it means "and so on", so you
+can see that there's some stuff both before and after ``FROM GERMANS`` that
+we're not going to spell out just here. We need the ellipsis to indicate that
+we're not illustrating a whole statement, merely one clause, called the
+``FROM`` clause. The word FROM is an SQL keyword and the word Germans is an SQL
+Table name. So: the ``FROM`` clause takes the Germans table and ends up with a
+result table that is the same as the Germans table.
 
-PRODUCT
+Product
 -------
 
 In the history of the world, there have been four great Mathematicians:
@@ -304,50 +283,57 @@ In the history of the world, there have been four great Mathematicians:
 
 If we put that side-by-side with our original Germans set, we get:
 
-::
+==================  ==============
+``MATHEMATICIANS``  ``GERMANS``
+==================  ==============
+Al-Khwarezm         Georg Cantor
+Georg Cantor        Kaiser Wilhelm
+Leonhard Euler
+Rene Descartes
+==================  ==============
 
-    MATHEMATICIANS       GERMANS
-    Al-Khwarezm          Georg Cantor
-    Georg Cantor         Kaiser Wilhelm
-    Leonhard Euler
-    Rene Descartes
+The Cartesian product operation yields the set of all pairs (x,y) such that x
+is a member of some set X and y is a member of some set Y. The result of
+``GERMANS`` [Cartesian Product] ``MATHEMATICIANS`` is the following binary
+relation.
 
-The Cartesian product operation yields the set of all pairs (x,y)
-such that x is a member of some set X and y is a member of some
-set Y. The result of GERMANS [Cartesian Product] MATHEMATICIANS
-is the following binary relation.
++-----------------------+-------------------------+
+| ``CARTESIAN_PRODUCT`` |                         |
++-----------------------+-------------------------+
+|``GERMANS.NAME``       | ``MATHEMATICIANS.NAME`` |
++-----------------------+-------------------------+
+| Al-Khwarezm           | Georg Cantor            |
++-----------------------+-------------------------+
+| Georg Cantor          | Georg Cantor            |
++-----------------------+-------------------------+
+| Leonhard Euler        | Georg Cantor            |
++-----------------------+-------------------------+
+| Rene Descartes        | Georg Cantor            |
++-----------------------+-------------------------+
+| Al-Khwarezm           | Kaiser Wilhelm          |
++-----------------------+-------------------------+
+| Georg Cantor          | Kaiser Wilhelm          |
++-----------------------+-------------------------+
+| Leonhard Euler        | Kaiser Wilhelm          |
++-----------------------+-------------------------+
+| Rene Descartes        | Kaiser Wilhelm          |
++-----------------------+-------------------------+
 
-CARTESIAN_PRODUCT
------------------
-
-::
-
-    GERMANS.NAME         MATHEMATICIANS.NAME
-    Al-Khwarezm          Georg Cantor
-    Georg Cantor         Georg Cantor
-    Leonhard Euler       Georg Cantor
-    Rene Descartes       Georg Cantor
-    Al-Khwarezm          Kaiser Wilhelm
-    Georg Cantor         Kaiser Wilhelm
-    Leonhard Euler       Kaiser Wilhelm
-    Rene Descartes       Kaiser Wilhelm
-
-You must not object that Al-Khwarezm is unrelated to Kaiser
-Wilhelm, because the spirit of a Cartesian-product relation is
-that everything relates to everything. The table above is a
-relation -- it's mathematically valid (even if it doesn't seem to
-make any sense!). There are several ways to express this
+You must not object that Al-Khwarezm is unrelated to Kaiser Wilhelm, because
+the spirit of a Cartesian-product relation is that everything relates to
+everything. The table above is a relation -- it's mathematically valid (even if
+it doesn't seem to make any sense!). There are several ways to express this
 operation in SQL. The classic style is:
 
 ::
 
    ... FROM Germans, Mathematicians ...
 
-That is, within a FROM clause the expression "table-name-1 ,
-table-name-2" means "yield a table which is the Cartesian product
-of table-name-1 and table-name-2".
+That is, within a ``FROM`` clause the expression "table-name-1 , table-name-2"
+means "yield a table which is the Cartesian product of table-name-1 and
+table-name-2".
 
-SEARCH CONDITION
+Search condition
 ----------------
 
 In our Cartesian-product relation, there is something special about the row:
@@ -356,58 +342,55 @@ In our Cartesian-product relation, there is something special about the row:
 
    (Georg Cantor,Georg Cantor)
 
-That row, and that row only, has two column values that are the
-same. This is significant because the columns are defined in a
-meaningful way: one 'Georg Cantor' is the name of a German, while
-the other 'Georg Cantor' is the name of a mathematician.
-Therefore, Georg Cantor must be the only person who is both a
-German and a mathematician. (This assumes that names are unique.)
-And again, there is an SQL way to say this:
+That row, and that row only, has two column values that are the same. This is
+significant because the columns are defined in a meaningful way: one 'Georg
+Cantor' is the name of a German, while the other 'Georg Cantor' is the name of
+a mathematician. Therefore, Georg Cantor must be the only person who is both a
+German and a mathematician. (This assumes that names are unique.) And again,
+there is an SQL way to say this:
 
 ::
 
    ... FROM  Germans, Mathematicians
        WHERE Germans.name = Mathematicians.name ...
 
-We now have two clauses in our example. The FROM clause exploded
-the tables into a Cartesian product relation. The WHERE clause
-reduces the result to a subset of that relation. The result
-subset is also a relation -- it contains only those rows where this
-condition is true: "the name equals the name". (This is known as
-a search condition in official-SQL vocabulary.) Now we have this result:
+We now have two clauses in our example. The ``FROM`` clause exploded the tables
+into a Cartesian product relation. The ``WHERE`` clause reduces the result to a
+subset of that relation. The result subset is also a relation -- it contains
+only those rows where this condition is ``TRUE``: "the name equals the name".
+(This is known as a *search condition* in official-SQL vocabulary.) Now we have
+this result:
 
-CARTESIAN_PRODUCTS
-------------------
++--------------------------------------------+
+| ``CARTESIAN_PRODUCTS``                     |
++------------------+-------------------------+
+| ``GERMANS.NAME`` | ``MATHEMATICIANS.NAME`` |
++------------------+-------------------------+
+|    Georg Cantor  |       Georg Cantor      |
++------------------+-------------------------+
 
-::
+So: the ``WHERE`` clause contains a search condition, takes as input the
+(table) result of the ``FROM`` clause, and produces as output a table which
+contains only those rows where the search condition is ``TRUE``.
 
-    GERMANS.NAME         MATHEMATICIANS.NAME
-    Georg Cantor         Georg Cantor
-
-So: the WHERE clause contains a search condition, takes as input
-the (table) result of the FROM clause, and produces as output a
-table which contains only those rows where the search condition is TRUE.
-
-JOIN
+Join
 ----
 
-In this example so far, the FROM clause contained two table names
-and the WHERE clause contained a comparison between columns from
-each table. This two-step process is usually called a join. In
-modern SQL, there are several ways to ask for a join. We have
-started with the oldest and best-known way, because it best
-illustrates that a typical join is two separate operations.
+In this example so far, the ``FROM`` clause contained two table names and the
+``WHERE`` clause contained a comparison between columns from each table. This
+two-step process is usually called a *join*. In modern SQL, there are several
+ways to ask for a join. We have started with the oldest and best-known way,
+because it best illustrates that a typical join is two separate operations.
 
-PROJECTION
+Projection
 ----------
 
-Our result table now has one row with two columns, and the value
-in each column is 'Georg Cantor' -- but we only need one column
-to answer the question "Who is German and a mathematician?".
-If you think of the earlier search condition as being an
-operation which picks out certain rows, it's easy to get to the
-next step. A projection is a complementary operation which picks
-out certain columns. In SQL, we just list the columns we want:
+Our result table now has one row with two columns, and the value in each column
+is 'Georg Cantor' -- but we only need one column to answer the question "Who is
+German *and* a mathematician?". If you think of the earlier search condition as
+being an operation which picks out certain rows, it's easy to get to the next
+step. A *projection* is a complementary operation which picks out certain
+columns. In SQL, we just list the columns we want:
 
 ::
 
@@ -415,1950 +398,1538 @@ out certain columns. In SQL, we just list the columns we want:
    FROM   Germans, Mathematicians
    WHERE  Germans.name = Mathematicians.name ...
 
-The column reference after the keyword SELECT is called a select
-list. We now have a result table that looks like this:
+The column reference after the keyword ``SELECT`` is called a *select list*. We
+now have a result table that looks like this:
 
-CARTESIAN_PRODUCT
------------------
++----------------------+
+| ``CARTESIAN_PRODUCT``|
++----------------------+
+| ``GERMANS.NAME``     |
++----------------------+
+| Georg Cantor         |
++----------------------+
 
-::
-
-    GERMANS.NAME
-    Georg Cantor
-
-So, the select list does a projection on the table produced by
-the WHERE clause. The result is (as always) a table. The words
-"SELECT Germans.name FROM Germans, Mathematicians WHERE
-Germans.name = Mathematicians.name" constitute a valid and
-complete SQL statement. Specifically, this sort of statement is
-called a query, presumably because it translates a question (in
-this case, "What Germans are mathematicians?"). It's also commonly
-called the SELECT statement.
+So, the select list does a projection on the table produced by the ``WHERE``
+clause. The result is (as always) a table. The words ``SELECT``
+``Germans.name`` ``FROM`` ``Germans``, ``Mathematicians`` ``WHERE``
+``Germans.name`` = ``Mathematicians.name`` constitute a valid and complete SQL
+statement. Specifically, this sort of statement is called a *query*, presumably
+because it translates a question (in this case, "What Germans are
+mathematicians?"). It's also commonly called the ``SELECT`` statement.
 
 Other Set Operations
-SQL also handles the standard set operations intersect, union, and
-except. The following is an example of each: two example tables (the
-"input"), one result table (the "output"), and the SQL statement
-that makes it happen. To make the examples short, we've used
-unrealistically small examples with one column per table and no
-WHERE clauses, but don't worry about syntactical details or
-the exact workings of the operations -- that comes later.
-You understand enough so far if you grasp that some well-known
-set operations can be expressed in SQL, and work on tables.
+--------------------
 
-::
+SQL also handles the standard set operations intersect, union, and except. The
+following is an example of each: two example tables (the "input"), one result
+table (the "output"), and the SQL statement that makes it happen. To make the
+examples short, we've used unrealistically small examples with one column per
+table and no ``WHERE`` clauses, but don't worry about syntactical details or
+the exact workings of the operations -- that comes later. You understand enough
+so far if you grasp that some well-known set operations can be expressed in
+SQL, and work on tables.
 
-    Inputs                   SQL query           Output
-
-    INTEGERS_1  INTEGERS_2   SELECT column_1     INTEGERS_3
-                             FROM Integers_1
-    COLUMN_1    COLUMN_1     INTERSECT           COLUMN_1
-    5           33           SELECT column_1     4
-    4           14           FROM Integers_2
-    13           4
-
-    STRINGS_1   STRINGS_2    SELECT column_1     STRINGS_3
-                             FROM Strings_1
-    COLUMN_1    COLUMN_1     UNION               COLUMN_1
-    Spain       Italy        SELECT column_1     Spain
-    Greece      Denmark      FROM Strings_2      Greece
-    Yugoslavia  Belgium                          Italy
-                                                 Denmark
-                                                 Yugoslavia
-                                                 Belgium
-
-    DECIMALS_1  DECIMALS_2   SELECT column_1     DECIMALS_3
-                             FROM Decimals_1
-    COLUMN_1    COLUMN_1     EXCEPT              COLUMN_1
-     5.32       33.08        SELECT column_1      5.32
-     4.17       14.00        FROM Decimals_2     13.99
-    13.99        4.17
++----------------+-------------------+---------------------+----------------+
+| ``Inputs``     |                   | ``SQL query``       | ``Output``     |
++================+===================+=====================+================+
+| ::             | ::                | ::                  | ::             |
+|                |                   |                     |                |
+|   INTEGERS_1   |   INTEGERS_2      |   SELECT column_1   |   INTEGERS_3   |
+|   COLUMN_1     |   COLUMN_1        |   FROM Integers_1   |   COLUMN_1     |
+|   5            |   33              |   INTERSECT         |   4            |
+|   4            |   14              |   SELECT column_1   |                |
+|   13           |   4               |   FROM Integers_2   |                |
++----------------+-------------------+---------------------+----------------+
+| ::             | ::                | ::                  | ::             |
+|                |                   |                     |                |
+|   STRINGS_1    |   STRINGS_2       |   SELECT column_1   |   Strings_3    |
+|   COLUMN_1     |   COLUMN_1        |   FROM Strings_1    |   COLUMN_1     |
+|   Spain        |   Italy           |   UNION             |   Spain        |
+|   Greece       |   Denmark         |   SELECT column_1   |   Greece       |
+|   Yugoslavia   |   Belgium         |   FROM Strings_2    |   Italy        |
+|                |                   |                     |   Denmark      |
+|                |                   |                     |   Yugoslavia   |
+|                |                   |                     |   Belgium      |
++----------------+-------------------+---------------------+----------------+
+| ::             | ::                | ::                  | ::             |
+|                |                   |                     |                |
+|   DECIMALS_1   |   DECIMALS_2      |   SELECT column_1   |   DECIMALS_3   |
+|   COLUMN_1     |   COLUMN_1        |   FROM Integers_1   |   COLUMN_1     |
+|   5.32         |   33.08           |   EXCEPT            |   5.32         |
+|   4.17         |   14.00           |   SELECT column_1   |   13.99        |
+|   13.99        |   4.17            |   FROM Decimals_2   |                |
++----------------+-------------------+---------------------+----------------+
 
 Therefore God Exists
 --------------------
 
-Leonhard Euler is famed for his remark that "(a+b)**n/n=X,
-therefore God exists", which shows that any argument looks
-imposing if you use lots of math symbols. SQL does the opposite.
-It has a solid base on a mathematical theory, but the operations
-of Set Theory are hidden behind a somewhat English-like sentence
-structure. The result is, on balance, for the good. Most SQL
-beginners have an easy time grasping the concepts behind "WHERE
-clauses" or "select lists", while they might have a less easy
-time with the dense polysymbolic notation of standard Set Theory.
-Unfortunately, the SQL language hides the operations so well that
-frequent delusions arise:
+Leonhard Euler is famed for his remark that "(a+b)**n/n=X, therefore God
+exists", which shows that any argument looks imposing if you use lots of math
+symbols. SQL does the opposite. It has a solid base on a mathematical theory,
+but the operations of Set Theory are hidden behind a somewhat English-like
+sentence structure. The result is, on balance, for the good. Most SQL beginners
+have an easy time grasping the concepts behind ``WHERE`` clauses or "select
+lists", while they might have a less easy time with the dense polysymbolic
+notation of standard Set Theory. Unfortunately, the SQL language hides the
+operations so well that frequent delusions arise:
 
-1. SQL is a "nonprocedural" language. Perhaps people get
-   this idea from the fact that any operation on a set should affect all set
-   members simultaneously. But the set operations themselves are ordered. One
-   step follows another.
+1. SQL is a "nonprocedural" language. Perhaps people get this idea from the
+   fact that any operation on a set should affect all set members
+   simultaneously. But the set operations themselves are ordered. One step
+   follows another.
 
-2. A whole SQL query operates on the tables in the FROM
-   clause. This mode of thinking causes people to make certain common errors
-   which could be avoided if they kept in mind the truth; that each set
-   operation produces a new, nameless, "virtual" table and passes it on. (Well,
-   perhaps we should add "conceptually" -- there will be hundreds of times in
-   this book that we could add "conceptually" because your DBMS may do internal
-   things in some out-of-order sequence, provided the method doesn't affect the
-   results. That is not our present concern. What we must know from the outset
-   is how a human being is supposed to view the operations.)
+2. A whole SQL query operates on the tables in the ``FROM`` clause. This mode
+   of thinking causes people to make certain common errors which could be
+   avoided if they kept in mind the truth; that each set operation produces a
+   new, nameless, "virtual" table and passes it on. (Well, perhaps we should
+   add "conceptually" -- there will be hundreds of times in this book that we
+   could add "conceptually" because your DBMS may do internal things in some
+   out-of-order sequence, provided the method doesn't affect the results. That
+   is not our present concern. What we must know from the outset is how a human
+   being is supposed to view the operations.)
 
-Coming away from this chapter, you only need to know that SQL has
-a specialized vocabulary which to a large extent arises from Set
-Theory; and that SQL operations happen on tables. You should
-regard this as background information. This book takes a
-bottom-up approach, starting with the smallest units (the column
-and row values), so it will be several chapters before we reach
-the top, and begin to emphasize the sets once more.
+Coming away from this chapter, you only need to know that SQL has a specialized
+vocabulary which to a large extent arises from Set Theory; and that SQL
+operations happen on tables. You should regard this as background information.
+This book takes a bottom-up approach, starting with the smallest units (the
+column and row values), so it will be several chapters before we reach the top,
+and begin to emphasize the sets once more.
 
 Recap: the Relational Model
 ===========================
 
-A relational database is one which appears to be nothing more
-than a collection of tables. The model it is based on has three
-major aspects: the structure, the manipulation, and the integrity of data.
+A relational database is one which appears to be nothing more than a collection
+of tables. The model it is based on has three major aspects: the structure, the
+manipulation, and the integrity of data.
 
-In the relational model, data are logically presented in two-
-dimensional tables made up of columns and rows. The rows of a
-table consist of a collection of values that describe an entity;
-for example, an employee. The columns of a table consist of a
-collection of similar data among rows; e.g., employee surnames.
-Operations on the data are simplified by the fact that a table's
-rows are unordered. The intersection of a row and a column
-contains individual data items called values. Values are always
-atomic; that is, each position in a table may contain only one datum.
+In the relational model, data are logically presented in two- dimensional
+tables made up of columns and rows. The rows of a table consist of a collection
+of values that describe an entity; for example, an employee. The columns of a
+table consist of a collection of similar data among rows; e.g., employee
+surnames. Operations on the data are simplified by the fact that a table's rows
+are unordered. The intersection of a row and a column contains individual data
+items called *values*. Values are always atomic; that is, each position in a
+table may contain only one datum.
 
 Data manipulation is provided by a set of algebraic or calculus operators.
 
 Data integrity is provided by two rules. Entity integrity requires that every
 value in the primary key of a table must be a unique, non-null data value.
 Referential integrity requires that every value in a foreign key must either
-equal some value of its related primary key, or it must be null.
+equal some value of its related primary key, or it must be NULL.
 
-Design of a Relational Database
--------------------------------
+*Design of a Relational Database*
+---------------------------------
 
 One of the main advantages of the relational model of database design is that
 it is based on a foundation of formal mathematical theory that allows its
 concepts to be defined and examined with great precision.
 
-Remember that a relation is (essentially) a two-dimensional table
-consisting of horizontal rows and vertical columns. The advantage
-of this form is that almost everyone is familiar with data
-presented as a simple table. The relational model stipulates that
-no two rows in the table (relation) may be identical; there must
-be some combination of columns, called a key, whose values will
+Remember that a relation is (essentially) a two-dimensional table consisting of
+horizontal rows and vertical columns. The advantage of this form is that almost
+everyone is familiar with data presented as a simple table. The relational
+model stipulates that no two rows in the table (relation) may be identical;
+there must be some combination of columns, called a *key*, whose values will
 uniquely identify each row.
 
-As an example of the model's capabilities, we will design a
-structure for a personnel database which contains the following
-information: the name of each employee, the programming languages
-the employee is familiar with, the number of years the employee
-has used each language, the employee's title, the employee's
-length of service with the company, the employee's hourly rate of
-pay, the current projects to which the employee is assigned, and
-the manager of each of these projects.
+As an example of the model's capabilities, we will design a structure for a
+personnel database which contains the following information: the name of each
+employee, the programming languages the employee is familiar with, the number
+of years the employee has used each language, the employee's title, the
+employee's length of service with the company, the employee's hourly rate of
+pay, the current projects to which the employee is assigned, and the manager of
+each of these projects.
 
-The following PERSONNEL_1 table shown below shows a sample of the data that
+The following ``PERSONNEL_1`` table shown below shows a sample of the data that
 might be stored in such a database, along with one possible structure.
 
-::
++---------------------------------------------------------------------------------------------------+
+| ``PERSONNEL_1``                                                                                   |
++----------+-----------+-------------+-------------+-------------+---------+-------------+----------+
+| ``NAME`` | ``LANG``  | ``YRS_USE`` | ``TITLE``   | ``YRS_EXP`` |``PAY``  | ``PROJECT`` | ``MGR``  |
++----------+-----------+-------------+-------------+-------------+---------+-------------+----------+
+| ::       | ::        | ::          | ::          | ::          | ::      | ::          | ::       |
+|          |           |             |             |             |         |             |          |
+|   Marvin |   Cobol   |   3         |   Sr. Prog. |   4         |   25.00 |   Payroll   |   Smith  |
+|          |   Fortran |   2         |             |             |         |   A/R       |   Jones  |
++----------+-----------+-------------+-------------+-------------+---------+-------------+----------+
+| ::       | ::        | ::          | ::          | ::          | ::      | ::          | ::       |
+|          |           |             |             |             |         |             |          |
+|   Brown  |   Cobol   |   2         |   Sr. Prog. |   3         |   24.00 |   Inventory |   Norman |
+|          |   Basic   |   1         |             |             |         |             |          |
+|          |   Ada     |   3         |             |             |         |             |          |
++----------+-----------+-------------+-------------+-------------+---------+-------------+----------+
+| ::       | ::        | ::          | ::          | ::          | ::      | ::          | ::       |
+|          |           |             |             |             |         |             |          |
+|   Norman |   Cobol   |   4         |   Prj.      |   2         |   35.00 |   Inventory |   Norman |
+|          |   SQL     |   2         |   Mgr.      |             |         |             |          |
++----------+-----------+-------------+-------------+-------------+---------+-------------+----------+
+| ::       | ::        | ::          | ::          | ::          | ::      | ::          | ::       |
+|          |           |             |             |             |         |             |          |
+|   James  |   SQL     |   1         |   Sys.      |   2         |   29.00 |   A/R       |   Jones  |
+|          |   Pascal  |   3         |   Ana.      |             |         |   Datcom    |   Harvey |
++----------+-----------+-------------+-------------+-------------+---------+-------------+----------+
+| ::       | ::        | ::          | ::          | ::          | ::      | ::          | ::       |
+|          |           |             |             |             |         |             |          |
+|   Jones  |   Cobol   |   1         |   Prj.      |   8         |   42.00 |   A/R       |   Jones  |
+|          |   Pascal  |   5         |   Mgr.      |             |         |             |          |
+|          |   SQL     |   2         |             |             |         |             |          |
+|          |   Basic   |   9         |             |             |         |             |          |
++----------+-----------+-------------+-------------+-------------+---------+-------------+----------+
 
-    PERSONNEL_1
-    NAME   LANG    YRS_USE TITLE     YRS_EXP PAY   PROJECT   MGR
-    Marvin Cobol   3       Sr. Prog. 4       25.00 Payroll   Smith
-           Fortran 2                               A/R       Jones
-    Brown  Cobol   2       Sr. Prog. 3       24.00 Inventory Norman
-           Basic   1
-           Ada     3
-    Norman Cobol   4       Prj. Mgr. 2       35.00 Inventory Norman
-           SQL     2
-    James  SQL     1       Sys. Ana. 2       29.00 A/R       Jones
-           Pascal  3                               Datcomm   Harvey
-    Jones  Cobol   1       Prj. Mgr. 8       42.00 A/R       Jones
-           Pascal  5
-           SQL     2
-           Basic   9
+Each employee in this table has a unique name, so ``NAME`` may be used as the
+table's key. In practice, of course, there may be more than one way to
+construct a key - social security numbers or employee numbers are other values
+that might be used to uniquely identify an employee. Using this structure, any
+request of the form, "Tell me something about employee E", is easily answered.
+However, it isn't as simple to respond to such requests as "Which employees can
+use language L?"; "Who is the manager of project P?"; "Display all employees
+assigned to project P"; or "Change the manager of project P to employee E". But
+through a process known as *normalization*, the organization of the data in
+``PERSONNEL_1`` can be changed so that it can be used more flexibly.
 
-Each employee in this table has a unique name, so NAME may be
-used as the table's key. In practice, of course, there may be
-more than one way to construct a key - social security numbers or
-employee numbers are other values that might be used to uniquely
-identify an employee. Using this structure, any request of the
-form, "Tell me something about employee E", is easily answered.
-However, it isn't as simple to respond to such requests as
-"Which employees can use language L?"; "Who is the manager of
-project P?"; "Display all employees assigned to project P"; or
-"Change the manager of project P to employee E". But
-through a process known as normalization, the organization of the
-data in PERSONNEL_1 can be changed so that it can be used more flexibly.
+The first step in normalizing the design is based on the relational rule that
+each column of a table may take on only a single, non-repeating (atomic) value
+for each row of the table. Looking at ``PERSONNEL_1``, it's easy to see that
+the columns ``LANG``, ``YRS_USE``, ``PROJECT`` and ``MGR`` violate this rule,
+because an employee may know more than one programming language and may be
+assigned to more than one project at a time. By duplicating the non-repeating
+values of ``NAME``, ``TITLE``, ``YRS_EXP``, and ``PAY`` for each combination of
+values for the repeating groups, the entire table can be represented in first
+normal form. The ``PERSONNEL_2`` table shown below is in first normal form.
 
-The first step in normalizing the design is based on the
-relational rule that each column of a table may take on only a
-single, non-repeating (atomic) value for each row of the table.
-Looking at PERSONNEL_1, it's easy to see that the columns LANG,
-YRS_USE, PROJECT and MGR violate this rule, because an employee may
-know more than one programming language and may be assigned to
-more than one project at a time. By duplicating the non-repeating
-values of NAME, TITLE, YRS_EXP, and PAY for each combination of
-values for the repeating groups, the entire table can be
-represented in first normal form. The PERSONNEL_2 table shown
-below is in first normal form.
++-----------------------------------------------------------------------------------------------+
+| ``PERSONNEL_2``                                                                               |
++----------+----------+-------------+-----------+-------------+---------+-------------+---------+
+| ``NAME`` | ``LANG`` | ``YRS_USE`` | ``TITLE`` | ``YRS_EXP`` | ``PAY`` | ``PROJECT`` | ``MGR`` |
++----------+----------+-------------+-----------+-------------+---------+-------------+---------+
+| Marvin   | Cobol    | 3           | Sr. Prog. | 4           | 25.00   | Payroll     | Smith   |
++----------+----------+-------------+-----------+-------------+---------+-------------+---------+
+| Marvin   | Fortran  | 2           | Sr. Prog. | 4           | 25.00   | A/R         | Jones   |
++----------+----------+-------------+-----------+-------------+---------+-------------+---------+
+| Brown    | Cobol    | 2           | Sr. Prog. | 3           | 24.00   | Inventory   | Norman  |
++----------+----------+-------------+-----------+-------------+---------+-------------+---------+
+| Brown    | Basic    | 1           | Sr. Prog. | 3           | 24.00   | Inventory   | Norman  |
++----------+----------+-------------+-----------+-------------+---------+-------------+---------+
+| Brown    | Ada      | 3           | Sr. Prog. | 3           | 24.00   | Inventory   | Norman  |
++----------+----------+-------------+-----------+-------------+---------+-------------+---------+
+| Norman   | Cobol    | 4           | Prj. Mgr. | 2           | 35.00   | Inventory   | Norman  |
++----------+----------+-------------+-----------+-------------+---------+-------------+---------+
+| Norman   | SQL      | 2           | Prj. Mgr. | 2           | 35.00   | Inventory   | Norman  |
++----------+----------+-------------+-----------+-------------+---------+-------------+---------+
+| James    | SQL      | 1           | Sys. Ana. | 2           | 29.00   | A/R         | Jones   |
++----------+----------+-------------+-----------+-------------+---------+-------------+---------+
+| James    | Pascal   | 3           | Sys. Ana. | 2           | 29.00   | Datcomm     | Harvey  |
++----------+----------+-------------+-----------+-------------+---------+-------------+---------+
+| Jones    | Cobol    | 1           | Prj. Mgr. | 8           | 42.00   | A/R         | Jones   |
++----------+----------+-------------+-----------+-------------+---------+-------------+---------+
+| Jones    | Pascal   | 5           | Prj. Mgr. | 8           | 42.00   | A/R         | Jones   |
++----------+----------+-------------+-----------+-------------+---------+-------------+---------+
+| Jones    | SQL      | 2           | Prj. Mgr. | 8           | 42.00   | A/R         | Jones   |
++----------+----------+-------------+-----------+-------------+---------+-------------+---------+
+| Jones    | Basic    | 9           | Prj. Mgr. | 8           | 42.00   | A/R         | Jones   |
++----------+----------+-------------+-----------+-------------+---------+-------------+---------+
 
-::
+We can now see that ``NAME`` is no longer sufficient to uniquely identify a row
+of ``PERSONNEL_2``, because multiple rows may be present for an employee who
+knows more than one language or is assigned to more than one project. One
+solution is to create a new key from a combination of columns. ``NAME``,
+``LANG``, and ``PROJECT`` combined would be such a key, as those three values
+together uniquely identify a single row.
 
-    PERSONNEL_2
-    NAME   LANG    YRS_USE TITLE     YRS_EXP PAY   PROJECT   MGR
-    Marvin Cobol   3       Sr. Prog. 4       25.00 Payroll   Smith
-    Marvin Fortran 2       Sr. Prog. 4       25.00 A/R       Jones
-    Brown  Cobol   2       Sr. Prog. 3       24.00 Inventory Norman
-    Brown  Basic   1       Sr. Prog. 3       24.00 Inventory Norman
-    Brown  Ada     3       Sr. Prog. 3       24.00 Inventory Norman
-    Norman Cobol   4       Prj. Mgr. 2       35.00 Inventory Norman
-    Norman SQL     2       Prj. Mgr. 2       35.00 Inventory Norman
-    James  SQL     1       Sys. Ani. 2       29.00 A/R       Jones
-    James  Pascal  3       Sys. Ani. 2       29.00 Datcomm   Harvey
-    Jones  Cobol   1       Prj. Mgr. 8       42.00 A/R       Jones
-    Jones  Pascal  5       Prj. Mgr. 8       42.00 A/R       Jones
-    Jones  SQL     2       Prj. Mgr. 8       42.00 A/R       Jones
-    Jones  Basic   9       Prj. Mgr. 8       42.00 A/R       Jones
+``PERSONNEL_2`` appears to be a step backward in our design. Not only does it
+require more space to present the data, but responding to requests such as,
+"Change employee E's title to T"; "Add the assignment of employee E to project
+P"; or "Make employee E the manager of project P" is now more difficult. This
+problem is addressed by the remaining normalization steps, which are based on
+the concept of dependence and the relational rule that in every row of a table,
+each column must be dependent on every part of the key.
 
-We can now see that NAME is no longer sufficient to uniquely
-identify a row of PERSONNEL_2, because multiple rows may be present
-for an employee who knows more than one language or is assigned
-to more than one project. One solution is to create a new key
-from a combination of columns. NAME, LANG, and PROJECT combined
-would be such a key, as those three values together uniquely
-identify a single row.
+If, for each row, the value of a column C1 uniquely determines the value of a
+column C2, then C2 is functionally dependent on C1. If the value in C1 limits
+the possible values in C2 to a specific set, then C2 is set dependent on C1.
+For example, because each employee has only one title, we may say that ``NAME``
+determines ``TITLE`` and that ``TITLE`` is functionally dependent on ``NAME``.
+``PROJECT`` is set dependent on ``NAME``, since each employee is assigned to a
+specific set of projects.
 
-PERSONNEL_2 appears to be a step backward in our design. Not only
-does it require more space to present the data, but responding to
-requests such as, "Change employee E's title to T"; "Add the
-assignment of employee E to project P"; or "Make employee E
-the manager of project P" is now more difficult. This problem
-is addressed by the remaining normalization steps, which are
-based on the concept of dependence and the relational rule that in
-every row of a table, each column must be dependent on every part of the key.
+The columns ``TITLE``, ``YRS_EXP`` and ``PAY`` are not dependent on the entire
+key (``NAME``, ``LANG``, ``PROJECT``) of ``PERSONNEL_2`` -- they are dependent
+on ``NAME`` alone. To solve this, we must create a new table containing only
+``NAME``, ``TITLE``, ``YRS_EXP``, and ``PAY``. The key for this table, called
+``EMPLOYEES``, will be ``NAME``. Of the remaining columns, ``YRS_USE`` is
+determined by both ``NAME`` and ``LANG`` and therefore cannot be part of
+``EMPLOYEES``. Another table, called ``LANGUAGES``, must be formed by these
+three columns. ``LANGUAGES`` will have a key formed by a combination of the
+columns ``NAME`` and ``LANG``. Because the table contains the ``NAME`` column
+as well, it is still possible to associate an employee's language experience
+with his employee data.
 
-If, for each row, the value of a column C1 uniquely determines
-the value of a column C2, then C2 is functionally dependent
-on C1. If the value in C1 limits the possible values in C2
-to a specific set, then C2 is set dependent on C1. For
-example, because each employee has only one title, we may say that
-NAME determines TITLE and that TITLE is functionally dependent on
-NAME. PROJECT is set dependent on NAME, since each employee is
-assigned to a specific set of projects.
+Splitting a table in this way prevents the experience part of the database from
+having columns that are dependent on only part of the table's key. A first
+normal form relation (atomic values in each portion of the table) that also has
+no partial key dependence is said to be in *second normal form*. The following
+tables, ``EMPLOYEES`` and ``LANGUAGES``, are in second normal form.
 
-The columns TITLE, YRS_EXP and PAY are not dependent on the
-entire key (NAME, LANG, PROJECT) of PERSONNEL_2 -- they are
-dependent on NAME alone. To solve this, we must create a new
-table containing only NAME, TITLE, YRS_EXP, and PAY. The key for
-this table, called EMPLOYEES, will be NAME. Of the remaining
-columns, YRS_USE is determined by both NAME and LANG and
-therefore cannot be part of EMPLOYEES. Another table, called
-LANGUAGES, must be formed by these three columns. LANGUAGES will
-have a key formed by a combination of the columns NAME and LANG.
-Because the table contains the NAME column as well, it is still
-possible to associate an employee's language experience with his
-employee data.
++------------------------------------------------+
+| ``EMPLOYEES``                                  |
++----------+-------------+-------------+---------+
+| ``NAME`` | ``TITLE``   | ``YRS_EXP`` | ``PAY`` |
++----------+-------------+-------------+---------+
+| Marvin   | Sr. Prog.   | 4           | 25.00   |
++----------+-------------+-------------+---------+
+| Brown    | Sr. Prog.   | 3           | 24.00   |
++----------+-------------+-------------+---------+
+| Norman   | Prj. Mgr.   |2            | 35.00   |
++----------+-------------+-------------+---------+
+| James    | Sys. Ani.   |2            | 29.00   |
++----------+-------------+-------------+---------+
+| Jones    | Prj. Mgr.   | 8           | 42.00   |
++----------+-------------+-------------+---------+
 
-Splitting a table in this way prevents the experience part of the
-database from having columns that are dependent on only part of
-the table's key. A first normal form relation (atomic values in
-each portion of the table) that also has no partial key
-dependence is said to be in second normal form. The following
-tables, EMPLOYEES and LANGUAGES, are in second normal form.
++-----------------------------------+
+| ``LANGUAGES``                     |
++----------+----------+-------------+
+| ``NAME`` | ``LANG`` | ``YRS_USE`` |
++----------+----------+-------------+
+| Marvin   | Cobol    | 3           |
++----------+----------+-------------+
+| Marvin   | Fortran  | 2           |
++----------+----------+-------------+
+| Brown    | Cobol    | 2           |
++----------+----------+-------------+
+| Brown    | Basic    | 1           |
++----------+----------+-------------+
+| Brown    | Ada      | 3           |
++----------+----------+-------------+
+| Norman   | Cobol    | 4           |
++----------+----------+-------------+
+| Norman   | SQL      | 2           |
++----------+----------+-------------+
+| James    | SQL      | 1           |
++----------+----------+-------------+
+| James    | Pascal   | 3           |
++----------+----------+-------------+
+| Jones    | Cobol    | 1           |
++----------+----------+-------------+
+| Jones    | Pascal   | 5           |
++----------+----------+-------------+
+| Jones    | SQL      | 2           |
++----------+----------+-------------+
+| Jones    | Basic    | 9           |
++----------+----------+-------------+
 
-::
+The situation with project assignments is slightly different. We have already
+noted that an employee name determines the set of projects on which that
+employee works. This is independent of the languages used by the employee. This
+means that a table containing ``PROJECT`` should not have ``LANG`` in its key.
+However, the project name uniquely determines the project manager. ``MGR`` is
+transitively dependent on ``NAME``, because ``NAME`` determines a set of values
+for ``PROJECT``, and ``PROJECT`` functionally determines ``MGR``. To complete
+our design, we should remove any transitive dependencies, according to the
+relational rule that in every row of a table, all columns must depend directly
+on the key, without any transitive dependencies through other columns. A second
+normal form relation that has no transitive dependence is said to be in *third
+normal form*.
 
-    EMPLOYEES
-    NAME   TITLE     YRS_EXP PAY
-    Marvin Sr. Prog. 4       25.00
-    Brown  Sr. Prog. 3       24.00
-    Norman Prj. Mgr. 2       35.00
-    James  Sys. Ani. 2       29.00
-    Jones  Prj. Mgr. 8       42.00
+Because each project has only one manager, we can form a ``PROJECTS`` table
+with the columns ``PROJECT`` and ``MGR``. ``PROJECTS``' key will be
+``PROJECT``. Note that MGR could also be a key, if each employee managed only
+one project. Finally, since each employee works on one or more projects, we
+will create a fourth table, called ``ASSIGNMENTS``, using the columns ``NAME``
+and ``PROJECT``. This table forms the association between the ``EMPLOYEES`` and
+``PROJECTS`` tables and is "all key" - i.e., it has no additional dependent
+columns, because the only thing dependent on both ``NAME`` and ``PROJECT`` is
+the fact that they are associated. Here are the third normal form tables.
 
-::
++-----------------------+
+| ``PROJECTS``          |
++-------------+---------+
+| ``PROJECT`` | ``MGR`` |
++-------------+---------+
+| Payroll     | Smith   |
++-------------+---------+
+| A/R         | Jones   |
++-------------+---------+
+| Inventory   | Norman  |
++-------------+---------+
+| Datcomm     | Harvey  |
++-------------+---------+
 
-    LANGUAGES
-    NAME   LANG    YRS_USE
-    Marvin Cobol   3
-    Marvin Fortran 2
-    Brown  Cobol   2
-    Brown  Basic   1
-    Brown  Ada     3
-    Norman Cobol   4
-    Norman SQL     2
-    James  SQL     1
-    James  Pascal  3
-    Jones  Cobol   1
-    Jones  Pascal  5
-    Jones  SQL     2
-    Jones  Basic   9
++------------------------+
+| ``ASSIGNMENTS``        |
++----------+-------------+
+| ``NAME`` | ``PROJECT`` |
++----------+-------------+
+| Marvin   | Payroll     |
++----------+-------------+
+| Marvin   | A/R         |
++----------+-------------+
+| Brown    | Inventory   |
++----------+-------------+
+| Norman   | Inventory   |
++----------+-------------+
+| James    | A/R         |
++----------+-------------+
+| James    | Datcomm     |
++----------+-------------+
+| Jones    | A/R         |
++----------+-------------+
 
-The situation with project assignments is slightly different. We
-have already noted that an employee name determines the set of
-projects on which that employee works. This is independent of the
-languages used by the employee. This means that a table
-containing PROJECT should not have LANG in its key. However, the
-project name uniquely determines the project manager. MGR is
-transitively dependent on NAME, because NAME determines a set of
-values for PROJECT, and PROJECT functionally determines MGR. To
-complete our design, we should remove any transitive
-dependencies, according to the relational rule that in every row
-of a table, all columns must depend directly on the key, without
-any transitive dependencies through other columns. A second
-normal form relation that has no transitive dependence is said to
-be in third normal form.
-
-Because each project has only one manager, we can form a PROJECTS
-table with the columns PROJECT and MGR. PROJECTS' key will be
-PROJECT. Note that MGR could also be a key, if each employee
-managed only one project. Finally, since each employee works on
-one or more projects, we will create a fourth table, called
-ASSIGNMENTS, using the columns NAME and PROJECT. This table forms
-the association between the EMPLOYEES and PROJECTS tables and is
-"all key" - i.e., it has no additional dependent columns, because
-the only thing dependent on both NAME and PROJECT is the fact
-that they are associated. Here are the third normal form tables.
-
-::
-
-    PROJECTS
-    PROJECT   MGR
-    Payroll   Smith
-    A/R       Jones
-    Inventory Norman
-    Datcomm   Harvey
-
-::
-
-    ASSIGNMENTS
-    NAME   PROJECT
-    Marvin Payroll
-    Marvin A/R
-    Brown  Inventory
-    Norman Inventory
-    James  A/R
-    James  Datcomm
-    Jones  A/R
-
-At this point, our design is complete. All tables are in third normal form,
-and requests such as those listed earlier can easily be dealt with.
+At this point, our design is complete. All tables are in third normal form, and
+requests such as those listed earlier can easily be dealt with.
 
 Here are some tips for good database design:
 
-## Don't use an existing database as the basis for a new
-database structure -- you don't want to inadvertently duplicate
-awkward or inconsistent table definitions.
+- Don't use an existing database as the basis for a new database structure --
+  you don't want to inadvertently duplicate awkward or inconsistent table
+  definitions.
 
-## Make sure that each table represents just one subject --
-that is, either one object or one event. This avoids unnecessary
-duplication of data.
+- Make sure that each table represents just one subject -- that is, either one
+  object or one event. This avoids unnecessary duplication of data.
 
-## Define a primary key for every table -- not only will it
-uniquely identify a row value, you'll use it to join tables. A
-primary key should have these characteristics: its value must be
-unique and "known not nullable", and its value should consist of
-the minimum number of columns to guarantee uniqueness.
+- Define a primary key for every table -- not only will it uniquely identify a
+  row value, you'll use it to join tables. A primary key should have these
+  characteristics: its value must be unique and "known not nullable", and its
+  value should consist of the minimum number of columns to guarantee
+  uniqueness.
 
-## Don't define any multi-value columns -- that is, don't
-use the ROW or ARRAY <data type>s.
+- Don't define any multi-value columns -- that is, don't use the ROW or ARRAY
+  <data type>s.
 
-## Implement data integrity; define unique keys and foreign
-keys for your tables.
+- Implement data integrity; define unique keys and foreign keys for your
+  tables.
 
-The SQL-environment
+The SQL-Environment
 ===================
 
-The SQL Standard says that all SQL operations are executed within
-an SQL-environment. An SQL-environment has six components.
+The SQL Standard says that all SQL operations are executed within an
+SQL-environment. An SQL-environment has six components.
 
-1. One SQL-agent responsible for causing
-   the execution of SQL statements. It is usually an application program that
-   calls one or more externally-invoked procedures in an SQL-client Module.
+1. One SQL-agent responsible for causing the execution of SQL statements. It is
+   usually an application program that calls one or more externally-invoked
+   procedures in an SQL-client Module.
 
-2. One SQL-implementation; a
-   database management system (DBMS) that executes SQL statements. Your
-   SQL-agent considers your DBMS to have two components: (a) one SQL-client, to
-   which the SQL-agent is bound, and (b) one or more SQL-servers to manage your
-   SQL-data. (SQL-data consists of the descriptions of all the SQL Objects,
-   plus all the data values you can access with your DBMS.) The SQL-client is
-   the part of your DBMS that establishes connections to the SQL-servers; it
-   maintains a diagnostics area and other state data that relate to the
-   interactions between the DBMS and the SQL-agent. Each SQL- server has three
-   responsibilities: (a) it manages the SQL-session taking place over the
-   SQL-Connection between itself and the SQL-client, (b) it executes SQL
-   statements received from the SQL-client, receiving and sending data as
-   required, and (c) it maintains the state of the SQL-session, including the
-   <AuthorizationID> and certain session defaults. The method of communication
-   between the SQL-client and the SQL-server(s) is implementation-defined, but
-   the Standard does specify how an SQL- agent will communicate with your DBMS
-   (see SQL Binding Styles).
+2. One SQL-implementation; a database management system (DBMS) that executes
+   SQL statements. Your SQL-agent considers your DBMS to have two components:
+   (*a*) one SQL-client, to which the SQL-agent is bound, and (*b*) one or more
+   SQL-servers to manage your SQL-data. (SQL-data consists of the descriptions
+   of all the SQL Objects, plus all the data values you can access with your
+   DBMS.) The SQL-client is the part of your DBMS that establishes connections
+   to the SQL-servers; it maintains a diagnostics area and other state data
+   that relate to the interactions between the DBMS and the SQL-agent. Each
+   SQL- server has three responsibilities: (*a*) it manages the SQL-session
+   taking place over the SQL-Connection between itself and the SQL-client,
+   (*b*) it executes SQL statements received from the SQL-client, receiving and
+   sending data as required, and (*c*) it maintains the state of the
+   SQL-session, including the <AuthorizationID> and certain session defaults.
+   The method of communication between the SQL-client and the SQL-server(*s*)
+   is implementation-defined, but the Standard does specify how an SQL- agent
+   will communicate with your DBMS ()*see* SQL Binding Styles).
 
-3. Zero or more SQL-client Modules, each containing zero or
-   more externally-invoked procedures. SQL-client Modules are programming
-   modules -- exactly one is associated with an SQL-agent at any time.
+3. Zero or more SQL-client Modules, each containing zero or more
+   externally-invoked procedures. SQL-client Modules are programming modules --
+   exactly one is associated with an SQL-agent at any time.
 
-4. Zero or more <AuthorizationID>s. An SQL <AuthorizationID>, or
-   authorization identifier, represents a user of SQL-data.
+4. Zero or more <AuthorizationID>s. An SQL <AuthorizationID>, or authorization
+   identifier, represents a user of SQL-data.
 
 5. Zero or more Catalogs.
 
 6. Zero or more sites (e.g., Base tables) that contain SQL-data.
 
-In short, an SQL-environment can be thought of as a specific
-operation of a DBMS on the collection of Catalogs (that contain
-SQL-data) within a specified SQL-server by all the users (that
-is, all persons and programs) that have authority to access the
-SQL-server during the time the DBMS is operating.
+In short, an SQL-environment can be thought of as a specific operation of a
+DBMS on the collection of Catalogs (that contain SQL-data) within a specified
+SQL-server by all the users (that is, all persons and programs) that have
+authority to access the SQL-server during the time the DBMS is operating.
 
 SQL Objects
 ===========
 
-The SQL Standard describes the concepts on which SQL is based in
-terms of Objects, such as Tables. Each SQL Object is defined in
-terms of the characteristics (e.g., its name) that describe it --
-the Standard calls this the Object's descriptor. Some Objects are
-dependent on other Objects, e.g., a Column is dependent on the
-Table it belongs to. If an Object is dropped (i.e., destroyed),
-then every Object dependent on it is also dropped.
+The SQL Standard describes the concepts on which SQL is based in terms of
+Objects, such as Tables. Each SQL Object is defined in terms of the
+characteristics (e.g., its name) that describe it -- the Standard calls this
+the Object's *descriptor*. Some Objects are dependent on other Objects, e.g., a
+Column is dependent on the Table it belongs to. If an Object is dropped (i.e.,
+destroyed), then every Object dependent on it is also dropped.
 
 Cluster
 -------
 
-An SQL Cluster is the group of Catalogs available to an
-SQL-session at any point in time; that is, it contains all the
-SQL-data you may access through a given SQL-server. Clusters are
-created and dropped using implementation-defined methods. The
-Objects that belong to a Cluster are known as Cluster Objects;
-that is, they depend on some Cluster. Every Cluster Object has a
-name that must be unique (among Objects of its name class) within
-the Cluster it belongs to. The Cluster Object name classes are:
+An SQL Cluster is the group of Catalogs available to an SQL-session at any
+point in time; that is, it contains all the SQL-data you may access through a
+given SQL-server. Clusters are created and dropped using implementation-defined
+methods. The Objects that belong to a Cluster are known as *Cluster Objects*;
+that is, they depend on some Cluster. Every Cluster Object has a name that must
+be unique (among Objects of its name class) within the Cluster it belongs to.
+The Cluster Object name classes are:
 
-## <AuthorizationID>s
+- <AuthorizationID>s
 
-## Catalogs
+- Catalogs
 
-<AuthorizationID>
------------------
-
-An SQL <AuthorizationID> is a character string which identifies a
-user and the set of Privileges belonging to that user. (A user
-is either an actual person or an application program that has
-access to SQL-data.) An SQL Role is a
-set of zero or more role authorizations. A role authorization
-allows a given <AuthorizationID> to use every Privilege granted
-to that Role. <AuthorizationID>s are dependent on some
-Cluster; they are created, dropped and mapped to real users
-using implementation-defined methods. Roles are dependent on
-some schema and are created and dropped with the CREATE ROLE
-and DROP ROLE statements.
-
-Privilege
-.........
-
-An SQL Privilege authorizes a particular <AuthorizationID>
-to execute a given operation -- either DELETE, EXECUTE,
-INSERT, REFERENCES, SELECT, TRIGGER, UNDER, UPDATE, or USAGE on
-a given Schema Object. It may also allow the grantee to pass the
-Privilege on to others. Privileges, dependent on some
-<AuthorizationID>, are created and assigned to
-<AuthorizationID>s with the GRANT statement and are
-dropped and removed with the REVOKE statement.
-
-Catalog
--------
-
-An SQL Catalog is a named group of Schemas, one of which must be
-an Ur-Schema named INFORMATION_SCHEMA. (The INFORMATION_SCHEMA
-Schema is a set of Views and Domains that contain the
-descriptions of all the SQL-data belonging to that Catalog.)
-Catalogs are dependent on some Cluster and are created and
-dropped using implementation-defined methods.
-
-Schema
-......
-
-An SQL Schema is a named group of SQL-data that is owned by a
-particular <AuthorizationID>. Schemas are dependent on some
-Catalog and are created, altered, and dropped using the SQL-Schema
-statements. The Objects that may belong to a Schema are known as
-Schema Objects; that is, they depend on some Schema. Every Schema
-Object has a name that must be unique (among Objects of its name
-class) within the Schema it belongs to. The Schema Object name
-classes are:
-
-::
-
-     ## Base tables and Views
-     ## Domains and UDTs
-     ## Constraints and Assertions
-     ## Character sets
-     ## Collations
-     ## Translations
-     ## Triggers
-     ## SQL-server Modules
-     ## SQL-invoked routines
-
-Table
-.....
-
-An SQL Table is a named set of rows -- an ordered row of one or
-more <Column name>s together with zero or more unordered rows of
-data values. Tables store data about a specific entity; each row
-of the Table describes a single occurrence of that entity. The
-SQL Standard defines three types of Tables: Base tables, Views,
-and derived tables. Tables are dependent on some Schema or some
-Module. Base tables are created, altered, and dropped with the CREATE
-TABLE, ALTER TABLE, and DROP TABLE statements, Views are created
-and dropped with the CREATE VIEW and DROP VIEW statements, and
-derived tables are created when you execute a query.
-
-Column
-......
-
-An SQL Column is a named component of a Table -- a set of similar
-data values that describe the same attribute of an entity. A
-Column's values all belong to the same <data type>, or to the
-same Domain, and may vary over time. A Column value is the
-smallest unit of data that can be selected from, or updated for,
-a Table. Columns are dependent on some Table and are created,
-altered, and dropped with Column definition clauses in the CREATE
-TABLE and ALTER TABLE statements.
-
-Domain and UDT
---------------
-
-An SQL Domain and an SQL UDT, or user-defined type, are both
-named <data type>s that identify a set of valid data values.
-Their characteristics are defined by users and their purpose is
-to constrain the values that can be stored as SQL-data. Domains
-are dependent on some Schema and are created, altered, and dropped
-with the CREATE DOMAIN, ALTER DOMAIN and DROP DOMAIN statements.
-UDTs are dependent on some Schema or some Module and are created.
-altered, and dropped with the CREATE TYPE, ALTER TYPE,
-and DROP TYPE statements.
-
-Constraint and Assertion
-------------------------
-
-An SQL Constraint and an SQL Assertion are both named rules that
-identify sets of valid data values. They constrain the allowable
-data values for Columns, Domains, and Tables and are defined with
-two checking characteristics: a deferral mode (either DEFERRABLE
-or NOT DEFERRABLE) and a constraint check time (either DEFERRED
-or IMMEDIATE). Constraints are dependent on some Table or some
-Domain and are created and dropped with Constraint clauses in the
-CREATE TABLE, ALTER TABLE, CREATE DOMAIN and ALTER DOMAIN
-statements. Assertions are dependent on some Schema and are
-created and dropped with the CREATE ASSERTION and DROP ASSERTION statements.
-
-Character Set
--------------
-
-An SQL Character set is a named group of characters (the
-character repertoire) combined with that repertoire's
-Form-of-use, or coding scheme -- the (usually one-to-one) mapping
-scheme between each character in the repertoire and a set of
-internal codes (usually 8-bit values) that give the characters'
-order in the repertoire and define how the characters are encoded
-as numbers. Every Character set must contain a space character
-that is equivalent to the Unicode character U+0020. Character
-sets are dependent on some Schema and are created and dropped
-with the CREATE CHARACTER SET and DROP CHARACTER SET statements.
-Every Character set has a default Collation.
-
-Collation
----------
-
-An SQL Collation is a named set of rules that describes a
-collating sequence. Each Collation is defined for exactly one
-Character set and is used to determine the results of comparisons
-between character strings based on that Character set. All
-Character sets have a default Collation. Additional Collations
-may also be created for any Character set, so for any character
-string comparison, there are one or more Collations that may be
-invoked by the COLLATE function. Collations are dependent on some
-Schema and are created and dropped with the CREATE COLLATION and
-DROP COLLATION statements.
-
-Translation
------------
-
-An SQL Translation is a named set of rules that maps characters
-from a source Character set to characters in a target Character
-set for conversion purposes. For any pair of Character sets,
-there are zero or more Translations that may be invoked by the
-TRANSLATE function. Translations are dependent on some Schema and
-are created and dropped with the CREATE TRANSLATION and DROP
-TRANSLATION statements.
-
-Trigger
--------
-
-An SQL Trigger is a named rule that is associated with a single
-Base table. Each Trigger defines a trigger event specifying
-which action -- either INSERT, DELETE, or UPDATE -- on the Table
-will cause the triggered actions, a trigger action time specifying
-whether the triggered action is to be taken before or
-after the trigger event, and one or more triggered actions (the
-action to take when the Trigger is fired, or invoked). Triggers
-are dependent on some Schema and are created and dropped with the
-CREATE TRIGGER and DROP TRIGGER statements.
-
-Module
-------
-
-An SQL Module is an optionally-named group of SQL statements that
-is treated as a unit of an application program. Such programs use
-SQL statements to carry out database operations instead of
-routines written in the host language. There are three kinds of
-SQL Modules: (a) an SQL-client Module contains SQL procedures that
-are invoked by a host language and is defined with the MODULE
-statement, (b) an SQL-session Module contains only SQL statements
-prepared in that SQL-session and is usually an implicit Module
-(that is, its presence isn't obvious to the user), and (c) an
-SQL-server Module -- the SQL/PSM type -- is dependent on some
-Schema, contains only SQL-invoked routines and is created,
-altered, and dropped with the CREATE MODULE, ALTER MODULE, and DROP
-MODULE statements.
-
-SQL-invoked Routine
+<*AuthorizationID*>
 -------------------
 
-An SQL-invoked routine is a function or a procedure that can be
-invoked from SQL. An SQL-invoked function is invoked by a routine
-invocation in some value expression, while an SQL-invoked
-procedure is a procedure invoked with the CALL statement. SQL-
-invoked routines are dependent either directly on some Schema or
-on some Module and are created and dropped with the CREATE
-PROCEDURE, DECLARE PROCEDURE, CREATE FUNCTION, CREATE METHOD,
-DROP SPECIFIC ROUTINE, DROP SPECIFIC FUNCTION, and DROP SPECIFIC
-PROCEDURE statements.
+An SQL <AuthorizationID> is a character string which identifies a user and the
+set of Privileges belonging to that user. (A user is either an actual person or
+an application program that has access to SQL-data.) An SQL Role is a set of
+zero or more role authorizations. A role authorization allows a given
+<AuthorizationID> to use every Privilege granted to that Role.
+<AuthorizationID>s are dependent on some Cluster; they are created, dropped and
+mapped to real users using implementation-defined methods. Roles are dependent
+on some schema and are created and dropped with the ``CREATE ROLE`` and ``DROP
+ROLE`` statements.
+
+*Privilege*
+-----------
+
+An SQL Privilege authorizes a particular <AuthorizationID> to execute a given
+operation -- either ``DELETE``, ``EXECUTE``, ``INSERT``, ``REFERENCES``,
+``SELECT``, ``TRIGGER``, ``UNDER``, ``UPDATE``, or ``USAGE`` on a given Schema
+Object. It may also allow the grantee to pass the Privilege on to others.
+Privileges, dependent on some <AuthorizationID>, are created and assigned to
+<AuthorizationID>s with the ``GRANT`` statement and are dropped and removed
+with the ``REVOKE`` statement.
+
+*Catalog*
+---------
+
+An SQL Catalog is a named group of Schemas, one of which must be an Ur-Schema
+named ``INFORMATION_SCHEMA``. (The ``INFORMATION_SCHEMA`` Schema is a set of
+Views and Domains that contain the descriptions of all the SQL-data belonging
+to that Catalog.) Catalogs are dependent on some Cluster and are created and
+dropped using implementation-defined methods.
+
+*Schema*
+--------
+
+An SQL Schema is a named group of SQL-data that is owned by a particular
+<AuthorizationID>. Schemas are dependent on some Catalog and are created,
+altered, and dropped using the SQL-Schema statements. The Objects that may
+belong to a Schema are known as *Schema Objects*; that is, they depend on some
+Schema. Every Schema Object has a name that must be unique (among Objects of
+its name class) within the Schema it belongs to. The Schema Object name classes
+are:
+
+- Base tables and Views
+- Domains and UDTs
+- Constraints and Assertions
+- Character sets
+- Collations
+- Translations
+- Triggers
+- SQL-server Modules
+- SQL-invoked routines
+
+*Table*
+-------
+
+An SQL Table is a named set of rows -- an ordered row of one or more <Column
+name>s together with zero or more unordered rows of data values. Tables store
+data about a specific entity; each row of the Table describes a single
+occurrence of that entity. The SQL Standard defines three types of Tables: Base
+tables, Views, and derived tables. Tables are dependent on some Schema or some
+Module. Base tables are created, altered, and dropped with the ``CREATE
+TABLE``, ``ALTER TABLE``, and ``DROP TABLE`` statements, Views are created and
+dropped with the ``CREATE VIEW`` and ``DROP VIEW`` statements, and derived
+tables are created when you execute a query.
+
+*Column*
+--------
+
+An SQL Column is a named component of a Table -- a set of similar data values
+that describe the same attribute of an entity. A Column's values all belong to
+the same <data type>, or to the same Domain, and may vary over time. A Column
+value is the smallest unit of data that can be selected from, or updated for, a
+Table. Columns are dependent on some Table and are created, altered, and
+dropped with Column definition clauses in the ``CREATE TABLE`` and ``ALTER
+TABLE`` statements.
+
+*Domain and UDT*
+----------------
+
+An SQL Domain and an SQL UDT, or user-defined type, are both named <data type>s
+that identify a set of valid data values. Their characteristics are defined by
+users and their purpose is to constrain the values that can be stored as
+SQL-data. Domains are dependent on some Schema and are created, altered, and
+dropped with the ``CREATE DOMAIN``, ``ALTER DOMAIN`` and ``DROP DOMAIN``
+statements. UDTs are dependent on some Schema or some Module and are created.
+altered, and dropped with the ``CREATE TYPE``, ``ALTER TYPE``, and ``DROP
+TYPE`` statements.
+
+*Constraint and Assertion*
+--------------------------
+
+An SQL Constraint and an SQL Assertion are both named rules that identify sets
+of valid data values. They constrain the allowable data values for Columns,
+Domains, and Tables and are defined with two checking characteristics: a
+deferral mode (either ``DEFERRABLE`` or ``NOT DEFERRABLE``) and a constraint
+check time (either ``DEFERRED`` or ``IMMEDIATE``). Constraints are dependent on
+some Table or some Domain and are created and dropped with Constraint clauses
+in the ``CREATE TABLE``, ``ALTER TABLE``, ``CREATE DOMAIN`` and ``ALTER
+DOMAIN`` statements. Assertions are dependent on some Schema and are created
+and dropped with the ``CREATE ASSERTION`` and ``DROP ASSERTION`` statements.
+
+*Character Set*
+---------------
+
+An SQL Character set is a named group of characters (the character repertoire)
+combined with that repertoire's Form-of-use, or coding scheme -- the (usually
+one-to-one) mapping scheme between each character in the repertoire and a set
+of internal codes (usually 8-bit values) that give the characters' order in the
+repertoire and define how the characters are encoded as numbers. Every
+Character set must contain a space character that is equivalent to the Unicode
+character U+0020. Character sets are dependent on some Schema and are created
+and dropped with the ``CREATE CHARACTER SET`` and ``DROP CHARACTER SET``
+statements. Every Character set has a default Collation.
+
+*Collation*
+-----------
+
+An SQL Collation is a named set of rules that describes a collating sequence.
+Each Collation is defined for exactly one Character set and is used to
+determine the results of comparisons between character strings based on that
+Character set. All Character sets have a default Collation. Additional
+Collations may also be created for any Character set, so for any character
+string comparison, there are one or more Collations that may be invoked by the
+``COLLATE`` function. Collations are dependent on some Schema and are created
+and dropped with the ``CREATE COLLATION`` and ``DROP COLLATION`` statements.
+
+*Translation*
+-------------
+
+An SQL Translation is a named set of rules that maps characters from a source
+Character set to characters in a target Character set for conversion purposes.
+For any pair of Character sets, there are zero or more Translations that may be
+invoked by the ``TRANSLATE`` function. Translations are dependent on some
+Schema and are created and dropped with the ``CREATE TRANSLATION`` and ``DROP
+TRANSLATION`` statements.
+
+*Trigger*
+---------
+
+An SQL Trigger is a named rule that is associated with a single Base table.
+Each Trigger defines a trigger event specifying which action -- either
+``INSERT``, ``DELETE``, or ``UPDATE`` -- on the Table will cause the triggered
+actions, a trigger action time specifying whether the triggered action is to be
+taken before or after the trigger event, and one or more triggered actions (the
+action to take when the Trigger is fired, or invoked). Triggers are dependent
+on some Schema and are created and dropped with the ``CREATE TRIGGER`` and
+``DROP TRIGGER`` statements.
+
+*Module*
+--------
+
+An SQL Module is an optionally-named group of SQL statements that is treated as
+a unit of an application program. Such programs use SQL statements to carry out
+database operations instead of routines written in the host language. There are
+three kinds of SQL Modules: (*a*) an SQL-client Module contains SQL procedures
+that are invoked by a host language and is defined with the MODULE statement,
+(*b*) an SQL-session Module contains only SQL statements prepared in that
+SQL-session and is usually an implicit Module (that is, its presence isn't
+obvious to the user), and (*c*) an SQL-server Module -- the SQL/PSM type -- is
+dependent on some Schema, contains only SQL-invoked routines and is created,
+altered, and dropped with the ``CREATE MODULE``, ``ALTER MODULE``, and ``DROP
+MODULE`` statements.
+
+*SQL-invoked Routine*
+---------------------
+
+An SQL-invoked routine is a function or a procedure that can be invoked from
+SQL. An SQL-invoked function is invoked by a routine invocation in some value
+expression, while an SQL-invoked procedure is a procedure invoked with the
+``CALL`` statement. SQL- invoked routines are dependent either directly on some
+Schema or on some Module and are created and dropped with the ``CREATE
+PROCEDURE``, ``DECLARE PROCEDURE``, ``CREATE FUNCTION``, ``CREATE METHOD``,
+``DROP SPECIFIC ROUTINE``, ``DROP SPECIFIC FUNCTION``, and ``DROP SPECIFIC
+PROCEDURE`` statements.
 
 SQL Data Types
 ==============
 
-Every data value belongs to some SQL <data type>. The logical
-representation of a data value is known as a <literal>. SQL
-supports three sorts of <data type>s -- predefined <data type>s,
-constructed <data type>s, and <user-defined data type>s, or UDTs
--- all of which may be used to define a set of valid data values.
-The predefined <data type>s are all scalar types; they contain
-atomic values (i.e., values that are not composed of sets of
-values of other <data type>s). The constructed <data type>s are
-mostly composite types; they contain array values (i.e., values
-that are composed of sets of values, each of a declared
-predefined <data type>). The UDTs are composite types. Their
-values and attributes are totally user-defined.
+Every data value belongs to some SQL <data type>. The logical representation of
+a data value is known as a <literal>. SQL supports three sorts of <data type>s
+-- predefined <data type>s, constructed <data type>s, and <user-defined data
+type>s, or UDTs -- all of which may be used to define a set of valid data
+values. The predefined <data type>s are all scalar types; they contain atomic
+values (i.e., values that are not composed of sets of values of other <data
+type>s). The constructed <data type>s are mostly composite types; they contain
+array values (i.e., values that are composed of sets of values, each of a
+declared predefined <data type>). The UDTs are composite types. Their values
+and attributes are totally user-defined.
 
-Each host language supported by the SQL Standard has its own data
-types. These are distinct from SQL <data type>s, though they
-often have similar names. The Standard includes instructions on
-how to map SQL <data type>s to host language data types.
+Each host language supported by the SQL Standard has its own data types. These
+are distinct from SQL <data type>s, though they often have similar names. The
+Standard includes instructions on how to map SQL <data type>s to host language
+data types.
 
-SQL-data values are either non-null values or the null value. The
-null value is a special implementation-dependent value that can
-be assigned to any SQL <data type>. It is used to represent
-"value unknown" or "value inapplicable" and is distinct from all
-non-null values. The null value is often denoted by the <keyword> NULL.
+SQL-data values are either non-null values or the null value. The *null value*
+is a special implementation-dependent value that can be assigned to any SQL
+<data type>. It is used to represent "value unknown" or "value inapplicable"
+and is distinct from all non-null values. The null value is often denoted by
+the <keyword> NULL.
 
-Predefined <data type>s
------------------------
+*Predefined <data type>s*
+-------------------------
 
-SQL's predefined scalar <data type>s are identified by these
-<keyword>s: INTEGER, SMALLINT, NUMERIC, DECIMAL, FLOAT, REAL,
-DOUBLE PRECISION, BIT, BIT VARYING, BINARY LARGE OBJECT,
-CHARACTER, CHARACTER VARYING, NATIONAL CHARACTER, NATIONAL
-CHARACTER VARYING, CHARACTER LARGE OBJECT, NATIONAL CHARACTER
-LARGE OBJECT, DATE, TIME, TIME WITH TIME ZONE, TIMESTAMP,
-TIMESTAMP WITH TIME ZONE, INTERVAL, and BOOLEAN.
+SQL's predefined scalar <data type>s are identified by these <keyword>s:
+``INTEGER``, ``SMALLINT``, ``NUMERIC``, ``DECIMAL, ``FLOAT``, ``REAL``,
+``DOUBLE PRECISION``, ``BIT``, ``BIT VARYING``, ``BINARY LARGE OBJECT``,
+``CHARACTER``, ``CHARACTER VARYING``, ``NATIONAL CHARACTER``, ``NATIONAL
+CHARACTER VARYING``, ``CHARACTER LARGE OBJECT``, ``NATIONAL CHARACTER LARGE
+OBJECT``, ``DATE``, ``TIME``, ``TIME WITH TIME ZONE``, ``TIMESTAMP``,
+``TIMESTAMP WITH TIME ZONE``, ``INTERVAL``, and ``BOOLEAN``.
 
 Number <data type>s
--------------------
+...................
 
-A numeric value is either an exact numeric (integer or decimal)
-number or an approximate numeric (floating point) number. The
-numeric <data type>s INTEGER (or INT), SMALLINT, NUMERIC, DECIMAL
-(or DEC), FLOAT, REAL, and DOUBLE PRECISION store numbers inserted
-in either exact numeric form (e.g., 75, -6.2) or approximate
-numeric form (e.g., 1.256E-4, -1.03E+5). INT and SMALLINT are
-exact numeric types with a predefined precision and a scale of
-zero; NUMERIC and DECIMAL are exact numeric types with definable
-precisions and scales; FLOAT is an approximate numeric type with
-a definable precision; and REAL and DOUBLE PRECISION are approximate
-numeric types with predefined precisions. All numbers are
-mutually assignable and mutually comparable. Assignment and
-comparison are performed in the familiar, algebraic manner. The
-following SQL operations involve numbers: addition and unary
-plus, subtraction and unary minus, multiplication, division,
-assignment, comparison, ABS, BETWEEN, BIT_LENGTH, CARDINALITY,
-CHAR_LENGTH, DISTINCT, EXISTS, EXTRACT, FOR ALL, FOR SOME, IN, IS
-NULL, MATCH, MOD, OCTET_LENGTH, POSITION, and UNIQUE.
+A numeric value is either an exact numeric (integer or decimal) number or an
+approximate numeric (floating point) number. The numeric <data type>s
+``INTEGER`` (or ``INT``), ``SMALLINT``, ``NUMERIC``, ``DECIMAL`` (or ``DEC``),
+``FLOAT``, ``REAL``, and ``DOUBLE PRECISION`` store numbers inserted in either
+exact numeric form (e.g., 75, -6.2) or approximate numeric form (e.g.,
+1.256E-4, -1.03E+5). ``INT`` and ``SMALLINT`` are exact numeric types with a
+predefined precision and a scale of zero; ``NUMERIC`` and ``DECIMAL`` are exact
+numeric types with definable precisions and scales; ``FLOAT`` is an approximate
+numeric type with a definable precision; and ``REAL`` and ``DOUBLE PRECISION``
+are approximate numeric types with predefined precisions. All numbers are
+mutually assignable and mutually comparable. Assignment and comparison are
+performed in the familiar, algebraic manner. The following SQL operations
+involve numbers: addition and unary plus, subtraction and unary minus,
+multiplication, division, assignment, comparison, ``ABS``, ``BETWEEN``,
+``BIT_LENGTH``, ``CARDINALITY``, ``CHAR_LENGTH``, ``DISTINCT``, ``EXISTS``,
+``EXTRACT``, ``FOR ALL``, ``FOR SOME``, ``IN``, ``IS NULL``, ``MATCH``,
+``MOD``, ``OCTET_LENGTH``, ``POSITION``, and ``UNIQUE``.
 
 Bit String <data types>s
-------------------------
+........................
 
-A bit string value is any sequence of bits or hexits. The bit
-string <data type>s BIT and BIT VARYING store bit string values
-inserted in either binary form (any sequence of zero or more 0-
-bits or 1-bits) or hexadecimal form (any sequence of zero or more
-0-hexits, 1-hexits, 2-hexits, 3-hexits, 4-hexits, 5-hexits, 6-
-hexits, 7-hexits, 8-hexits, 9-hexits, A-hexits, B-hexits, C-
-hexits, D-hexits, E-hexits, or F-hexits). BIT has a definable
-fixed length; BIT VARYING has a definable variable length. All
-bit strings are mutually assignable and mutually comparable.
-Assignment of a bit string is performed bit-by-bit beginning
-with the source's most significant bit. For comparison purposes,
-a 0-bit is less than a 1-bit. The following SQL operations
-involve bit strings: concatenation, assignment, comparison,
-BETWEEN, BIT_LENGTH, CHAR_LENGTH, DISTINCT, EXISTS, FOR ALL, FOR
-SOME, IN, IS NULL, MATCH, OCTET_LENGTH, POSITION, SUBSTRING, and UNIQUE.
+A bit string value is any sequence of bits or hexits. The bit string <data
+type>s ``BIT`` and ``BIT VARYING`` store bit string values inserted in either
+binary form (any sequence of zero or more 0- bits or 1-bits) or hexadecimal
+form (any sequence of zero or more 0-hexits, 1-hexits, 2-hexits, 3-hexits,
+4-hexits, 5-hexits, 6- hexits, 7-hexits, 8-hexits, 9-hexits, A-hexits,
+B-hexits, C- hexits, D-hexits, E-hexits, or F-hexits). ``BIT`` has a definable
+fixed length; ``BIT VARYING`` has a definable variable length. All bit strings
+are mutually assignable and mutually comparable. Assignment of a bit string is
+performed bit-by-bit beginning with the source's most significant bit. For
+comparison purposes, a 0-bit is less than a 1-bit. The following SQL operations
+involve bit strings: concatenation, assignment, comparison, ``BETWEEN``,
+``BIT_LENGTH``, ``CHAR_LENGTH``, ``DISTINCT``, ``EXISTS``, ``FOR ALL``, ``FOR
+SOME``, ``IN``, ``IS NULL``, ``MATCH``, ``OCTET_LENGTH``, ``POSITION``,
+``SUBSTRING``, and ``UNIQUE``.
 
 Binary String <data types>s
----------------------------
+...........................
 
-A binary string value is any sequence of octets that aren't
-associated with a Character set. The binary string <data type>
-BINARY LARGE OBJECT (BLOB) stores binary string values
-inserted in hexadecimal form. BLOB has a definable variable
-length. All binary strings are mutually assignable and mutually
-comparable. Assignment of a binary string is performed octet-by-octet
-beginning with the source's most significant octet.
-Comparison is supported only for equality. The following SQL
-operations involve binary strings: concatenation, assignment,
-comparison, BIT_LENGTH, CHAR_LENGTH, EXISTS, FOR ALL, FOR SOME,
-IS NULL, LIKE, OCTET_LENGTH, OVERLAY, POSITION, SUBSTRING, and TRIM.
+A binary string value is any sequence of octets that aren't associated with a
+Character set. The binary string <data type> ``BINARY LARGE OBJECT`` (``BLOB``)
+stores binary string values inserted in hexadecimal form. ``BLOB`` has a
+definable variable length. All binary strings are mutually assignable and
+mutually comparable. Assignment of a binary string is performed octet-by-octet
+beginning with the source's most significant octet. Comparison is supported
+only for equality. The following SQL operations involve binary strings:
+concatenation, assignment, comparison, ``BIT_LENGTH``, ``CHAR_LENGTH``,
+``EXISTS``, ``FOR ALL``, ``FOR SOME``, ``IS NULL``, ``LIKE``, ``OCTET_LENGTH``,
+``OVERLAY``, ``POSITION``, ``SUBSTRING``, and ``TRIM``.
 
 Character String <data type>s
------------------------------
+.............................
 
-A character string value is any sequence of characters that
-belong to a given Character set. The character string <data
-type>s CHARACTER (CHAR), CHARACTER VARYING (VARCHAR),
-NATIONAL CHARACTER (NCHAR) and NATIONAL CHARACTER VARYING
-(NCHAR VARYING) store character strings, while the character
-string <data type>s CHARACTER LARGE OBJECT (CLOB) and NATIONAL
-CHARACTER LARGE OBJECT (NCLOB) store large object character
-strings. CHAR and NCHAR have a definable fixed length; VARCHAR,
-NCHAR VARYING, CLOB and NCLOB have a definable variable length.
-CHAR, VARCHAR, and CLOB have a definable Character set; NCHAR,
-NCHAR VARYING, and NCLOB have a predefined Character set. All of
-the character string <data type>s have a definable Collation or
-collating sequence. All character strings that belong to the same
-Character set are mutually assignable and mutually comparable if
-they have the same Collation. Assignment of a character string is
-performed character-by-character beginning with the source's
-first character. The result of a character string comparison is
-determined by the rules of the Collation used for the comparison.
-The following SQL operations involve character strings:
-concatenation, assignment, comparison, BETWEEN, BIT_LENGTH,
-CHAR_LENGTH, CONVERT, DISTINCT, EXISTS, FOR ALL, FOR SOME, IN, IS
-NULL, LIKE, LOWER, MATCH, OCTET_LENGTH, OVERLAY, POSITION,
-SIMILAR, SUBSTRING, TRANSLATE, TRIM, UNIQUE, and UPPER.
+A character string value is any sequence of characters that belong to a given
+Character set. The character string <data type>s ``CHARACTER`` (``CHAR``),
+``CHARACTER VARYING`` (``VARCHAR``), ``NATIONAL CHARACTER`` (``NCHAR``) and
+``NATIONAL CHARACTER VARYING`` (``NCHAR VARYING``) store character strings,
+while the character string <data type>s ``CHARACTER LARGE OBJECT`` (``CLOB``)
+and ``NATIONAL CHARACTER LARGE OBJECT`` (``NCLOB``) store large object
+character strings. ``CHAR`` and ``NCHAR`` have a definable fixed length;
+``VARCHAR``, ``NCHAR VARYING``, ``CLOB`` and ``NCLOB`` have a definable
+variable length. ``CHAR``, ``VARCHAR``, and ``CLOB`` have a definable Character
+set; ``NCHAR``, ``NCHAR VARYING``, and ``NCLOB`` have a predefined Character
+set. All of the character string <data type>s have a definable Collation or
+collating sequence. All character strings that belong to the same Character set
+are mutually assignable and mutually comparable if they have the same
+Collation. Assignment of a character string is performed character-by-character
+beginning with the source's first character. The result of a character string
+comparison is determined by the rules of the Collation used for the comparison.
+The following SQL operations involve character strings: concatenation,
+assignment, comparison, ``BETWEEN``, ``BIT_LENGTH``, ``CHAR_LENGTH``,
+``CONVERT``, ``DISTINCT``, ``EXISTS``, ``FOR ALL``, ``FOR SOME``, ``IN``, ``IS
+NULL``, ``LIKE``, ``LOWER``, ``MATCH``, ``OCTET_LENGTH``, ``OVERLAY``,
+``POSITION``, ``SIMILAR``, ``SUBSTRING``, ``TRANSLATE``, ``TRIM``, ``UNIQUE``,
+and ``UPPER``.
 
 Temporal <data type>s
----------------------
+.....................
 
-A temporal value is a date, a time, a timestamp, or an interval of
-time. The temporal <data type> DATE stores dates, TIME and TIME
-WITH TIME ZONE store times, TIMESTAMP and TIMESTAMP WITH TIME
-ZONE store timestamps, and INTERVAL stores intervals. DATE has a
-predefined precision; TIME, TIME WITH TIME ZONE, TIMESTAMP and
-TIMESTAMP WITH TIME ZONE have definable fractional seconds
-precisions. There are two classes of INTERVAL. The first,
-year-month intervals, has a definable precision that includes
-some contiguous combination of the YEAR and MONTH datetime
-fields. The second, day-time intervals, has a definable precision
-that includes some contiguous combination of the DAY, HOUR,
-MINUTE, and SECOND datetime fields. TIME WITH TIME ZONE values
-are (and TIMESTAMP WITH TIME ZONE values include) times that are
-maintained in Universal Coordinated Time (UTC) -- with a portion
-of the value representing a time zone offset. The time zone
-offset is an interval that specifies the difference between UTC
-and the actual date and time in the value's time zone. All
-temporal values of the same type are mutually assignable and
-mutually comparable; the results must follow the usual rules for
-temporal values according to the Gregorian calendar and the
-24-hour clock. The
-following SQL operations involve temporal values: addition,
-subtraction, multiplication, division, assignment, comparison,
-ABS, BETWEEN, CURRENT_DATE, CURRENT_TIME, CURRENT_TIMESTAMP,
-DISTINCT, EXISTS, EXTRACT, FOR ALL, FOR SOME, IN, IS NULL,
-LOCALTIME, LOCALTIMESTAMP, MATCH, OVERLAPS, and UNIQUE.
+A temporal value is a date, a time, a timestamp, or an interval of time. The
+temporal <data type> DATE stores dates, ``TIME`` and ``TIME WITH TIME ZONE``
+store times, ``TIMESTAMP`` and ``TIMESTAMP WITH TIME ZONE`` store timestamps,
+and ``INTERVAL`` stores intervals. ``DATE`` has a predefined precision;
+``TIME``, ``TIME WITH TIME ZONE``, ``TIMESTAMP`` and ``TIMESTAMP WITH TIME
+ZONE`` have definable fractional seconds precisions. There are two classes of
+``INTERVAL``. The first, year-month intervals, has a definable precision that
+includes some contiguous combination of the ``YEAR`` and ``MONTH`` datetime
+fields. The second, day-time intervals, has a definable precision that includes
+some contiguous combination of the ``DAY``, ``HOUR``, ``MINUTE``, and
+``SECOND`` datetime fields. ``TIME WITH TIME ZONE`` values are (and ``TIMESTAMP
+WITH TIME ZONE`` values include) times that are maintained in Universal
+Coordinated Time (UTC) -- with a portion of the value representing a time zone
+offset. The time zone offset is an interval that specifies the difference
+between UTC and the actual date and time in the value's time zone. All temporal
+values of the same type are mutually assignable and mutually comparable; the
+results must follow the usual rules for temporal values according to the
+Gregorian calendar and the 24-hour clock. The following SQL operations involve
+temporal values: addition, subtraction, multiplication, division, assignment,
+comparison, ``ABS``, ``BETWEEN``, ``CURRENT_DATE``, ``CURRENT_TIME``,
+``CURRENT_TIMESTAMP``, ``DISTINCT``, ``EXISTS``, ``EXTRACT``, ``FOR ALL``,
+``FOR SOME``, ``IN``, ``IS NULL``, ``LOCALTIME``, ``LOCALTIMESTAMP``,
+``MATCH``, ``OVERLAPS``, and ``UNIQUE``.
 
 Boolean <data type>s
---------------------
+....................
 
-A boolean value is a truth value; either TRUE, FALSE, or UNKNOWN.
-(The truth value UNKNOWN is sometimes represented by the null
-value.) The boolean <data type> BOOLEAN stores truth values. All
-truth values are mutually assignable and mutually comparable.
-TRUE and FALSE may be assigned to any boolean target; UNKNOWN may
-only be assigned if the boolean target allows NULLs. For
-comparison purposes, TRUE is greater than FALSE. The following
-SQL operations involve boolean values: AND, IS, NOT, OR, and the
-results of any predicate or search condition.
+A boolean value is a truth value; either ``TRUE``, ``FALSE``, or ``UNKNOWN``.
+(The truth value ``UNKNOWN`` is sometimes represented by the null value.) The
+boolean <data type> ``BOOLEAN`` stores truth values. All truth values are
+mutually assignable and mutually comparable. ``TRUE`` and ``FALSE`` may be
+assigned to any boolean target; ``UNKNOWN`` may only be assigned if the boolean
+target allows ``NULLs``. For comparison purposes, ``TRUE`` is greater than
+``FALSE``. The following SQL operations involve boolean values: ``AND``,
+``IS``, ``NOT``, ``OR``, and the results of any predicate or search condition.
 
-Constructed <data types>:
--------------------------
-An SQL constructed <data type> is either a <reference type>, a
-<row type>, or a <collection type>. A <reference type> is a scalar
-constructed <data type> identified by the <keyword> REF. A
-<row type> is a composite constructed <data type> identified by
-the <keyword> ROW. A <collection type> is a composite
-constructed <data type>, identified by the <keyword> ARRAY.
+*Constructed <data types>*
+--------------------------
+An SQL constructed <data type> is either a <reference type>, a <row type>, or a
+<collection type>. A <reference type> is a scalar constructed <data type>
+identified by the <keyword> ``REF``. A <row type> is a composite constructed
+<data type> identified by the <keyword> ``ROW``. A <collection type> is a
+composite constructed <data type>, identified by the <keyword> ``ARRAY``.
 
 <reference type>s
 .................
 
-A reference value points to some row of a referenceable Base
-table (that is, a Base table that has a "with REF value" property).
+A reference value points to some row of a referenceable Base table (that is, a
+Base table that has a "with ``REF``- value" property).
 
 <row type>s
 ...........
 
-A <row type> is a sequence of one or more (Field, <data type>)
-pairs. A value of a <row type> consists of one value for each of its Fields.
+A <row type> is a sequence of one or more (Field, <data type>) pairs. A value
+of a <row type> consists of one value for each of its Fields.
 
 <collection type>s
 ..................
 
-A <collection type> is a composite data value that consists of
-zero or more elements of a specified <data type>, known as the
-element type -- that is, in SQL3, a <collection type> is an array.
+A <collection type> is a composite data value that consists of zero or more
+elements of a specified <data type>, known as the *element type* -- that is, in
+SQL3, a <collection type> is an array.
 
-User-defined Types
-------------------
-The SQL user-defined types (UDTs) are Schema Objects that can
-be defined by a standard, by a DBMS, or by an SQL application.
-UDTs have no corresponding <literal>s.
+*User-defined Types*
+--------------------
+The SQL user-defined types (UDTs) are Schema Objects that can be defined by a
+standard, by a DBMS, or by an SQL application. UDTs have no corresponding
+<literal>s.
 
-Data Type Conversions
----------------------
+*Data Type Conversions*
+-----------------------
 
-SQL allows for implicit <data type> conversion in expressions and
-in FETCH, SELECT, INSERT, DELETE, and UPDATE operations. Explicit
-<data type> conversions may be performed with the CAST operator.
+SQL allows for implicit <data type> conversion in expressions and in ``FETCH``,
+`'`SELECT``, ``INSERT``, ``DELETE``, and ``UPDATE`` operations. Explicit <data
+type> conversions may be performed with the ``CAST`` operator.
 
-Sites
------
+*Sites*
+-------
 
-As defined in the SQL Standard, a site is "a place that holds an
-instance of a value of a specified <data type>". A site has a
-defined degree of persistence -- if it exists until deliberately
-destroyed, it is a persistent site; if it ceases to exist at the
-end of an SQL statement, SQL transaction, or SQL-session, it is a
-temporary site; if it exists only to hold an argument or returned
-value, it is a transient site. The principal kind of persistent
-or temporary site is a Base table. Some sites may be referenced
-by their names (e.g., Base tables and SQL variables) or by a REF
-value. A site occupied by an element of an array may be
-referenced by its element number.
+As defined in the SQL Standard, a *site* is "a place that holds an instance of
+a value of a specified <data type>". A site has a defined degree of persistence
+-- if it exists until deliberately destroyed, it is a persistent site; if it
+ceases to exist at the end of an SQL statement, SQL transaction, or
+SQL-session, it is a temporary site; if it exists only to hold an argument or
+returned value, it is a transient site. The principal kind of persistent or
+temporary site is a Base table. Some sites may be referenced by their names
+(e.g., Base tables and SQL variables) or by a ``REF`` value. A site occupied by
+an element of an array may be referenced by its element number.
 
-The instance at a site can be changed in two ways: by assignment
-or by mutation. Assignment is an operation that replaces the
-value at a site (the "target") with a new value (the "source").
-Mutation is an operation that changes the value of some attribute
-of an instance at a site whose <data type> is a UDT. Neither
-assignment nor mutation has any effect on the reference value of
-a site, if any.
+The instance at a site can be changed in two ways: by assignment or by
+mutation. *Assignment* is an operation that replaces the value at a site (the
+"target") with a new value (the "source"). *Mutation* is an operation that
+changes the value of some attribute of an instance at a site whose <data type>
+is a UDT. Neither assignment nor mutation has any effect on the reference value
+of a site, if any.
 
-Every site has a nullability characteristic, which indicates
-whether it may contain the null value (is "possibly nullable") or
-not (is "known not nullable"). Only the Columns of Base tables
-may be constrained to be "known not nullable", but the
-characteristic is inheritable.
+Every site has a nullability characteristic, which indicates whether it may
+contain the null value (is "possibly nullable") or not (is "known not
+nullable"). Only the Columns of Base tables may be constrained to be "known not
+nullable", but the characteristic is inheritable.
 
-Locators
---------
+*Locators*
+----------
 
-An embedded host language variable, host parameter, SQL parameter,
-or external routine, or the value returned by an external
-function may all be specified to be a Locator. The purpose of a
-Locator is to allow very large data values to be operated on
-without transferring the entire value to and from your
-application program.
+An embedded host language variable, host parameter, SQL parameter, or external
+routine, or the value returned by an external function may all be specified to
+be a Locator. The purpose of a Locator is to allow very large data values to be
+operated on without transferring the entire value to and from your application
+program.
 
-A Locator is not SQL-data; instead, it is an SQL-session Object
-that can be used to reference a specific value. The SQL Standard
-defines three types of Locators: the large object (LOB) Locator,
-the UDT Locator and the array Locator. A LOB Locator is either
-(a) a BLOB Locator (its value identifies a binary large object),
-(b) a CLOB Locator (its value identifies a character large
-object) or (c) an NCLOB Locator (its value identifies a national
-character large object). A UDT Locator identifies a value of a
-given user-defined type. An array Locator identifies a value of a
-given array.
+A Locator is not SQL-data; instead, it is an SQL-session Object that can be
+used to reference a specific value. The SQL Standard defines three types of
+Locators: the large object (LOB) Locator, the UDT Locator and the array
+Locator. A LOB Locator is either (*a*) a BLOB Locator (its value identifies a
+binary large object), (*b*) a CLOB Locator (its value identifies a character
+large object) or (*c*) an NCLOB Locator (its value identifies a national
+character large object). A UDT Locator identifies a value of a given
+user-defined type. An array Locator identifies a value of a given array.
 
 SQL Language Elements
 =====================
 
-The SQL Standard has numerous rules for such basic issues as what
-makes a legal name and how to put together SQL syntax. The
-starting point for these rules is knowing what the basic scalar
-language elements are. The SQL basic scalar language elements are
-defined in the set of <SQL language character>s.
+The SQL Standard has numerous rules for such basic issues as what makes a legal
+name and how to put together SQL syntax. The starting point for these rules is
+knowing what the basic scalar language elements are. The SQL basic scalar
+language elements are defined in the set of <SQL language character>s.
 
-<SQL language character>
-------------------------
+*<SQL language character>*
+--------------------------
 
-According to the SQL Standard, the syntactic element <SQL
-language character> defines "the terminal symbols of the SQL
-language and the elements of strings". In other words, you'll use
-<SQL language character>s to write SQL syntax or <token>s. <SQL
-language character>s are case insensitive; that is, uppercase
-and lowercase simple Latin letters are interchangeable so that,
-to an SQL parser, these three words are exactly alike:
+According to the SQL Standard, the syntactic element <SQL language character>
+defines "the terminal symbols of the SQL language and the elements of strings".
+In other words, you'll use <SQL language character>s to write SQL syntax or
+<token>s. <SQL language character>s are case insensitive; that is, uppercase
+and lowercase simple Latin letters are interchangeable so that, to an SQL
+parser, these three words are exactly alike:
 
-::
+``SELECT``
 
-   SELECT
+``select``
 
-::
-
-   select
-
-::
-
-   Select
+``Select``
 
 The set of <SQL language character>s contains:
 
- ## The uppercase simple Latin letters A to Z.
+- The uppercase simple Latin letters A to Z.
 
- ## The lowercase simple Latin letters a to z.
+- The lowercase simple Latin letters a to z.
 
- ## The digits 0 to 9.
+- The digits 0 to 9.
 
- ## The set of <SQL special character>s.
+- The set of <SQL special character>s.
 
 <SQL special character>
 -----------------------
 
-The set of <SQL special character>s is part of the set of <SQL
-language character>s and contains:
+The set of <SQL special character>s is part of the set of <SQL language
+character>s and contains:
 
 ::
 
-     ##        -- The space character
-     ## (      -- The left parenthesis
-     ## )      -- The right parenthesis
-     ## "      -- The double quote mark
-     ## '      -- The single quote mark
-     ## %      -- The percent sign
-     ## &      -- The ampersand
-     ## *      -- The asterisk or multiplication sign
-     ## /      -- The solidus or division sign
-     ## +      -- The plus sign
-     ## -      -- The minus sign or dash
-     ## ,      -- The comma
-     ## .      -- The period
-     ## :      -- The colon
-     ## ;      -- The semicolon
-     ## <      -- The less than operator
-     ## >      -- The greater than operator
-     ## ?      -- The question mark
-     ## [      -- The left bracket
-     ## ]      -- The right bracket
-     ## _      -- The underline character
-     ## |      -- The vertical bar
-     ## =      -- The equals operator
-     ## {      -- The left brace
-     ## }      -- The right brace
-     ## ^      -- The circumflex
+             -- The space character
+      (      -- The left parenthesis
+      )      -- The right parenthesis
+      "      -- The double quote mark
+      '      -- The single quote mark
+      %      -- The percent sign
+      &      -- The ampersand
+      *      -- The asterisk or multiplication sign
+      /      -- The solidus or division sign
+      +      -- The plus sign
+      -      -- The minus sign or dash
+      ,      -- The comma
+      .      -- The period
+      :      -- The colon
+      ;      -- The semicolon
+      <      -- The less than operator
+      >      -- The greater than operator
+      ?      -- The question mark
+      [      -- The left bracket
+      ]      -- The right bracket
+      _      -- The underline character
+      |      -- The vertical bar
+      =      -- The equals operator
+      {      -- The left brace
+      }      -- The right brace
+      ^      -- The circumflex
 
-<token>
--------
+*<token>*
+---------
 
-A <token> is either a <literal>, a <keyword>, an <identifier> or
-an <SQL special character> or symbol -- that is, a <token> is a
-group of characters that is recognized as a single unit by an SQL
-parser. For example, there are a total of 7 <token>s
-("SELECT", "a", "+", "5", "FROM", "t", and ";") in the
+A <token> is either a <literal>, a <keyword>, an <identifier> or an <SQL
+special character> or symbol -- that is, a <token> is a group of characters
+that is recognized as a single unit by an SQL parser. For example, there are a
+total of 7 <token>s (``SELECT``, "a", "+", "5", ``FROM``, "t", and ";") in the
 following SQL statement.
 
 ::
 
    SELECT a+5 FROM t;
 
-In SQL, <token>s are grouped into two types: <nondelimiter
-token>s and <delimiter token>s. The difference between them lies
-in the fact that, while any <token> may be followed by a
-<separator>, a <nondelimiter token> must be followed either by a
-<separator> or a <delimiter token>.
+In SQL, <token>s are grouped into two types: <nondelimiter token>s and
+<delimiter token>s. The difference between them lies in the fact that, while
+any <token> may be followed by a <separator>, a <nondelimiter token> must be
+followed either by a <separator> or a <delimiter token>.
 
-A <nondelimiter token> is an <unsigned numeric literal>, a
-<national character string literal>, a <bit string literal>, a
-<hex string literal>, a <keyword>, or a <regular identifier>. A
-<delimiter token> is a <character string literal>, a <date
-literal>, a <time literal>, a <timestamp literal>, an <interval
-literal>, a <delimited identifier>, an <SQL special character>, or
-one of these symbols:
+A <nondelimiter token> is an <unsigned numeric literal>, a <national character
+string literal>, a <bit string literal>, a <hex string literal>, a <keyword>,
+or a <regular identifier>. A <delimiter token> is a <character string literal>,
+a <date literal>, a <time literal>, a <timestamp literal>, an <interval
+literal>, a <delimited identifier>, an <SQL special character>, or one of these
+symbols:
 
 ::
 
-    ## <>     -- The not equals operator
-    ## >=     -- The greater than or equals operator
-    ## <=     -- The less than or equals operator
-    ## ||     -- The concatenation operator
-    ## ??(    -- The left trigraph
-    ## ??)    -- The right trigraph
-    ## ->     -- The right arrow
-    ## =>     -- The keyword parameter tag
+     <>     -- The not equals operator
+     >=     -- The greater than or equals operator
+     <=     -- The less than or equals operator
+     ||     -- The concatenation operator
+     ??(    -- The left trigraph
+     ??)    -- The right trigraph
+     ->     -- The right arrow
+     =>     -- The keyword parameter tag
 
-For example, the <keyword> <token> "SELECT" may be followed
-either by a <separator> (usually a space) or by an <SQL special
-character>. Thus, both of the following are examples of legal SQL syntax:
+For example, the <keyword> <token> ``SELECT`` may be followed either by a
+<separator> (usually a space) or by an <SQL special character>. Thus, both of
+the following are examples of legal SQL syntax:
 
 ::
-   SELECT column_1
 
-is legal syntax because a space separates the <token> "SELECT" from the <token> "column_1"
+   ``SELECT`` column_1
+
+is legal syntax because a space separates the <token> ``SELECT`` from the
+<token> "column_1"
 
 ::
 
    SELECT*
 
-is legal syntax because, although no space separates the <token> "SELECT" from the <token> "*",
-the asterisk is identified as a separate <token> because it is a <SQL special character>.
+is legal syntax because, although no space separates the <token> ``SELECT``
+from the <token> "*", the asterisk is identified as a separate <token> because
+it is a <SQL special character>.
 
 A <token> may not include any <separator>s unless it is a <character string
 literal>, a <bit string literal>, a <hex string literal>, a <timestamp
 literal>, an <interval literal>, or a <delimited identifier>.
 
-## <separator>
+<separator>
+-----------
 
 [Obscure Rule] applies to this entire section.
 
-Your SQL parser must know where one <token> ends and another
-begins. To do so, it recognizes white space, a newline character,
-a simple comment, and a bracketed comment as <separator>s.
+Your SQL parser must know where one <token> ends and another begins. To do so,
+it recognizes white space, a newline character, a simple comment, and a
+bracketed comment as <separator>s.
 
-White space is usually just one or more spaces, but it can also
-consist of any consecutive sequence of these Unicode characters:
+White space is usually just one or more spaces, but it can also consist of any
+consecutive sequence of these Unicode characters:
 
 ::
 
-     ## U+0009, Horizontal Tab
-     ## U+000A, Line Feed
-     ## U+000B, Vertical Tabulation
-     ## U+000C, Form Feed
-     ## U+000D, Carriage Return
-     ## U+0020, Space
-     ## U+00A0, No-Break Space
-     ## U+2000, En Quad
-     ## U+2001, Em Quad
-     ## U+2002, En Space
-     ## U+2003, Em Space
-     ## U+2004, Three-Per-Em Space
-     ## U+2005, Four-Per-Em Space
-     ## U+2006, Six-Per-Em Space
-     ## U+2007, Figure Space
-     ## U+2008, Punctuation Space
-     ## U+2009, Thin Space
-     ## U+200A, Hair Space
-     ## U+200B, Zero Width Space
-     ## U+200C, Zero Width Non-Joiner
-     ## U+200D, Zero Width Joiner
-     ## U+200E, Left-To-Right Mark
-     ## U+200F, Right-To-Left Mark
-     ## U+3000, Ideographic Space
-     ## U+2028, Line Separator
-     ## U+2029, Paragraph Separator
-     ## U+FEFF, Zero Width No-Break Space
+      U+0009  Horizontal Tab
+      U+000A  Line Feed
+      U+000B  Vertical Tabulation
+      U+000C  Form Feed
+      U+000D  Carriage Return
+      U+0020  Space
+      U+00A0  No-Break Space
+      U+2000  En Quad
+      U+2001  Em Quad
+      U+2002  En Space
+      U+2003  Em Space
+      U+2004  Three-Per-Em Space
+      U+2005  Four-Per-Em Space
+      U+2006  Six-Per-Em Space
+      U+2007  Figure Space
+      U+2008  Punctuation Space
+      U+2009  Thin Space
+      U+200A  Hair Space
+      U+200B  Zero Width Space
+      U+200C  Zero Width Non-Joiner
+      U+200D  Zero Width Joiner
+      U+200E  Left-To-Right Mark
+      U+200F  Right-To-Left Mark
+      U+3000  Ideographic Space
+      U+2028  Line Separator
+      U+2029  Paragraph Separator
+      U+FEFF  Zero Width No-Break Space
 
-[NON-PORTABLE] A newline character marks the end of a line. It is
-non-standard because the SQL Standard requires implementors to
-define which white space character(s) will be recognized as end-
-of-line indicators by their parsers. [OCELOT Implementation] The
-OCELOT DBMS that comes with this book recognizes carriage returns
-and line feeds as newline characters.
+[NON-PORTABLE] A newline character marks the end of a line. It is non-standard
+because the SQL Standard requires implementors to define which white space
+character(s) will be recognized as end- of-line indicators by their parsers.
+[OCELOT Implementation] The OCELOT DBMS that comes with this book recognizes
+carriage returns and line feeds as newline characters.
 
-A simple comment begins with two or more consecutive dashes,
-contains any number of characters (including spaces and more
-dashes), and ends with a newline character. For example, these two
-SQL statements are both followed by a simple comment.
+A simple comment begins with two or more consecutive dashes, contains any
+number of characters (including spaces and more dashes), and ends with a
+newline character. For example, these two SQL statements are both followed by a
+simple comment.
 
 ::
 
    SELECT a+5 FROM t;     -- this is a simple comment
-
-::
-
    SELECT a+5 FROM t;     --- this is a simple comment too
 
-A bracketed comment is a C-style comment. It begins with "/*",
-ends with "*/" and contains any number of characters, including
-zero or more <separator>s. For example, this SQL statement is
-followed by a bracketed comment.
+A bracketed comment is a C-style comment. It begins with "/*", ends with "*/"
+and contains any number of characters, including zero or more <separator>s. For
+example, this SQL statement is followed by a bracketed comment.
 
 ::
 
-   SELECT a+5 FROM t;    /* this is a bracketed comment
-
-that contains a carriage return ``*/``
+   SELECT a+5 FROM t;    /* this is a bracketed comment that contains a
+   carriage return */
 
 If you want to restrict your code to Core SQL, don't use bracketed comments.
 
 <literal>
 ---------
 
-A <literal> is a <token> that represents a non-null data value.
-SQL values are normally atomic -- they cannot be subdivided --
-and are either non-null values or the null value. The null value
-isn't represented by a <literal>. Instead, the <keyword> NULL is
-used whenever it's necessary to indicate that the null value is represented.
-::
+A <literal> is a <token> that represents a non-null data value. SQL values are
+normally atomic -- they cannot be subdivided -- and are either non-null values
+or the null value. The null value isn't represented by a <literal>. Instead,
+the <keyword> ``NULL`` is used whenever it's necessary to indicate that the
+null value is represented.
 
-     [NON-PORTABLE] The logical representation of the null value
-
-is non-standard because the SQL Standard requires implementors to
-define that character used to display the null value. [OCELOT Implementation]
-The OCELOT DBMS that comes with
+[NON-PORTABLE] The logical representation of the null value is non-standard
+because the SQL Standard requires implementors to define that character used to
+display the null value. [OCELOT Implementation] The OCELOT DBMS that comes with
 this book displays a question mark to represent the null value.
 
-In SQL, a <literal> is either a signed <numeric literal> (for
-example: +52.6), an unsigned <numeric literal> (for example: 15)
-or a general literal. (An unsigned literal is thus either an
-unsigned <numeric literal> or a general literal. A general
-literal is one of the following:
+In SQL, a <literal> is either a signed <numeric literal> (for example: +52.6),
+an unsigned <numeric literal> (for example: 15) or a general literal. (An
+unsigned literal is thus either an unsigned <numeric literal> or a general
+literal. A general literal is one of the following:
 
-## A <bit string literal>, for example,
-    B'1011'
+- A <bit string literal>, for example, ``B'1011'``
 
-## A <hex string literal>, for example,
-    X'4A'
+- A <hex string literal>, for example, ``X'4A'``
 
-## A <binary string literal>, for example,
-    X'44AF'
+- A <binary string literal>, for example, ``X'44AF'``
 
-## A <character string literal>, for example,
-    'hello'
+- A <character string literal>, for example, ``'hello'``
 
-## A <national character string literal>, for example,
-    N'hello'
+- A <national character string literal>, for example, ``N'hello'``
 
-## A <date literal>, for example,
-    DATE '1997-07-15'
+- A <date literal>, for example, ``DATE '1997-07-15'``
 
-## A <time literal>, for example,
-    TIME '19:30:20'
-    TIME '19:30:20.05'
-    TIME '19:30:20+03:00'
+- A <time literal>, for example,
 
-## A <timestamp literal>, for example,
-    TIMESTAMP '1997-07-15 19:30:20'
-    TIMESTAMP '1997-07-15 19:30:20.05'
-    TIMESTAMP '1997-07-15 19:30:20.05-10:30'
+  ``TIME`` ``'19:30:20'``
 
-## A <year-month literal>, for example,
-    INTERVAL '20' YEAR
-    INTERVAL '10' MONTH
-    INTERVAL '20-10' YEAR TO MONTH
+  ``TIME`` ``'19:30:20.05'``
 
-## A <day-time literal>, for example,
-    INTERVAL -'20' DAY
-    INTERVAL '-10' HOUR
-    INTERVAL '15' MINUTE
-    INTERVAL '10' SECOND
-    INTERVAL '20 10:15:10' DAY TO SECOND
+  ``TIME`` ``'19:30:20+03:00'``
 
-## A <boolean literal>, either
-    TRUE, FALSE or UNKNOWN.
+- A <timestamp literal>, for example,
+
+  ``TIMESTAMP`` ``'1997-07-15 19:30:20'``
+
+  ``TIMESTAMP`` ``'1997-07-15 19:30:20.05'```
+
+  ``TIMESTAMP`` ```'1997-07-15 19:30:20.05-10:30'``
+
+- A <year-month literal>, for example,
+
+  ``INTERVAL`` ``'20' YEAR``
+
+  ``INTERVAL`` ``'10' MONTH``
+
+  ``INTERVAL`` ``'20-10' YEAR TO MONTH``
+
+- A <day-time literal>, for example,
+
+  ``INTERVAL`` ``'20'`` ``DAY``
+
+  ``INTERVAL`` ``'-10'`` ``HOUR``
+
+  ``INTERVAL`` ``'15'`` ``MINUTE``
+
+  ``INTERVAL`` ``'10'`` ``SECOND``
+
+  ``INTERVAL`` ``'20`` ``10:15:10' DAY TO SECOND``
+
+- A <boolean literal>, either
+  ``TRUE``, ``FALSE`` or ``UNKNOWN``.
 
 <keyword>
 ---------
 
-A <keyword> is a word that has a special meaning for the SQL
-parser. There are two types of SQL <keyword>s: reserved
-<keyword>s and non-reserved <keyword>s. Reserved <keyword>s may
-not be used as <regular identifier>s. Non-reserved <keyword>s are
-not so restricted, but it's probably not a good idea to use them
+A <keyword> is a word that has a special meaning for the SQL parser. There are
+two types of SQL <keyword>s: reserved <keyword>s and non-reserved <keyword>s.
+*Reserved* <keyword>s may not be used as <regular identifier>s. *Non-reserved*
+<keyword>s are not so restricted, but it's probably not a good idea to use them
 as <regular identifier>s anyway.
 
-A <keyword> is case insensitive because all its characters are part
-of the set of <SQL language character>s. That is, uppercase and
-lowercase letters within a <keyword> are interchangeable; so
-that, for example, these three <keyword>s are exactly alike to an
-SQL parser:
+A <keyword> is case insensitive because all its characters are part of the set
+of <SQL language character>s. That is, uppercase and lowercase letters within a
+<keyword> are interchangeable; so that, for example, these three <keyword>s are
+exactly alike to an SQL parser:
 
-::
+``SELECT``
 
-   SELECT
+``select``
 
-::
-
-   select
-
-::
-
-   Select
+``Select``
 
 The Set of Reserved <keyword>s
 ------------------------------
 
 ::
 
-    ABSOLUTE
-    ACTION
-    ADD
-    ADMIN
-    AFTER
-    AGGREGATE
-    ALIAS
-    ALL
-    ALLOCATE
-    ALTER
-    AND
-    ANY
-    ARE
-    ARRAY
-    AS
-    ASC
-    ASSERTION
-    AT
-    AUTHORIZATION
-    BEFORE
-    BEGIN
-    BINARY
-    BIT
-    BLOB
-    BOOLEAN
-    BOTH
-    BREADTH
-    BY
-    CALL
-    CASCADE
-    CASCADED
-    CASE
-    CAST
-    CATALOG
-    CHAR
-    CHARACTER
-    CHECK
-    CLASS
-    CLOB
-    CLOSE
-    COLLATE
-    COLLATION
-    COLUMN
-    COMMIT
-    COMPLETION
-    CONDITION
-    CONNECT
-    CONNECTION
-    CONSTRAINT
-    CONSTRAINTS
-    CONSTRUCTOR
-    CONTAINS
-    CONTINUE
-    CORRESPONDING
-    CREATE
-    CROSS
-    CUBE
-    CURRENT
-    CURRENT_DATE
-    CURRENT_PATH
-    CURRENT_ROLE
-    CURRENT_TIME
-    CURRENT_TIMESTAMP
-    CURRENT_USER
-    CURSOR
-    CYCLE
-    DATA
-    DATALINK
-    DATE
-    DAY
-    DEALLOCATE
-    DEC
-    DECIMAL
-    DECLARE
-    DEFAULT
-    DEFERRABLE
-    DEFERRED
-    DELETE
-    DEPTH
-    DEREF
-    DESC
-    DESCRIBE
-    DESCRIPTOR
-    DESTROY
-    DESTRUCTOR
-    DETERMINISTIC
-    DIAGNOSTICS
-    DICTIONARY
-    DISCONNECT
-    DISTINCT
-    DO
-    DOMAIN
-    DOUBLE
-    DROP
-    DYNAMIC
-    EACH
-    ELSE
-    ELSEIF
-    END
-    END-EXEC
-    EQUALS
-    ESCAPE
-    EVERY
-    EXCEPT
-    EXCEPTION
-    EXEC
-    EXECUTE
-    EXIT
-    EXPAND
-    EXPANDING
-    EXTERNAL
-    FALSE
-    FETCH
-    FIRST
-    FLOAT
-    FOR
-    FOREIGN
-    FOUND
-    FROM
-    FREE
-    FULL
-    FUNCTION
-    GENERAL
-    GET
-    GLOBAL
-    GO
-    GOTO
-    GRANT
-    GROUP
-    GROUPING
-    HANDLER
-    HAVING
-    HASH
-    HOST
-    HOUR
-    IDENTITY
-    IF
-    IGNORE
-    IMMEDIATE
-    IN
-    INDICATOR
-    INITIALIZE
-    INITIALLY
-    INNER
-    INOUT
-    INPUT
-    INSERT
-    INT
-    INTEGER
-    INTERSECT
-    INTERVAL
-    INTO
-    IS
-    ISOLATION
-    ITERATE
-    JOIN
-    KEY
-    LANGUAGE
-    LARGE
-    LAST
-    LATERAL
-    LEADING
-    LEAVE
-    LEFT
-    LESS
-    LEVEL
-    LIKE
-    LIMIT
-    LOCAL
-    LOCALTIME
-    LOCALTIMESTAMP
-    LOCATOR
-    LOOP
-    MATCH
-    MEETS
-    MINUTE
-    MODIFIES
-    MODIFY
-    MODULE
-    MONTH
-    NAMES
-    NATIONAL
-    NATURAL
-    NCHAR
-    NCLOB
-    NEW
-    NEXT
-    NO
-    NONE
-    NORMALIZE
-    NOT
-    NULL
-    NUMERIC
-    OBJECT
-    OF
-    OFF
-    OLD
-    ON
-    ONLY
-    OPEN
-    OPERATION
-    OPTION
-    OR
-    ORDER
-    ORDINALITY
-    OUT
-    OUTER
-    OUTPUT
-    PAD
-    PARAMETER
-    PARAMETERS
-    PARTIAL
-    PATH
-    PERIOD
-    POSTFIX
-    PRECEDES
-    PRECISION
-    PREFIX
-    PREORDER
-    PREPARE
-    PRESERVE
-    PRIMARY
-    PRIOR
-    PRIVILEGES
-    PROCEDURE
-    PUBLIC
-    READ
-    READS
-    REAL
-    RECURSIVE
-    REDO
-    REF
-    REFERENCES
-    REFERENCING
-    RELATIVE
-    REPEAT
-    RESIGNAL
-    RESTRICT
-    RESULT
-    RETURN
-    RETURNS
-    REVOKE
-    RIGHT
-    ROLE
-    ROLLBACK
-    ROLLUP
-    ROUTINE
-    ROW
-    ROWS
-    SAVEPOINT
-    SCHEMA
-    SCROLL
-    SEARCH
-    SECOND
-    SECTION
-    SELECT
-    SEQUENCE
-    SESSION
-    SESSION_USER
-    SET
-    SETS
-    SIGNAL
-    SIZE
-    SMALLINT
-    SOME
-    SPACE
-    SPECIFIC
-    SPECIFICTYPE
-    SQL
-    SQLEXCEPTION
-    SQLSTATE
-    SQLWARNING
-    START
-    STATE
-    STATIC
-    STRUCTURE
-    SUCCEEDS
-    SYSTEM_USER
-    TABLE
-    TEMPORARY
-    TERMINATE
-    THAN
-    THEN
-    TIME
-    TIMESTAMP
-    TIMEZONE_HOUR
-    TIMEZONE_MINUTE
-    TO
-    TRAILING
-    TRANSACTION
-    TRANSLATION
-    TREAT
-    TRIGGER
-    TRUE
-    UNDER
-    UNDO
-    UNION
-    UNIQUE
-    UNKNOWN
-    UNTIL
-    UPDATE
-    USAGE
-    USER
-    USING
-    VALUE
-    VALUES
-    VARCHAR
-    VARIABLE
-    VARYING
-    VIEW
-    WHEN
-    WHENEVER
-    WHERE
-    WHILE
-    WITH
-    WITHOUT
-    WORK
-    WRITE
-    YEAR
-    ZONE
+    ABSOLUTE       CASCADED         CURRENT_ROLE         DO
+    ACTION         CASE             CURRENT_TIME         DOMAIN
+    ADD            CAST             CURRENT_TIMESTAMP    DOUBLE
+    ADMIN          CATALOG          CURRENT_USER         DROP
+    AFTER          CHAR             CURSOR               DYNAMIC
+    AGGREGATE      CHARACTER        CYCLE                EACH
+    ALIAS          CHECK            DATA                 ELSE
+    ALL            CLASS            DATALINK             ELSEIF
+    ALLOCATE       CLOB             DATE                 END
+    ALTER          CLOSE            DAY                  END-EXECUTE
+    AND            COLLATE          DEALLOCATE           EQUALS
+    ANY            COLLATION        DEC                  ESCAPE
+    ARE            COLUMN           DECIMAL              EVERY
+    ARRAY          COMMIT           DECLARE              EXCEPT
+    AS             COMPLETION       DEFAULT              EXCEPTION
+    ASC            CONDITION        DEFERRABLE           EXEC
+    ASSERTION      CONNECT          DEFERRED             EXECUTE
+    AT             CONNECTION       DELETE               EXIT
+    AUTHORIZATION  CONSTRAINT       DEPTH                EXPAND
+    BEFORE         CONSTRAINTS      DEREF                EXPANDING
+    BEGIN          CONSTRUCTOR      DESC                 EXTERNAL
+    BINARY         CONTAINS         DESCRIBE             FALSE
+    BIT            CONTINUE         DESCRIPTOR           FETCH
+    BLOB           CORRESPONDING    DESTROY              FIRST
+    BOOLEAN        CREATE           DESTRUCTOR           FLOAT
+    BOTH           CROSS            DETERMINISTIC        FOR
+    BREADTH        CUBE             DICTONARY            FOREIGN
+    BY             CURRENT          DIAGNOSTICS          FOUND
+    CALL           CURRENT_DATE     DISCONNECT           FROM
+    CASCADE        CURRENT_PATH     DISTINCT             FREE
+    FULL           LANGUAGE         OF                   REF
+    FUNCTION       LARGE            OFF                  REFERENCES
+    GENERAL        LAST             OLD                  REFERENCING
+    GET            LATERAL          ON                   RELATIVE
+    GLOBAL         LEADING          ONLY                 REPEAT
+    GO             LEAVE            OPEN                 RESIGNAL
+    GOTO           LEFT             OPERATION            RESTRICT
+    GRANT          LESS             OPTION               RESULT
+    GROUP          LEVEL            OR                   RETURN
+    GROUPING       LIKE             ORDER                RETURNS
+    HANDLER        LIMIT            ORDINALITY           REVOKE
+    HAVING         LOCAL            OUT                  RIGHT
+    HASH           LOCALTIME        OUTER                ROLE
+    HOST           LOCALTIMESTAMP   OUTPUT               ROLLBACK
+    HOUR           LOCATOR          PAD                  ROLLUP
+    IDENTITY       LOOP             PARAMETER            ROUTINE
+    IF             MATCH            PARAMETERS           ROW
+    IGNORE         MEETS            PARTIAL              ROWS
+    IMMEDIATE      MINUTE           PATH                 SAVEPOINT
+    IN             MODIFIES         PERIOD               SCHEMA
+    INDICATOR      MODIFY           POSTFIX              SCROLL
+    INITIALIZE     MODULE           PRECEDES             SEARCH
+    INITIALLY      MONTH            PRECISION            SECOND
+    INNER          NAMES            PREFIX               SECTION
+    INOUT          NATIONAL         PREORDER             SELECT
+    INPUT          NATURAL          PREPARE              SEQUENCE
+    INSERT         NCHAR            PRESERVE             SESSION
+    INT            NCLOB            PRIMARY              SESSION_USER
+    INTEGER        NEW              PRIOR                SET
+    INTERSECT      NEXT             PRIVILEGES           SETS
+    INTERVAL       NO               PROCEDURE            SIGNAL
+    INTO           NONE             PUBLIC               SIZE
+    IS             NORMALIZE        READ                 SMALLINT
+    ISOLATION      NOT              READS                SOME
+    ITERATE        NULL             REAL                 SPACE
+    JOIN           NUMERIC          RECURSIVE            SPECIFIC
+    KEY            OBJECT           REDO                 SPECIFICTYPE
+    SQL            THAN             UNDER                VARIABLE
+    SQLEXCEPTION   THEN             UNDO                 VARYING
+    SQLSTATE       TIME             UNION                VIEW
+    SQLWARNING     TIMESTAMP        UNIQUE               WHEN
+    START          TIMEZONE_HOUR    UNKNOWN              WHENEVER
+    STATE          TIMEZONE_MINUTE  UNTIL                WHERE
+    STATIC         TO               UPDATE               WHILE
+    STRUCTURE      TRAILING         USAGE                WITH
+    SUCCEEDS       TRANSACTION      USER                 WITHOUT
+    SYSTEM_USER    TRANSLATION      USING                WORK
+    TABLE          TREAT            VALUE                WRITE
+    TEMPORARY      TRIGGER          VALUES               YEAR
+    TERMINATE      TRUE             VARCHAR              ZONE
 
-Note: SQL-92 and SQL3 both added a considerable number of words
-to the set of SQL reserved <keyword>s. The Standard acknowledges
-this and -- as an aid to users -- suggests that you include
-either a digit or an underline character in your <regular
-identifier>s, and avoid names that begin with ``CURRENT_``, ``SESSION_``,
-``SYSTEM_`` or ``TIMEZONE_`` and those that end with ``_LENGTH``, to avoid
-conflicts with reserved <keyword>s added in future revisions.
+.. NOTE::
 
-The set of non-reserved <keyword>s
+    SQL-92 and SQL3 both added a considerable number of words to the set of SQL
+    reserved <keyword>s. The Standard acknowledges this and -- as an aid to
+    users -- suggests that you include either a digit or an underline character
+    in your <regular identifier>s, and avoid names that begin with
+    ``CURRENT_``, ``SESSION_``, ``SYSTEM_`` or ``TIMEZONE_`` and those that end
+    with ``_LENGTH``, to avoid conflicts with reserved <keyword>s added in
+    future revisions.
+
+The Set of Non-Reserved <keyword>s
 ----------------------------------
 
 ::
 
-    ABS
-    ADA
-    ASENSITIVE
-    ASSIGNMENT
-    ASYMMETRIC
-    ATOMIC
-    AVG
-    BETWEEN
-    BIT_LENGTH
-    BITVAR
-    BLOCKED
-    C
-    CARDINALITY
-    CATALOG_NAME
-    CHAIN
-    CHAR_LENGTH
-    CHARACTER_LENGTH
-    CHARACTER_SET_CATALOG
-    CHARACTER_SET_NAME
-    CHARACTER_SET_SCHEMA
-    CHECKED
-    CLASS_ORIGIN
-    COALESCE
-    COBOL
-    COLLATION_CATALOG
-    COLLATION_NAME
-    COLLATION_SCHEMA
-    COLUMN_NAME
-    COMMAND_FUNCTION
-    COMMAND_FUNCTION_CODE
-    COMMITTED
-    CONCATENATE
-    CONDITION_NUMBER
-    CONNECTION_NAME
-    CONSTRAINT_CATALOG
-    CONSTRAINT_NAME
-    CONSTRAINT_SCHEMA
-    CONTAINS
-    CONTROL
-    CONVERT
-    COUNT
-    CURSOR_NAME
-    DATETIME_INTERVAL_CODE
-    DATETIME_INTERVAL_PRECISION
-    DB
-    DISPATCH
-    DLCOMMENT
-    DLFILESIZE
-    DLFILESIZEEXACT
-    DLLINKTYPE
-    DLURLCOMPLETE
-    DLURLPATH
-    DLURLPATHONLY
-    DLURLSCHEMA
-    DLURLSERVER
-    DLVALUE
-    DYNAMIC_FUNCTION
-    DYNAMIC_FUNCTION_CODE
-    EXISTING
-    EXISTS
-    EXTRACT
-    FILE
-    FINAL
-    FORTRAN
-    GENERATED
-    HOLD
-    INFIX
-    INSENSITIVE
-    INSTANTIABLE
-    INTEGRITY
-    KEY_MEMBER
-    KEY_TYPE
-    LENGTH
-    LINK
-    LOWER
-    MAX
-    MIN
-    MESSAGE_LENGTH
-    MESSAGE_OCTET_LENGTH
-    MESSAGE_TEXT
-    METHOD
-    MOD
-    MORE
-    MUMPS
+    ABS                     CHARACTER_LENGTH             CONDITION_NUMBER
+    ADA                     CHARACTER_SET_CATALOG        CONNECTION_NAME
+    ASENSITIVE              CHARACTER_SET_NAME           CONSTRAINT_CATALOG
+    ASSIGNMENT              CHARACTER_SET_SCHEMA         CONSTRAINT_NAME
+    ASYMMETRIC              CHECKED                      CONSTRAINT_SCHEMA
+    ATOMIC                  CLASS_ORGIN                  CONTAINS
+    AVG                     COALESCE                     CONTROL
+    BETWEEN                 COBOL                        CONVERT
+    BIT_LENGTH              COLLATION_CATALOG            COUNT
+    BITVAR                  COLLATION_NAME               CURSOR_NAME
+    BLOCKED                 COLLATION_SCHEMA             DATETIME_INTERVAL_CODE
+    C                       COLUMN_NAME                  DATETIME_INTERVAL_PRECISION
+    CARDINALITY             COMMAND_FUNCTION             DB
+    CATALOG_NAME            COMMAND_FUNCTION_CODE        DISPATCH
+    CHAIN                   COMMITTED                    DLCOMMENT
+    CHAR_LENGTH             CONCATENATE                  DLFILESIZE
+    DLFILESIZEEXACT         NULLABLE                     SERVER_NAME
+    DLLINKTYPE              NUMBER                       SIMPLE
+    DLURLCOMPLETE           NULLIF                       SOURCE
+    DLURLPATH               OCTET_LENGTH                 SPECIFIC_NAME
+    DLURLPATHONLY           OPTION                       SIMILAR
+    DLURLSCHEMA             OVERLAPS                     STRUCTURE
+    DLURLSERVER             OVERLAY                      SUBLIST
+    DLVALUE                 OVERRIDING                   SUBSTRING
+    DYNAMIC_FUNCTION        PASCAL                       SUM
+    DYNAMIC_FUNCTION_CODE   PARAMETER_MODE               STYLE
+    EXISTING                PARAMETER_ORDINAL_POSITION   SUBCLASS_ORIGIN
+    EXISTS                  PARAMETER_SPECIFIC_CATALOG   SYMMETRIC
+    EXTRACT                 PARAMETER_SPECIFIC_NAME      SYSTEM
+    FILE                    PARAMETER_SPECIFIC_SCHEMA    TABLE_NAME
+    FINAL                   PERMISSION                   TRANSACTIONS_COMMITTED
+    FORTRAN                 PLI                          TRANSACTIONS_ROLLED_BACK
+    GENERATED               POSITION                     TRANSACTION_ACTIVE
+    HOLD                    RECOVERY                     TRANSFORM
+    INFIX                   REPEATABLE                   TRANSLATE
+    INSENSITIVE             RESTORE                      TRIGGER_CATALOG
+    INSTANTIABLE            RETURNED_LENGTH              TRIGGER_SCHEMA
+    INTEGRITY               RETURNED_OCTET_LENGTH        TRIGGER_NAME
+    KEY_MEMBER              RETURNED_SQLSTATE            TRIM
+    KEY_TYPE                ROUTINE_CATALOG              TYPE
+    LENGTH                  ROUTINE_NAME                 UNCOMMITTED
+    LINK                    ROUTINE_SCHEMA               UNLINK
+    LOWER                   ROW_COUNT                    UNNAMED
+    MAX                     ROW_TYPE_CATALOG             UPPER
+    MIN                     ROW_TYPE_SCHEMA              USER_DEFINED_TYPE_CATALOG
+    MESSAGE_LENGTH          ROW_TYPE_NAME                USER_DEFINED_TYPE_NAME
+    MESSAGE_OCTET_LENGTH    SCALE                        USER_DEFINED_TYPE_SCHEMA
+    MESSAGE_TEXT            SCHEMA_NAME                  YES
+    METHOD                  SELECTIVE
+    MOD                     SELF
+    MORE                    SENSITIVE
+    MUMPS                   SERIALIZABLE
     NAME
-    NULLABLE
-    NUMBER
-    NULLIF
-    OCTET_LENGTH
-    OPTIONS
-    OVERLAPS
-    OVERLAY
-    OVERRIDING
-    PASCAL
-    PARAMETER_MODE
-    PARAMETER_ORDINAL_POSITION
-    PARAMETER_SPECIFIC_CATALOG
-    PARAMETER_SPECIFIC_NAME
-    PARAMETER_SPECIFIC_SCHEMA
-    PERMISSION
-    PLI
-    POSITION
-    RECOVERY
-    REPEATABLE
-    RESTORE
-    RETURNED_LENGTH
-    RETURNED_OCTET_LENGTH
-    RETURNED_SQLSTATE
-    ROUTINE_CATALOG
-    ROUTINE_NAME
-    ROUTINE_SCHEMA
-    ROW_COUNT
-    ROW_TYPE_CATALOG
-    ROW_TYPE_SCHEMA
-    ROW_TYPE_NAME
-    SCALE
-    SCHEMA_NAME
-    SELECTIVE
-    SELF
-    SENSITIVE
-    SERIALIZABLE
-    SERVER_NAME
-    SIMPLE
-    SOURCE
-    SPECIFIC_NAME
-    SIMILAR
-    STRUCTURE
-    STYLE
-    SUBCLASS_ORIGIN
-    SUBLIST
-    SUBSTRING
-    SUM
-    SYMMETRIC
-    SYSTEM
-    TABLE_NAME
-    TRANSACTIONS_COMMITTED
-    TRANSACTIONS_ROLLED_BACK
-    TRANSACTION_ACTIVE
-    TRANSFORM
-    TRANSLATE
-    TRIGGER_CATALOG
-    TRIGGER_SCHEMA
-    TRIGGER_NAME
-    TRIM
-    TYPE
-    UNCOMMITTED
-    UNLINK
-    UNNAMED
-    UPPER
-    USER_DEFINED_TYPE_CATALOG
-    USER_DEFINED_TYPE_NAME
-    USER_DEFINED_TYPE_SCHEMA
-    YES
 
-The SQL Standard allows implementations to define more reserved
-words for their own DBMSs. Here are some words that are reserved
-in some dialect of one of the major vendors (e.g., Oracle,
-Sybase, Microsoft). You may be able to use these words as
-<regular identifier>s, but if you do so, you will lose portability.
+The SQL Standard allows implementations to define more reserved words for their
+own DBMSs. Here are some words that are reserved in some dialect of one of the
+major vendors (e.g., Oracle, Sybase, Microsoft). You may be able to use these
+words as <regular identifier>s, but if you do so, you will lose portability.
 
 ::
 
-    ABORT
-    ACCEPT
-    ANALYZE
-    ARCHIVELOG
-    ARRAY
-    ASSIGN
-    ASYNCH
-    ATTRIBUTES
-    AUDIT
-    BACKUP
-    BINARY_INTEGER
-    BODY
-    CACHE
-    CHAR_BASE
-    CLUSTER
-    CLUSTERS
-    COLAUTH
-    COLUMNS
-    COMPRESS
-    CONSTANT
-    CRASH
-    CURVAL
-    DATA_BASE
-    DATABASE
-    DBA
-    DEBUGOFF
-    DEBUGON
-    DEFINITION
-    DELAY
-    DELTA
-    DICTIONARY
-    DIGITS
-    DISPLACEMENT
-    DISPOSE
-    ELEMENT
-    ENTRY
-    EXCEPTION_INIT
-    FACTOR
-    FORM
-    FREELISTS
-    GENERIC
-    IDENTIFIED
-    IGNORE
-    INCLUDE
-    INDEX
-    INDEXES
-    INFILE
-    INSTEAD
-    INSTANCE
-    LIMITED
-    LIST
-    MAXEXTENTS
-    MINUS
-    MLSLABEL
-    MODE
-    NEW
-    NEW_TABLE
-    NEXTVAL
-    NOCOMPRESS
-    NONE
-    NUMBER
-    NUMBER_BASE
-    OFF
-    OID
-    OLD_TABLE
-    OPERATOR
-    OPERATORS
-    OTHERS
-    PACKAGE
-    PARTITION
-    PCTFREE
-    PENDANT
-    POSITIVE
-    PRAGMA
-    PREORDERED
-    PRIVATE
-    PROTECTED
-    RAISE
-    RANGE
-    RAW
-    RECORD
-    RELEASE
-    REM
-    RENAME
-    REPLACE
-    RESOURCE
-    REUSE
-    REVERSE
-    ROWID
-    ROWLABEL
-    ROWNUM
-    ROWTYPE
-    RUN
-    SEPARATE
-    SEQUENCE
-    SQLCA
-    SQLCODE
-    SQLERRM
-    SQLWARNING
-    STATEMENT
-    STDDEV
-    SUBTYPE
-    SYMBOL
-    TABAUTH
-    TABLES
-    TASK
-    TERM
-    TEST
-    THERE
-    TUPLE
-    USE
-    VARCHAR2
-    VARIANCE
-    VIEWS
-    VIRTUAL
-    VISIBLE
-    WAIT
-    XOR
+    ABORT            DICTONARY            NUMBER            ROWNUN
+    ACCEPT           DIGITS               NUMBER_BASE       ROWTYPE
+    ANALYZE          DISPLACEMENT         OFF               RUN
+    ARCHIVELOG       DISPOSE              OID               SEPERATE
+    ARRAY            ELEMENT              OLD_TABLE         SEQUENCE
+    ASSIGN           ENTRY                OPERATOR          SQLCA
+    ASYNCH           EXCEPTION_INIT       OPERATORS         SQLCODE
+    ATTRIBUTES       FACTOR               OTHERS            SQLERRM
+    AUDIT            FORM                 PACKAGE           SQLWARNING
+    BACKUP           FREELISTS            PARTITION         STATEMENT
+    BINARY_INTEGER   GENERTIC             PCTFREE           STDDEV
+    BODY             IDENTIFIED           PENDANT           SUBTYPE
+    CACHE            IGNORE               POSITIVE          SYMBOL
+    CHAR_BASE        INCLUDE              PRAGMA            TABAUTH
+    CLUSTER          INDEX                PREORDERED        TABLES
+    CLUSTERS         INDEXES              PRIVATE           TASK
+    COLAUTH          INFILE               PROTECTED         TERM
+    COLUMNS          INSTEAD              RAISE             TEST
+    COMPRESS         INSTANCE             RANGE             THERE
+    CONSTANT         LIMITED              RAW               TUPLE
+    CRASH            LIST                 RECORD            USE
+    CURVAL           MAXEXTENTS           RELEASE           VARCHAR2
+    DATA_BASE        MINUS                REM               VARIANCE
+    DATABASE         MLSLABEL             RENAME            VIEWS
+    DBA              MODE                 REPLACE           VIRTUAL
+    DEBUGOFF         NEW                  RESOURCE          VISIBLE
+    DEBUGON          NEW_TABLE            REUSE             WAIT
+    DEFINITION       NEXTVAL              REVERSE           XOR
+    DELAY            NOCOMPRESS           ROWID
+    DELTA            NONE                 ROWLABLE
 
 <identifier>
 ------------
 
-An <identifier> (a <token> that names an SQL Object) is a
-character string, up to 128 characters long, from one Character
-set. Within a CREATE SCHEMA statement, an <identifier> that
-doesn't include an explicit <Schema name> names an Object that
-belongs to the Schema you're creating. In any other SQL
-statement, an <identifier> that doesn't include an explicit
-<Schema name> names an Object that belongs to the Schema named in
-the SCHEMA clause (or, if there is no SCHEMA clause, in the
-AUTHORIZATION clause) of the MODULE statement that defines the
-Module you're running. SQL recognizes three types of
-<identifier>s: the <regular identifier>, the <SQL language
+An <identifier> (a <token> that names an SQL Object) is a character string, up
+to 128 characters long, from one Character set. Within a ``CREATE SCHEMA``
+statement, an <identifier> that doesn't include an explicit <Schema name> names
+an Object that belongs to the Schema you're creating. In any other SQL
+statement, an <identifier> that doesn't include an explicit <Schema name> names
+an Object that belongs to the Schema named in the ``SCHEMA`` clause (or, if
+there is no ``SCHEMA`` clause, in the ``AUTHORIZATION`` clause) of the
+``MODULE`` statement that defines the Module you're running. SQL recognizes
+three types of <identifier>s: the <regular identifier>, the <SQL language
 identifier>, and the <delimited identifier>.
 
-<regular identifier>
---------------------
+<*regular identifier*>
+----------------------
 
 The required syntax for a <regular identifier> is:
 
 ::
+
     <regular identifier> ::=
     Object name
 
-A <regular identifier> is a character string, up to 128
-characters long, that consists only of letters, digits, and
-underscore characters. It must begin with a letter.
+A <regular identifier> is a character string, up to 128 characters long, that
+consists only of letters, digits, and underscore characters. It must begin with
+a letter.
 
-[Obscure Rule] We usually think of a "letter" as one of the
-simple Latin letters, but in fact -- depending on the Character
-set being used -- a "letter" can also be an accented character, a
-character in a non-Latin alphabet, or a syllable or ideograph;
-i.e., it can be any character with the Unicode alphabetic
-property or ideographic property. The "letter" that begins a
-<regular identifier> may not have the Unicode combining property;
-the letters following it may, with the proviso that these
-characters are not legal anywhere in a <regular identifier>:
-
-::
-     ## U+06DD, Arabic End of Ayah.
-     ## U+06DE, Arabic Start of Rub El Hizb.
-     ## U+20DD, Combining Enclosing Circle.
-     ## U+20DE, Combining Enclosing Square.
-     ## U+20DF, Combining Enclosing Diamond.
-     ## U+20E0, Combining Enclosing Circle Backslash.
-
-Depending on the Character set in use, you may also use these
-characters in a <regular identifier>, as long as they're not used
-as the <identifier>'s first character:
+[Obscure Rule] We usually think of a "letter" as one of the simple Latin
+letters, but in fact -- depending on the Character set being used -- a "letter"
+can also be an accented character, a character in a non-Latin alphabet, or a
+syllable or ideograph; i.e., it can be any character with the Unicode
+alphabetic property or ideographic property. The "letter" that begins a
+<regular identifier> may not have the Unicode combining property; the letters
+following it may, with the proviso that these characters are not legal anywhere
+in a <regular identifier>:
 
 ::
 
-     ## U+00B7, Middle Dot
-     ## U+02D0, Modifier Letter Triangular Colon
-     ## U+20D1, Modifier Letter Half Triangular Colon
-     ## U+0640, Arabic Tatweel
-     ## U+0E46, Thai Character Maiyamok
-     ## U+0EC6, Lao Ko La
-     ## U+3005, Ideographic Iteration Mark
-     ## U+3031 to U+3035 inclusive, variations of Vertical Kana Repeat Mark
-     ## U+309B to U+309E inclusive, variations of Combining Katakana-Hiragana Sound Mark and Hiragana Iteration Mark
-     ## U+30FC to U+30FE inclusive, variations of Katakana-Hiragana Prolonged Sound Mark and Katakana Iteration Mark
-     ## U+FF70, Halfwidth Katakana-Hiragana Prolonged Sound Mark
-     ## U+FF9E, Halfwidth Katakana Voiced Sound Mark
-     ## U+FF9F, Halfwidth Katakana Semi-voiced Sound Mark
-     ## U+200C, Zero Width Non-Joiner
-     ## U+200D, Zero Width Joiner
-     ## U+200E, Left-To-Right Mark
-     ## U+200F, Right-To-Left Mark
-     ## U+202A, Left-To-Right Embedding
-     ## U+202B, Right-To-Left Embedding
-     ## U+202C, Pop Directional Formatting
-     ## U+202D, Left-To-Right Override
-     ## U+202E, Right-To-Left Override.
-     ## U+206A, Inhibit Symmetric Swapping
-     ## U+206B, Activate Symmetric Swapping
-     ## U+206C, Inhibit Arabic Form Shaping
-     ## U+206D, Activate Arabic Form Shaping
-     ## U+206E, National Digit Shapes
-     ## U+206F, Nominal Digit Shapes
-     ## U+FEFF, Zero-Width No-Break Space
-     ## U+203F, Undertie
-     ## U+2040, Character Tie
-     ## U+FE33, Presentation Form for Vertical Low Line
-     ## U+FE34, Presentation Form for Vertical Wavy Low Line
-     ## U+FE4D, Dashed Low Line
-     ## U+FE4E, Centreline Low Line
-     ## U+FE4F, Wavy Low Line
-     ## U+FF3F, Fullwidth Low Line
+      U+06DD       Arabic End of Ayah
+      U+06DE       Arabic Start of Rub El Hizb
+      U+20DD       Combining Enclosing Circle
+      U+20DE       Combining Enclosing Square
+      U+20DF       Combining Enclosing Diamond
+      U+20E0       Combining Enclosing Circle Backslash
 
-A <regular identifier> is case insensitive. That is, uppercase
-and lowercase letters within a <regular identifier> are
-interchangeable; for example, these
+Depending on the Character set in use, you may also use these characters in a
+<regular identifier>, as long as they're not used as the <identifier>'s first
+character:
+
++------------------+----------------------------------------------------------+
+| U+00B7           | Middle Dot                                               |
++------------------+----------------------------------------------------------+
+|U+02D0            | Modifier Letter Triangular Colon                         |
++------------------+----------------------------------------------------------+
+| U+20D1           | Modifier Letter Half Triangular Colon                    |
++------------------+----------------------------------------------------------+
+| U+0640           | Arabic Tatweel                                           |
++------------------+----------------------------------------------------------+
+| U+0E46           | Thai Character Maiyamok                                  |
++------------------+----------------------------------------------------------+
+| U+0EC6           | Lao Ko La                                                |
++------------------+----------------------------------------------------------+
+| U+3005           | Ideographic Iteration Mark                               |
++------------------+----------------------------------------------------------+
+| U+3031 to        |                                                          |
++------------------+----------------------------------------------------------+
+| U+3035 inclusive | variations of Vertical Kana Repeat Mark                  |
++------------------+----------------------------------------------------------+
+| U+309B to        | variations of Combining Katakana-Hiragana Sound Mark and |
++------------------+----------------------------------------------------------+
+| U+309E inclusive | Hiragana Iteration Mark                                  |
++------------------+----------------------------------------------------------+
+| U+30FC to        | variations of Katakana-Hiragana Prolonged Sound Mark and |
++------------------+----------------------------------------------------------+
+| U+30FE inclusive | Katakana Iteration Mark                                  |
++------------------+----------------------------------------------------------+
+| U+FF70           | Halfwidth Katakana-Hiragana Prolonged Sound Mark         |
++------------------+----------------------------------------------------------+
+| U+FF9E           | Halfwidth Katakana Voiced Sound Mark                     |
++------------------+----------------------------------------------------------+
+| U+FF9F           | Halfwidth Katakana Semi-voiced Sound Mark                |
++------------------+----------------------------------------------------------+
+| U+200C           | Zero Width Non-Joiner                                    |
++------------------+----------------------------------------------------------+
+| U+200D           | Zero Width Joiner                                        |
++------------------+----------------------------------------------------------+
+| U+200E           | Left-To-Right Mark                                       |
++------------------+----------------------------------------------------------+
+| U+200F           | Right-To-Left Mark                                       |
++------------------+----------------------------------------------------------+
+| U+202A           | Left-To-Right Embedding                                  |
++------------------+----------------------------------------------------------+
+| U+202B           | Right-To-Left Embedding                                  |
++------------------+----------------------------------------------------------+
+| U+202C           | Pop Directional Formatting                               |
++------------------+----------------------------------------------------------+
+| U+202D           | Left-To-Right Override                                   |
++------------------+----------------------------------------------------------+
+| U+202E           | Right-To-Left Override.                                  |
++------------------+----------------------------------------------------------+
+| U+206A           | Inhibit Symmetric Swapping                               |
++------------------+----------------------------------------------------------+
+| U+206B           | Activate Symmetric Swapping                              |
++------------------+----------------------------------------------------------+
+| U+206C           | Inhibit Arabic Form Shaping                              |
++------------------+----------------------------------------------------------+
+| U+206D           | Activate Arabic Form Shaping                             |
++------------------+----------------------------------------------------------+
+| U+206E           | National Digit Shapes                                    |
++------------------+----------------------------------------------------------+
+| U+206F           | Nominal Digit Shapes                                     |
++------------------+----------------------------------------------------------+
+| U+FEFF           | Zero-Width No-Break Space                                |
++------------------+----------------------------------------------------------+
+| U+203F           | Undertie                                                 |
++------------------+----------------------------------------------------------+
+| U+2040           | Character Tie                                            |
++------------------+----------------------------------------------------------+
+| U+FE33           | Presentation Form for Vertical Low Line                  |
++------------------+----------------------------------------------------------+
+| U+FE34           | Presentation Form for Vertical Wavy Low Line             |
++------------------+----------------------------------------------------------+
+| U+FE4D           | Dashed Low Line                                          |
++------------------+----------------------------------------------------------+
+| U+FE4E           | Centreline Low Line                                      |
++------------------+----------------------------------------------------------+
+| U+FE4F           | Wavy Low Line                                            |
++------------------+----------------------------------------------------------+
+| U+FF3F           | Fullwidth Low Line                                       |
++------------------+----------------------------------------------------------+
+
+A <regular identifier> is case insensitive. That is, uppercase and lowercase
+letters within a <regular identifier> are interchangeable; for example, these
 three <regular identifier>s are exactly alike to an SQL parser:
 
 ::
 
    SAMS_TABLE
-
-::
-
    sams_table
-
-::
-
    Sams_Table
 
-SQL doesn't allow a reserved <keyword> to be used as a <regular
-identifier>. When comparing a <regular identifier> and a reserved
-<keyword> to check for equality, your DBMS will replace the lowercase
-letters in each with their uppercase equivalents and assume
-that both belong to the SQL_TEXT Character set. In fact, your
-DBMS will replace all lowercase letters in a <regular
-identifier> with their uppercase equivalents prior to any
-comparison and prior to storing the <identifier> either in a
-Catalog's INFORMATION_SCHEMA or a diagnostics area.
+SQL doesn't allow a reserved <keyword> to be used as a <regular identifier>.
+When comparing a <regular identifier> and a reserved <keyword> to check for
+equality, your DBMS will replace the lowercase letters in each with their
+uppercase equivalents and assume that both belong to the SQL_``TEXT`` Character
+set. In fact, your DBMS will replace all lowercase letters in a <regular
+identifier> with their uppercase equivalents prior to any comparison and prior
+to storing the <identifier> either in a Catalog's ``INFORMATION_SCHEMA`` or a
+diagnostics area.
 
 Here are some examples of <regular identifier>s:
 
-::
++------------------------------+-------------------------------------------------------------------------+
+| ``TABLE_1``                  | a <regular identifier>                                                  |
++------------------------------+-------------------------------------------------------------------------+
+| ``OCELOT_COMPUTER_SERVICES`` | another <regular identifier>                                            |
++------------------------------+-------------------------------------------------------------------------+
+| ``DATE_``                    | a <regular identifier> that looks like a reserved <keyword>             |
++------------------------------+-------------------------------------------------------------------------+
+| ``MÜLLER_DATEI``             |a <regular identifier> that doesn't exclusively use simple Latin letters |
++------------------------------+-------------------------------------------------------------------------+
 
-   TABLE_1   a <regular identifier>
+If you want to restrict your code to Core SQL, make sure your <regular
+identifier>s are no more than 18 characters long.
 
-::
-
-   OCELOT_COMPUTER_SERVICES   another <regular identifier>
-
-::
-
-   DATE_   a <regular identifier> that looks like a reserved <keyword>
-
-::
-
-   MÜLLER_DATEI   a <regular identifier> that doesn't exclusively use simple Latin letters
-
-If you want to restrict your code to Core SQL, make sure your
-<regular identifier>s are no more than 18 characters long.
-
-<SQL language identifier>
--------------------------
+<*SQL language identifier*>
+---------------------------
 
 The required syntax for an <SQL language identifier> is:
 
@@ -2367,21 +1938,17 @@ The required syntax for an <SQL language identifier> is:
     <SQL language identifier> ::=
     Object name
 
-An <SQL language identifier> is a <regular identifier> that
-consists only of simple Latin letters, digits, and underscore
-characters. It must begin with a simple Latin letter. Here are two
-examples of <SQL language identifier>s:
+An <SQL language identifier> is a <regular identifier> that consists only of
+simple Latin letters, digits, and underscore characters. It must begin with a
+simple Latin letter. Here are two examples of <SQL language identifier>s:
 
 ::
 
-   TABLE_1
+    TABLE_1
+    BOB_SCHEMA
 
-::
-
-   BOB_SCHEMA
-
-<delimited identifier>
-----------------------
+<*delimited identifier*>
+------------------------
 
 The required syntax for a <delimited identifier> is:
 
@@ -2390,79 +1957,62 @@ The required syntax for a <delimited identifier> is:
     <delimited identifier> ::=
     "Object name"
 
-A <delimited identifier> is a character string, up to 128
-characters long, surrounded by a pair of double quote
-marks. (The delimiting double quotes aren't part of the
-<identifier>, so they're not included in the calculation of its
-size.) Two consecutive double quotes within the character string
-(i.e., "") represent one double quote mark; together, they count
-as one character when calculating the size of the <identifier>.
+A <delimited identifier> is a character string, up to 128 characters long,
+surrounded by a pair of double quote marks. (The delimiting double quotes
+aren't part of the <identifier>, so they're not included in the calculation of
+its size.) Two consecutive double quotes within the character string (i.e., "")
+represent one double quote mark; together, they count as one character when
+calculating the size of the <identifier>.
 
-A <delimited identifier> is case sensitive. That is, uppercase
-and lowercase letters within a <delimited identifier> are not
-interchangeable; for example, to an SQL parser, these
-three <delimited identifier>s
+A <delimited identifier> is case sensitive. That is, uppercase and lowercase
+letters within a <delimited identifier> are not interchangeable; for example,
+to an SQL parser, these three <delimited identifier>s
 
 ::
 
    "SAMS_TABLE"
-
-::
-
    "sams_table"
-
-::
-
    "Sams_Table"
 
-represent three different names. Your DBMS will not replace lowercase
-letters in a <delimited identifier> with their uppercase
-equivalents prior to any comparison or storage operation.
+represent three different names. Your DBMS will not replace lowercase letters
+in a <delimited identifier> with their uppercase equivalents prior to any
+comparison or storage operation.
 
 Here are some examples of <delimited identifier>s:
 
-::
++--------------------------------+------------------------------------------------------------------------------+
+| ``"table#1"```                 | a <delimited identifier> that uses lowercase letters and a special character |
++--------------------------------+------------------------------------------------------------------------------+
+| ``"OCELOT Computer Services"`` | a <delimited identifier> that includes spaces                                |
++--------------------------------+------------------------------------------------------------------------------+
+| ``"DATE"``                     |  a <delimited identifier> that looks like a reserved <keyword>               |
++--------------------------------+------------------------------------------------------------------------------+
 
-   "table#1"   a <delimited identifier> that uses lowercase letters and a special character
+If you want to restrict your code to Core SQL, make sure your <delimited
+identifier>s are no more than 18 characters long.
 
-::
+*<identifier> Equivalence*
+--------------------------
 
-   "OCELOT Computer Services"   a <delimited identifier> that includes spaces
+Two <regular identifier>s are the same if they consist of the same characters.
+Your DBMS assumes the relevant Character set is ``SQL_TEXT`` when comparing
+them.
 
-::
+A <regular identifier> and a <delimited identifier> are the same if the
+<regular identifier> consists of the same characters that make up the body
+(i.e., the string of characters inside the double quote marks) of the
+<delimited identifier>. Two <delimited identifier>s are the same if their
+bodies consist of the same characters. Your DBMS assumes the relevant Character
+set is ``SQL_TEXT`` with a case sensitive Collation when comparing <regular
+identifier>s to <delimited identifier>s and <delimited identifier>s to one
+another.
 
-   "DATE"   a <delimited identifier> that looks like a reserved <keyword>
-
-If you want to restrict your code to Core SQL, make sure your
-<delimited identifier>s are no more than 18 characters long.
-
-<identifier> Equivalence
-------------------------
-
-Two <regular identifier>s are the same if they consist of the
-same characters. Your DBMS assumes the relevant Character set is
-SQL_TEXT when comparing them.
-
-A <regular identifier> and a <delimited identifier> are the same
-if the <regular identifier> consists of the same characters that
-make up the body (i.e., the string of characters inside the
-double quote marks) of the <delimited identifier>. Two
-<delimited identifier>s are the same if their bodies consist of
-the same characters. Your DBMS assumes the relevant Character set
-is SQL_TEXT with a case sensitive Collation when comparing
-<regular identifier>s to <delimited identifier>s and <delimited
-identifier>s to one another.
-
-Because of the difference in case sensitivity between <regular
-identifier>s and <delimited identifier>s, these two <regular
-identifier>s are the same:
+Because of the difference in case sensitivity between <regular identifier>s and
+<delimited identifier>s, these two <regular identifier>s are the same:
 
 ::
 
    P_TABLE
-
-::
-
    p_table
 
 and both are equal to this <delimited identifier>:
@@ -2480,42 +2030,42 @@ but neither are equal to this <delimited identifier>:
 
 For another example, consider this group of <identifier>s:
 
-::
++------------+---------------------------------------+
+| 1. ``"E"`` | A <delimited (uppercase) identifier>. |
++------------+---------------------------------------+
+| 2. ``"e"`` | A <delimited (lowercase) identifier>. |
++------------+---------------------------------------+
+| 3. ``E``   | A <regular identifier>.               |
++------------+---------------------------------------+
+| 4. ``e``   | A <regular identifier>.               |
++------------+---------------------------------------+
+| 5. ``ë``   | A <regular identifier>.               |
++------------+---------------------------------------+
 
-     1. "E"   A <delimited (uppercase) identifier>.
-     2. "e"   A <delimited (lowercase) identifier>.
-     3. E     A <regular identifier>.
-     4. e     A <regular identifier>.
-     5. ë     A <regular identifier>.
+Because delimiting double quotes are not themselves part of an <identifier>,
+the <delimited identifier> ``"E"`` is the same as the <regular identifier>
+``E``, i.e., examples #1 and #3 are the same name. Because lowercase letters in
+a <regular identifier> are mapped to uppercase letters before comparison and
+storage, examples #3 and #4 are the same name -- and they're also the same name
+as example #1. Because lowercase letters in a <delimited identifier> are not
+mapped to uppercase letters at any time, example #2 is not the same name as
+example #4. Because there is no mapping of accented characters in an
+<identifier>, example #5 is not the same name as any of the others -- but ë is
+a letter, and so qualifies as a <regular identifier>. (This example assumes
+that the MS-Windows encoding scheme -- the one that Microsoft calls "ANSI" --
+is in use. This is not always the case; the choice of possible Character sets
+is broad.)
 
-Because delimiting double quotes are not themselves part of an
-<identifier>, the <delimited identifier> "E" is the same as the
-<regular identifier> E, i.e., examples #1 and #3 are the same
-name. Because lowercase letters in a <regular identifier> are
-mapped to uppercase letters before comparison and storage,
-examples #3 and #4 are the same name -- and they're also the same
-name as example #1. Because lowercase letters in a <delimited
-identifier> are not mapped to uppercase letters at any time,
-example #2 is not the same name as example #4. Because there is no
-mapping of accented characters in an <identifier>, example #5 is
-not the same name as any of the others -- but ë is a letter, and
-so qualifies as a <regular identifier>. (This example assumes
-that the MS-Windows encoding scheme -- the one that Microsoft
-calls "ANSI" -- is in use. This is not always the case; the
-choice of possible Character sets is broad.)
+*Qualification of <identifier>s*
+--------------------------------
 
-qualification of <identifier>s
-------------------------------
-
-All SQL Objects have names which are some combination of <regular
-identifier>s, <delimited identifier>s, or <SQL language
-identifier>s in an appropriate hierarchy of qualification. The
-top of the hierarchy is [SQL-server name.], an implicit
-name, therefore never specified. Then comes [<Catalog
-name>.], which is the first level of the hierarchy that can be
-explicitly stated. The next level is [<Schema name>.], then comes
-[the name of an Object], and (if the Object is a Table) the final
-level of the hierarchy is <.Column name>. The entire
-qualification hierarchy always exists but is not necessarily
-visible; the Standard contains rules by which high-level parts of
-the combination may be omitted and their values assumed by default.
+All SQL Objects have names which are some combination of <regular identifier>s,
+<delimited identifier>s, or <SQL language identifier>s in an appropriate
+hierarchy of qualification. The top of the hierarchy is [SQL-server name.], an
+implicit name, therefore never specified. Then comes [<Catalog name>.], which
+is the first level of the hierarchy that can be explicitly stated. The next
+level is [<Schema name>.], then comes [the name of an Object], and (if the
+Object is a Table) the final level of the hierarchy is <.Column name>. The
+entire qualification hierarchy always exists but is not necessarily visible;
+the Standard contains rules by which high-level parts of the combination may be
+omitted and their values assumed by default.
