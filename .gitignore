@@ -2,3 +2,4 @@
 .venv
 get-pip.py
 out/
+docs/chapters/02.txt
