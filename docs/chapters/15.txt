@@ -364,8 +364,9 @@ A ``SELECT`` (<Column name> list), ``INSERT`` (<Column name> list), ``UPDATE``
 (<Column name> list) or ``REFERENCES`` (<Column name> list) is called a *Column
 Privilege*: it allows the specified action only on the Columns actually named
 when the Privilege is granted. You may not grant Column Privileges on the
-Columns of a declared ``LOCAL TEMPORARY`` Table or on any other Object. Here
-are two equivalent examples:
+Columns of a declared ``LOCAL TEMPORARY`` Table or on any other Object. Again,
+the <keyword> TABLE is noise; it may be omitted from the Privilege
+specification. Here are two equivalent examples:
 
 ::
 
@@ -464,9 +465,9 @@ statement is:
        <grantee> ::= PUBLIC | <AuthorizationID>
        <grantor> ::= CURRENT_USER | CURRENT_ROLE
 
-The <grant privilege statement> grants one or more Privileges on a given Object
-to one or more grantees, including (possibly) ``PUBLIC``. The grantor of the
-Privileges must, of course, hold those Privileges as grantable Privileges.
+The <grant privilege statement> grants one or more Privileges on a given
+Object to one or more grantees, including (possibly) ``PUBLIC``. The grantor of
+the Privileges must, of course, hold those Privileges as grantable Privileges.
 
 We've already shown you the syntax for the <privileges> Privilege
 specification; it's used exactly that way in this form of the ``GRANT``
@@ -485,6 +486,8 @@ If your <grantee> is ``PUBLIC``, you're granting the Privilege to a list of
 and in the future. If your <grantee> is one or more <AuthorizationID>s, you're
 granting the Privilege only to those <AuthorizationID>s. (Remember that an
 <AuthorizationID> may identify either a user or a Role.)
+
+When you grant a SELECT, UPDATE or REFERENCES Table Privilege on a Base table that has subtables, the effect is two-fold:
 
 The optional ``WITH HIERARCHY OPTION`` clause may apply only to a ``SELECT``
 TABLEPrivilege that is granted on a typed Table. When you use this option, you
@@ -744,6 +747,7 @@ for practical purposes she is the ultimate authority. She cannot lose her right
 to do these operations. She can, however, pass on any or all of her Privileges
 to any other user. This ability is called the ``GRANT OPTION``, because Sally
 has the option of granting the Privileges she holds. Sally also may pass on the
+the Privileges she holds. Sally also may pass on the grant option itself.
 grant option itself.
 
 *GRANTs on Tables*
@@ -925,6 +929,7 @@ the effect is that Sam can do this:
 ::
 
    SELECT date_1 FROM Sally_Dates;
+
    SELECT COUNT(*) FROM Sally_Dates;
 
 but he can't specifically ``SELECT`` the second Column.
