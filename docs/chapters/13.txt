@@ -4,55 +4,84 @@
 Chapter 13 -- NULLs
 ===================
 
-    "The problem isn't what they don't know. It's what they do know that ain't so."
+*"The problem isn't what they don't know. It's what they do know that ain't
+*so."*
 
-    -- Ronald Reagan
+-- Ronald Reagan
 
 Suppose we make a list of US presidents from memory:
 
-::
++----------------------+---------------+
+| **YEAR OF ELECTION** | **NAME**      |
++----------------------+---------------+
+| ?                    | Fillmore      |
++----------------------+---------------+
+| 1860                 | Lincoln       |
++----------------------+---------------+
+| ?                    | Johnson       |
++----------------------+---------------+
+| 1880                 | ?             |
++----------------------+---------------+
+| 1952                 | Eisenhower    |
++----------------------+---------------+
+| 1980                 | Reagan        |
++----------------------+---------------+
 
-    YEAR OF ELECTION       NAME
-    ?                      Fillmore
-    1860                   Lincoln
-    ?                      Johnson
-    1880                   ?
-    1952                   Eisenhower
-    1980                   Reagan
+We have no idea when Fillmore was elected. We know that somebody was elected in
+1880 (Americans hold elections every four years), but we can't remember who. As
+for Johnson (the Andrew, not the Lyndon) he wasn't elected; he just took over
+for a while after Lincoln's assassination. Now let's "query" this list:
 
-We have no idea when Fillmore was elected. We know that somebody was elected in 1880 (Americans hold elections every four years), but we can't remember who. As for Johnson (the Andrew, not the Lyndon) he wasn't elected;
-he just took over for a while after Lincoln's assassination. Now let's "query" this list:
+- How many presidents are there? Either 5 or 6 (it depends, maybe the guy
+  elected in 1880 was Fillmore).
 
-## How many presidents are there? Either 5 or 6 (it depends, maybe the guy elected in 1880 was Fillmore).
+- Is Lincoln the first president? Probably. The best answer would be "yes".
 
-## Is Lincoln the first president? Probably. The best answer would be "yes".
+- Was Eisenhower elected in 1880? Probably not. But suppose he was elected once
+- in 1880 and then again in 1952? Our list doesn't tell us.
 
-## Was Eisenhower elected in 1880? Probably not. But suppose he was elected once in 1880 and then again in 1952? Our list doesn't tell us.
+At this point, you might be thinking that we have a bad "database". But
+technically we don't: none of the data is "bad". This is what a bad database
+looks like:
 
-At this point, you might be thinking that we have a bad "database". But technically we don't: none of the data is "bad". This is what a bad database looks like:
++----------------------+---------------+
+| **YEAR OF ELECTION** | **NAME**      |
++----------------------+---------------+
+| 0000                 | Fillmore      |
++----------------------+---------------+
+| 1860                 | Lincoln       |
++----------------------+---------------+
+| 9999                 | Johnson       |
++----------------------+---------------+
+| 1880                 | (unknown)     |
++----------------------+---------------+
+| 1952                 | Eisenhower    |
++----------------------+---------------+
+| 1980                 | Reagan        |
++----------------------+---------------+
 
-::
+Here, where we previously had question marks, we've filled in some "default"
+values: 0000 means "don't know", 9999 means "not applicable", (unknown) means
+"don't know". Now if we query our list, we get some certain answers:
 
-    YEAR OF ELECTION        NAME
-    0000                    Fillmore
-    1860                    Lincoln
-    9999                    Johnson
-    1880                    (unknown)
-    1952                    Eisenhower
-    1980                    Reagan
+- How many presidents are there? Obviously 6.
 
-Here, where we previously had question marks, we've filled in some "default" values: 0000 means "don't know", 9999 means "not applicable", (unknown) means "don't know". Now if we query our list, we get some certain answers:
+- Is Lincoln the first president? No -- Fillmore's date (0000) is less than
+  Lincoln's (1860).
 
-## How many presidents are there? Obviously 6.
+- Was Eisenhower elected in 1880? No -- 'Eisenhower' is not equal to
+  '(unknown)'.
 
-## Is Lincoln the first president? No -- Fillmore's date (0000) is less than Lincoln's (1860).
-
-## Was Eisenhower elected in 1880? No -- 'Eisenhower' is not equal to '(unknown)'.
-Now that's a bad database. The problem is that our "default" values have no special significance to our DBMS, so it applied its regular operators and spewed out definite-looking answers. But it was actually right the first time:
+Now *that's* a bad database. The problem is that our "default" values have no
+special significance to our DBMS, so it applied its regular operators and
+spewed out definite-looking answers. But it was actually right the first time:
 there are no definite answers, and a good DBMS would reflect that.
 
-This example teaches us three things: (a) that Ronald Reagan was a sage, (b) that some data can be "unknown" (a data collection failure) or "not applicable" (a database definition anomaly), and (c) that it's better to admit
-the deficiencies in a way that the DBMS can account for. This is unpleasant and mathematically unsound, but it's what we've got.
+This example teaches us three things: (*a*) that Ronald Reagan was a sage,
+(*b*) that some data can be "unknown" (a data collection failure) or "not
+applicable" (a database definition anomaly), and (*c*) that it's better to
+admit the deficiencies in a way that the DBMS can account for. This is
+unpleasant and mathematically unsound, but it's what we've got.
 
 .. rubric:: Table of Contents
 
@@ -62,75 +91,88 @@ the deficiencies in a way that the DBMS can account for. This is unpleasant and 
 Representing Missing Data with NULL
 ===================================
 
-Those missing values that we represented with question marks in our list are what SQL calls NULLs. The NULL value is an amorphous thing, but it does have certain properties which we now enumerate.
+Those missing values that we represented with question marks in our list are
+what SQL calls ``NULL``\s. The ``NULL`` value is an amorphous thing, but it
+does have certain properties which we now enumerate.
 
-## NULL is a value. Oh, it's true that it represents missing data, but that doesn't mean that it is missing data -- you can put NULL into Columns and you can take it out again. Those operations are only possible with values,
-therefore NULL is a value.
+1. ``NULL`` is a value. Oh, it's true that it *represents* missing data, but
+   that doesn't mean that it *is* missing data -- you can put ``NULL`` into
+   Columns and you can take it out again. Those operations are only possible
+   with values, therefore ``NULL`` is a value.
 
-## NULL belongs to a Domain. We know that because all values belong to
-Domains. Therefore, whatever the missing value is in our YEAR Column, it must
-be an integer -- just like all the other values in that Column. And whatever
-the missing value is in our NAME Column, it must be a character string -- just
-like all the other values in that Column. We might not know what its <data
-type> is by looking at it, but every NULL does have a <data type> -- and every <data type> has a null value.
+2. ``NULL`` belongs to a Domain. We know that because all values belong to
+   Domains. Therefore, whatever the missing value is in our ``YEAR`` Column, it
+   must be an integer -- just like all the other values in that Column. And
+   whatever the missing value is in our ``NAME`` Column, it must be a character
+   string -- just like all the other values in that Column. We might not know
+   what its <data type> is by looking at it, but every ``NULL`` does have a
+   <data type> -- and every <data type> has a null value.
 
-## As we stressed when describing each <data type>, whenever you compare
-NULL with another value, even another NULL, you cannot say whether it is "less
-than" or "greater than" or "equal to" that other value. There are some times,
-though, when your DBMS might simply ignore NULLs, or pretend that NULL equals NULL, because in some contexts it won't matter.
+3. As we stressed when describing each <data type>, whenever you compare
+   ``NULL`` with another value, even another ``NULL``, you cannot say whether
+   it is "less than" or "greater than" or "equal to" that other value. There
+   are some times, though, when your DBMS might simply ignore ``NULL``\s, or
+   pretend that ``NULL`` equals ``NULL``, because in some contexts it won't
+   matter.
 
-## NULL cannot be represented by a <literal>. Take, for instance, the
-SMALLINT <data type>. SMALLINT stands for the scale-zero (integral) values
-between -65535 and +65535. Can you use any of those values to mean NULL? No --
-because if you did, you would have a number that is less than or greater than
-or equal to another number in the same set. That is what you're trying to avoid.
+4. ``NULL`` cannot be represented by a <literal>. Take, for instance, the
+   ``SMALLINT`` <data type>. SMALLINT stands for the scale-zero (integral)
+   values between -32,767 and +32,767. Can you use any of those values to mean
+   ``NULL``? No -- because if you did, you would have a number that is less
+   than or greater than or equal to another number in the same set. That is
+   what you're trying to avoid.
 
-## The null value is designated by the keyword NULL in some SQL
-contexts. Since NULL is, strictly speaking, a <specification> rather than a
-<literal>, you can use NULL to denote the null value in SQL statements, but
-you can't use it everywhere that a <literal> is allowed. For example, you can't do this:
+5. The null value is designated by the keyword ``NULL`` in some SQL contexts.
+   Since ``NULL`` is, strictly speaking, a <specification> rather than a
+   <literal>, you can use ``NULL`` to denote the null value in SQL statements,
+   but you can't use it everywhere that a <literal> is allowed. For example,
+   you can't do this:
 
-::
+   ::
 
-   SELECT NULL FROM Widgets;
+      SELECT NULL FROM Widgets;
 
-because your DBMS wouldn't be able to guess what the <data type> is.
+   because your DBMS wouldn't be able to guess what the <data type>.
 
 The Meaning of NULL
 ===================
 
-    "The cat is neither alive nor dead."
+*"The cat is neither alive nor dead."*
 
-    -- Erwin Schr”dinger
+-- Erwin Schrödinger
 
-Pay close attention to what these two definitions don't say:
+Pay close attention to what these two definitions *don't* say:
 
-## NULL. An SQL keyword. Used for specifying missing (absent) values, for any <data type>.
+- ``NULL``. An SQL keyword. Used for specifying missing (absent) values, for
+  any <data type>.
 
-## UNKNOWN. An SQL keyword. One of three values in a truth table (the other two are TRUE and FALSE). A value in a Boolean <data type>.
+- ``UNKNOWN``. An SQL keyword. One of three values in a truth table (the other
+  two are ``TRUE`` and ``FALSE``). A value in a Boolean <data type>.
 
-There is no suggestion that NULL and UNKNOWN are synonyms (except as values
-for <data type> BOOLEAN). Ordinarily, the two <keyword>s are used in different
-contexts, although they have a close association with each other (because the
-usual result of comparing something with NULL is the truth value UNKNOWN).
+There is no suggestion that ``NULL`` and ``UNKNOWN`` are synonyms (except as
+values for <data type> ``BOOLEAN``). Ordinarily, the two <keyword>s are used in
+different contexts, although they have a close association with each other
+(because the usual result of comparing something with ``NULL`` is the truth
+value ``UNKNOWN``).
 
-Speaking informally, we can say that a value is NULL "because it's unknown".
-But there are several possible reasons for a datum to be missing, including
-nuances of unknownness, and including a quite distinct reason: inapplicability.
-Different people distinguish different reasons for nullness, but we believe that all the reasons can be squeezed into two large groups.
-In order of importance, they are:
+Speaking informally, we can say that a value is ``NULL`` "because it's
+unknown". But there are several possible reasons for a datum to be missing,
+including nuances of unknownness, and including a quite distinct reason:
+inapplicability. Different people distinguish different reasons for nullness,
+but we believe that all the reasons can be squeezed into two large groups. In
+order of importance, they are:
 
-## Group 1 -- the NULL / UNKNOWN group. The particular reason might be
+**Group 1 -- the** ``NULL / UNKNOWN`` **group**. The particular reason might be
 displayed or explained as "secret", "figure not available", "to be announced",
 "impossible to calculate", "partly unknown", "uncertain" or "pending". The
 assumption behind all these words is: there is a value, and the entity
 possesses the value, but we can't say precisely what the value is right now.
 
-## Group 2 -- the NULL / NOT APPLICABLE group. The particular reason
+**Group 2 -- the** ``NULL / NOT APPLICABLE`` **group**. The particular reason
 might be displayed or explained as "undefined", "moot", "quantum uncertain",
 "irrelevant", "none" or "n/a". The assumption behind all these words is: there
 is a value, but the entity does not possess the value. Warning: if you have
-lots of NULL / NOT APPLICABLE values, that might signal a flaw in your
+lots of ``NULL / NOT APPLICABLE`` values, that might signal a flaw in your
 database design. Most commonly there is a broken linkage, as in:
 
 ::
@@ -138,224 +180,281 @@ database design. Most commonly there is a broken linkage, as in:
    Table: Books
       Column: Date_Due
 
-The Date_Due is properly an attribute of the book's transaction status (only); therefore for all books which are not out, the Date_Due has to be NULL.
+The ``Date_Due`` is properly an attribute of the book's transaction status
+(only); therefore for all books which are not out, the ``Date_Due`` has to be
+``NULL``.
 
-The distinction between "unknown" and "not applicable" is an old one. Here is ISO's suggested coding scheme for sex:
+The distinction between "unknown" and "not applicable" is an old one. Here is
+ISO's suggested coding scheme for sex:
 
-::
++-----+----------------+
+| 0 = | UNKNOWN        |
++-----+----------------+
+| 1 = | MALE           |
++-----+----------------+
+| 2 = | FEMALE         |
++-----+----------------+
+| 9 = | NOT APPLICABLE |
++-----+----------------+
 
-   0 = UNKNOWN
-   1 = MALE
-   2 = FEMALE
-   9 = NOT APPLICABLE
+So much for what ``NULL`` means: it's a representation of a value that's
+missing, either because we don't know it or because it doesn't apply. We can
+help this definition along if we delimit things ``NULL`` doesn't mean.
 
-So much for what NULL means: it's a representation of a value that's missing,
-either because we don't know it or because it doesn't apply. We can help this
-definition along if we delimit things NULL doesn't mean.
+- ``NULL`` doesn't mean NaN (Not a Number). NaN means the value is outside the
+  numeric Domain, and we've already shown that ``NULL``\s are in the Domain.
+  Therefore, ``NULL`` does not mean Nan, or anything similar such as the result
+  of overflow, the result of underflow, a date that's not representable with
+  the Gregorian calendar, the square root of -1 ... in short, an illegitimate
+  value is not a null value. There is no way to store an illegitimate value,
+  but there is a way to store ``NULL``.
 
-## NULL doesn't mean NaN (Not a Number). NaN means the value is outside
-the numeric Domain, and we've already shown that NULLs are in the Domain.
-Therefore, NULL does not mean Nan, or anything similar such as the result of
-overflow, the result of underflow, a date that's not representable with the
-Gregorian calendar, the square root of -1 ... in short, an illegitimate value
-is not a null value. There is no way to store an illegitimate value, but there is a way to store NULL.
+- ``NULL`` doesn't mean zero. It's confusing that C manuals say that ``NULL``
+  is zero, but there is no reason to worry about that. Back in Al-Khwarezm's
+  day, there was much hullaballoo over the number zero -- the objection being
+  "how can there be a number which is no number?"
 
-## NULL doesn't mean zero. It's confusing that C manuals say that NULL
-is zero, but there is no reason to worry about that. Back in Al-Khwarezm's
-day, there was much hullaballoo over the number zero -- the objection being
-"how can there be a number which is no number?"
-## NULL doesn't mean '' (empty string). This has often been used in the
-
-past for "unknown"s -- but we can't let that confuse us, since we know that
-NULL is not the same as any value in the Domain of character strings.
+- ``NULL`` doesn't mean '' (empty string). This has often been used in the past
+  for "unknown"s -- but we can't let that confuse us.
 
 Three-Valued Logic
 ==================
 
-Most logical systems rest on two values: is/isn't, yes/no, 0/1, TRUE/FALSE.
-SQL's system is more like: true/false/unknown, is/isn't/could-be,
-yes/no/maybe, 0/1/?, TRUE/FALSE/UNKNOWN. The  UNKNOWN truth value will
-generally result from a comparison that involves a null value. SQL's
-three-valued logical system is a departure from the tried-and-true paths of
-other programming languages. We will encounter some tricky features and surprises.
+Most logical systems rest on two values: is/isn't, yes/no, 0/1, ``TRUE/FALSE``.
+SQL's system is more like: true/false/unknown, is/isn't/could-be, yes/no/maybe,
+0/1/?, ``TRUE/FALSE/UNKNOWN``. The  ``UNKNOWN`` truth value will generally
+result from a comparison that involves a null value. SQL's three-valued logical
+system is a departure from the tried-and-true paths of other programming
+languages. We will encounter some tricky features and surprises.
 
-The original rule is: any scalar comparison returns the UNKNOWN truth value if
-one of the operands is NULL. The combinatory rules can most easily be shown
-with truth tables; see our chapter on the BOOLEAN <data type> if you need to refresh your memory.
+The original rule is: any scalar comparison returns the ``UNKNOWN`` truth value
+if one of the operands is ``NULL``. The combinatory rules can most easily be
+shown with truth tables; see our chapter on the BOOLEAN <data type> if you need
+to refresh your memory.
 
-Predicates:
+*Predicates*
+------------
 
-We've already said that NULL can't be used with a regular comparison
-predicate: "WHERE X = NULL" and "WHERE X <> NULL" are both illegal SQL
-constructs. There's a logical reason for this. The expression "X = NULL" has a
-NULL operand, therefore (that's the rule!) the result of the expression is
-always UNKNOWN. SQL does, however, support a predicate that will return TRUE
-when X is NULL, and FALSE when X is not NULL: this is the <null predicate>.
+We've already said that ``NULL`` can't be used with a regular comparison
+predicate: ``WHERE X = NULL`` and ``WHERE X <> NULL`` are both illegal SQL
+constructs. There's a logical reason for this. The expression ``X = NULL`` has
+a ``NULL`` operand, therefore (that's the rule!) the result of the expression
+is always ``UNKNOWN``. SQL does, however, support a predicate that will return
+``TRUE`` when ``X`` is ``NULL``, and ``FALSE`` when ``X`` is not ``NULL``: this
+is the <null predicate>.
 
-<null predicate> --
+<null predicate>
+................
 
-The required syntax for a <null predicate> is:
+The required syntax for a <null predicate> is as follows.
 
 ::
 
     <null predicate> ::=
     expression IS [NOT] NULL
 
-A <null predicate> tests a value to see whether it is NULL and returns either
-TRUE or FALSE. IS NULL searches for null values. IS NOT NULL searches for non-
-null values. The predicate's expression argument can be any expression which evaluates to either a single value or a row.
+A <null predicate> tests a value to see whether it is ``NULL`` and returns
+either ``TRUE`` or ``FALSE``. ``IS NULL`` searches for null values. ``IS NOT
+NULL`` searches for non- null values. The predicate's expression argument can
+be any expression which evaluates to either a single value or a row.
 
-IS NULL is TRUE if every value resulting from "expression" is NULL. IS NOT
-NULL is TRUE if no value resulting from "expression" is NULL. This is
-straightforward if the expression is a scalar value like a <Column name>. If
-there's a null value in the Column, then "<Column name> IS NULL" is TRUE and
-"<Column name> IS NOT NULL" is FALSE. If the expression results in a row
-value, then things are less straightforward. Certainly, if x and y are both
-NULL then "(x,y) IS NULL" is TRUE and "(x,y) IS NOT NULL" is FALSE. And if
-neither x nor y are NULL, then "(x,y) IS NULL" is FALSE and "(x,y) IS NOT
-NULL" is TRUE. So far so good. The surprise is that, if only one of x and y is
-NULL, then "(x,y) IS NULL" is FALSE and "(x,y) IS NOT NULL" is also FALSE.
-
-If you want to restrict your code to Core SQL, don't use this expression: "NULL IS NULL" or this expression: "NULL IS NOT NULL".
+``IS NULL`` is ``TRUE`` if every value resulting from ``expression`` is
+``NULL``. ``IS NOT NULL`` is ``TRUE`` if no value resulting from ``expression``
+is ``NULL``. This is straightforward if the expression is a scalar value like a
+<Column name>. If there's a null value in the Column, then ``<Column name> IS
+NULL`` is ``TRUE`` and ``<Column name> IS NOT NULL`` is ``FALSE``. If the
+expression results in a row value, then things are less straightforward.
+Certainly, if ``x`` and ``y`` are both NULL then ``(x,y) IS NULL`` is ``TRUE``
+and ``(x,y) IS NOT NULL`` is ``FALSE``. And if neither ``x`` nor ``y`` are
+``NULL``, then ``(x,y) IS NULL`` is ``FALSE`` and ``(x,y) IS NOT NULL`` is
+``TRUE``. So far so good. The surprise is that, if only one of ``x`` and ``y``
+is If you want to restrict your code to Core SQL, don't use this expression:
+``NULL IS NULL`` or this expression: ``NULL IS NOT NULL``.
 
 Nullability
-===========
+-----------
 
 There are times when you'll want to ensure that a null value can't be put in a
 Column. The obvious case is when it's a primary key: in our example at the
-beginning of this chapter, the '?' symbol makes no sense for a NAME -- first,
-because then we can't tell how many distinct presidents there are for sure and
-second, because then there's no real value for what's supposed to be the
-identifying piece of information. To force "non nullability" for a value, you
-can use a NOT NULL Constraint when defining the Object that the value will be assigned to.
+beginning of this chapter, the '?' symbol makes no sense for a ``NAME`` --
+first, because then we can't tell how many distinct presidents there are for
+sure and second, because then there's no real value for what's supposed to be
+the identifying piece of information. To force *non nullability* for a value,
+you can use a ``NOT NULL`` Constraint when defining the Object that the value
+will be assigned to.
 
-There are some who argue that a NOT NULL Constraint should be used as a matter
-of course. We'd rather think that it's a matter of choice. But anyway, NOT
-NULL is a common <Column Constraint>. We'll discuss it in our chapter on
-Constraints and Assertions. For now, just keep in mind that all Columns have a
-nullability characteristic of either "possibly nullable" or "known not
-nullable": it determines (a) whether an attempt to INSERT the null value into
-the Column will fail and (b) whether a SELECT from the Column can ever return
-the null value. The "possibly nullable" characteristic allows both; the "known
-not nullable" characteristic" disallows both.
+There are some who argue that a ``NOT NULL`` Constraint should be used as a
+matter of course. We'd rather think that it's a matter of choice. But anyway,
+``NOT NULL`` is a common <Column Constraint>. We'll discuss it in our chapter
+on Constraints and Assertions. For now, just keep in mind that all Columns have
+a nullability characteristic of either "possibly nullable" or "known not
+nullable": it determines (*a*) whether an attempt to ``INSERT`` the null value
+into the Column will fail and (*b*) whether a ``SELECT`` from the Column can
+ever return the null value. The "possibly nullable" characteristic allows both;
+the "known not nullable" characteristic" disallows both.
 
 If you're a programmer, it's useful to know whether a Column is possibly
-nullable because that will tell you whether NULL indicators are needed in your
-code. A Column's nullability characteristic is "possibly nullable" unless one of these situations apply:
+nullable because that will tell you whether ``NULL`` indicators are needed in
+your code. A Column's nullability characteristic is "possibly nullable" unless
+one of these situations apply:
 
-## A Column's nullability characteristic is "known not
-nullable" if a non-deferrable Constraint/Assertion on the Column evaluates to
-"Column IS NOT NULL" or if the Column is based on a Domain and a
-non-deferrable Constraint/Assertion on that Domain evaluates to "VALUE IS NOT NULL".
+1. A Column's nullability characteristic is "known not nullable" if a
+   non-deferrable Constraint/Assertion on the Column evaluates to ``Column IS
+   NOT NULL`` or if the Column is based on a Domain and a non-deferrable
+   Constraint/Assertion on that Domain evaluates to ``VALUE IS NOT NULL``.
 
-## A Column's nullability characteristic is "known not
-nullable" if a non-deferrable Constraint on the Column is a PRIMARY KEY Constraint.
+2. A Column's nullability characteristic is "known not nullable" if a
+   non-deferrable Constraint on the Column is a ``PRIMARY KEY`` Constraint.
 
 The Duplicate Loophole
 ======================
 
-    "Identification for duplicate removal is at a lower level of detail than equality testing in the evaluation of retrieval conditions. Hence it is possible to adopt a different rule."
+*"Identification for duplicate removal is at a lower level of detail than
+*equality testing in the evaluation of retrieval conditions. Hence it is
+*possible to adopt a different rule."*
 
-    -- E.F. Codd
+-- E.F. Codd
 
 Here is a syllogism, based on of some of the things we've said so far:
 
-## 1. Two values are equal if an equality comparison (=) returns TRUE.
+1. Two values are equal if an equality comparison (=) returns ``TRUE``.
 
-## 2. If either value is NULL, an equality comparison returns UNKNOWN.
+2. If either value is ``NULL``, an equality comparison returns ``UNKNOWN``.
 
-## 3. Therefore a null value is never equal to a null value.
-Well, we've said those things several times and we won't go back on them. But -- we will introduce a teensy loophole:
+3. Therefore a null value is never equal to a null value.
 
-## 4. However, a null value is a duplicate of a null value.
+Well, we've said those things several times and we won't go back on them. But
+-- we will introduce a teensy loophole:
 
-That is, while we'll never say that NULL equals NULL, we will say that NULL duplicates NULL.
-And it goes without saying that, as well, two values are duplicates if they are equal.
-There are several operations that this loophole will affect. Specifically:
+4. However, a null value is a duplicate of a null value.
 
-## GROUP BY -- If you "GROUP BY column_5" and every COLUMN_5 value is NULL, you end up with only one group.
+That is, while we'll never say that ``NULL`` equals ``NULL``, we will say that
+``NULL`` duplicates ``NULL``. And it goes without saying that, as well, two
+values are duplicates if they are equal. There are several operations that this
+loophole will affect. Specifically:
 
-## DISTINCT -- If the values before a DISTINCT operation are the set {7,33,NULL,15,7,NULL}, then the values afterwards are the set {7,33,NULL,15}.
+``GROUP BY`` -- If you ``GROUP BY column_5`` and every ``column_5`` value is
+``NULL``, you end up with only one group.
 
-## UNION -- As with DISTINCT, if the values before a UNION operation are the set {7,33,NULL,15,7,NULL}, then the values afterwards are the set {7,33,NULL,15}.
+``DISTINCT`` -- If the values before a ``DISTINCT`` operation are the set
+{``7,33,NULL,15,7,NULL``}, then the values afterwards are the set
+{``7,33,NULL,15``}.
 
-## EXCEPT -- As with DISTINCT, if the values before an EXCEPT operation are the set {7,33,NULL,15,7,NULL}, then the values afterwards are the set {7,33,NULL,15}.
+``UNION`` -- As with ``DISTINCT``, if the values before a ``UNION`` operation
+are the set {``7,33,NULL,15,7,NULL``}, then the values afterwards are the set
+{``7,33,NULL,15``}.
 
-## INTERSECT -- As with DISTINCT, if the values before an INTERSECT operation are the set {7,33,NULL,15,7,NULL}, then the values afterwards are the set {7,33,NULL,15}.
+``EXCEPT`` -- As with ``DISTINCT``, if the values before an ``EXCEPT``
+operation are the set {``7,33,NULL,15,7,NULL``}, then the values afterwards are
+the set {``7,33,NULL,15``}.
+
+``INTERSECT`` -- As with ``DISTINCT``, if the values before an ``INTERSECT``
+operation are the set {``7,33,NULL,15,7,NULL``}, then the values afterwards are
+the set {``7,33,NULL,15``}.
 
 Fun with NULLs
 ==============
 
-There are many operations which are affected by the presence of NULLs. Our choice has been to describe the exceptional situation when we describe the operation.
-So this is just a quick summary; for full effects read the appropriate section in another chapter.
+There are many operations which are affected by the presence of ``NULL``\s. Our
+choice has been to describe the exceptional situation when we describe the
+operation. So this is just a quick summary; for full effects read the
+appropriate section in another chapter.
 
-NULL specification:
+*NULL Specification*
+--------------------
 
-The NULL specification can be used, as if it's a <literal, in these situations only:
+The ``NULL`` specification can be used, as if it's a <literal, in these
+situations only:
 
-## In an UPDATE ... SET clause, to specify a "value" to assign to a Column, i.e.: UPDATE ... SET ... = NULL
+- In an ``UPDATE ... SET`` clause, to specify a "value" to assign to a Column,
+  i.e., ``UPDATE ... SET ... = NULL``
 
-## In an INSERT ... VALUES clause, to specify a "value" to assign to a Column, i.e.: INSERT ... VALUES(NULL)
+- In an ``INSERT ... VALUES`` clause, to specify a "value" to assign to a
+  Column, i.e., ``INSERT ... VALUES(NULL)``
 
-## To specify a default "value" for a Column or Domain, i.e.: DEFAULT NULL
+- To specify a default "value" for a Column or Domain, i.e., ``DEFAULT NULL``
 
-## To specify a FOREIGN KEY Constraint rule, i.e.: ON UPDATE SET NULL, ON DELETE SET NULL
+- To specify a ``FOREIGN KEY`` Constraint rule, i.e.: ``ON UPDATE SET NULL, ON
+  DELETE SET NULL``
 
-## As a CAST source, i.e.: CAST (NULL AS ...)
+- As a ``CAST`` source, i.e., ``CAST (NULL AS ...)``
 
-## As a CASE result, i.e.: CASE ... THEN NULL ... END, CASE ELSE NULL END
+- As a ``CASE`` result, i.e., ``CASE ... THEN NULL ... END``, ``CASE ELSE NULL
+  END``
 
-## In a row or Table constructor.
+- In a row or Table constructor.
 
-Set Functions:
+*Set Functions*
+---------------
 
-NULLs are ignored during most set functions and an appropriate warning is issued ("null value eliminated").
+``NULL``\s are ignored during most set functions and an appropriate warning is
+issued (``null value eliminated``).
 
-Searches:
+*Searches*
+----------
 
-WHERE clauses and HAVING clauses are "satisfied" if the result of the search
-condition is TRUE. Since WHERE rejects both UNKNOWN and FALSE, the expression
-"WHERE column_1 = column_1" is functionally equivalent to "WHERE column_1 IS NOT NULL".
+``WHERE`` clauses and ``HAVING`` clauses are "satisfied" if the result of the
+search condition is ``TRUE``. Since ``WHERE`` rejects both ``UNKNOWN`` and
+``FALSE``, the expression ``WHERE column_1 = column_1`` is functionally
+equivalent to ``WHERE column_1 IS NOT NULL``.
 
-Constraints:
+*Constraints*
+-------------
 
-A CHECK Constraint is "satisfied" (not violated) if the result of the search
-condition is either TRUE or UNKNOWN. Notice the difference here between "what satisfies a search" and "what satisfies a Constraint".
+A ``CHECK`` Constraint is "satisfied" (not violated) if the result of the
+search condition is either ``TRUE`` or ``UNKNOWN``. Notice the difference here
+between "what satisfies a search" and "what satisfies a Constraint".
 
-Scalar operators and functions:
+*Scalar operators and Functions*
+--------------------------------
 
 The rule for almost any operator or scalar function is that if a significant
-operand is NULL, the result of the whole operation is NULL. For example, "5 + [null-value]"
-returns NULL and "UPPER([null-value])" returns NULL. Not only that, but a NULL trumps a zero -- "[null-value] / 0" returns NULL
-(not a division-by-zero error) and "0 * [null-value]" returns NULL (not zero).
-The only exceptions to this rule are the COALESCE and NULLIF functions (see CASE expression in our chapter on simple search conditions),
-which are specifically designed to convert null values.
+operand is ``NULL``, the result of the whole operation is ``NULL``. For
+example, ``5 + [null-value]`` returns ``NULL`` and ``UPPER([null-value])``
+returns ``NULL``. Not only that, but a ``NULL`` trumps a zero -- ``[null-value]
+/ 0`` returns ``NULL`` (not a division-by-zero error) and ``0 * [null-value]``
+returns ``NULL`` (not zero). The only exceptions to this rule are the
+``COALESCE`` and ``NULLIF`` functions (see ``CASE`` expression in our chapter
+on simple search conditions), which are specifically designed to convert null
+values.
 
-Sorts:
+*Sorts*
+-------
 
-For the ORDER BY clause, NULLs are considered to be either higher than all non-null values, or lower than all non-null values (it's implementation-defined, so will vary from DBMS to DBMS).
+For the ``ORDER BY`` clause, ``NULL``\s are considered to be either higher than
+all non-null values, or lower than all non-null values (it's
+implementation-defined, so will vary from DBMS to DBMS).
 
-UNIQUE predicate:
+*UNIQUE Predicate*
+------------------
 
-NULLs cannot equal anything else, so can't stop UNIQUE from being TRUE. For example, a series of rows containing {1,NULL,2,NULL,3} is UNIQUE. UNIQUE never returns UNKNOWN.
+``NULL``\s cannot equal anything else, so can't stop ``UNIQUE`` from being
+``TRUE``. For example, a series of rows containing {``1,NULL,2,NULL,3``} is
+``UNIQUE``. UNIQUE never returns ``UNKNOWN``.
 
-<reference type>s:
+*<reference type>s*
+-------------------
 
-If a REF value involves no site, perhaps because it has been destroyed, NULL is returned.
+If a ``REF`` value involves no site, perhaps because it has been destroyed,
+``NULL`` is returned.
 
-SQL/CLI:
+*SQL/CLI*
+---------
 
-In our chapters on the Call Level Interface, you'll notice that many functions return blank (or zero) when the situation screams for a NULL return. You'll just have to get used to inconsistencies.
+In our chapters on the Call Level Interface, you'll notice that many functions
+return blank (or zero) when the situation screams for a ``NULL`` return. You'll
+just have to get used to inconsistencies.
 
 Problems For Optimizers
 =======================
 
 If you were to write a DBMS optimizer, you'd want to take advantage of certain
-"transformation rules". Usually these rules depend on two-valued logic, for
-instance the idea that everything is "either A or not-A". We will give only
-one example, which we think is the most famous one.
+*transformation rules*. Usually these rules depend on two-valued logic, for
+instance the idea that everything is "either A or not-A". We will give only one
+example, which we think is the most famous one.
 
-The Transitivity Rule states: IF A = B AND B = C THEN A = C. Therefore, a DBMS should detect situations of this nature:
+The Transitivity Rule states: ``IF A = B AND B = C THEN A = C``. Therefore, a
+DBMS should detect situations of this nature:
 
 ::
 
@@ -363,7 +462,8 @@ The Transitivity Rule states: IF A = B AND B = C THEN A = C. Therefore, a DBMS s
    FROM   t1,t2
    WHERE  (t1.column1 = t2.column1 AND t2.column2 = 5);
 
-and -- since the join "(t1.column1 = t2.column1)" might be expensive -- consider replacing the query with this apparently equivalent (and valid) one:
+and -- since the join ``(t1.column1 = t2.column1)`` might be expensive --
+consider replacing the query with this apparently equivalent (and valid) one:
 
 ::
 
@@ -379,56 +479,74 @@ However, if the DBMS encounters the similar-looking SQL statement:
    FROM   t1,t2
    WHERE (t1.column1 = t2.column1 AND t2.column2 = 5) IS NOT FALSE;
 
-the transform will not be valid. If T2.COLUMN2 is NULL, then there will be a
-difference between what the original query returns as opposed to what the
-"transformed" query would return (UNKNOWN versus FALSE). Therefore a major
-optimization becomes too dangerous to try. This is not usually a serious worry
-because the usual query involves a WHERE alone, which means that UNKNOWNs are
-filtered out the same way that FALSEs are. But occasionally you'll help your
-optimizer by ensuring that Columns which will be used in complex queries are always not nullable.
+the transform will not be valid. If ``t2.column2`` is ``NULL``, then there will
+be a difference between what the original query returns as opposed to what the
+"transformed" query would return (``UNKNOWN`` versus ``FALSE``). Therefore a
+major optimization becomes too dangerous to try. This is not usually a serious
+worry because the usual query involves a ``WHERE`` alone, which means that
+UNKNOWNs are filtered out the same way that ``FALSE``\s are. But occasionally
+you'll help your optimizer by ensuring that Columns which will be used in
+complex queries are always not nullable.
 
 Nulloclasts vs. Nullodules
 ==========================
 
 If you know any Byzantine history at all, you know about the hundred-year
 struggle between the Iconoclasts ("smashers of icons") and the Iconodules
-("slaves of icons"). It is disgusting to use a metaphor for that struggle --
-by referring to Nulloclasts ("NULL smashers") and Nullodules ("NULL slaves") -
-- because NULL is a Latin word, while clast and dule are Greek suffixes. It's a good metaphor, though.
+("slaves of icons"). It is disgusting to use a metaphor for that struggle -- by
+referring to Nulloclasts ("``NULL`` smashers") and Nullodules ("``NULL``
+slaves") - - because ``NULL`` is a Latin word, while clast and dule are Greek
+suffixes. It's a good metaphor, though.
 
-The Nulloclast position:
+*The Nulloclast Position*
+-------------------------
 
 The champion on this side is C. J. Date, possibly the best known database
 pundit, and author of several books which contain zero howling errors (a
-remarkable feat in this field). Here are selected quotes from C.J.Date's "An
-introduction to database systems", sixth edition:
+remarkable feat in this field). Here are selected quotes from C.J.Date's *An
+Introduction to Database Systems*, sixth edition:
 
-## "... in our opinion, NULLs -- and the entire theory of three-valued logic on which they are based -- are fundamentally misguided ..."
+  "... in our opinion, ``NULL``\s -- and the entire theory of three-valued
+  logic on which they are based -- are *fundamentally misguided ...*"
 
-## "... it is our general opinion that NULLs are such a bad idea that it is not worth wrecking the whole relational model over them, just because some suitable target tuple sometimes does not exist for some particular foreign key ..."
+  "... it is our general opinion that ``NULL``\s are such a bad idea that it is
+  not worth wrecking the whole relational model over them, just because some
+  suitable target tuple sometimes does not exist for some particular foreign
+  key ..."
 
-## "... NULLs and [three-valued logic] undermine the entire foundation of the relational model."
+  "... ``NULL``\s and [three-valued logic] *undermine* the entire foundation
+  of the relational model."
 
-## "... SQL manages to introduce a number of additional flaws, over and above the flaws that are inherent in three-valued logic per se"
+  "... SQL manages to introduce a number of *additional flaws*, over and above
+  the flaws that are inherent in three-valued logic per se ..."
 
-## "Our recommendation to DBMS users would thus be to ignore the vendor's [three-valued logic] support entirely, and to use a disciplined 'default values' scheme instead (thereby staying firmly in two-valued logic)."
+  "Our recommendation to DBMS users would thus be to ignore the vendor's
+  [three-valued logic] support entirely, and to use a disciplined 'default
+  values' scheme instead (thereby staying firmly in two-valued logic)."
 
-(Incidentally, Date -- and sure he is an honourable man -- specifically decries some of the things we've said here:
+(Incidentally, Date -- and sure he is an honourable man -- specifically decries
+some of the things we've said here:
 
-## We used the term "null value" -- and an absence of value is not a value.
+- We used the term "null value" -- and an absence of value is not a value.
 
-## We said that nulls are in Domains -- and that leads logical complications: all attribute integrity checks would succeed, for instance, because null is part of the Domain.)
+- We said that nulls are in Domains -- and that leads logical complications:
+  all attribute integrity checks would succeed, for instance, because null is
+  part of the Domain.)
 
-The Nullodule position:
+*The Nullodule Position*
+------------------------
 
 The defenders include E.F. Codd, the founder of relational theory. (In fact Mr
-Codd favours the idea that there should be more than one NULL class, and
-therefore a four-valued logic.) But we will just quote from Jim Melton, editor of the SQL Standard:
+Codd favours the idea that there should be more than one ``NULL`` class, and
+therefore a four-valued logic.) But we will just quote from Jim Melton, editor
+of the SQL Standard:
 
-## "Some notable database personalities have strongly urged the SQL
-standards committee to abandon the notion of NULL values in favour of default values."
+  "Some notable database personalities have strongly urged the SQL standards
+  committee to abandon the notion of ``NULL`` values in favour of default
+  values."
 
 But -- summarizing here -- in practice, we don't worry that in the expression
-"x = 5", x is a "different kind of thing" than 5 because we know that x
-represents an integer value. And by the way, after a series of back-and-forth
-persecutions, a few revolts and several thousand deaths -- the Iconodules won.
+``x = 5``, ``x`` is a "different kind of thing" than ``5`` because we know that
+x *represents* an integer value. And by the way, after a series of
+back-and-forth persecutions, a few revolts and several thousand deaths -- the
+Iconodules won.
