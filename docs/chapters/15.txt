@@ -4,7 +4,8 @@
 Chapter 15 -- SQL Authorizationid
 =================================
 
-In this chapter, we'll describe SQL <AuthorizationID>s in detail, and show you the syntax to use to create, alter and destroy them.
+In this chapter, we'll describe SQL <AuthorizationID>s in detail, and show you
+the syntax to use to create, alter and destroy them.
 
 .. rubric:: Table of Contents
 
@@ -14,122 +15,145 @@ In this chapter, we'll describe SQL <AuthorizationID>s in detail, and show you t
 <AuthorizationID>
 =================
 
-A Cluster may contain zero or more <AuthorizationID>s. An SQL
-<AuthorizationID>, or Authorization Identifier, is a character string which
-identifies a user or a Role -- and the set of Privileges belonging to that
-user or Role. (A user is either an actual person or an application program
-that has access to SQL-data.) Thus, an <AuthorizationID> is not only an
-<identifier>, but an SQL Object in its own right. <AuthorizationID>s are
-dependent on some Cluster -- the <AuthorizationID> must be unique within the
-Cluster the <AuthorizationID> belongs to -- and are created, dropped and
-mapped to real users using implementation-defined methods. The Objects that
-may belong to an <AuthorizationID> are called Privileges; they depend on some
-<AuthorizationID>. An <AuthorizationID> may have the use of zero or more Privileges.
+We use the non-standart term <AuthorizationID> to mean a named bundle of
+Privileges,  which is either a User or a Role. Users and Roles can be
+distinguished as follows.
 
-Role:
+- A user is either an actual person or an application program that has access
+  to SQL-data. Users are outside Schemas. If an <AuthorizationID> is a User,
+  the methods used to create, drop, and map it to actual persons/application
+  programs are implementation-defined.
+
+- A Role generally refers to a title or a set of duties within an organization.
+  Roles are inside Schemas. If an <AuthorizationID> is a Role, it is created
+  and dropped using  standard SQL statements.
+
+All <AuthorizationID>s must be unique within the SQL-environment.
+
+The Objects that may belong to a User or a Tole are called *Privileges*; they
+depend on some  <AuthorizationID>. An <AuthorizationID> may have the use of
+zero or more Privileges.
+
+*User*
+-------
+
+A User is either an actual person or an application program that has access to
+SQL-data.
+
+[NON-PORTABLE] SQL does not include any CREATE USER, MAP USER, or DROP USER
+statements. The methods you´ll use with your DBMS to create and drop Users and
+to identify the real-life user an  <AuthorizationID> represents are
+non-standart because the SQL Standart requires implementors to define how a
+User comes into being, how it may be destroyed, how it maps to users of
+SQL-data, and what constitutes a valid <AuthorizationID>. [OCELOT
+Implementation] The OCELOT DBMS that comes with this book "creates" a User
+automaticallywhen its identifier is usedin a ``CONNECT`` statement, a ``CREATE
+SCHEMA`` statement, a ``MODULE`` statement, a ``SET SESSION AUTHORIZATION``
+statement, or a ``GRANT`` statement. Users are "dropped" if they own no Onjects
+and all their Privileges have been revoked.
+
+*Role*
+------
 
 Large organization may have hordes of users with the same Privileges on the
 same Objects. For instance, circulation assistants are all allowed to do the
 circulation process. In SQL-92, the solutions were unsatisfactory:
 
-## If each circulation assistant had a different <AuthorizationID>, then
-there were too many Objects in the Catalog and granting/revoking was a major chore.
+- If each circulation assistant had a different <AuthorizationID>, then there
+  were too many Objects in the Catalog and granting/revoking was a major chore.
 
-## If all circulation assistants had the same <AuthorizationID>, some
-other method had to be devised so that one could distinguish which assistant really did what.
+- If all circulation assistants had the same <AuthorizationID>, some other
+  method had to be devised so that one could distinguish which assistant really
+  did what.
 
 In SQL3 there is a major improvement: Roles. An SQL Role is a named bundle of
 zero or more Privileges. Granting a Role to an <AuthorizationID> allows that
 <AuthorizationID> to use every Privilege granted to that Role. There is a
-many-to-many relationship between user <AuthorizationID>s and Roles: a user
-may be granted the use of many Roles and the use of the same Role may be
-granted to many user <AuthorizationID>s. The use of a Role may also be granted to another Role.
+many-to-many relationship between user <AuthorizationID>s and Roles: a user may
+be granted the use of many Roles and the use of the same Role may be granted to
+many user <AuthorizationID>s. The use of a Role may also be granted to another
+Role.
 
-An <AuthorizationID> is defined by a descriptor that contains three pieces of information:
+*Types of <AuthorizationID>*
+----------------------------
 
-## The <AuthorizationID> string itself.
+An <AuthorizationID> is defined by a descriptor that contains three pieces of
+information:
 
-## Whether the <AuthorizationID> identifies a user or a Role.
+1. The <identifier> that is the name of the <AuthorizationID>.
 
-## A Privilege descriptor for every Privilege granted to the
-<AuthorizationID>. At any point in time, an <AuthorizationID> has the use of
-every Privilege granted to PUBLIC, every Privilege directly granted to that
-<AuthorizationID> and every Privilege granted to every Role that has been
-granted to that <AuthorizationID>. (Since a Role may be granted to another
-Role, all dependent Role Privileges are also available to the <AuthorizationID>.
+2. Whether the <AuthorizationID> identifies a User or a Role.
 
-[NON-PORTABLE] SQL does not include any CREATE AUTHID, MAP AUTHID or DROP
-AUTHID statements. The methods you'll use with your DBMS to create and drop
-<AuthorizationID>s and to identify the real-life user an <AuthorizationID>
-represents are non-standard because the SQL Standard requires implementors to
-define how an <AuthorizationID> comes into being, how it may be destroyed, how
-it maps to users of SQL-data and what constitutes a valid <AuthorizationID>.
-
-[OCELOT Implementation] The OCELOT DBMS that comes with this book
-"creates" an <AuthorizationID> automatically when it is used in a CONNECT
-statement, a CREATE SCHEMA statement, a MODULE statement, a SET SESSION
-AUTHORIZATION statement or a GRANT statement. <AuthorizationID>s are "dropped"
-if they own no Objects and all their Privileges have been revoked.
-
-The SQL Standard identifies six types of <AuthorizationID>:
-
-## The SQL-session <AuthorizationID> is the user <AuthorizationID> for
-an SQL-session. Initially, it is the user <AuthorizationID> that started a
-given SQL-session and is determined from the USER clause of the CONNECT
-statement. The SQL-session <AuthorizationID> may never be NULL -- if the
-CONNECT ... USER clause names a Role instead of a user <AuthorizationID>, the
-SQL-session <AuthorizationID> is set to a default value by your DBMS. You can
-change the SQL-session <AuthorizationID> with the SET SESSION AUTHORIZATION
-statement. The user function SESSION_USER returns the value of the current
-SQL-session <AuthorizationID>.
+3. A Privilege descriptor for every Privilege granted to the <AuthorizationID>.
+   At any point in time, an <AuthorizationID> has the use of every Privilege
+   granted to PUBLIC, every Privilege directly granted to that
+   <AuthorizationID> and every Privilege granted to every Role that has been
+   granted to that <AuthorizationID>. (Since a Role may be granted to another
+   Role, all dependent Role Privileges are also available to the
+   <AuthorizationID>.
 
 
-## The context of an SQL-session includes its current user and its
-current Role: together, they determine the Privileges available to execute SQL
-statements in the SQL-session and one of them is always the "current
-<AuthorizationID>". Either one of current user or current Role may be NULL at
-any time, but they may not both be NULL at the same time -- the non-null
-identifier is the SQL-session's current <AuthorizationID>. At the beginning of
-every SQL-session, the current user is set to the value of the SQL-session
-<AuthorizationID> and the current Role is set to the Role that started the
-SQL-session -- it is determined from the CONNECT statement: if CONNECT ...
-USER specifies a <Role name>, the Role identified by that <Role name> becomes
-the current Role; otherwise, the current Role is NULL. You can change the
-current role with the SET ROLE statement. The equivalent user functions
-CURRENT_USER and USER return the value of the current user <AuthorizationID>.
-The user function CURRENT_ROLE returns the value of the current Role <AuthorizationID>.
+- The SQL-*session <AuthorizationID>* is the user <AuthorizationID> for an
+  SQL-session. Initially, it is the user <AuthorizationID> that started a given
+  SQL-session and is determined from the ``USER`` clause of the ``CONNECT``
+  statement. The SQL-session <AuthorizationID> may never be ``NULL`` -- if the
+  ``CONNECT ... USER`` clause names a Role instead of a user <AuthorizationID>,
+  the SQL-session <AuthorizationID> is set to a default value by your DBMS. You
+  can change the SQL-session <AuthorizationID> with the ``SET SESSION
+  AUTHORIZATION`` statement. The user function ``SESSION_USER`` returns the
+  value of the current SQL-session <AuthorizationID>.
 
-# The Module <AuthorizationID> is the owner of a given Module and is
-the current <AuthorizationID> when the Module's SQL procedures are executed.
-The Module <AuthorizationID> may either be specifically identified (in the
-MODULE statement) or it will default to the current SQL-session <AuthorizationID>.
 
-## The Schema <AuthorizationID> is the owner of a given Schema and may
-either be specifically identified (in the CREATE SCHEMA statement) or it will
-default to the current Module <AuthorizationID>, if there is one. If the
-Module you're running doesn't have an explicit owner either, the Schema
-<AuthorizationID> defaults to the current SQL-session <AuthorizationID>.
+- The context of an SQL-session includes its *current User* and its *current
+  Role*: together, they determine the Privileges available to execute SQL
+  statements in the SQL-session and one of them is always the "current
+  <AuthorizationID>". Either one of current user or current Role may be
+  ``NULL`` at any time, but they may not both be ``NULL`` at the same time --
+  the non-null identifier is the SQL-session's current <AuthorizationID>. At
+  the beginning of every SQL-session, the current user is set to the value of
+  the SQL-session <AuthorizationID> and the current Role is set to the Role
+  that started the SQL-session -- it is determined from the ``CONNECT``
+  statement: if ``CONNECT ... USER`` specifies a <Role name>, the Role
+  identified by that <Role name> becomes the current Role; otherwise, the
+  current Role is ``NULL``. You can change the current role with the ``SET
+  ROLE`` statement. The equivalent user functions ``CURRENT_USER`` and ``USER``
+  return the value of the current user <AuthorizationID>. The user function
+  ``CURRENT_ROLE`` returns the value of the current Role <AuthorizationID>.
 
-## The current <AuthorizationID> is the <AuthorizationID> whose
-Privileges are checked prior to the execution of an SQL statement. If the
-current <AuthorizationID> doesn't have the required Privilege to perform an
-operation on SQL-data, the SQL statement will fail. For direct SQL, the
-SQL-session <AuthorizationID> is always the current <AuthorizationID>.
+- The *Module <AuthorizationID>* is the owner of a given Module and is the
+  current <AuthorizationID> when the Module's SQL procedures are executed. The
+  Module <AuthorizationID> may either be specifically identified (in the
+  ``MODULE`` statement) or it will default to the current SQL-session
+  <AuthorizationID>.
+
+- The *Schema <AuthorizationID>* is the owner of a given Schema and may either
+  be specifically identified (in the ``CREATE SCHEMA`` statement) or it will
+  default to the current Module <AuthorizationID>, if there is one. If the
+  Module you're running doesn't have an explicit owner either, the Schema
+  <AuthorizationID> defaults to the current SQL-session <AuthorizationID>.
+
+- The *current <AuthorizationID>* is the <AuthorizationID> whose Privileges are
+  checked prior to the execution of an SQL statement. If the current
+  <AuthorizationID> doesn't have the required Privilege to perform an operation
+  on SQL-data, the SQL statement will fail. For direct SQL, the SQL-session
+  <AuthorizationID> is always the current <AuthorizationID>.
 
 To create a Role and grant its use to an initial <AuthorizationID>, use the
-CREATE ROLE statement. To destroy a Role, use the DROP ROLE statement. To
-grant Privileges to a user or a Role, or to grant the use of a Role to an
-<AuthorizationID>, use the GRANT statement. To revoke Privileges from a user
-or a Role, or to revoke the use of a Role from an <AuthorizationID>, use the
-REVOKE statement or the DROP ROLE statement. To change the current SQL-session
-<AuthorizationID>, use the SET SESSION AUTHORIZATION statement. And to change
-the current Role, use the SET ROLE statement.
+``CREATE ROLE`` statement. To destroy a Role, use the ``DROP ROLE`` statement.
+To grant Privileges to a user or a Role, or to grant the use of a Role to an
+<AuthorizationID>, use the ``GRANT`` statement. To revoke Privileges from a
+user or a Role, or to revoke the use of a Role from an <AuthorizationID>, use
+the ``REVOKE`` statement or the ``DROP ROLE`` statement. To change the current
+SQL-session <AuthorizationID>, use the ``SET SESSION AUTHORIZATION`` statement.
+And to change the current Role, use the ``SET ROLE`` statement.
 
 If you want to restrict your code to Core SQL, don't use Roles at all.
 
-<AuthorizationID>s and Role names:
+*<AuthorizationID> Names*
+-------------------------
 
-An <AuthorizationID> identifies a user or a Role. A <Role name> identifies a Role. The required syntax for an <AuthorizationID> or <Role name> is:
+An <AuthorizationID> name is eiter a <User name> or a <Role name>. The required
+syntax for an <AuthorizationID> name is as follows:
 
 ::
 
@@ -139,35 +163,40 @@ An <AuthorizationID> identifies a user or a Role. A <Role name> identifies a Rol
 An <AuthorizationID> is a <regular identifier> or a <delimited identifier>, no
 more than 128 octets long, that is unique (for all <AuthorizationID>s and
 Roles) within the Cluster it belongs to. Typically, an <AuthorizationID> is a
-Christian name (e.g.: BOB or SAM, identifying a user) or a department name
-(e.g.: DOCUMENTATION, identifying a Role) and, most often, has a one-to-one
-relationship to some user (i.e.: each user has only one <AuthorizationID>).
+Christian name (e.g., ``BOB`` or ``SAM``, identifying a user) or a department
+name (e.g.: DOCUMENTATION, identifying a Role) and, most often, has a
+one-to-one relationship to some user (i.e.: each user has only one
+<AuthorizationID>).
 
-The <regular identifier> -- PUBLIC -- is a valid <AuthorizationID> only in the
-GRANT statement and the REVOKE statement. PUBLIC is the SQL special grantee,
-used as an "all-purpose" grantee, to enable system-wide Privileges to be
-granted to and/or revoked from all current and future <AuthorizationID>s with
-a single SQL statement. Every <AuthorizationID> always has the use of every
-Privilege granted to PUBLIC. The <delimited identifier> -- "PUBLIC" -- is never a valid <AuthorizationID>.
+The <regular identifier> -- ``PUBLIC`` -- is a valid <AuthorizationID> only in
+the GRANT statement and the ``REVOKE`` statement. ``PUBLIC`` is the SQL special
+grantee, used as an "all-purpose" grantee, to enable system-wide Privileges to
+be granted to and/or revoked from all current and future <AuthorizationID>s
+with a single SQL statement. Every <AuthorizationID> always has the use of
+every Privilege granted to ``PUBLIC``. The <delimited identifier> --
+``"PUBLIC"`` -- is never a valid <AuthorizationID>.
 
-The <delimited identifier> -- "_SYSTEM" -- is a valid <AuthorizationID> only
-when you're looking at INFORMATION_SCHEMA. "_SYSTEM" is the SQL special
-grantor, used (by your DBMS) as an "all-purpose" grantor, to enable
+The <delimited identifier> -- ``"_SYSTEM"`` -- is a valid <AuthorizationID>
+only when you're looking at ``INFORMATION_SCHEMA. "_SYSTEM"`` is the SQL
+special grantor, used (by your DBMS) as an "all-purpose" grantor, to enable
 Object-wide Privileges to be granted to an <AuthorizationID> that creates an
 Object, or to revoke cascading, system-wide Privileges from an
-<AuthorizationID> that drops an Object. (In the case of a DROP, "_SYSTEM" is
-also the grantee that revokes all related Privileges from all other <AuthorizationID>s.)
+<AuthorizationID> that drops an Object. (In the case of a ``DROP, "_SYSTEM"``
+is also the grantee that revokes all related Privileges from all other
+<AuthorizationID>s.)
 
-[NON-PORTABLE] Except for the cases (PUBLIC, "PUBLIC", "_SYSTEM") noted
-earlier, what your DBMS will recognize as a valid <AuthorizationID> is non-
-standard because the SQL Standard requires implementors to define what a valid <AuthorizationID> is.
+[NON-PORTABLE] Except for the cases (``PUBLIC``, ``"PUBLIC"``, ``"_SYSTEM"``)
+noted earlier, what your DBMS will recognize as a valid <AuthorizationID> is
+non- standard because the SQL Standard requires implementors to define what a
+valid <AuthorizationID> is. [OCELOT Implementation] The OCELOT DBMS that comes
+with this book will accept any ``SQL_TEXT`` <identifier> as an
+<AuthorizationID>.
 
-[OCELOT Implementation] The OCELOT DBMS that comes with this book will accept any SQL_TEXT <identifier> as an <AuthorizationID>.
-
-CREATE ROLE statement
+CREATE ROLE Statement
 =====================
 
-The CREATE ROLE statement defines new Role. The required syntax for the CREATE ROLE statement is:
+The ``CREATE ROLE`` statement defines new Role. The required syntax for the
+``CREATE ROLE`` statement is:
 
 ::
 
@@ -175,62 +204,69 @@ The CREATE ROLE statement defines new Role. The required syntax for the CREATE R
 
        <grantor> ::= CURRENT_USER | CURRENT_ROLE
 
-The CREATE ROLE statement specifically defines an <AuthorizationID> to be a
+The ``CREATE ROLE`` statement specifically defines an <AuthorizationID> to be a
 Role, rather than a user: this is necessary since otherwise your DBMS could
 mistake <Role name> for a user name which appears in similar contexts. <Role
 name> is an <AuthorizationID> that is unique within your SQL-environment and
-CREATE ROLE automatically grants the use of the new Role to the current
-<AuthorizationID> WITH ADMIN OPTION (that is, the current <AuthorizationID>
+``CREATE ROLE`` automatically grants the use of the new Role to the current
+<AuthorizationID> ``WITH ADMIN OPTION`` (that is, the current <AuthorizationID>
 gets the use of the new Role and may pass this use on to others).
 
-[NON-PORTABLE] Whether you can use CREATE ROLE is non-standard because the SQL
-Standard requires implementors to define what Privilege (if any) is needed to execute CREATE ROLE.
+[NON-PORTABLE] Whether you can use ``CREATE ROLE`` is non-standard because the
+SQL Standard requires implementors to define what Privilege (if any) is needed
+to execute ``CREATE ROLE``.
 
-The optional WITH ADMIN clause decides which <AuthorizationID> (either the
-current user or the current Role) gets the use of this Role: CURRENT_USER is
-the <AuthorizationID> of the current user and CURRENT_ROLE is the
+The optional ``WITH ADMIN`` clause decides which <AuthorizationID> (either the
+current user or the current Role) gets the use of this Role: ``CURRENT_USER``
+is the <AuthorizationID> of the current user and ``CURRENT_ROLE`` is the
 <AuthorizationID> of the current Role. If you omit the clause, it defaults to
-WITH ADMIN CURRENT_USER -- but if CURRENT_USER is NULL, the clause defaults to
-WITH ADMIN CURRENT_ROLE. If you specify WITH ADMIN CURRENT_USER and the
-current <AuthorizationID> is a <Role name>, or if you specify WITH ADMIN
-CURRENT_ROLE and the current <Role name> is NULL, the GRANT statement will
-fail: your DBMS will return the SQLSTATE error 0L000 "invalid grantor". Here are two examples:
+``WITH ADMIN CURRENT_USER`` -- but if ``CURRENT_USER`` is ``NULL``, the clause
+defaults to ``WITH ADMIN CURRENT_ROLE``. If you specify ``WITH ADMIN
+CURRENT_USER`` and the current <AuthorizationID> is a <Role name>, or if you
+specify ``WITH ADMIN CURRENT_ROLE`` and the current <Role name> is ``NULL``,
+the ``GRANT`` statement will fail: your DBMS will return the ``SQLSTATE error
+0L000 "invalid grantor"``. Here are two examples:
 
 ::
 
    CREATE ROLE assistants_role WITH ADMIN CURRENT_USER;
    -- creates a Role, identified by the <AuthorizationID> ASSISTANTS_ROLE, for the current user
 
-::
-
    CREATE ROLE assistants_role WITH ADMIN CURRENT_ROLE;
    -- creates a Role, identified by the <AuthorizationID> ASSISTANTS_ROLE, for the current Role
 
-If you want to restrict your code to Core SQL, don't use the CREATE ROLE statement.
+If you want to restrict your code to Core SQL, don't use the ``CREATE ROLE``
+statement.
 
 Privilege
 =========
 
 An SQL Privilege allows an <AuthorizationID> to perform a given action on a
-specific Table, Column, Domain, Character set, Collation, Translation,
-Trigger, SQL-invoked routine or UDT. Privileges are dependent on some
-<AuthorizationID> or Role, are created and granted with the GRANT statement
-and are destroyed with the REVOKE statement and the DROP ROLE statement. A
-Privilege is defined by a descriptor that contains five pieces of information:
+specific Table, Column, Domain, Character set, Collation, Translation, Trigger,
+SQL-invoked routine or UDT. Privileges are dependent on some <AuthorizationID>
+or Role, are created and granted with the ``GRANT`` statement and are destroyed
+with the ``REVOKE`` statement and the ``DROP ROLE`` statement. A Privilege is
+defined by a descriptor that contains five pieces of information:
 
-## The name of the Object that the Privilege acts on.
+1. The name of the Object that the Privilege acts on.
 
-## The <AuthorizationID> that granted the Privilege.
+2. The <AuthorizationID> that granted the Privilege.
 
-## The <AuthorizationID> that may use the Privilege.
+3. The <AuthorizationID> that may use the Privilege.
 
-## The action (either INSERT, UPDATE, DELETE, SELECT, REFERENCES, USAGE, UNDER, TRIGGER or EXECUTE) that may be taken on the specified Object.
+4. The action (either ``INSERT``, ``UPDATE``, ``DELETE``, ``SELECT``,
+   ``REFERENCES``, ``USAGE``, ``UNDER``, ``TRIGGER`` or ``EXECUTE``) that may
+   be taken on the specified Object.
 
-## Whether the Privilege is grantable by the grantee.
+5. Whether the Privilege is grantable by the grantee.
 
-<privileges>:
+6. Whether the Privilege also applies to subtables in a hierarchy (for
+   ``SELECT`` only).
 
-The required syntax for a Privilege specification is:
+*<privileges>*
+--------------
+
+The required syntax for a Privilege specification is as follows.
 
 ::
 
@@ -261,123 +297,133 @@ The required syntax for a Privilege specification is:
           USAGE |
           EXECUTE
 
-The Privilege specification specifies one or more Privileges for a specific Object. Not all Privileges are valid for every Object.
+The Privilege specification specifies one or more Privileges for a specific
+Object. Not all Privileges are valid for every Object.
 
-ALL PRIVILEGES is a shorthand: it means every Privilege the grantor has on
-"<Object name>". If "<Object name>" identifies a temporary Table, ALL
-PRIVILEGES is the only valid Privilege specification. Here's an example:
+``ALL PRIVILEGES`` is a shorthand: it means every Privilege the grantor has on
+"<Object name>". If "<Object name>" identifies a temporary Table, ``ALL
+PRIVILEGES`` is the only valid Privilege specification. Here's an example:
 
 ::
 
    ALL PRIVILEGES ON TABLE Table_1
 
-In theory, you could substitute ALL PRIVILEGES for USAGE or EXECUTE, but
-there's never a good reason to do so. Traditionally, ALL PRIVILEGES
-substitutes for the combination of Table Privileges: SELECT, INSERT, UPDATE,
-DELETE and perhaps TRIGGER or REFERENCES. The closest analogous construct is
-the * in "SELECT * ...", then. And similar objections to using it apply:
+In theory, you could substitute ``ALL PRIVILEGES`` for ``USAGE`` or
+``EXECUTE``, but there's never a good reason to do so. Traditionally, ``ALL
+PRIVILEGES`` substitutes for the combination of Table Privileges: ``SELECT``,
+``INSERT``, ``UPDATE``, ``DELETE`` and perhaps ``TRIGGER`` or ``REFERENCES``.
+The closest analogous construct is the \*\ in ``"SELECT * ..."``, then. And
+similar objections to using it apply:
 
-## You can't tell by reading the SQL code what Privileges are in fact being granted.
+- You can't tell by reading the SQL code what Privileges are in fact being
+  granted.
 
-## Because ALL PRIVILEGES is a shorthand, it might mean something different the next time you use it (because somebody might have in the interim granted additional Privileges to the current user).
+- Because ``ALL PRIVILEGES`` is a shorthand, it might mean something different
+  the next time you use it (because somebody might have in the interim granted
+  additional Privileges to the current user).
 
-## If the current user has only one Privilege, you will not be warned that all the other potentially applicable Privileges are not being granted.
+- If the current user has only one Privilege, you will not be warned that all
+  the other potentially applicable Privileges are not being granted.
 
-You should prefer to be explicit about what you're granting: if you depend on
-a complex system of defaults you'll miss something. These considerations don't
-apply to temporary Tables since, for them, ALL PRIVILEGES really does mean all
-of: SELECT, INSERT, UPDATE, DELETE, TRIGGER, REFERENCES.
+You should prefer to be explicit about what you're granting: if you depend on a
+complex system of defaults you'll miss something. These considerations don't
+apply to temporary Tables since, for them, ``ALL PRIVILEGES`` really does mean
+all of: ``SELECT``, ``INSERT``, ``UPDATE``, ``DELETE``, ``TRIGGER``,
+``REFERENCES``.
 
-A SELECT, INSERT, UPDATE, REFERENCES, DELETE or TRIGGER Privilege is called a
-Table Privilege: it allows the specified action on the entire Table named in
-the Privilege's descriptor -- including on any Columns that are subsequently
-added to that Table. You may not grant the TRIGGER Table Privilege on anything
-but a Base table. You may not grant the other Table Privileges on a declared
-LOCAL TEMPORARY Table, or on any other Object. Note that the <keyword> TABLE
-is noise; it may be omitted from the Privilege specification. Here are two equivalent examples:
+A ``SELECT``, ``INSERT``, ``UPDATE``, ``REFERENCES``, ``DELETE`` or ``TRIGGER``
+Privilege is called a *Table Privilege*: it allows the specified action on the
+entire Table named in the Privilege's descriptor -- including on any Columns
+that are subsequently added to that Table. You may not grant the ``TRIGGER``
+Table Privilege on anything but a Base table. You may not grant the other Table
+Privileges on a declared ``LOCAL TEMPORARY`` Table, or on any other Object.
+Note that the <keyword> ``TABLE`` is noise; it may be omitted from the
+Privilege specification. Here are two equivalent examples:
 
 ::
 
    DELETE ON TABLE Table_1
-
    DELETE ON Table_1
 
 Both of these Privilege specifications define a Privilege that deletes rows
-from TABLE_1. Here's an example of a Privilege specification that defines a
-Privilege that selects values from every Column of TABLE_1:
+from ``TABLE_1``. Here's an example of a Privilege specification that defines a
+Privilege that selects values from every Column of ``TABLE_1``:
 
 ::
 
    SELECT ON TABLE Table_1
 
-And here's an example of a Privilege specification that defines a Privilege that enables a Trigger to operate on every Column of TABLE_1:
+And here's an example of a Privilege specification that defines a Privilege
+that enables a Trigger to operate on every Column of ``TABLE_1``:
 
 ::
 
    TRIGGER ON TABLE Table_1
 
-A SELECT(<Column name> list), INSERT(<Column name> list), UPDATE(<Column name>
-list) or REFERENCES(<Column name> list) is called a Column Privilege: it
-allows the specified action only on the Columns actually named when the
-Privilege is granted. You may not grant Column Privileges on the Columns of a
-declared LOCAL TEMPORARY Table or on any other Object. Again, the <keyword>
-TABLE is noise; it may be omitted from the Privilege specification. Here are two equivalent examples:
+A ``SELECT`` (<Column name> list), ``INSERT`` (<Column name> list), ``UPDATE``
+(<Column name> list) or ``REFERENCES`` (<Column name> list) is called a *Column
+Privilege*: it allows the specified action only on the Columns actually named
+when the Privilege is granted. You may not grant Column Privileges on the
+Columns of a declared ``LOCAL TEMPORARY`` Table or on any other Object. Again,
+the <keyword> TABLE is noise; it may be omitted from the Privilege
+specification. Here are two equivalent examples:
 
 ::
 
    UPDATE(column_1,column_3) ON TABLE Table_1
-
    UPDATE(column_1,column_3) ON Table_1
 
 Both of these Privilege specifications define a Privilege that updates the
-values of TABLE_1.COLUMN_1 and TABLE_1.COLUMN_3. Here's an example of a
-Privilege specification that defines a Privilege that inserts values into TABLE_1.COLUMN_2:
+values of ``TABLE_1.COLUMN_1`` and ``TABLE_1.COLUMN_3``. Here's an example of a
+Privilege specification that defines a Privilege that inserts values into
+``TABLE_1.COLUMN_2``:
 
 ::
 
    INSERT(column_2) ON TABLE Table_1
 
 And here's an example of a Privilege specification that defines a Privilege
-that enables TABLE_1.COLUMN_3 to be named in a Constraint or Assertion definition:
+that enables ``TABLE_1.COLUMN_3`` to be named in a Constraint or Assertion
+definition:
 
 ::
 
    REFERENCES(column_3) ON TABLE Table_1
 
 Every Privilege you have on a Table that is the basis for an updatable View is
-also granted to you on that View. For example, if you have the INSERT and
-SELECT Privileges on a Table and create an updatable View based on that Table,
-you will also have the INSERT and SELECT Privileges on the View. If your Table
-Privileges are grantable Privileges, your Privileges on the View will also be grantable.
+also granted to you on that View. For example, if you have the ``INSERT`` and
+``SELECT`` Privileges on a Table and create an updatable View based on that
+Table, you will also have the ``INSERT`` and ``SELECT`` Privileges on the View.
+If your Table Privileges are grantable Privileges, your Privileges on the View
+will also be grantable.
 
-An UNDER Privilege is called an UNDER Privilege: it allows that action on the
-UDT named in the Privilege's descriptor. The <UDT name> may either identify a
-structured type or it may specify a <Table name>. You may not grant an UNDER
-Privilege on any other Object. Here's an example:
+An ``UNDER`` Privilege may either apply to a structured type or it may apply to
+a typed Table. An ``UNDER`` Privilege on a UDT allows the creation of subtypes;
+an ``UNDER`` Privilege on a typed Table allows the creation of subtables. YOu
+may not grant an ``UNDER`` Privilege on any other Object. Here's an example:
 
 ::
 
    UNDER ON TYPE bob.bob_udt
 
-A USAGE Privilege is called a USAGE Privilege: it allows the use of the
-Domain, UDT, Character set, Collation or Translation named in the Privilege's
-descriptor. You may not grant a USAGE Privilege on any other Object. Here's two examples:
+A ``USAGE`` Privilege allows the use of the Domain, UDT, Character set,
+Collation or Translation named in the Privilege's descriptor. You may not grant
+a ``USAGE`` Privilege on any other Object. Here's two examples:
 
 ::
 
    USAGE ON DOMAIN domain_1
-
    USAGE ON CHARACTER SET bob.charset_1
 
-When a Catalog is "created", your DBMS grants the USAGE Privilege on all
-INFORMATION_SCHEMA Character sets, Collations and Translations to PUBLIC WITH
+When a Catalog is "created", your DBMS grants the ``USAGE`` Privilege on all
+``INFORMATION_SCHEMA`` Character sets, Collations and Translations to ``PUBLIC WITH``
 GRANT OPTION, so you always have the use of those Objects. If for some reason
 you should ever create a new character-related Object, do the same -- there is
 no point being secretive here.
 
-An EXECUTE Privilege is called an EXECUTE Privilege: it allows the SQL-invoked
-routine named in the Privilege's descriptor to be executed. You may not grant
-an EXECUTE Privilege on any other Object. Here's an example:
+An ``EXECUTE`` Privilege allows the SQL-invoked routine named in the
+Privilege's descriptor to be executed. You may not grant an ``EXECUTE``
+Privilege on any other Object. Here's an example:
 
 ::
 
@@ -387,19 +433,22 @@ an EXECUTE Privilege on any other Object. Here's an example:
 
 Note that if two Privileges are identical except that one is a grantable
 Privilege and the other is not, the grantable Privilege takes precedence and
-both Privileges are set to grantable Privileges. Your DBMS will then eliminate
-the redundant duplicate Privilege.
+both Privileges are set to grantable Privileges. Similarly, if two otherwise
+identical Privileges indicate one has ``WITH HIERARCHY OPTION`` and the other
+does not, the first takes precedence. Your DBMS will then eliminate the
+redundant duplicate Privilege.
 
-If you want to restrict your code to Core SQL, don't specify the UNDER
-Privilege, don't specify the SELECT Privilege as a Column Privilege (that is,
-with a <Column name> list) and don't specify the INSERT Privilege as a Column Privilege.
+If you want to restrict your code to Core SQL, don't specify the ``UNDER``
+Privilege, don't specify the ``SELECT`` Privilege as a Column Privilege (that
+is, with a <Column name> list) and don't specify the ``INSERT`` Privilege as a
+Column Privilege.
 
 GRANT statement
 ===============
 
-The GRANT statement defines both Privilege grants and Role authorizations and
-so has two different syntaxes. The first is identified as the <grant privilege
-statement> and the second as the <grant role statement>.
+The ``GRANT`` statement defines both Privilege grants and Role authorizations
+and so has two different syntaxes. The first is identified as the <grant
+privilege statement> and the second as the <grant role statement>.
 
 <grant privilege statement>:
 
