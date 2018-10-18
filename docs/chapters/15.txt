@@ -169,12 +169,12 @@ one-to-one relationship to some user (i.e.: each user has only one
 <AuthorizationID>).
 
 The <regular identifier> -- ``PUBLIC`` -- is a valid <AuthorizationID> only in
-the GRANT statement and the ``REVOKE`` statement. ``PUBLIC`` is the SQL special
-grantee, used as an "all-purpose" grantee, to enable system-wide Privileges to
-be granted to and/or revoked from all current and future <AuthorizationID>s
-with a single SQL statement. Every <AuthorizationID> always has the use of
-every Privilege granted to ``PUBLIC``. The <delimited identifier> --
-``"PUBLIC"`` -- is never a valid <AuthorizationID>.
+the ``GRANT`` statement and the ``REVOKE`` statement. ``PUBLIC`` is the SQL
+special grantee, used as an "all-purpose" grantee, to enable system-wide
+Privileges to be granted to and/or revoked from all current and future
+<AuthorizationID>s with a single SQL statement. Every <AuthorizationID> always
+has the use of every Privilege granted to ``PUBLIC``. The <delimited
+identifier> -- ``"PUBLIC"`` -- is never a valid <AuthorizationID>.
 
 The <delimited identifier> -- ``"_SYSTEM"`` -- is a valid <AuthorizationID>
 only when you're looking at ``INFORMATION_SCHEMA. "_SYSTEM"`` is the SQL
@@ -364,9 +364,8 @@ A ``SELECT`` (<Column name> list), ``INSERT`` (<Column name> list), ``UPDATE``
 (<Column name> list) or ``REFERENCES`` (<Column name> list) is called a *Column
 Privilege*: it allows the specified action only on the Columns actually named
 when the Privilege is granted. You may not grant Column Privileges on the
-Columns of a declared ``LOCAL TEMPORARY`` Table or on any other Object. Again,
-the <keyword> TABLE is noise; it may be omitted from the Privilege
-specification. Here are two equivalent examples:
+Columns of a declared ``LOCAL TEMPORARY`` Table or on any other Object. Here
+are two equivalent examples:
 
 ::
 
@@ -416,10 +415,10 @@ a ``USAGE`` Privilege on any other Object. Here's two examples:
    USAGE ON CHARACTER SET bob.charset_1
 
 When a Catalog is "created", your DBMS grants the ``USAGE`` Privilege on all
-``INFORMATION_SCHEMA`` Character sets, Collations and Translations to ``PUBLIC WITH``
-GRANT OPTION, so you always have the use of those Objects. If for some reason
-you should ever create a new character-related Object, do the same -- there is
-no point being secretive here.
+``INFORMATION_SCHEMA`` Character sets, Collations and Translations to ``PUBLIC
+WITH GRANT OPTION``, so you always have the use of those Objects. If for some
+reason you should ever create a new character-related Object, do the same --
+there is no point being secretive here.
 
 An ``EXECUTE`` Privilege allows the SQL-invoked routine named in the
 Privilege's descriptor to be executed. You may not grant an ``EXECUTE``
@@ -711,7 +710,7 @@ In this example, a Role named Sally is the owner of ``SALLY_SCHEMA``. Therefore,
 by definition, Sally is the owner of all Objects within that Schema -- right
 now, this includes Table ``SALLY_DATES`` and the Columns ``DATE_1`` and ``DATE_2``.
 
-..
+.. CAUTION::
 
   You'll often hear that the "owner of a Table" is "the user who created the
   Table". Technically that's wrong. Suppose another user, Joe, was able to
@@ -776,17 +775,17 @@ Given this SQL statement, a DBMS acts as follows:
 +-------------+-------------+------------+-----------------+------------+------------------+
 | **GRANTOR** | **GRANTEE** | **OBJECT** | **NAME**        | **ACTION** | **GRANT_OPTION** |
 +-------------+-------------+------------+-----------------+------------+------------------+
-| Sally       | Joe         | Table      | ``Sally_Dates`` | ``SELECT`` | ``YES``          |
+| Sally       | Joe         | Table      | ``Sally_Dates`` | ``SELECT`` | YES              |
 +-------------+-------------+------------+-----------------+------------+------------------+
-| Sally       | Joe         | Table      | ``Sally_Dates`` | ``INSERT`` | ``YES``          |
+| Sally       | Joe         | Table      | ``Sally_Dates`` | ``INSERT`` | YES              |
 +-------------+-------------+------------+-----------------+------------+------------------+
-| Sally       | Joe         | Column     | ``date_1``      | ``SELECT`` | ``YES``          |
+| Sally       | Joe         | Column     | ``date_1``      | ``SELECT`` | YES              |
 +-------------+-------------+------------+-----------------+------------+------------------+
-| Sally       | Joe         | Column     | ``date_1``      | ``INSERT`` | ``YES``          |
+| Sally       | Joe         | Column     | ``date_1``      | ``INSERT`` | YES              |
 +-------------+-------------+------------+-----------------+------------+------------------+
-| Sally       | Joe         | Column     | ``date_2``      | ``SELECT`` | ``YES``          |
+| Sally       | Joe         | Column     | ``date_2``      | ``SELECT`` | YES              |
 +-------------+-------------+------------+-----------------+------------+------------------+
-| Sally       | Joe         | Column     | ``date_2``      | ``INSERT`` | ``YES``          |
+| Sally       | Joe         | Column     | ``date_2``      | ``INSERT`` | YES              |
 +-------------+-------------+------------+-----------------+------------+------------------+
 
 The four "Column Privilege" descriptors may surprise you a bit since the GRANT
@@ -814,11 +813,11 @@ Given this SQL statement, a DBMS acts as follows:
 +-------------+-------------+------------+-----------------+------------+------------------+
 | **GRANTOR** | **GRANTEE** | **OBJECT** | **NAME**        | **ACTION** | **GRANT_OPTION** |
 +-------------+-------------+------------+-----------------+------------+------------------+
-| Joe         | Sam         | Table      | ``Sally_Dates`` | ``INSERT`` | ``NO``           |
+| Joe         | Sam         | Table      | ``Sally_Dates`` | ``INSERT`` | NO               |
 +-------------+-------------+------------+-----------------+------------+------------------+
-| Joe         | Sam         | Column     | ``date_1``      | ``INSERT`` | ``NO``           |
+| Joe         | Sam         | Column     | ``date_1``      | ``INSERT`` | NO               |
 +-------------+-------------+------------+-----------------+------------+------------------+
-| Joe         | Sam         | Column     | ``date_1``      | ``INSERT`` | ``NO``           |
+| Joe         | Sam         | Column     | ``date_1``      | ``INSERT`` | NO               |
 +-------------+-------------+------------+-----------------+------------+------------------+
 
 More time passes and Sally is once again the current <AuthorizationID>. She
@@ -839,15 +838,15 @@ Given this SQL statement, a DBMS acts as follows:
 +-------------+-------------+------------+-----------------+------------+------------------+
 | **GRANTOR** | **GRANTEE** | **OBJECT** | **NAME**        | **ACTION** | **GRANT_OPTION** |
 +-------------+-------------+------------+-----------------+------------+------------------+
-| Sally       | Sam         | Table      | ``Sally_Dates`` | ``INSERT`` | ``NO``           |
+| Sally       | Sam         | Table      | ``Sally_Dates`` | ``INSERT`` | NO               |
 +-------------+-------------+------------+-----------------+------------+------------------+
-| Sally       | Sam         | Column     | ``date_1``      | ``INSERT`` | ``NO``           |
+| Sally       | Sam         | Column     | ``date_1``      | ``INSERT`` | NO               |
 +-------------+-------------+------------+-----------------+------------+------------------+
-| Sally       | Sam         | Column     | ``date_2``      | ``INSERT`` | ``NO``           |
+| Sally       | Sam         | Column     | ``date_2``      | ``INSERT`` | NO               |
 +-------------+-------------+------------+-----------------+------------+------------------+
-| Sally       | Bob         | Table      | ``Sally_Dates`` | ``INSERT`` | ``NO``           |
+| Sally       | Bob         | Table      | ``Sally_Dates`` | ``INSERT`` | NO               |
 +-------------+-------------+------------+-----------------+------------+------------------+
-| Sally       | Bob         | Column     | ``date_1``      | ``INSERT`` | ``NO``           |
+| Sally       | Bob         | Column     | ``date_1``      | ``INSERT`` | NO               |
 +-------------+-------------+------------+-----------------+------------+------------------+
 
 These Privilege descriptors for Same are not duplicates of the ones that were
@@ -878,20 +877,23 @@ exact duplicates. There can, however, be considerable overlap, as is seen by
 the fact that Sam has two sets of ``INSERT`` Privileges on the same Object --
 one with grantee=Sally and the other with grantee=Joe.
 
-** TRAP: it is a delusion to believe that Bob may now execute this SQL statement:
+.. CAUTION::
+
+  it is a delusion to believe that Bob may now execute this SQL statement:
 
   ::
 
      INSERT INTO Sally_Dates (date_1) VALUES (CURRENT_DATE);
 
-  because to do this, Bob needs the ``INSERT`` Privilege for both Column ``DATE_1`` and
-  Column ``DATE_2 -- INSERT`` statements create whole rows. So it's useless to
-  ``"GRANT INSERT(Column-list)"`` unless (*a*) you expect that somebody else will
-  grant access on the other Columns or (*b*) your (Column-list) contains the names
-  of all Columns in the Table, but you don't want to just ``"GRANT INSERT ON
-  <Table name>"`` because that would give access not only to all Columns currently
-  in the Table, but to all Columns which will ever be in the Table (including
-  Columns added by future ``ALTER TABLE`` statements).
+  because to do this, Bob needs the ``INSERT`` Privilege for both Column
+  ``DATE_1`` and Column ``DATE_2 -- INSERT`` statements create whole rows. So
+  it's useless to ``"GRANT INSERT(Column-list)"`` unless (*a*) you expect that
+  somebody else will grant access on the other Columns or (*b*) your
+  (Column-list) contains the names of all Columns in the Table, but you don't
+  want to just ``"GRANT INSERT ON <Table name>"`` because that would give
+  access not only to all Columns currently in the Table, but to all Columns
+  which will ever be in the Table (including Columns added by future ``ALTER
+  TABLE`` statements).
 
 If Sally does the following:
 
@@ -927,9 +929,11 @@ the effect is that Sam can do this:
 
 but he can't specifically ``SELECT`` the second Column.
 
-** TRAP: If SELECT(Column-list) Privileges are granted, the recipients should
-avoid using "SELECT * ...". The "SELECT * ..." statement will suddenly cease
-to work for them if new Columns are added to the Table.
+.. CAUTION::
+
+  If ``SELECT`` (Column-list) Privileges are granted, the recipients should
+  avoid using ``"SELECT * ..."``. The ``"SELECT * ..."`` statement will
+  suddenly cease to work for them if new Columns are added to the Table.
 
 We would never recommend by-Column granting, without first looking at the
 alternative -- granting on a View.
@@ -1333,24 +1337,24 @@ Perhaps the vendor of your particular DBMS hasn't plugged the hole. What fun it
 would be to find out ...
 
 **If you have the** ``SELECT`` **Privilege** ``WITH GRANT OPTION`` **on a
-*single Table:** Suppose the grantor of your Privilege is Sally. Why not
-*reciprocate and ``GRANT`` your Privilege back to her? The advantage is that
-*later, if Sally tries to revoke your Privilege and forgets to say ``CASCADE``,
-*she will fail because there is now a chain of Privilege descriptors,
-*terminating with her.
+single Table:** Suppose the grantor of your Privilege is Sally. Why not
+reciprocate and ``GRANT`` your Privilege back to her? The advantage is that
+later, if Sally tries to revoke your Privilege and forgets to say ``CASCADE``,
+she will fail because there is now a chain of Privilege descriptors,
+terminating with her.
 
 **If your database is stored on a local microcomputer:** The DBMS can't block
-*your access to the file -- usually its only line of defense is encryption or
-*proprietary formatting (Microsoft Access and dBASE IV use variations of this
-*defense). If you know what the Table and Column names are, you can go to
-*another computer and make a database with the same structure but different
-*data. Then copy your file over the legitimate one. This is a *cuckoo's egg*
-*violation.
+your access to the file -- usually its only line of defense is encryption or
+proprietary formatting (Microsoft Access and dBASE IV use variations of this
+defense). If you know what the Table and Column names are, you can go to
+another computer and make a database with the same structure but different
+data. Then copy your file over the legitimate one. This is a *cuckoo's egg*
+violation.
 
 **If your database is stored on a distant server:** There's still a chance that
-*the client receives complete row copies for local filtering. Start a long
-*query, then turn your computer off. Start it up again and look for temporary
-*unclosed files, probably in the \windows\temp directory.
+the client receives complete row copies for local filtering. Start a long
+query, then turn your computer off. Start it up again and look for temporary
+unclosed files, probably in the \windows\temp directory.
 
 Here is a security hole that is opened up by the REFERENCES Privilege: Sally
 creates a Table --
