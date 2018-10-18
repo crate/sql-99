@@ -43,7 +43,7 @@ We know that H is the eighth letter of an alphabet. Or -- in SQL terms -- H is
 the eighth symbol in a character repertoire. While an alphabet is a familiar
 example of a character repertoire, any computer will also support a repertoire
 containing digits, punctuators and special characters as well as glyphless
-(non-printing) characters such as the ``\0 which terminates strings in C.
+(non-printing) characters such as the ``\0`` which terminates strings in C.
 
 However, no computer can handle the letter H by itself. It can only handle
 numbers, so we have a convention that the letter H will be represented by some
