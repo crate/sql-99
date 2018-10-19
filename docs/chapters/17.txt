@@ -18,87 +18,95 @@ Schema
 ======
 
 A Catalog may contain one or more Schemas. An SQL Schema is a named group of
-SQL-data that is owned by a particular <AuthorizationID>. Schemas are
-dependent on some Catalog -- the <Schema name> must be unique within the
-Catalog the Schema belongs to -- and are created, altered and dropped using
-the SQL-Schema statements. The Objects that may belong to a Schema are known
-as Schema Objects; that is, they depend on some Schema. Every Schema Object
-has a name that must be unique (among Objects of its name class) within the
-Schema it belongs to. The Schema Object name classes are:
+SQL-data that is owned by a particular <AuthorizationID>. Schemas are dependent
+on some Catalog -- the <Schema name> must be unique within the Catalog the
+Schema belongs to -- and are created, altered and dropped using the SQL-Schema
+statements. The Objects that may belong to a Schema are known as Schema
+Objects; that is, they depend on some Schema. Every Schema Object has a name
+that must be unique (among Objects of its name class) within the Schema it
+belongs to. The Schema Object name classes are:
 
-## Base tables and Views.
+- Base tables and Views.
 
-## Domains and UDTs.
+- Domains and UDTs.
 
-## Constraints and Assertions.
+- Constraints and Assertions.
 
-## Character sets.
+- Character sets.
 
-## Collations.
+- Collations.
 
-## Translations.
+- Translations.
 
-## Triggers.
+- Triggers.
 
-## SQL-server Modules.
+- SQL-server Modules.
 
-## SQL-invoked routines.
+- SQL-invoked routines.
 
-A Schema may consist of zero or more of these Schema Objects. The Schema's
-name qualifies the names of the Objects that belong to it, and can either be
+- Roles.
+
+A Schema may consist of zero or more of these Schema Objects. The Schema's name
+qualifies the names of the Objects that belong to it, and can either be
 explicitly stated, or a default name will be supplied by your DBMS.
 
 A Schema is defined by a descriptor that contains four pieces of information:
 
-## The <Schema name>, qualified by the <Catalog name> of the Catalog it belongs to.
+1. The <Schema name>, qualified by the <Catalog name> of the Catalog it belongs
+   to.
 
-## The <AuthorizationID> that owns the Schema and its Objects.
+2. The <AuthorizationID> that owns the Schema and its Objects.
 
-## The name of the Schema's default Character set.
+3. The name of the Schema's default Character set.
 
-## The specification that defines the path for the Schema's SQL-invoked routines.
+4. The specification that defines the path for the Schema's SQL-invoked
+   routines.
 
-## A descriptor for every SQL Object that belongs to the Schema.
+5. A descriptor for every SQL Object that belongs to the Schema.
 
-To create a Schema, use the CREATE SCHEMA statement. It specifies the
+To create a Schema, use the ``CREATE SCHEMA`` statement. It specifies the
 enclosing Catalog, names the Schema, defines the Schema's default Character
 set, default path and zero or more Schema Objects, and identifies the Schema's
-owner. To change an existing Schema, use the appropriate CREATE / DROP / ALTER
-/ GRANT / REVOKE statements to adjust the Schema's Objects. To destroy a Schema, use the DROP SCHEMA statement.
+owner. To change an existing Schema, use the appropriate ``CREATE`` / ``DROP``
+/ ``ALTER`` / ``GRANT`` / ``REVOKE`` statements to adjust the Schema's Objects.
+To destroy a Schema, use the ``DROP SCHEMA`` statement.
 
 There is a one-to-many association between Schemas and users: one
 <AuthorizationID> can own many Schemas. For compatibility with the ODBC
-qualifier structure (database.owner.object) though, we recommend that a
-<Schema name> be the same as the owning <AuthorizationID> and that each
+qualifier structure (database.owner.object) though, we recommend that a <Schema
+name> be the same as the owning <AuthorizationID> and that each
 <AuthorizationID> be allowed to own only one Schema in a Cluster.
 
-Schema names:
+*Schema Names*
+--------------
 
-A <Schema name> identifies a Schema. The required syntax for a <Schema name> is:
+A <Schema name> identifies a Schema. The required syntax for a <Schema name> is
+as follows.
 
 ::
 
     <Schema name> ::=
     [ <Catalog name>. ] unqualified name
 
-A <Schema name> is a <regular identifier> or a <delimited
-identifier> that is unique (for all Schemas) within the Catalog
-it belongs to. The <Catalog name> which qualifies a <Schema name> names the
-Catalog that the Schema belongs to, and can either be explicitly stated or a
-default will be supplied by your DBMS, as follows:
+A <Schema name> is a <regular identifier> or a <delimited identifier> that is
+unique (for all Schemas) within the Catalog it belongs to. The <Catalog name>
+which qualifies a <Schema name> names the Catalog that the Schema belongs to,
+and can either be explicitly stated or a default will be supplied by your DBMS,
+as follows:
 
-## If the unqualified <Schema name> is found in a Module, the default
-qualifier is the name of the Catalog identified in the SCHEMA clause or
-AUTHORIZATION clause of the MODULE statement that defines that Module.
+- If the unqualified <Schema name> is found in a Module, the default qualifier
+  is the name of the Catalog identified in the ``SCHEMA`` clause or
+  ``AUTHORIZATION`` clause of the ``MODULE`` statement that defines that
+  Module.
 
-## [NON-PORTABLE] If the MODULE statement doesn't provide an explicit
-<Catalog name>, or if the unqualified <Schema name> is not in a Module, the
-default <Catalog name> qualifier is non-standard because the SQL Standard
-requires implementors to define the default qualifier in such cases. Your DBMS
-will usually define its initial default <Catalog name> as the qualifier, but this is not required.
-
-[OCELOT Implementation] The OCELOT DBMS that comes with this book
-uses its initial default <Catalog name> (OCELOT) as the qualifier in such cases.
+- [NON-PORTABLE] If the ``MODULE`` statement doesn't provide an explicit
+  <Catalog name>, or if the unqualified <Schema name> is not in a Module, the
+  default <Catalog name> qualifier is non-standard because the SQL Standard
+  requires implementors to define the default qualifier in such cases. Your
+  DBMS will usually define its initial default <Catalog name> as the qualifier,
+  but this is not required. [OCELOT Implementation] The OCELOT DBMS that comes
+  with this book uses its initial default <Catalog name> (OCELOT) as the
+  qualifier in such cases.
 
 Here are some examples of <Schema name>s:
 
@@ -110,14 +118,16 @@ Here are some examples of <Schema name>s:
    CATALOG_1.SCHEMA_1
    -- a qualified <Schema name>
 
-Note that the <regular identifier> -- DEFINITION_SCHEMA -- may not be used as a <Schema name>.
+Note that the <regular identifier> -- ``DEFINITION_SCHEMA`` -- may not be used
+as a <Schema name>.
 
-CREATE SCHEMA statement
+CREATE SCHEMA Statement
 =======================
 
-The CREATE SCHEMA statement names a new Schema, defines the Schema's default
-Character set, default path and zero or more Schema Objects, and identifies
-the Schema's owner. The required syntax for the CREATE SCHEMA statement is:
+The ``CREATE SCHEMA`` statement names a new Schema, defines the Schema's
+default Character set, default path and zero or more Schema Objects, and
+identifies the Schema's owner. The required syntax for the ``CREATE SCHEMA``
+statement is:
 
 ::
 
@@ -146,62 +156,72 @@ the Schema's owner. The required syntax for the CREATE SCHEMA statement is:
           CREATE ROLE statement(s) |
           GRANT statement(s)
 
-CREATE SCHEMA defines a new Schema. A Schema is owned by the Catalog it belongs to.
+``CREATE SCHEMA`` defines a new Schema.
 
-## The <Schema name clause> names the Schema and identifies the
-<AuthorizationID> that owns it. A <Schema name> that includes an explicit
-<Catalog name> qualifier belongs to the Catalog named. A <Schema name> that
-does not include an explicit <Catalog name> qualifier belongs to the
-SQL-session default Catalog. The <Schema name> must be unique within the Catalog that owns it.
+- The <Schema name clause> names the Schema and identifies the
+  <AuthorizationID> that owns it. A <Schema name> that includes an explicit
+  <Catalog name> qualifier belongs to the Catalog named. A <Schema name> that
+  does not include an explicit <Catalog name> qualifier belongs to the
+  SQL-session default Catalog. The <Schema name> must be unique within the
+  Catalog that owns it.
 
-The <Schema name clause> may contain either a <Schema name>, an AUTHORIZATION
-clause, or both. For example, this SQL statement creates a Schema named BOB, owned by <AuthorizationID> BOB:
+The <Schema name clause> may contain either a <Schema name>, an
+``AUTHORIZATION`` clause, or both. For example, this SQL statement creates a
+Schema named ``BOB``, owned by <AuthorizationID> ``BOB``:
 
 ::
 
    CREATE SCHEMA bob AUTHORIZATION bob;
 
 If <Schema name clause> doesn't include an explicit <Schema name>, the <Schema
-name> defaults to the value of the AUTHORIZATION clause's <AuthorizationID>.
-For example, this SQL statement also creates a Schema named BOB, owned by <AuthorizationID> BOB:
+name> defaults to the value of the ``AUTHORIZATION`` clause's
+<AuthorizationID>. For example, this SQL statement also creates a Schema named
+``BOB``, owned by <AuthorizationID> ``BOB``:
 
 ::
 
    CREATE SCHEMA AUTHORIZATION bob;
 
-If <Schema name clause> doesn't include an explicit AUTHORIZATION clause, the
-<AuthorizationID> that owns the Schema defaults to the <Module
+If <Schema name clause> doesn't include an explicit ``AUTHORIZATION`` clause,
+the <AuthorizationID> that owns the Schema defaults to the <Module
 AuthorizationID> (or, if there is no <Module AuthorizationID>, it defaults to
-the current SQL-session <AuthorizationID>). Note: The current <AuthorizationID> for the creation of a Schema is normally the
-<AuthorizationID> named in the AUTHORIZATION clause. If you omit the AUTHORIZATION clause, then the current <AuthorizationID> for the creation of the Schema is the SQL-session <AuthorizationID>.
+the current SQL-session <AuthorizationID>). Note: The current <AuthorizationID>
+for the creation of a Schema is normally the <AuthorizationID> named in the
+``AUTHORIZATION`` clause. If you omit the ``AUTHORIZATION`` clause, then the
+current <AuthorizationID> for the creation of the Schema is the SQL-session
+<AuthorizationID>.
 
-** TRAP: The <AuthorizationID> associated with CREATE SCHEMA does not become
-the current <AuthorizationID> for subsequent SQL statements, nor does the
-<Schema name> become the default Schema. Consider these three SQL statements:
+.. CAUTION::
 
-::
+  The <AuthorizationID> associated with ``CREATE SCHEMA`` does not become the
+  current <AuthorizationID> for subsequent SQL statements, nor does the <Schema
+  name> become the default Schema. Consider these three SQL statements:
 
-   CONNECT TO 'cluster_1' AS 'connection_1' USER 'bob';
-   -- establishes the SQL-session <AuthorizationID> to be BOB
+  ::
 
-   CREATE SCHEMA sam AUTHORIZATION sam
-      CREATE TABLE sam_1 (column1 INT);
-   -- creates a Schema named SAM, that contains one Table, both owned by <AuthorizationID> SAM
+     CONNECT TO 'cluster_1' AS 'connection_1' USER 'bob';
+     -- establishes the SQL-session <AuthorizationID> to be BOB
 
-   INSERT INTO sam_1 VALUES (10);
-   -- fails because the Table can't be found
+     CREATE SCHEMA sam AUTHORIZATION sam
+        CREATE TABLE sam_1 (column1 INT);
+     -- creates a Schema named SAM, that contains one Table, both owned by <AuthorizationID> SAM
 
-In this example, although the CREATE SCHEMA statement did create the Table
-we're trying to INSERT into, it did not change the default <AuthorizationID>
-from BOB to SAM, nor did it change the default Schema from BOB to SAM. Thus,
-the INSERT fails because the DBMS doesn't recognize a Table named SAM_1
-associated with <AuthorizationID> BOB in Schema BOB.
+     INSERT INTO sam_1 VALUES (10);
+     -- fails because the Table can't be found
 
-The optional DEFAULT CHARACTER SET clause names the Schema's default Character
-set: the Character set assumed for all of this Schema's Column and Domain
-definitions when they don't include an explicit Character set specification.
-For example, all three of these SQL statements create a Schema that contains a
-Domain whose values must belong to the LATIN1 Character set:
+  In this example, although the ``CREATE SCHEMA`` statement did create the
+  Table we're trying to ``INSERT`` into, it did not change the default
+  <AuthorizationID> from ``BOB`` to ``SAM``, nor did it change the default
+  Schema from ``BOB`` to ``SAM``. Thus, the ``INSERT`` fails because the DBMS
+  doesn't recognize a Table named ``SAM_1`` associated with <AuthorizationID>
+  ``BOB`` in Schema ``BOB``.
+
+The optional ``DEFAULT CHARACTER SET`` clause names the Schema's default
+Character set: the Character set assumed for all of this Schema's Column and
+Domain definitions when they don't include an explicit Character set
+specification. For example, all three of these SQL statements create a Schema
+that contains a Domain whose values must belong to the ``LATIN1`` Character
+set:
 
 ::
 
@@ -219,33 +239,35 @@ Domain whose values must belong to the LATIN1 Character set:
          DEFAULT CHARACTER SET INFORMATION_SCHEMA.LATIN1
       CREATE DOMAIN char_domain AS CHAR(12);
 
-(In the second example, the explicit CHARACTER SET clause in CREATE DOMAIN overrides the Schema's default Character set specification.)
+(In the second example, the explicit ``CHARACTER SET`` clause in ``CREATE
+DOMAIN`` overrides the Schema's default Character set specification.)
 
-[NON-PORTABLE] If CREATE SCHEMA doesn't include an explicit DEFAULT CHARACTER
-SET clause, the Schema's default Character set is non-standard because the SQL
-Standard requires implementors to define it.
+[NON-PORTABLE] If ``CREATE SCHEMA`` doesn't include an explicit ``DEFAULT
+CHARACTER SET`` clause, the Schema's default Character set is non-standard
+because the SQL Standard requires implementors to define it. [OCELOT
+Implementation] The OCELOT DBMS that comes with this book always uses
+``INFORMATION_SCHEMA.ASCII_FULL`` as the default Character set.
 
-[OCELOT Implementation] The OCELOT DBMS that comes with this book always uses INFORMATION_SCHEMA.ASCII_FULL as the default Character set.
-
-The optional PATH clause names the Schema's default path: the path used to
+The optional ``PATH`` clause names the Schema's default path: the path used to
 qualify unqualified <Routine name>s that identify <routine invocation>s that
-are part of this CREATE SCHEMA statement. You must include the name of the
-Schema being created in the PATH clause and, if you include multiple names,
+are part of this ``CREATE SCHEMA`` statement. You must include the name of the
+Schema being created in the ``PATH`` clause and, if you include multiple names,
 all of the Schemas named must belong to the same Catalog.
 
-[NON-PORTABLE] If CREATE SCHEMA doesn't include an explicit PATH clause, the
-Schema's path specification must include the new Schema's name, but is
-otherwise non-standard because the SQL Standard requires implementors to
+[NON-PORTABLE] If ``CREATE SCHEMA`` doesn't include an explicit ``PATH``
+clause, the Schema's path specification must include the new Schema's name, but
+is otherwise non-standard because the SQL Standard requires implementors to
 define a path specification for the Schema.
 
 [NON-PORTABLE] Whether or not you may create a Schema is non-standard because
-the SQL Standard requires implementors to define what Privilege (if any)
-allows an <AuthorizationID> to execute CREATE SCHEMA.
-
-[OCELOT Implementation] The OCELOT DBMS that comes with this book allows any <AuthorizationID> to execute CREATE SCHEMA.
+the SQL Standard requires implementors to define what Privilege (if any) allows
+an <AuthorizationID> to execute ``CREATE SCHEMA``. [OCELOT Implementation] The
+OCELOT DBMS that comes with this book allows any <AuthorizationID> to execute
+``CREATE SCHEMA``.
 
 The only separator between the SQL statements that make up the <Schema element
-list> is white space. For example, this is a single SQL statement that creates a Schema:
+list> is white space. For example, this is a single SQL statement that creates
+a Schema:
 
 ::
 
@@ -256,46 +278,51 @@ list> is white space. For example, this is a single SQL statement that creates a
       CREATE TABLE employee (empname CHAR(20), dept dept_domain)
       GRANT SELECT ON department TO bob;
 
-If you want to restrict your code to Core SQL, don't use a DEFAULT CHARACTER
-SET clause or a PATH clause in your CREATE SCHEMA statements and don't include
-any of the following in your <Schema element list>: CREATE ASSERTION
-statements, CREATE CHARACTER SET statements, CREATE COLLATION statements,
-CREATE DOMAIN statements, CREATE TRANSLATION statements, CREATE TYPE
-statements, CREATE ROLE statements or GRANT statements to Roles.
+If you want to restrict your code to Core SQL, don't use a ``DEFAULT CHARACTER
+SET`` clause or a ``PATH`` clause in your ``CREATE SCHEMA`` statements and
+don't include any of the following in your <Schema element list>: ``CREATE
+ASSERTION`` statements, ``CREATE CHARACTER SET`` statements, ``CREATE
+COLLATION`` statements, ``CREATE DOMAIN`` statements, ``CREATE TRANSLATION``
+statements, ``CREATE TYPE`` statements, ``CREATE ROLE`` statements or ``GRANT``
+statements to Roles.
 
-DROP SCHEMA statement
+DROP SCHEMA Statement
 =====================
 
-The DROP SCHEMA statement destroys an entire Schema. The required syntax for the DROP SCHEMA statement is:
+The ``DROP SCHEMA`` statement destroys an entire Schema. The required syntax
+for the ``DROP SCHEMA`` statement is:
 
 ::
 
     DROP SCHEMA <Schema name> {RESTRICT | CASCADE}
 
 The <Schema name> must identify an existing Schema whose owner is either the
-current <AuthorizationID> or a Role that the current <AuthorizationID> may
-use. That is, only the <AuthorizationID> that owns the Schema may drop it.
+current <AuthorizationID> or a Role that the current <AuthorizationID> may use.
+That is, only the <AuthorizationID> that owns the Schema may drop it.
 
-The effect of DROP SCHEMA <Schema name> RESTRICT, e.g.:
+The effect of ``DROP SCHEMA`` <Schema name> ``RESTRICT``, e.g.:
 
 ::
 
    DROP SCHEMA catalog_1.schema_1 RESTRICT;
 
-is that the Schema named CATALOG_1.SCHEMA_1 will be destroyed, providing that
-(a) it doesn't contain any Objects, (b) it isn't referred to in any SQL
-routine and (c) it isn't referred to in the path specification of any other
-Schema. That is, RESTRICT ensures that only an empty Schema, on which nothing else depends, can be destroyed.
+is that the Schema named ``CATALOG_1.SCHEMA_1`` will be destroyed, providing
+that (*a*) it doesn't contain any Objects, (*b*) it isn't referred to in any
+SQL routine and (*c*) it isn't referred to in the path specification of any
+other Schema. That is, ``RESTRICT`` ensures that only an empty Schema, on which
+nothing else depends, can be destroyed.
 
-The effect of DROP SCHEMA <Schema name> CASCADE, e.g.:
+The effect of ``DROP SCHEMA`` <Schema name> ``CASCADE``, e.g.:
 
 ::
 
    DROP SCHEMA catalog_1.schema_1 CASCADE;
 
-is that the Schema named CATALOG_1.SCHEMA_1 will be destroyed -- as will all
-of the Schema's Objects (with a CASCADE drop behaviour for Tables, Views,
-Domains, Collations, Roles, UDTs and SQL-invoked routines) and any SQL
-routines (with a CASCADE drop behaviour) and path specifications that depend on this Schema.
+is that the Schema named ``CATALOG_1.SCHEMA_1`` will be destroyed -- as will
+all of the Schema's Objects (with a ``CASCADE`` drop behaviour for Tables,
+Views, Domains, Collations, Roles, UDTs and SQL-invoked routines) and any SQL
+routines (with a ``CASCADE`` drop behaviour) and path specifications that
+depend on this Schema.
 
-If you want to restrict your code to Core SQL, don't use the DROP SCHEMA statement.
+If you want to restrict your code to Core SQL, don't use the ``DROP SCHEMA``
+statement.
