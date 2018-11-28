@@ -63,13 +63,13 @@ temporary Base tables with ``CREATE LOCAL TEMPORARY TABLE``.
 
 There is one kind of Module Base table: the declared local temporary Base table.
 
-The declared local temporary Base table is a named Table defined
-(with the ``DECLARE TABLE`` statement) in an SQL-client Module. It is effectively
-materialized the first time it is referenced in an SQL-session and it persists
-until that SQL-session ends. A declared local temporary Base table can only be
-accessed by <externally-invoked procedure>s within the SQL-client Module that
-contains the Table's declaration. Temporary Base tables are always empty when
-an SQL-session begins and are always emptied when the SQL-session ends.
+* The declared local temporary Base table is a named Table defined
+  (with the ``DECLARE TABLE`` statement) in an SQL-client Module. It is effectively
+  materialized the first time it is referenced in an SQL-session and it persists
+  until that SQL-session ends. A declared local temporary Base table can only be
+  accessed by <externally-invoked procedure>s within the SQL-client Module that
+  contains the Table's declaration. Temporary Base tables are always empty when
+  an SQL-session begins and are always emptied when the SQL-session ends.
 
 Subtables and Supertables
 =========================
@@ -577,7 +577,7 @@ If ``CREATE TABLE`` is executed as a stand-alone SQL statement, the current
 belongs to, or the Schema's owner must be a Role that the current
 <AuthorizationID> may use. That is, only the owner of a Schema can create
 Tables for that Schema. In addition to creating a Table, ``CREATE TABLE`` also
-causes the SQL special grantor, ``"_SYSTEM"``, to grant grantable ``INSERT``, ``SELECT``,
+causes the SQL special grantor, "``_SYSTEM``", to grant grantable ``INSERT``, ``SELECT``,
 ``UPDATE``, ``DELETE``, ``TRIGGER`` and ``REFERENCES`` Privileges on the new Table, as well as
 grantable ``SELECT``, ``INSERT``, ``UPDATE`` and ``REFERENCES`` Privileges on every Column in
 the new Table, to the Schema owner <AuthorizationID> (that is, the
@@ -592,38 +592,38 @@ either a list of elements, such as Column and Table Constraint definitions, or
 an ``OF`` clause that defines the UDT structure that makes up the Table. Every
 <table element list> has to contain at least one <Column definition>.
 
-* [Obscure Rule] If ``CREATE TABLE`` includes the ``OF`` clause, then <UDT
-  name> must identify a structured type. If the ``OF`` clause also includes the
-  (optional) <table element list>, the list *(a)* may not contain a ``LIKE`` clause
-  and *(b)* may contain only one <table element> that is a <Column definition>: it
-  must define a Column with a ``REF`` <data type> that specifies ``VALUES ARE SYSTEM
-  GENERATED``. The optional ``UNDER`` sub-clause in the ``OF`` clause contains a list of
-  <Table name>s. Each <Table name> in the list identifies a direct supertable of
-  the Table being created and must therefore belong to the same Schema that owns
-  this new Table. (The Schema owner <AuthorizationID> must have the ``UNDER``
-  Privilege on each supertable named.) A <Table name> may appear in the ``UNDER``
-  list only once. The new Table is a direct subtable of each of its direct
-  supertables: this subtable family must have exactly one maximal supertable.
-  (The effect of ``CREATE TABLE`` on the new Table's supertables is that its name is
-  added to the list of direct subtables in each supertable's definition.) If you
-  add the ``UNDER`` sub-clause to a ``CREATE TABLE`` statement: *(a)* the structured type
-  identified by <UDT name> must be a direct subtype of the structured type of
-  every direct supertable of the new Table, *(b)* your Table definition may not
-  include a ``PRIMARY KEY`` Constraint, *(c)* one of the supertables of the new Table
-  must include a ``UNIQUE`` Constraint that constrains a Column with a nullability
-  characteristic of "known not nullable" and *(d)* the Schema owner's
-  <AuthorizationID> is granted grantable ``SELECT``, ``UPDATE`` and ``REFERENCES``
-  Privileges for every inherited Column of the new Table. (The grantor of these
-  Privileges is the SQL special grantor, ``"_SYSTEM"``.) Note that if a direct
-  supertable of the new Table is a referenceable Base table, then this new Table
-  is also a referenceable Base table. In this case, your ``OF`` clause, if it
-  contains a <table element list>, may not include a <Column definition>. If any
-  <table element> contains a <scope clause> the Base table(s) referred to
-  therein must be either *(a)* persistent Base tables, if ``CREATE TABLE`` contains no
-  <table scope>, *(b)* ``GLOBAL TEMPORARY`` Base tables if you're creating a ``GLOBAL
-  TEMPORARY`` Base table or *(c)* created ``LOCAL TEMPORARY`` Base tables if you're
-  creating a ``LOCAL TEMPORARY`` Base table. For further details, refer to our
-  chapter on User-defined Types.
+[Obscure Rule] If ``CREATE TABLE`` includes the ``OF`` clause, then <UDT
+name> must identify a structured type. If the ``OF`` clause also includes the
+(optional) <table element list>, the list *(a)* may not contain a ``LIKE`` clause
+and *(b)* may contain only one <table element> that is a <Column definition>: it
+must define a Column with a ``REF`` <data type> that specifies ``VALUES ARE SYSTEM
+GENERATED``. The optional ``UNDER`` sub-clause in the ``OF`` clause contains a list of
+<Table name>s. Each <Table name> in the list identifies a direct supertable of
+the Table being created and must therefore belong to the same Schema that owns
+this new Table. (The Schema owner <AuthorizationID> must have the ``UNDER``
+Privilege on each supertable named.) A <Table name> may appear in the ``UNDER``
+list only once. The new Table is a direct subtable of each of its direct
+supertables: this subtable family must have exactly one maximal supertable.
+(The effect of ``CREATE TABLE`` on the new Table's supertables is that its name is
+added to the list of direct subtables in each supertable's definition.) If you
+add the ``UNDER`` sub-clause to a ``CREATE TABLE`` statement: *(a)* the structured type
+identified by <UDT name> must be a direct subtype of the structured type of
+every direct supertable of the new Table, *(b)* your Table definition may not
+include a ``PRIMARY KEY`` Constraint, *(c)* one of the supertables of the new Table
+must include a ``UNIQUE`` Constraint that constrains a Column with a nullability
+characteristic of "known not nullable" and *(d)* the Schema owner's
+<AuthorizationID> is granted grantable ``SELECT``, ``UPDATE`` and ``REFERENCES``
+Privileges for every inherited Column of the new Table. (The grantor of these
+Privileges is the SQL special grantor, "``_SYSTEM``".) Note that if a direct
+supertable of the new Table is a referenceable Base table, then this new Table
+is also a referenceable Base table. In this case, your ``OF`` clause, if it
+contains a <table element list>, may not include a <Column definition>. If any
+<table element> contains a <scope clause> the Base table(s) referred to
+therein must be either *(a)* persistent Base tables, if ``CREATE TABLE`` contains no
+<table scope>, *(b)* ``GLOBAL TEMPORARY`` Base tables if you're creating a ``GLOBAL
+TEMPORARY`` Base table or *(c)* created ``LOCAL TEMPORARY`` Base tables if you're
+creating a ``LOCAL TEMPORARY`` Base table. For further details, refer to our
+chapter on User-defined Types.
 
 The common form of ``CREATE TABLE`` uses a parenthesized <table element list> as
 its <table contents source> clause. A <table element> is either a <Column
@@ -942,7 +942,7 @@ Collation is determined as follows:
   definition -- the Column's default Collation is the default Collation of the
   Column's Character set.
 
-[Obscure Rule] If the <data type> of a Column is ``REF``(UDT), your current
+[Obscure Rule] If the <data type> of a Column is ``REF``\(UDT), your current
 <AuthorizationID> must have the ``USAGE`` Privilege on that UDT. If the <data
 type> of a Column includes ``REF`` with a <scope clause>, your <Column definition>
 must also include a <reference scope check> clause, to indicate whether
@@ -1461,7 +1461,7 @@ Dropping a Column from a Table has a six-fold effect:
    Table's definition is adjusted accordingly.
 
 2. The ``INSERT``, ``UPDATE``, ``SELECT`` and ``REFERENCES`` Privileges on the Column
-   are revoked (by the SQL special grantor, "_SYSTEM") from the <AuthorizationID>
+   are revoked (by the SQL special grantor, "``_SYSTEM``") from the <AuthorizationID>
    that owns the Column's Table with a ``CASCADE`` drop behaviour, so that the same
    Privileges are also revoked from all other <AuthorizationID>s.
 
@@ -1583,7 +1583,7 @@ Successfully destroying a Table has a five-fold effect:
    subtables.
 
 4. All Privileges held on the Table by the <AuthorizationID> that owns
-   it are revoked (by the SQL special grantor, "_SYSTEM") with a ``CASCADE`` revoke
+   it are revoked (by the SQL special grantor, "``_SYSTEM``") with a ``CASCADE`` revoke
    behaviour, so that all Privileges held on the Table by any other
    <AuthorizationID> are also revoked.
 
@@ -1667,14 +1667,14 @@ Views for that Schema. The current <AuthorizationID> must also have the ``SELECT
 Privilege on every Column used in the View's query definition.
 
 In addition to creating a View, ``CREATE VIEW`` also causes the SQL special
-grantor, ``"_SYSTEM"``, to grant Privileges on the View to the Schema owner
+grantor, "``_SYSTEM``", to grant Privileges on the View to the Schema owner
 <AuthorizationID> (that is, the <AuthorizationID creating the View). Your
 Privileges on a View stem from your Privileges on the underlying Tables that
 make up the View. That is, you get the same Privileges on a View that you hold
 on the Tables/Columns used in the View's query definition -- with the proviso
 that if you have the ``UPDATE``, ``INSERT`` and/or ``DELETE`` Privileges on a Table and
 you're creating a non-updatable View, those Privileges will not cascade. So:
-when you create a View, ``"_SYSTEM"`` will grant you Table Privileges (any of
+when you create a View, "``_SYSTEM``" will grant you Table Privileges (any of
 ``INSERT``, ``SELECT``, ``UPDATE``, ``DELETE`` and ``REFERENCES`` that are applicable) on the new
 View, as well as Column Privileges (any of ``SELECT``, ``INSERT``, ``UPDATE`` and
 ``REFERENCES`` that are applicable) on every Column of the new View. If your
@@ -1806,7 +1806,7 @@ A View's Columns inherit their <data type> and other attributes and Constraints 
 without truncation, your DBMS will return the ``SQLSTATE warning 0100A
 "warning-query expression too long for information schema"``. If you define a
 View with a query that includes a ``GROUP BY`` and/or a ``HAVING`` clause that isn't
-in a subquery, the View is known as a grouped View.
+in a subquery, the View is known as a *grouped View*.
 
 Macros and Materializers
 ........................
@@ -2063,7 +2063,7 @@ aware of, though, if you use such View Constraints:
   Table Constraint.
 
 * The SQL Standard does not make it clear what the effect should be if
-  ``NULL``s are used (and therefore make the result of the Constraint check ``UNKNOWN``
+  ``NULL``\s are used (and therefore make the result of the Constraint check ``UNKNOWN``
   rather than ``TRUE`` or ``FALSE``). For the Base table insertion:
 
 ::
@@ -2286,7 +2286,7 @@ is:
 
    SELECT given, surname, city, address FROM Mailouts;
 
-This is not a mere matter of "reducing keystrokes". The idea is to remove
+This is *not* a mere matter of "reducing keystrokes". The idea is to remove
 information which is not necessary for the task at hand.
 
 Another thing we want to hide is details. For example, there are some people
@@ -2366,7 +2366,7 @@ Successfully destroying a View has a three-fold effect:
 1. The View named is destroyed.
 
 2. All Privileges held on the View by the <AuthorizationID> that owns it
-   are revoked (by the SQL special grantor, ``"_SYSTEM"``) with a ``CASCADE`` revoke
+   are revoked (by the SQL special grantor, "``_SYSTEM``") with a ``CASCADE`` revoke
    behaviour, so that all Privileges held on the View by any other
    <AuthorizationID> are also revoked.
 
@@ -2487,7 +2487,7 @@ delete the rows, since ``TABLE_1``'s declaration explicitly says not to. (The ro
 will, however, be deleted at the end of the SQL-session.)
 
 In addition to declaring a Table, ``DECLARE LOCAL TEMPORARY TABLE`` also causes
-the SQL special grantor, ``"_SYSTEM"``, to grant non-grantable ``INSERT``, ``SELECT``,
+the SQL special grantor, "``_SYSTEM``", to grant non-grantable ``INSERT``, ``SELECT``,
 ``UPDATE``, ``DELETE`` and ``REFERENCES`` Privileges on the declared Table, as well as
 non-grantable ``SELECT``, ``INSERT``, ``UPDATE`` and ``REFERENCES`` Privileges on every Column
 in the declared Table, to the current <AuthorizationID>. This ensures that the
