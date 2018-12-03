@@ -312,8 +312,8 @@ returned by the ``CURRENT_DATE`` function:
 The optional <Domain Constraint> list clause of ``CREATE DOMAIN`` is used to 
 define zero or more <Constraint>s on the Domain: the Constraint rules will 
 restrict the Domain's set of valid values -- see our chapter on Constraints and 
-Assertions. The syntax ``CREATE DOMAIN <Domain name> AS <data type>`` ``DEFAULT 
-default value`` ``<Domain Constraint>`` ``<Domain Constraint>`` defines a 
+Assertions. The syntax ``CREATE DOMAIN <Domain name> AS <data type> DEFAULT 
+default value <Domain Constraint> <Domain Constraint>`` defines a 
 Domain whose definition includes two <Domain Constraint>s. Here is an example: 
 
 ::
