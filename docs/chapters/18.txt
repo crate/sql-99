@@ -2439,7 +2439,7 @@ some grouped Views, or we could grant ``PUBLIC`` access to only certain Columns
 in certain Tables. In fact, granting on Column-subset Views is the normal way 
 to do a by-Column ``GRANT`` (see our chapter on AuthorizationIDs). 
 
-.. NOTE::
+.. TIP::
   Make a one-row permanent Table with:
 
   ::
