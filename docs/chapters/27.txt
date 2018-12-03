@@ -784,9 +784,7 @@ cannot achieve using an SQL Domain.
 Distinct types have methods, just like structured types. However, they are 
 limited in various ways. Usually, when we make generalized comments about 
 object-orientation analogies -- such as "UDTs are classes" -- we have 
-structured types in mind, not distinct type 
-
-s.
+structured types in mind, not distinct types.
 
 CREATE TABLE Statement
 ======================
