@@ -4,7 +4,8 @@
 Chapter 25 -- SQL-invoked Routine
 =================================
 
-In this chapter, we'll describe SQL-invoked routines in detail, and show you the syntax to use to create, alter and destroy them.
+In this chapter, we'll describe SQL-invoked routines in detail, and show you 
+the syntax to use to create, alter and destroy them.
 
 .. rubric:: Table of Contents
 
@@ -14,98 +15,132 @@ In this chapter, we'll describe SQL-invoked routines in detail, and show you the
 Routine
 =======
 
-A Schema may contain zero or more SQL-invoked routines. An SQL-invoked routine
-(or SQL routine), is the generic name for either a procedure (SQL-invoked
-procedure) or a function (SQL-invoked function). SQL routines are dependent on
-some Schema (they're also called Schema-level routines) and are created,
-altered and dropped using standard SQL statements.
+A Schema may contain zero or more SQL-invoked routines. An *SQL-invoked 
+routine* (or SQL routine), is the generic name for either a procedure 
+(SQL-invoked procedure) or a function (SQL-invoked function). SQL routines are 
+dependent on some Schema (they're also called *Schema-level routines*) and are 
+created, altered and dropped using standard SQL statements. 
 
-The concepts of "procedure" and "function" are the same in SQL as in other
-languages, so the ideas in this chapter will be old hat to any programmer.
-However, the syntax is all new: there was no standardized way to make SQL
-routines until SQL3. Actually there still isn't -- it will take time before
-all vendors fall in line -- but it's certainly time that everybody knows what routines are, according to the SQL Standard.
+The concepts of "procedure" and "function" are the same in SQL as in other 
+languages, so the ideas in this chapter will be old hat to any programmer. 
+However, the syntax is all new: there was no standardized way to make SQL 
+routines until SQL3. Actually there still isn't -- it will take time before all 
+vendors fall in line -- but it's certainly time that everybody knows what 
+routines are, according to the SQL Standard. 
 
-In SQL, a routine consists of at least three items: a <Routine name>, a set of
-parameter declarations and a routine body. An SQL procedure is a routine that
-is invoked with a CALL statement; it may have input parameters, output
-parameters and parameters that are both input parameters and output
-parameters. An SQL function is a routine that returns a value when invoked by
-a <routine invocation>; it has only input parameters, one of which may be
-defined as the result parameter (if you do this, the function is called a
-type-preserving function because the <data type> of the result is a subtype of
-the <data type> of the result parameter). A function can also be defined as an
-SQL-invoked method; it is invoked by a <method invocation> and its first parameter (called the subject parameter) must be a UDT.
+In SQL, a routine consists of at least three items: a <Routine name>, a set of 
+parameter declarations and a routine body. An SQL procedure is a routine that 
+is invoked with a ``CALL`` statement; it may have input parameters, output 
+parameters and parameters that are both input parameters and output parameters. 
+An SQL function is a routine that returns a value when invoked by a <routine 
+invocation>; it has only input parameters, one of which may be defined as the 
+result parameter (if you do this, the function is called a *type-preserving 
+function* because the <data type> of the result is a subtype of the <data type> 
+of the result parameter). A function can also be defined as an SQL-invoked 
+method; it is invoked by a <method invocation> and its first parameter (called 
+the subject parameter) must be a UDT. 
 
-The case for routines can be summarized by noting these advantages:
+The case for routines can be summarized by noting these advantages: 
 
-## Flexibility: You can do even more with routines than you can with Constraints or Triggers, and you can do them in a wider variety of scenarios.
+**Flexibility**
 
-## Efficiency: Quite often, it's possible to replace slow generic SQL statements with painstakingly-optimized routines, especially "external routines" (i.e.: routines written in languages other than SQL).
+You can do even more with routines than you can with Constraints or 
+Triggers, and you can do them in a wider variety of scenarios.
 
-## Cleanliness: Routines let you avoid writing the same SQL code in two places.
+**Efficiency**
 
-## Globalization: Is your SQL code enforcing the rules of the whole business? Then it should be associated with the entire database. Procedures are particularly useful for specialized Privilege checking.
+Quite often, it's possible to replace slow generic SQL statements with 
+painstakingly-optimized routines, especially "external routines" (i.e.: 
+routines written in languages other than SQL).
 
-## Sharing: Routines are (usually) cached on the server, and are (sometimes) accessible to all programmers. You needn't re-transmit and re-prepare every frequently-used code piece.
+**Cleanliness**
 
-An SQL-invoked routine is defined by a descriptor that contains 18 pieces of information:
+Routines let you avoid writing the same SQL code in two places.
 
-## The not necessarily unique <Routine name> of the routine, qualified by the <Schema name> of the Schema it belongs to (or by MODULE).
+**Globalization**
 
-## The unique <specific name> of the routine, qualified by the <Schema name> of the Schema it belongs to.
+Is your SQL code enforcing the rules of the whole business? Then it should 
+be associated with the entire database. Procedures are particularly useful 
+for specialized Privilege checking.
 
-## The <external routine name> of the routine (for external routines).
+**Sharing**
 
-## The routine's <AuthorizationID>.
+Routines are (usually) cached on the server, and are (sometimes) accessible 
+to all programmers. You needn't re-transmit and re-prepare every 
+frequently-used code piece.
 
-## The routine's SQL-path.
+An SQL-invoked routine is defined by a descriptor that contains 18 pieces of 
+information:
 
-## The language the routine is written in.
+1. The not necessarily unique <Routine name> of the routine, qualified by 
+   the <Schema name> of the Schema it belongs to (or by ``MODULE``).
 
-## A descriptor for every parameter in the routine. The parameter descriptor contains the <SQL parameter name> (if any), the parameter's <data type>, the ordinal position of the parameter in the routine body and
+2. The unique <specific name> of the routine, qualified by the <Schema name> 
+   of the Schema it belongs to.
 
-whether the parameter is an input parameter, an output parameter or both.
+3. The <external routine name> of the routine (for external routines).
 
-## Whether the routine is an SQL-invoked function or an SQL-invoked procedure and, in the first case, whether it is also an SQL-invoked method.
+4. The routine's <AuthorizationID>.
 
-## The maximum number of dynamic result sets (for procedures).
+5. The routine's SQL-path.
 
-## Whether the routine is deterministic or possibly non-deterministic.
+6. The language the routine is written in.
 
-## Whether the routine possibly modifies SQL-data, possibly reads SQL-data, possibly contains SQL or does not possibly contain SQL.
+7. A descriptor for every parameter in the routine. The parameter descriptor 
+   contains the <SQL parameter name> (if any), the parameter's <data type>, 
+   the ordinal position of the parameter in the routine body and whether the 
+   parameter is an input parameter, an output parameter or both.
 
-## The <returns data type> of the routine, and whether the return value is a locator (for functions).
+8. Whether the routine is an SQL-invoked function or an SQL-invoked 
+   procedure and, in the first case, whether it is also an SQL-invoked method.
 
-## Whether the routine is a type-preserving function or a mutator function.
+9. The maximum number of dynamic result sets (for procedures).
 
-## The routine's result parameter (for type-preserving functions).
+10. Whether the routine is deterministic or possibly non-deterministic.
 
-## Whether the routine is a null-call routine (for functions).
+11. Whether the routine possibly modifies SQL-data, possibly reads SQL-data, 
+    possibly contains SQL or does not possibly contain SQL.
 
-## The routine's creation timestamp: when it was created.
+12. The <returns data type> of the routine, and whether the return value is 
+    a locator (for functions).
 
-## The routine's last-altered timestamp: when it was last changed.
+13. Whether the routine is a type-preserving function or a mutator function.
 
-## The routine body of the routine: the SQL procedure statement that is executed when the routine is run (for SQL routines) or the host language statements that are executed when the routine is run (for external routines).
+14. The routine's result parameter (for type-preserving functions).
 
-An SQL-invoked routine can be an SQL routine (a routine written in SQL) or an
-external routine (a routine written in a standard host language). Routines
-can, of course, also be externally-invoked routines, but in this chapter, we
-are concerned strictly with "Schema routines" -- SQL-invoked routines that are
-stored in the database, just like other Schema Objects (Tables, Domains,
-etc.). Our aim is to describe how routines are created and how they are "invoked" (i.e.: called). The first part is the hard part.
+15. Whether the routine is a null-call routine (for functions).
 
-To create an SQL-invoked routine use the CREATE FUNCTION or CREATE PROCEDURE
-statements (either as stand-alone SQL statements or within a CREATE SCHEMA
-statement). CREATE FUNCTION and CREATE PROCEDURE specify the enclosing Schema,
-name the SQL-invoked routine and define the routine's body and routine
-characteristics. To destroy an SQL-invoked routine, use the DROP ROUTINE, DROP
-FUNCTION or DROP PROCEDURE statements. To change an existing routine, drop and then redefine it.
+16. The routine's creation timestamp: when it was created.
 
-SQL-invoked routine names:
+17. The routine's last-altered timestamp: when it was last changed.
 
-An SQL-invoked routine name is either a <Routine name> or a <specific name>: both identify an SQL-invoked routine. The required syntax for an SQL-invoked routine name is:
+18. The routine body of the routine: the SQL procedure statement that is 
+    executed when the routine is run (for SQL routines) or the host language 
+    statements that are executed when the routine is run (for external 
+    routines).
+
+An SQL-invoked routine can be an SQL routine (a routine written in SQL) or an 
+external routine (a routine written in a standard host language). Routines can, 
+of course, also be externally-invoked routines, but in this chapter, we are 
+concerned strictly with "Schema routines" -- SQL-invoked routines that are 
+stored in the database, just like other Schema Objects (Tables, Domains, etc.). 
+Our aim is to describe how routines are created and how they are "invoked" 
+(i.e.: called). The first part is the hard part. 
+
+To create an SQL-invoked routine use the ``CREATE FUNCTION`` or ``CREATE 
+PROCEDURE`` statements (either as stand-alone SQL statements or within a 
+``CREATE SCHEMA`` statement). ``CREATE FUNCTION`` and ``CREATE PROCEDURE`` 
+specify the enclosing Schema, name the SQL-invoked routine and define the 
+routine's body and routine characteristics. To destroy an SQL-invoked routine, 
+use the ``DROP ROUTINE``, ``DROP FUNCTION`` or ``DROP PROCEDURE`` statements. 
+To change an existing routine, drop and then redefine it. 
+
+*SQL-invoked Routine Names*
+---------------------------
+
+An SQL-invoked routine name is either a <Routine name> or a <specific name>: 
+both identify an SQL-invoked routine. The required syntax for an SQL-invoked 
+routine name is:
 
 ::
 
@@ -116,27 +151,36 @@ An SQL-invoked routine name is either a <Routine name> or a <specific name>: bot
     <specific name> ::=
     [ <Schema name>. ] unqualified name
 
-A <Routine name> and a <specific name> are both a <regular identifier> or a
-<delimited identifier>. The <Schema name> that qualifies a <Routine name> or a
-<specific name> names the Schema that the SQL-invoked routine belongs to and
-can either be explicitly stated, or a default will be supplied by your DBMS, as follows:
+A <Routine name> and a <specific name> are both a <regular identifier> or a 
+<delimited identifier>. The <Schema name> that qualifies a <Routine name> or a 
+<specific name> names the Schema that the SQL-invoked routine belongs to and 
+can either be explicitly stated, or a default will be supplied by your DBMS, as 
+follows: 
 
-## If a <Routine name> or a <specific name> in a CREATE SCHEMA statement isn't qualified, the default qualifier is the name of the Schema you're creating.
+* If a <Routine name> or a <specific name> in a ``CREATE SCHEMA`` statement 
+  isn't qualified, the default qualifier is the name of the Schema you're 
+  creating.
 
-## If the unqualified <Routine name> or <specific name> is found in any
-other SQL statement in a Module, the default qualifier is the name of the
-Schema identified in the SCHEMA clause or AUTHORIZATION clause of the MODULE statement which defines that Module.
+* If the unqualified <Routine name> or <specific name> is found in any other 
+  SQL statement in a Module, the default qualifier is the name of the Schema 
+  identified in the ``SCHEMA`` clause or ``AUTHORIZATION`` clause of the 
+  ``MODULE`` statement which defines that Module.
 
-More than one SQL-invoked routine in a Schema may have the same <Routine name>s. Your DBMS will determine which routine is being invoked as follows:
+More than one SQL-invoked routine in a Schema may have the same <Routine 
+name>s. Your DBMS will determine which routine is being invoked as follows:
 
-## Since procedures and functions are created with separate SQL statements, your DBMS can uniquely identify the type of multiple routines identified by the same <Routine name>.
+* Since procedures and functions are created with separate SQL statements, 
+  your DBMS can uniquely identify the type of multiple routines identified by 
+  the same <Routine name>.
 
-## Two procedures in a Schema may have the same <Routine name> only if
-they don't also have the same number of parameters. Thus, your DBMS can
-uniquely identify one procedure from another by checking the parameters of
-each procedure with the same <Routine name>.
+* Two procedures in a Schema may have the same <Routine name> only if
+  they don't also have the same number of parameters. Thus, your DBMS can
+  uniquely identify one procedure from another by checking the parameters of
+  each procedure with the same <Routine name>.
 
-## Two functions in a Schema must have unique <specific name>s. Thus, your DBMS can uniquely identify one function from another by checking the <specific name> of each function with the same <Routine name>.
+* Two functions in a Schema must have unique <specific name>s. Thus, your 
+  DBMS can uniquely identify one function from another by checking the 
+  <specific name> of each function with the same <Routine name>.
 
 Here are some examples of <Routine name>s:
 
@@ -167,15 +211,19 @@ Here are some examples of <specific name>s:
    CATALOG_1.SCHEMA_1.SPECIFIC_ROUTINE_1
    -- a fully qualified <specific name>
 
-SQL parameter names:
+*SQL Parameter Names*
+---------------------
 
-An <SQL parameter name> identifies an SQL parameter. The required syntax for an <SQL parameter name> is:
+An <SQL parameter name> identifies an SQL parameter. The required syntax for 
+an <SQL parameter name> is:
 
 ::
 
     <SQL parameter name> ::= <identifier>
 
-An <SQL parameter name> is a <regular identifier> or a <delimited identifier> that is unique (for all parameters) in the routine it belongs to. Here are some examples of <SQL parameter name>s:
+An <SQL parameter name> is a <regular identifier> or a <delimited 
+identifier> that is unique (for all parameters) in the routine it belongs 
+to. Here are some examples of <SQL parameter name>s:
 
 ::
 
@@ -185,12 +233,13 @@ An <SQL parameter name> is a <regular identifier> or a <delimited identifier> th
    "PARAMETER_1's helper"
    -- a <delimited identifier>
 
-CREATE PROCEDURE/FUNCTION statement
+CREATE PROCEDURE/FUNCTION Statement
 ===================================
 
-The CREATE PROCEDURE/FUNCTION statement names a new SQL-invoked procedure or
-function and defines the routine's SQL parameters, characteristics and routine
-body. The required syntax for the CREATE PROCEDURE/FUNCTION statement is:
+The ``CREATE PROCEDURE/FUNCTION`` statement names a new SQL-invoked procedure 
+or function and defines the routine's SQL parameters, characteristics and 
+routine body. The required syntax for the ``CREATE PROCEDURE/FUNCTION`` 
+statement is: 
 
 ::
 
@@ -256,7 +305,8 @@ body. The required syntax for the CREATE PROCEDURE/FUNCTION statement is:
           [ TRANSFORM GROUP <group name> ]
           [ WITH {HOLD | RELEASE} ]
 
-The CREATE PROCEDURE/CREATE FUNCTION statement lets you define an SQL-invoked routine. Here's a simpler version of the required syntax:
+The ``CREATE PROCEDURE/CREATE FUNCTION`` statement lets you define an 
+SQL-invoked routine. Here's a simpler version of the required syntax:
 
 ::
 
@@ -276,46 +326,49 @@ The CREATE PROCEDURE/CREATE FUNCTION statement lets you define an SQL-invoked ro
     [STATIC DISPATCH]                                     /* for function only */
     <routine body>
 
-As you can see, our "simpler" version isn't much simpler -- there's lots of
-options! So what we'll do with this SQL statement is first give you a quick
-one-paragraph description of each clause, then we'll start with some examples
-of simple SQL routines and work our way up -- piece by piece -- to fairly complicated matters.
+As you can see, our "simpler" version isn't much simpler -- there's lots of 
+options! So what we'll do with this SQL statement is first give you a quick 
+one-paragraph description of each clause, then we'll start with some examples 
+of simple SQL routines and work our way up -- piece by piece -- to fairly 
+complicated matters. 
 
-CREATE ... <Routine name> clause:
+*CREATE ... <Routine name> Clause*
+----------------------------------
 
-First of all, to create an SQL-invoked routine, the <keyword> phrase CREATE
-PROCEDURE or CREATE FUNCTION is the basic choice. Either way, you are creating
-a "routine". But there are two kinds of routines: "procedures" (which don't
-return values) and "functions" (which do return values). Your choice at this
-stage will determine how the routine is called later. CREATE PROCEDURE defines
-a new SQL-invoked procedure. CREATE FUNCTION defines a new SQL-invoked
-function. A routine is owned by the Schema it belongs to.
+First of all, to create an SQL-invoked routine, the <keyword> phrase ``CREATE 
+PROCEDURE`` or ``CREATE FUNCTION`` is the basic choice. Either way, you are 
+creating a "routine". But there are two kinds of routines: "procedures" (which 
+don't return values) and "functions" (which do return values). Your choice at 
+this stage will determine how the routine is called later. ``CREATE PROCEDURE`` 
+defines a new SQL-invoked procedure. ``CREATE FUNCTION`` defines a new 
+SQL-invoked function. A routine is owned by the Schema it belongs to. 
 
-The <Routine name> identifies the routine and the Schema that it belongs to --
-this is the name of the routine as it appears to SQL. The description of the
-routine is stored (as a Schema Object) in INFORMATION_SCHEMA, so <Routine
-name> has to follow the same rules as any other Schema Object name. A <Routine
-name> that includes an explicit <Schema name> qualifier belongs to the Schema
-named. A <Routine name> that does not include an explicit <Schema name>
-qualifier belongs to the SQL-session default Schema. However -- an unusual
-point -- <Routine name> does not have to be unique within its Schema; that is,
-two different routines in the same Schema may have the same <Routine name>
-because your DBMS will have other ways of uniquely identifying a routine (this
-easement of the usual rule is not allowed in Core SQL.)
+The <Routine name> identifies the routine and the Schema that it belongs to -- 
+this is the name of the routine as it appears to SQL. The description of the 
+routine is stored (as a Schema Object) in ``INFORMATION_SCHEMA``, so <Routine 
+name> has to follow the same rules as any other Schema Object name. A <Routine 
+name> that includes an explicit <Schema name> qualifier belongs to the Schema 
+named. A <Routine name> that does not include an explicit <Schema name> 
+qualifier belongs to the SQL-session default Schema. However -- an unusual 
+point -- <Routine name> does not have to be unique within its Schema; that is, 
+two different routines in the same Schema may have the same <Routine name> 
+because your DBMS will have other ways of uniquely identifying a routine (this 
+easement of the usual rule is not allowed in Core SQL.) 
 
-If CREATE PROCEDURE/CREATE FUNCTION is part of a CREATE SCHEMA statement, the
-<Routine name>, if explicitly qualified, must include the <Schema name> of the
-Schema being created; that is, it isn't possible to create a routine belonging
-to a different Schema from within CREATE SCHEMA. The owner of a Schema always
-has the EXECUTE Privilege on every routine that belongs to that Schema. This
-Privilege is a grantable Privilege only if (a) the routine is an SQL routine
-and the Schema owner has a grantable Privilege for every part of the routine
-body or (b) the routine is an external routine.
+If ``CREATE PROCEDURE/CREATE FUNCTION`` is part of a ``CREATE SCHEMA`` 
+statement, the <Routine name>, if explicitly qualified, must include the 
+<Schema name> of the Schema being created; that is, it isn't possible to create 
+a routine belonging to a different Schema from within ``CREATE SCHEMA``. The 
+owner of a Schema always has the ``EXECUTE`` Privilege on every routine that 
+belongs to that Schema. This Privilege is a grantable Privilege only if *(a)* 
+the routine is an SQL routine and the Schema owner has a grantable Privilege 
+for every part of the routine body or *(b)* the routine is an external routine. 
 
-Parameter declaration list:
+*Parameter Declaration List*
+----------------------------
 
 A routine's parameter declaration list is a parenthesized, comma-delimited
-sequence of declarations taking the form "[IN | OUT | INOUT] [<parameter
+sequence of declarations taking the form "``[IN | OUT | INOUT]`` [<parameter
 name>] <data type> ..." and so on. The purpose of a parameter declaration is
 to describe what values or addresses are being passed to the routine. The
 optional <parameter name> identifies a parameter and must be unique (for all
@@ -323,14 +376,17 @@ parameters) in the routine it belongs to. We'll discuss the details later,
 when we've given you some examples. The parameter declaration list is
 mandatory, but it may be blank -- for example: "()".
 
-RETURNS clause:
+*RETURNS Clause*
+----------------
 
-The RETURNS clause -- RETURNS <data type> <result cast> -- is a mandatory
-clause if your SQL statement is CREATE FUNCTION. Usually this clause describes
-the <data type> of what the function returns, for example: RETURNS SMALLINT.
-Sometimes it is necessary to cast the result, for example: RETURNS CHAR(10) CAST FROM DATE.
+The ``RETURNS`` clause -- ``RETURNS`` <data type> <result cast> -- is a 
+mandatory clause if your SQL statement is ``CREATE FUNCTION``. Usually this 
+clause describes the <data type> of what the function returns, for example: 
+``RETURNS SMALLINT``. Sometimes it is necessary to cast the result, for 
+example: ``RETURNS CHAR(10) CAST FROM DATE``. 
 
-Having described the initial mandatory parts of the routine specification, we can now give you a rough analogy for the C function declaration:
+Having described the initial mandatory parts of the routine specification, we 
+can now give you a rough analogy for the C function declaration: 
 
 ::
 
@@ -343,118 +399,136 @@ In SQL, this is:
    CREATE FUNCTION function1
       (IN param1 SMALLINT) RETURNS INTEGER ...
 
-At this point, we need to emphasize that this example is a rough analogy. The SQL statement is executable (it is not a mere function declaration), and it is far from finished yet.
+At this point, we need to emphasize that this example is a rough analogy. 
+The SQL statement is executable (it is not a mere function declaration), and 
+it is far from finished yet.
 
-Routine characteristics clause:
+*Routine Characteristics Clause*
+--------------------------------
 
 The routine characteristics clause defines certain characteristics of your
 routine. It may include zero or one specification of any (or all) of the eight
 optional characteristic specification subclauses, in any order.
 
-## LANGUAGE subclause
+LANGUAGE Subclause
+__________________
 
-The LANGUAGE subclause names the language the routine is written in. The
-official expectation is that the routine is written in one of the ISO
-"standard" languages: Ada, C, COBOL, FORTRAN, MUMPS, Pascal, PLI (note the
-spelling) or SQL. In practice, your DBMS probably won't support all of the
-standard languages (for example, MUMPS is often excluded); but it may support
-others (for example, BASIC or Java). If you omit the LANGUAGE subclause, the
-default is LANGUAGE SQL and your routine is an SQL routine. A routine written
-in any language other than SQL, is an external routine to SQL.
+The ``LANGUAGE`` subclause names the language the routine is written in. The 
+official expectation is that the routine is written in one of the ISO 
+"standard" languages: Ada, C, COBOL, FORTRAN, MUMPS, Pascal, PLI (note the 
+spelling) or SQL. In practice, your DBMS probably won't support all of the 
+standard languages (for example, MUMPS is often excluded); but it may support 
+others (for example, BASIC or Java). If you omit the ``LANGUAGE`` subclause, 
+the default is ``LANGUAGE SQL`` and your routine is an SQL routine. A routine 
+written in any language other than SQL, is an external routine to SQL. 
 
-## PARAMETER STYLE subclause
+PARAMETER STYLE Subclause
+_________________________
 
-The PARAMETER STYLE subclause is only necessary for external routines and can
-be specified only once in a routine definition -- you can only put it in
-either one of the <routine characteristics> clause or the <external body
-reference> clause. If you omit the PARAMETER STYLE subclause, the default is
-PARAMETER STYLE SQL. Again, we'll discuss parameter details when we have some examples to show you.
+The ``PARAMETER STYLE`` subclause is only necessary for external routines and 
+can be specified only once in a routine definition -- you can only put it in 
+either one of the <routine characteristics> clause or the <external body 
+reference> clause. If you omit the ``PARAMETER STYLE`` subclause, the default 
+is ``PARAMETER STYLE SQL``. Again, we'll discuss parameter details when we have 
+some examples to show you. 
 
-## SPECIFIC subclause
+SPECIFIC Subclause
+__________________
 
-The SPECIFIC <specific name> subclause uniquely identifies the routine. Since
-your routine definition will already contain a <Routine name>, what would you
-need a <specific name> for? Well, it mostly relates to UDTs and we'll defer
-discussing routines for UDTs to our chapter on UDTs.
+The ``SPECIFIC`` <specific name> subclause uniquely identifies the routine. 
+Since your routine definition will already contain a <Routine name>, what would 
+you need a <specific name> for? Well, it mostly relates to UDTs and we'll defer 
+discussing routines for UDTs to our chapter on UDTs. 
 
-## deterministic characteristic subclause
+Deterministic Characteristic Subclause
+______________________________________
 
-The DETERMINISTIC | NOT DETERMINISTIC subclause is important if you intend to
-include the routine in a Constraint, since Constraint routines must be
-deterministic. If you omit the deterministic characteristic subclause, the
-default is NOT DETERMINISTIC (which actually means "possibly
-non-deterministic"; see our chapter on Constraints and Assertions). A
-DETERMINISTIC function always returns the same value for a given list of SQL
-arguments. A DETERMINISTIC procedure always returns the same values in its SQL
-parameters for a given list of SQL arguments. A possibly NOT DETERMINISTIC
-routine might, at different times, return different results even though the
-SQL-data is the same. You may not specify DETERMINISTIC if the routine could
-return different results at different times.
+The ``DETERMINISTIC | NOT DETERMINISTIC`` subclause is important if you intend 
+to include the routine in a Constraint, since Constraint routines must be 
+deterministic. If you omit the deterministic characteristic subclause, the 
+default is ``NOT DETERMINISTIC`` (which actually means "possibly 
+non-deterministic"; see our chapter on Constraints and Assertions). A 
+``DETERMINISTIC`` function always returns the same value for a given list of 
+SQL arguments. A ``DETERMINISTIC`` procedure always returns the same values in 
+its SQL parameters for a given list of SQL arguments. A possibly ``NOT 
+DETERMINISTIC`` routine might, at different times, return different results 
+even though the SQL-data is the same. You may not specify ``DETERMINISTIC`` if 
+the routine could return different results at different times. 
 
-## SQL data access indication subclause
+SQL Data Access Indication Subclause
+____________________________________
 
-The NO SQL | CONTAINS SQL | READS SQL DATA | MODIFIES SQL DATA subclause
-specifies what sort of SQL statements are in the routine (if any). If your
-routine LANGUAGE subclause is LANGUAGE SQL, then the routine will certainly
-"contain" SQL statements, but even an external LANGUAGE PASCAL routine can
-contain SQL/CLI functions or embedded SQL statements, so LANGUAGE PASCAL ...
-CONTAINS SQL is a valid specification. If a routine contains any SQL-data
-change statements (INSERT, UPDATE and/or DELETE), its SQL data access
-subclause must state MODIFIES SQL DATA; otherwise if the routine contains any
-other SQL-data statements (e.g.: SELECT or FETCH), the SQL data access
-subclause must state READS SQL DATA; otherwise if the routine contains any
-other SQL statements, the SQL data access subclause must state CONTAINS SQL;
-otherwise if the routine contains no SQL statements at all, the SQL data
-access subclause must state NO SQL. If you omit the SQL data access indication
-subclause, the default is CONTAINS SQL.
+The ``NO SQL | CONTAINS SQL | READS SQL DATA | MODIFIES SQL DATA`` subclause 
+specifies what sort of SQL statements are in the routine (if any). If your 
+routine ``LANGUAGE`` subclause is ``LANGUAGE SQL``, then the routine will 
+certainly "contain" SQL statements, but even an external ``LANGUAGE PASCAL`` 
+routine can contain SQL/CLI functions or embedded SQL statements, so ``LANGUAGE 
+PASCAL ... CONTAINS SQL`` is a valid specification. If a routine contains any 
+SQL-data change statements (``INSERT``, ``UPDATE`` and/or ``DELETE``), its SQL 
+data access subclause must state ``MODIFIES SQL DATA``; otherwise if the 
+routine contains any other SQL-data statements (e.g.: ``SELECT`` or ``FETCH``), 
+the SQL data access subclause must state ``READS SQL DATA``; otherwise if the 
+routine contains any other SQL statements, the SQL data access subclause must 
+state ``CONTAINS SQL``; otherwise if the routine contains no SQL statements at 
+all, the SQL data access subclause must state ``NO SQL``. If you omit the SQL 
+data access indication subclause, the default is ``CONTAINS SQL``. 
 
-## null-call subclause
+Null-Call Subclause
+___________________
 
-The RETURN NULL ON NULL INPUT | CALL ON NULL INPUT subclause is for functions
-written in a host language, since a host language cannot handle NULLs. When
-the null-call subclause is RETURN NULL ON NULL INPUT, the routine is a
-"null-call" routine. If you call a null-call routine with any parameter set to
-the null value, the return is immediate: the function returns NULL. When the
-null-call subclause is CALL ON NULL INPUT and you call the routine with any
-parameter set to the null value, execution of the routine follows standard
-rules for operations with null values (e.g.: comparisons of nulls to other
-values return UNKNOWN, and so on). If you omit the null-call subclause, the
-default is CALL ON NULL INPUT.
+The ``RETURN NULL ON NULL INPUT | CALL ON NULL INPUT`` subclause is for 
+functions written in a host language, since a host language cannot handle 
+``NULL``\s. When the null-call subclause is ``RETURN NULL ON NULL INPUT``, the 
+routine is a "null-call" routine. If you call a null-call routine with any 
+parameter set to the null value, the return is immediate: the function returns 
+``NULL``. When the null-call subclause is ``CALL ON NULL INPUT`` and you call 
+the routine with any parameter set to the null value, execution of the routine 
+follows standard rules for operations with null values (e.g.: comparisons of 
+nulls to other values return ``UNKNOWN``, and so on). If you omit the null-call 
+subclause, the default is ``CALL ON NULL INPUT``. 
 
-## DYNAMIC RESULT SETS subclause
+DYNAMIC RESULT SETS Subclause
+_____________________________
 
-The DYNAMIC RESULT SETS subclause is legal only within a CREATE PROCEDURE
-statement. The "result sets" in question are query results, and the concept
-here is that, within the routine, a certain number of Cursors (the unsigned
-integer) can be opened for the results. In other words, you can CALL a
-procedure which STATIC DISPATCH clause contains up to "n" OPEN (Cursor)
-statements, and those Cursors will be visible after you return from the
-procedure. If you omit the DYNAMIC RESULT SETS subclause, the default is DYNAMIC RESULT SETS 0.
+The ``DYNAMIC RESULT SETS`` subclause is legal only within a ``CREATE 
+PROCEDURE`` statement. The "result sets" in question are query results, and the 
+concept here is that, within the routine, a certain number of Cursors (the 
+unsigned integer) can be opened for the results. In other words, you can 
+``CALL`` a procedure which ``STATIC DISPATCH`` clause contains up to *n* 
+``OPEN`` (Cursor) statements, and those Cursors will be visible after you 
+return from the procedure. If you omit the ``DYNAMIC RESULT SETS`` subclause, 
+the default is ``DYNAMIC RESULT SETS 0``. 
 
-Remember that the "routine characteristics" subclauses may be defined in any
-order in a routine definition. The final two clauses must appear at the end of the SQL statement.
+Remember that the "routine characteristics" subclauses may be defined in any 
+order in a routine definition. The final two clauses must appear at the end of 
+the SQL statement. 
 
-STATIC DISPATCH clause:
+*STATIC DISPATCH Clause*
+------------------------
 
-The optional STATIC DISPATCH clause is legal only within a CREATE FUNCTION
-statement. It must be specified for functions that are not also SQL-invoked
-methods, and that contain parameters whose <data type> is either a <reference
-type>, a UDT or an ARRAY whose element <data type> is either a <reference type> or a UDT.
+The optional ``STATIC DISPATCH`` clause is legal only within a ``CREATE 
+FUNCTION`` statement. It must be specified for functions that are not also 
+SQL-invoked methods, and that contain parameters whose <data type> is either a 
+<reference type>, a UDT or an ``ARRAY`` whose element <data type> is either a 
+<reference type> or a UDT. 
 
-<routine body>:
+*<routine body>*
+----------------
 
-The <routine body> is a mandatory part of a routine definition. For a LANGUAGE
-SQL routine, you'd put a SQL procedure statement here (it may be any SQL
-statement other than an SQL-Schema statement, an SQL-Connection statement or
-an SQL-transaction statement). For an external routine, you'd put an external
-interface description here. Clearly, the body of the routine is what really matters.
+The <routine body> is a mandatory part of a routine definition. For a 
+``LANGUAGE SQL`` routine, you'd put a SQL procedure statement here (it may be 
+any SQL statement other than an SQL-Schema statement, an SQL-Connection 
+statement or an SQL-transaction statement). For an external routine, you'd put 
+an external interface description here. Clearly, the body of the routine is 
+what really matters. 
 
 Routine Parameters
 ==================
 
-A routine's SQL parameter declaration list is a parenthesized, comma-delimited
-list of definitions for the routine's parameters. Here's the required syntax
-for a parameter definition in a CREATE PROCEDURE/CREATE FUNCTION statement again:
+A routine's SQL parameter declaration list is a parenthesized, comma-delimited 
+list of definitions for the routine's parameters. Here's the required syntax 
+for a parameter definition in a ``CREATE PROCEDURE/CREATE FUNCTION`` statement 
+again: 
 
 ::
 
@@ -464,16 +538,19 @@ for a parameter definition in a CREATE PROCEDURE/CREATE FUNCTION statement again
     <data type> [ AS LOCATOR ]
     [ RESULT ]
 
-parameter mode:
+*Parameter Mode*
+----------------
 
-The optional [IN | OUT | INOUT] parameter mode specification is legal only
-within CREATE PROCEDURE statements. IN defines an input SQL parameter, OUT
-defines an output SQL parameter and INOUT defines both an input SQL parameter
-and an output SQL parameter. (In SQL routines, the SQL parameters may not be
-named in a host variable or parameter specification in the routine body.) This
-is a directional specification. If you omit the parameter mode subclause, the default is IN.
+The optional ``[IN | OUT | INOUT]`` parameter mode specification is legal only 
+within ``CREATE PROCEDURE`` statements. ``IN`` defines an input SQL parameter, 
+``OUT`` defines an output SQL parameter and ``INOUT`` defines both an input SQL 
+parameter and an output SQL parameter. (In SQL routines, the SQL parameters may 
+not be named in a host variable or parameter specification in the routine 
+body.) This is a directional specification. If you omit the parameter mode 
+subclause, the default is ``IN``. 
 
-<SQL parameter name>:
+*<SQL parameter name>*
+----------------------
 
 The optional <SQL parameter name> is simply that: a name that you'll use if
 you refer to the parameter within the routine. If you're defining an SQL
@@ -483,20 +560,24 @@ routine, an <SQL parameter name> for each of its parameters is not mandatory
 because in an external routine you can use any name you like; the ordinal
 position of the parameter within the routine is what matters.
 
-<data type>:
+*<data type>*
+-------------
 
 The <data type> of a parameter is always an SQL <data type> and must be
 defined for every parameter. The value of an SQL parameter with a character
-string <data type> has IMPLICIT coercibility. At this time, we include the
-optional [ AS LOCATOR ] indicator here only for completeness: it's valid only
+string <data type> has ``IMPLICIT`` coercibility. At this time, we include the
+optional ``[AS LOCATOR]`` indicator here only for completeness: it's valid only
 when you're defining an external routine with a parameter whose <data type> is
-either BLOB, CLOB, NCLOB, ARRAY or a UDT.
+either ``BLOB``, ``CLOB``, ``NCLOB``, ``ARRAY`` or a UDT.
 
-RESULT:
+*RESULT*
+--------
 
-The optional <keyword> RESULT is applicable only for UDTs, and is noted here only for completeness at this time.
+The optional <keyword> ``RESULT`` is applicable only for UDTs, and is noted 
+here only for completeness at this time. 
 
-Here's an example of a parameter declaration list for a CREATE PROCEDURE statement:
+Here's an example of a parameter declaration list for a ``CREATE PROCEDURE`` 
+statement: 
 
 ::
 
@@ -504,25 +585,29 @@ Here's an example of a parameter declaration list for a CREATE PROCEDURE stateme
       IN Apple CHAR(6), OUT Orange CHAR(6))
       ...
 
-The list is legal only within a CREATE PROCEDURE statement because it contains
-IN and OUT declarations (within a CREATE FUNCTION statement, all parameters
-are assumed to be IN). The parameter named APPLE is a 6-character input
-parameter; the parameter named ORANGE is a 6-character output parameter.
-Here's an example of a parameter declaration list for a CREATE FUNCTION statement:
+The list is legal only within a ``CREATE PROCEDURE`` statement because it 
+contains ``IN`` and ``OUT`` declarations (within a ``CREATE FUNCTION`` 
+statement, all parameters are assumed to be ``IN``). The parameter named 
+``APPLE`` is a 6-character input parameter; the parameter named ``ORANGE`` is a 
+6-character output parameter. Here's an example of a parameter declaration list 
+for a ``CREATE FUNCTION`` statement: 
 
 ::
 
    CREATE FUNCTION function_1 (Apple CHAR(6))
       ...
 
-Invoking routines
+Invoking Routines
 =================
 
-Creating a routine is complex. Invoking a routine can be easy. The secret is: don't use the same <Routine name> twice in the same Schema.
+Creating a routine is complex. Invoking a routine can be easy. The secret 
+is: don't use the same <Routine name> twice in the same Schema.
 
-CALL statement
+*CALL Statement*
+----------------
 
-The CALL statement invokes a procedure. The required syntax for the CALL statement is:
+The ``CALL`` statement invokes a procedure. The required syntax for the 
+``CALL`` statement is:
 
 ::
 
@@ -535,10 +620,10 @@ The CALL statement invokes a procedure. The required syntax for the CALL stateme
           scalar_expression_argument |
           <host parameter name> [ [ INDICATOR ] <host parameter name> ] |
 
-The <Routine name> must identify an SQL-invoked procedure and the <SQL
-argument list> must correspond to that procedure's parameter declarations in
-both number and comparable <data type>. (A "scalar_expression_argument" is any
-expression which evaluates to a single value.) For example, for this procedure:
+The <Routine name> must identify an SQL-invoked procedure and the <SQL argument 
+list> must correspond to that procedure's parameter declarations in both number 
+and comparable <data type>. (A ``scalar_expression_argument`` is any expression 
+which evaluates to a single value.) For example, for this procedure: 
 
 ::
 
@@ -546,20 +631,24 @@ expression which evaluates to a single value.) For example, for this procedure:
       IN in_param SMALLINT, OUT out_param SMALLINT
       ...
 
-use this CALL statement to invoke it:
+use this ``CALL`` statement to invoke it:
 
 ::
 
    CALL procedure_1(5,5);
 
-The SQL argument for an IN SQL parameter or an INOUT SQL parameter must be a
-scalar_expression_argument. The SQL argument for an OUT SQL parameter may be a host language variable.
+The SQL argument for an ``IN`` SQL parameter or an ``INOUT`` SQL parameter must 
+be a ``scalar_expression_argument``. The SQL argument for an ``OUT`` SQL 
+parameter may be a host language variable. 
 
-Your current <AuthorizationID> must have the EXECUTE Privilege on a procedure to CALL it.
+Your current <AuthorizationID> must have the ``EXECUTE`` Privilege on a 
+procedure to ``CALL`` it. 
 
-<routine invocation>
+*<routine invocation>*
+----------------------
 
-A <routine invocation> invokes a function. The required syntax for a <routine invocation> is:
+A <routine invocation> invokes a function. The required syntax for a 
+<routine invocation> is:
 
 ::
 
@@ -574,14 +663,15 @@ A <routine invocation> invokes a function. The required syntax for a <routine in
 
 The <Routine name> must identify an SQL-invoked function and the <SQL argument
 list> must correspond to that function's parameter declarations in both number
-and comparable <data type>. (A "scalar_expression_argument" is any expression
+and comparable <data type>. (A ``scalar_expression_argument`` is any expression
 which evaluates to a single value.) For example, for this function:
 
 ::
 
    CREATE FUNCTION function_1 (in_param SMALLINT) ...;
 
-use this <routine invocation> to invoke it wherever it's legal to use a value expression:
+use this <routine invocation> to invoke it wherever it's legal to use a 
+value expression:
 
 ::
 
@@ -593,16 +683,21 @@ Here's an example:
 
    INSERT INTO Table_1 VALUES (function_1(5));
 
-Your current <AuthorizationID> must have the EXECUTE Privilege on a function to invoke it.
+Your current <AuthorizationID> must have the ``EXECUTE`` Privilege on a 
+function to invoke it.
 
-Routine examples
+Routine Examples
 ================
 
-Here are four examples of SQL-invoked routines that might be used in real-life situations.
+Here are four examples of SQL-invoked routines that might be used in 
+real-life situations.
 
-Routine example -- Reset procedure:
-Objective: Define and invoke a procedure which sets Column COLUMN_1, in Table
-TABLE_1, to zero for all rows. Here's a procedure definition to accomplish this:
+*Routine Example -- Reset Procedure*
+------------------------------------
+
+Objective: Define and invoke a procedure which sets Column ``COLUMN_1``, in 
+Table ``TABLE_1``, to zero for all rows. Here's a procedure definition to 
+accomplish this: 
 
 ::
 
@@ -612,13 +707,14 @@ TABLE_1, to zero for all rows. Here's a procedure definition to accomplish this:
       MODIFIES SQL DATA                         /* Data access clause */
       UPDATE Table_1 SET column_1 = 0;          /* The routine body */
 
-To invoke RESET_TABLE_1, use this SQL statement:
+To invoke ``RESET_TABLE_1``, use this SQL statement:
 
 ::
 
    CALL Reset_table_1();
 
-When you invoke a routine, you're telling your DBMS to execute the routine body. For this example, this SQL statement:
+When you invoke a routine, you're telling your DBMS to execute the routine 
+body. For this example, this SQL statement:
 
 ::
 
@@ -632,16 +728,25 @@ has the same effect as this SQL statement:
 
 Details worth noting:
 
-## It's fairly common for a <Routine name> to consist of a verb and an Object, as in this case. The style of routine definitions is still evolving.
+* It's fairly common for a <Routine name> to consist of a verb and an 
+  Object, as in this case. The style of routine definitions is still evolving.
 
-## Even though there are no parameters, the parentheses which enclose the parameter declaration list are necessary, both during creation and during invocation.
+* Even though there are no parameters, the parentheses which enclose the 
+  parameter declaration list are necessary, both during creation and during 
+  invocation.
 
-## The SQL-data access clause -- MODIFIES SQL DATA -- is necessary in this case because the procedure contains the SQL-data change statement INSERT. It's a good habit to specify the data access clause even when it is not necessary.
+* The SQL-data access clause -- ``MODIFIES SQL DATA`` -- is necessary in 
+  this case because the procedure contains the SQL-data change statement 
+  ``INSERT``. It's a good habit to specify the data access clause even when it 
+  is not necessary.
 
-Routine example -- Constant function:
+*Routine Example -- Constant Function*
+--------------------------------------
 
-Objective: Define and invoke a function which returns the constant pi, as a
-DECIMAL value. Here's a function definition to accomplish this:
+.. |pi| unicode:: U+03C0
+
+Objective: Define and invoke a function which returns the constant pi (|pi|), 
+as a ``DECIMAL`` value. Here's a function definition to accomplish this: 
 
 ::
 
@@ -652,17 +757,19 @@ DECIMAL value. Here's a function definition to accomplish this:
       CONTAINS SQL                 /* Data access clause */
       RETURN 3.14;                 /* The routine body */
 
-To invoke PI, use the <routine invocation> "Pi()" in an SQL statement, for example:
+To invoke ``PI``, use the <routine invocation> ``Pi()`` in an SQL statement, 
+for example:
 
 ::
 
    INSERT INTO Table_1 (decimal_column) VALUES (Pi());
 
-In this example, the routine body contains a RETURN statement, which is legal
-only within SQL functions. RETURN must specify some value (you can put any
-expression which evaluates to a single value here) with a <data type> that is
-assignable to the <data type> defined in the function definition's RETURNS
-clause. In this case, the function invocation in this SQL statement:
+In this example, the routine body contains a ``RETURN`` statement, which is 
+legal only within SQL functions. ``RETURN`` must specify some value (you can 
+put any expression which evaluates to a single value here) with a <data type> 
+that is assignable to the <data type> defined in the function definition's 
+``RETURNS`` clause. In this case, the function invocation in this SQL 
+statement: 
 
 ::
 
@@ -674,11 +781,17 @@ has the same effect as this SQL statement:
 
    INSERT INTO Table_1 (decimal_column) VALUES (3.14);
 
-** Tip: You can't define constants in SQL, but you can define constant functions. They help ensure that values like ã (pi) are defined only once, and are referenced by a name rather than a <literal>.
+.. TIP::
 
-Routine example -- Subquery function:
+   You can't define constants in SQL, but you can define constant functions. 
+   They help ensure that values like ``p`` (pi) are defined only once, and 
+   are referenced by a name rather than a <literal>.
 
-Objective is: Define and invoke a replacement for a frequently-used subquery. Here's a function definition to accomplish this:
+*Routine Example -- Subquery Function*
+--------------------------------------
+
+Objective is: Define and invoke a replacement for a frequently-used 
+subquery. Here's a function definition to accomplish this:
 
 ::
 
@@ -692,26 +805,29 @@ Objective is: Define and invoke a replacement for a frequently-used subquery. He
          FROM   Table_1
          WHERE  smallint_column > 5);
 
-To invoke ``MAX_``, use the <routine invocation> "Max_()" in an SQL statement, for example:
+To invoke ``MAX_``, use the <routine invocation> ``Max_()`` in an SQL 
+statement, for example:
 
 ::
 
   SELECT * FROM Table_2 WHERE Column_1 < Max_();
 
-The potential advantage with this example is that "Max_()" is easier to type
-than "SELECT MAX(date_column) FROM Table_1 WHERE smallint_column > 5);". It's
+The potential advantage with this example is that ``Max_()`` is easier to type
+than ``SELECT MAX(date_column) FROM Table_1 WHERE smallint_column > 5);``. It's
 also safer -- if a subquery is long and complex and used frequently, you'll
 reduce the chances of error by putting the subquery into a function.
 
-A far less likely advantage is that the ``MAX_`` routine is parsed and done only
-once. Although that sort of optimization is theoretically possible, there are
-some hidden dynamic variables that could change each time ``MAX_`` is invoked (for
-example, the Schema that contains TABLE_1). One does not call functions like
-this for "efficiency" reasons.
+A far less likely advantage is that the ``MAX_`` routine is parsed and done 
+only once. Although that sort of optimization is theoretically possible, there 
+are some hidden dynamic variables that could change each time ``MAX_`` is 
+invoked (for example, the Schema that contains ``TABLE_1``). One does not call 
+functions like this for "efficiency" reasons. 
 
-Routine example -- Withdrawal procedure:
+*Routine Example -- Withdrawal Procedure*
+-----------------------------------------
 
-Objective: Perform a logged balanced withdrawal, like real banks do. Here's a procedure definition to accomplish this:
+Objective: Perform a logged balanced withdrawal, like real banks do. Here's 
+a procedure definition to accomplish this:
 
 ::
 
@@ -734,7 +850,8 @@ Objective: Perform a logged balanced withdrawal, like real banks do. Here's a pr
            parameter_amount);
       END;
 
-To invoke WITHDRAW, use a CALL statement that names the procedure and provides a value for each of its parameters, for example:
+To invoke ``WITHDRAW``, use a ``CALL`` statement that names the procedure 
+and provides a value for each of its parameters, for example:
 
 ::
 
@@ -746,53 +863,62 @@ Therefore, in the real world, withdrawals are done via procedures. This
 example is translated from a procedure written in a host language (not SQL);
 however, the routine is really used in a real bank. Details worth noting:
 
-## The parameters (all of which are IN SQL parameters) are simply referenced by name within the routine body.
+* The parameters (all of which are ``IN`` SQL parameters) are simply 
+  referenced by name within the routine body.
 
-## The routine body contains a compound SQL procedure statement (a sequence of SQL statements within a "BEGIN ATOMIC ... END" block). Correctly, compound SQL statements are only legal in Triggers,
-or as part of the "Persistent Stored Modules" SQL package (see our chapter on PSM) -- so this example shows the use of an extension to Standard Core SQL.
+* The routine body contains a compound SQL procedure statement (a sequence 
+  of SQL statements within a ``BEGIN ATOMIC ... END`` block). Correctly, 
+  compound SQL statements are only legal in Triggers, or as part of the 
+  "Persistent Stored Modules" SQL package (see our chapter on PSM) -- so this 
+  example shows the use of an extension to Standard Core SQL.
 
-Routines are particularly applicable to Roles. For example, a bank teller
-might not have the Privilege to access a Table, but would have the Privilege
-to EXECUTE the WITHDRAW Procedure. Typically, one finds that when groups of
-employees are involved, the applicable Privilege is not an "access Privilege
-on a Table" but an "EXECUTE Privilege on a routine".
+Routines are particularly applicable to Roles. For example, a bank teller might 
+not have the Privilege to access a Table, but would have the Privilege to 
+``EXECUTE`` the ``WITHDRAW`` Procedure. Typically, one finds that when groups 
+of employees are involved, the applicable Privilege is not an "access Privilege 
+on a Table" but an "``EXECUTE`` Privilege on a routine". 
 
-RETURN statement
+RETURN Statement
 ================
 
-The RETURN statement returns a value from an SQL-invoked function. The required syntax for the RETURN statement is:
+The ``RETURN`` statement returns a value from an SQL-invoked function. The 
+required syntax for the ``RETURN`` statement is:
 
 ::
 
     RETURN <value expression> | NULL
 
-The RETURN statement ends the execution of an SQL-invoked function, returning
-the function's result. The return can either be a <value expression> or, if
-the function's result is a null value, the <keyword> NULL.
+The ``RETURN`` statement ends the execution of an SQL-invoked function, 
+returning the function's result. The return can either be a <value expression> 
+or, if the function's result is a null value, the <keyword> ``NULL``. 
 
 External Routines
 =================
 
-   "Host calls DBMS: no story. DBMS calls host: story!"
+| *"Host calls DBMS: no story. DBMS calls host: story!"*
+| *-- Journalist's man-bites-dog rule, slightly adapted*
 
-   -- Journalist's man-bites-dog rule, slightly adapted
+Since most applications involve two languages -- SQL and the host -- there 
+are four possible routine interface situations:
 
-Since most applications involve two languages -- SQL and the host -- there are four possible routine interface situations:
+1. Host invokes SQL -- this is a common situation, discussed in our chapters 
+   on SQL/CLI and embedded SQL.
 
-## Host invokes SQL -- this is a common situation, discussed in our chapters on SQL/CLI and embedded SQL.
+2. Host invokes host -- this is also common, but none of our business: this 
+   is an SQL book.
 
-## Host invokes host -- this is also common, but none of our business: this is an SQL book.
+3. SQL invokes SQL -- this is the situation we've shown you in the example 
+   so far; they've all been SQL routines.
 
-## SQL invokes SQL -- this is the situation we've shown you in the example so far; they've all been SQL routines.
+4. SQL invokes host -- this is not a common situation, but external 
+   routines" are conceivably quite useful.
 
-## SQL invokes host -- this is not a common situation, but external routines" are conceivably quite useful.
-
-You can write Standard SQL routines in Ada, C, COBOL, Fortran, MUMPS, Pascal
-or PL/1. If you do, the routine definition must include a LANGUAGE clause that
-names the host language you're using and its routine body would have to be a
-reference to an external routine, instead of an SQL procedure statement. Here,
-once again, is the required syntax for an <external body reference> in a
-CREATE PROCEDURE/CREATE FUNCTION statement:
+You can write Standard SQL routines in Ada, C, COBOL, Fortran, MUMPS, Pascal or 
+PL/1. If you do, the routine definition must include a ``LANGUAGE`` clause that 
+names the host language you're using and its routine body would have to be a 
+reference to an external routine, instead of an SQL procedure statement. Here, 
+once again, is the required syntax for an <external body reference> in a 
+``CREATE PROCEDURE/CREATE FUNCTION`` statement: 
 
 ::
 
@@ -802,32 +928,39 @@ CREATE PROCEDURE/CREATE FUNCTION statement:
     [ TRANSFORM GROUP <group name> ]
     [ WITH {HOLD | RELEASE} ]
 
-The <keyword> EXTERNAL tells your DBMS you're defining an external routine.
+The <keyword> ``EXTERNAL`` tells your DBMS you're defining an external routine.
 
-NAME clause:
+*NAME Clause*
+-------------
 
-The optional NAME clause specifies the routine's external name. If you omit
-the NAME clause, it will default to the routine's unqualified <Routine name>.
+The optional ``NAME`` clause specifies the routine's external name. If you omit
+the ``NAME`` clause, it will default to the routine's unqualified <Routine 
+name>.
 
-PARAMETER STYLE clause:
+*PARAMETER STYLE Clause*
+------------------------
 
-The optional PARAMETER STYLE clause determines whether some additional
-parameters will be passed automatically and has two options: SQL or GENERAL.
-If the specification is PARAMETER STYLE SQL, then automatic parameters (such
-as indicators) will be passed as well. If the specification is PARAMETER STYLE
-GENERAL, then there is no automatic parameter passing. If you omit the clause,
-the default is PARAMETER STYLE SQL. Remember not to use a parameter style
-clause here if there is already a parameter style clause in the main definition.
+The optional ``PARAMETER STYLE`` clause determines whether some additional 
+parameters will be passed automatically and has two options: ``SQL`` or 
+``GENERAL``. If the specification is ``PARAMETER STYLE SQL``, then automatic 
+parameters (such as indicators) will be passed as well. If the specification is 
+``PARAMETER STYLE GENERAL``, then there is no automatic parameter passing. If 
+you omit the clause, the default is ``PARAMETER STYLE SQL``. Remember not to 
+use a parameter style clause here if there is already a parameter style clause 
+in the main definition. 
 
-TRANSFORM GROUP clause:
+*TRANSFORM GROUP Clause*
+------------------------
 
-The optional TRANSFORM GROUP <group name> clause is necessary only if the
+The optional ``TRANSFORM GROUP`` <group name> clause is necessary only if the
 function is for transforming UDT values to host values, or vice versa. If you
-omit the clause, the default is TRANSFORM GROUP DEFAULT.
+omit the clause, the default is ``TRANSFORM GROUP DEFAULT``.
 
-WITH clause:
+*WITH Clause*
+-------------
 
-The optional WITH {HOLD | RELEASE} clause is a future consideration; the presumption is that it has to do with holdable Cursors.
+The optional ``WITH {HOLD | RELEASE}`` clause is a future consideration; the 
+presumption is that it has to do with holdable Cursors.
 
 Here's an example of an external routine that is an SQL-invoked procedure:
 
@@ -848,34 +981,41 @@ implementation level.
 
 External routines are necessary, or at least very useful, for these things:
 
-## Accessing the operating system. For example, you can't call the
-Windows API from SQL, but you can create an external routine which does so.
-The ability to access the operating system is particularly useful for
-Privilege checks.
+**Accessing the operating system**
 
-## Translating data. The traditional usage here is
-encryption/decryption. We'd also note that, if your DBMS produces error
-messages in English and you want them in Italian, this is a good place to
-intercept them.
+For example, you can't call the Windows API from SQL, but you can create an 
+external routine which does so. The ability to access the operating system is 
+particularly useful for Privilege checks. 
 
-## Optimizing. Since SQL is not famous for low-level efficiency, it's
-usually faster to write some routines in a compiled language, or better yet in
-assembler (shameless plug: see our book OPTIMIZING C WITH ASSEMBLY CODE).
-Hashing and pattern matching would make good examples here.
+**Translating data**
+
+The traditional usage here is encryption/decryption. We'd also note that, if 
+your DBMS produces error messages in English and you want them in Italian, this 
+is a good place to intercept them. 
+
+**Optimizing**
+
+Since SQL is not famous for low-level efficiency, it's usually faster to 
+write some routines in a compiled language, or better yet in assembler 
+(shameless plug: see our book *OPTIMIZING C WITH ASSEMBLY CODE*). Hashing 
+and pattern matching would make good examples here.
 
 External routines are not so wonderful if you're trying to write purely
 portable SQL applications. Also, their existence can confuse the DBMS's
 optimizer, and even confuse application programmers. We suggest that you keep
 it simple: don't write external routines that call SQL.
 
-If you want to restrict your code to Core SQL, don't use LOCATOR indicators,
-DYNAMIC RESULT SETS clauses, TRANSFORM GROUP clauses or duplicate <Routine
-name>s when defining an SQL-invoked routine and don't define any SQL-invoked methods.
+If you want to restrict your code to Core SQL, don't use ``LOCATOR`` 
+indicators, ``DYNAMIC RESULT SETS`` clauses, ``TRANSFORM GROUP`` clauses or 
+duplicate <Routine name>s when defining an SQL-invoked routine and don't define 
+any SQL-invoked methods. 
 
-DROP ROUTINE/PROCEDURE/FUNCTION statement
+DROP ROUTINE/PROCEDURE/FUNCTION Statement
 =========================================
 
-The DROP ROUTINE/PROCEDURE/FUNCTION statement destroys an SQL-invoked procedure or function. The required syntax for the DROP ROUTINE/PROCEDURE/FUNCTION statement is:
+The ``DROP ROUTINE/PROCEDURE/FUNCTION`` statement destroys an SQL-invoked 
+procedure or function. The required syntax for the ``DROP 
+ROUTINE/PROCEDURE/FUNCTION`` statement is:
 
 ::
 
@@ -885,25 +1025,25 @@ The DROP ROUTINE/PROCEDURE/FUNCTION statement destroys an SQL-invoked procedure 
        {ROUTINE | FUNCTION | PROCEDURE} <Routine name>
           [ ([ <data type> [ {,<data type>}... ] ]) ]
 
-DROP ROUTINE/PROCEDURE/FUNCTION destroys an SQL-invoked routine. The <Routine
-name> must identify an existing SQL-invoked routine whose owner is either the
-current <AuthorizationID> or a Role that the current <AuthorizationID> may
-use. That is, only the <AuthorizationID> that owns the routine may drop it. If
-<Routine name> is not unique within the routine's Schema, then you must
-include a <data type> list that provides the <data type> of each of the
-routine's parameters -- your DBMS will match this list to the parameter
-declaration lists of every routine called "<Routine name>" to find the one you
-want to drop. If you remember to always give unique <Routine name>s to your
-routines, you'll avoid a great deal of potential difficulty.
+``DROP ROUTINE/PROCEDURE/FUNCTION`` destroys an SQL-invoked routine. The 
+<Routine name> must identify an existing SQL-invoked routine whose owner is 
+either the current <AuthorizationID> or a Role that the current 
+<AuthorizationID> may use. That is, only the <AuthorizationID> that owns the 
+routine may drop it. If <Routine name> is not unique within the routine's 
+Schema, then you must include a <data type> list that provides the <data type> 
+of each of the routine's parameters -- your DBMS will match this list to the 
+parameter declaration lists of every routine called "<Routine name>" to find 
+the one you want to drop. If you remember to always give unique <Routine name>s 
+to your routines, you'll avoid a great deal of potential difficulty. 
 
-DROP ROUTINE drops either an SQL-invoked function or an SQL-invoked procedure,
-so it's best to be more specific. DROP FUNCTION drops an SQL-invoked function,
-so <Routine name> must identify a function. DROP PROCEDURE drops an SQL-
-invoked procedure, so <Routine name> must identify a procedure. In no case may
-<Routine name> identify a routine that was created as part of a UDT
-definition.
+``DROP ROUTINE`` drops either an SQL-invoked function or an SQL-invoked 
+procedure, so it's best to be more specific. ``DROP FUNCTION`` drops an 
+SQL-invoked function, so <Routine name> must identify a function. ``DROP 
+PROCEDURE`` drops an SQL- invoked procedure, so <Routine name> must identify a 
+procedure. In no case may <Routine name> identify a routine that was created as 
+part of a UDT definition. 
 
-The effect of DROP routine type <Routine name> RESTRICT, e.g.:
+The effect of ``DROP`` routine type <Routine name> ``RESTRICT``, e.g.:
 
 ::
 
@@ -913,15 +1053,16 @@ The effect of DROP routine type <Routine name> RESTRICT, e.g.:
 
    DROP PROCEDURE procedure_1 RESTRICT;
 
-is that the routine named is destroyed, provided that the routine is not
-invoked or used by any other routine or in a View definition, Constraint
-definition, Assertion definition, Trigger definition, Column definition or
-Domain definition and provided that the routine is not a from-sql function or
-a to-sql function associated with an external routine. That is, RESTRICT
-ensures that only a routine with no dependent Objects can be destroyed. If the
-routine is used by any other Object, DROP ROUTINE/FUNCTION/PROCEDURE ... RESTRICT will fail.
+is that the routine named is destroyed, provided that the routine is not 
+invoked or used by any other routine or in a View definition, Constraint 
+definition, Assertion definition, Trigger definition, Column definition or 
+Domain definition and provided that the routine is not a from-sql function or a 
+to-sql function associated with an external routine. That is, ``RESTRICT`` 
+ensures that only a routine with no dependent Objects can be destroyed. If the 
+routine is used by any other Object, ``DROP ROUTINE/FUNCTION/PROCEDURE ... 
+RESTRICT`` will fail. 
 
-The effect of DROP routine type <Routine name> CASCADE, e.g.:
+The effect of ``DROP`` routine type <Routine name> ``CASCADE``, e.g.:
 
 ::
 
@@ -935,17 +1076,19 @@ is that the routine named is destroyed.
 
 Successfully destroying a routine has a three-fold effect:
 
-## The routine named is destroyed.
+1. The routine named is destroyed.
 
-## The EXECUTE Privilege held on the routine by the <AuthorizationID>
-that owns it is revoked (by the SQL special grantor, "_SYSTEM") with a CASCADE
-revoke behaviour, so that all EXECUTE Privileges held on the routine by any
-other <AuthorizationID> are also revoked.
+2. The ``EXECUTE`` Privilege held on the routine by the <AuthorizationID> 
+   that owns it is revoked (by the SQL special grantor, "``_SYSTEM``") with a 
+   ``CASCADE`` revoke behaviour, so that all ``EXECUTE`` Privileges held on the 
+   routine by any other <AuthorizationID> are also revoked. 
 
-## All SQL routines, Views, Constraints, Assertions, Triggers, Columns
-and Domains that depend on the routine are dropped with a CASCADE drop behaviour.
+3. All SQL routines, Views, Constraints, Assertions, Triggers, Columns and 
+   Domains that depend on the routine are dropped with a ``CASCADE`` drop 
+   behaviour. 
 
-If you want to restrict your code to Core SQL, don't use the CASCADE drop behaviour for your DROP ROUTINE/FUNCTION/PROCEDURE statements.
+If you want to restrict your code to Core SQL, don't use the ``CASCADE`` 
+drop behaviour for your ``DROP ROUTINE/FUNCTION/PROCEDURE`` statements.
 
 Dialects
 ========
@@ -960,5 +1103,5 @@ functions). The syntax for creation and invocation is essentially the same as
 what we've described in this chapter, but in all cases the details differ. For
 example, the ODBC document has a definition for procedures, an escape
 mechanism for calling them and a specification of some CLI functions that
-depend on them (such a the SQLProcedures function). However, ODBC makes no
-attempt to specify the grammar for a CREATE PROCEDURE statement.
+depend on them (such a the ``SQLProcedures`` function). However, ODBC makes no
+attempt to specify the grammar for a ``CREATE PROCEDURE`` statement.
