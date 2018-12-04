@@ -4,10 +4,10 @@
 Chapter 28 -- Introduction to SQL-data operations
 =================================================
 
-In this chapter, we'll describe some common SQL constructs. We'll be using
-these constructs in the following chapters, to describe how operations on SQL-
-data work. [Obscure Rule] applies to everything we talk about here, but the
-definitions are a necessary evil for understanding some of what lies ahead.
+In this chapter, we'll describe some common SQL constructs. We'll be using 
+these constructs in the following chapters, to describe how operations on SQL- 
+data work. [Obscure Rule] applies to everything we talk about here, but the 
+definitions are a necessary evil for understanding some of what lies ahead. 
 
 .. rubric:: Table of Contents
 
@@ -17,9 +17,9 @@ definitions are a necessary evil for understanding some of what lies ahead.
 <value specification>
 =====================
 
-A <value specification> is a scalar expression that specifies either a
-<literal>, a host language variable parameter or an SQL parameter as a source
-for a data value. The required syntax for a <value specification> is:
+A <value specification> is a scalar expression that specifies either a 
+<literal>, a host language variable parameter or an SQL parameter as a source 
+for a data value. The required syntax for a <value specification> is: 
 
 ::
 
@@ -44,74 +44,84 @@ for a data value. The required syntax for a <value specification> is:
        <host parameter name> |
        <SQL parameter reference>
 
-A <value specification> specifies a value that is not selected from a Table --
-that is, a <value specification> is either the value represented by a
-<literal>, the value represented by a host language variable or the value
-represented by an SQL parameter. A simple <value specification> is either a
-<literal>, the value of a host language variable or the value of an SQL
-parameter: it may not be the null value. If a <simple value specification>
-does evaluate to NULL, the SQL statement that contains it will fail: your DBMS
-will return the SQLSTATE error 22004 "data exception-null value not allowed".
+A <value specification> specifies a value that is not selected from a Table -- 
+that is, a <value specification> is either the value represented by a 
+<literal>, the value represented by a host language variable or the value 
+represented by an SQL parameter. A simple <value specification> is either a 
+<literal>, the value of a host language variable or the value of an SQL 
+parameter: it may not be the null value. If a <simple value specification> does 
+evaluate to ``NULL``, the SQL statement that contains it will fail: your DBMS 
+will return the ``SQLSTATE error 22004 "data exception-null value not 
+allowed"``. 
 
-A host parameter specification identifies a host parameter (or a host
-parameter and its indicator) in an SQL-client Module. If the indicator for a
-host parameter is set to a negative number, that means the value represented
-by the host parameter is NULL. If the indicator is set to any other number,
-that means the value represented by the host parameter is the current value of
-that host parameter. The required syntax for a <host parameter name> is:
+A host parameter specification identifies a host parameter (or a host parameter 
+and its indicator) in an SQL-client Module. If the indicator for a host 
+parameter is set to a negative number, that means the value represented by the 
+host parameter is ``NULL``. If the indicator is set to any other number, that 
+means the value represented by the host parameter is the current value of that 
+host parameter. The required syntax for a <host parameter name> is: 
 
 ::
 
     <host parameter name> ::=
     :<identifier>
 
-A <host parameter name> is a <regular identifier> or a <delimited identifier>
-preceded by a colon (for example, :param_name) -- it identifies a host
-language parameter, so the name you choose must also, of course, be a valid
-parameter name in that host language. Each <host parameter name> must be
-defined in the SQL-client Module that you use it in. The indicator for a host
-parameter has to be an integer type. We'll talk more about host parameters and
-variables in our chapters on binding styles.
+A <host parameter name> is a <regular identifier> or a <delimited identifier> 
+preceded by a colon (for example, ``:param_name``) -- it identifies a host 
+language parameter, so the name you choose must also, of course, be a valid 
+parameter name in that host language. Each <host parameter name> must be 
+defined in the SQL-client Module that you use it in. The indicator for a host 
+parameter has to be an integer type. We'll talk more about host parameters and 
+variables in our chapters on binding styles. 
 
-An <SQL parameter reference> identifies a parameter of an SQL-invoked routine,
-so it can be the name of a function that returns only one value (for example,
-CURRENT_ROLE) or an <SQL parameter name>. (For the syntax of an <SQL parameter
-name>, see our chapter on SQL-invoked routines.) The value represented by an
-<SQL parameter reference> is the current value of that SQL parameter.
+An <SQL parameter reference> identifies a parameter of an SQL-invoked routine, 
+so it can be the name of a function that returns only one value (for example, 
+``CURRENT_ROLE``) or an <SQL parameter name>. (For the syntax of an <SQL 
+parameter name>, see our chapter on SQL-invoked routines.) The value 
+represented by an <SQL parameter reference> is the current value of that SQL 
+parameter. 
 
-An <element reference> identifies an element of an array; see out chapter on
-<collection type>s. The value represented by an <element reference> is the
-current value of that element in that particular array.
+An <element reference> identifies an element of an array; see out chapter on 
+<collection type>s. The value represented by an <element reference> is the 
+current value of that element in that particular array. 
 
-CURRENT_ROLE, CURRENT_USER, SESSION_USER, SYSTEM_USER and USER all identify an
-<AuthorizationID>; see our chapter on that SQL Object. The value represented
-by any of these functions is the current value returned by that function: each
-returns an SQL_TEXT character string whose value represents an <AuthorizationID>.
+``CURRENT_ROLE``, ``CURRENT_USER``, ``SESSION_USER``, ``SYSTEM_USER`` and 
+``USER`` all identify an <AuthorizationID>; see our chapter on that SQL Object. 
+The value represented by any of these functions is the current value returned 
+by that function: each returns an ``SQL_TEXT`` character string whose value 
+represents an <AuthorizationID>. 
 
-CURRENT_PATH identifies a <Schema name> list that helps your DBMS track
-routines. In the list, both the <Schema name>s and their qualifying <Catalog
-name>s are <delimited identifier>s and multiple <Schema name>s are separated by commas.
+``CURRENT_PATH`` identifies a <Schema name> list that helps your DBMS track 
+routines. In the list, both the <Schema name>s and their qualifying <Catalog 
+name>s are <delimited identifier>s and multiple <Schema name>s are separated by 
+commas. 
 
-## [NON-PORTABLE] The result of CURRENT_PATH is non-standard because the
-SQL Standard requires implementors to define whether the result string is
-fixed length or variable length and the result string's fixed length or
-maximum length (as applicable).
+[NON-PORTABLE] The result of ``CURRENT_PATH`` is non-standard because the SQL 
+Standard requires implementors to define whether the result string is fixed 
+length or variable length and the result string's fixed length or maximum 
+length (as applicable). 
 
-[OCELOT Implementation] The OCELOT DBMS that comes with this book
-has CURRENT_PATH return a variable length SQL_TEXT string. The result has a maximum length of 128 octets.
+[OCELOT Implementation] The OCELOT DBMS that comes with this book has 
+``CURRENT_PATH`` return a variable length ``SQL_TEXT`` string. The result has a 
+maximum length of 128 octets. 
 
-VALUE identifies an instance of a data value and can only be used in a Domain definition; see our chapter on Domains.
+``VALUE`` identifies an instance of a data value and can only be used in a 
+Domain definition; see our chapter on Domains. 
 
-[Obscure Rule] If the <data type> of a <value specification> is character string, the character string it represents has a coercibility attribute of COERCIBLE.
+[Obscure Rule] If the <data type> of a <value specification> is character 
+string, the character string it represents has a coercibility attribute of 
+``COERCIBLE``. 
 
-If you want to restrict your code to Core SQL, don't use an <element reference> or CURRENT_PATH to specify a value.
+If you want to restrict your code to Core SQL, don't use an <element reference> 
+or ``CURRENT_PATH`` to specify a value. 
 
 <value expression>
 ==================
 
-A <value expression> is a scalar expression that specifies a data value. In
-this book, we most often use the term "scalar_expression" to show you where a
-<value expression> is allowed in SQL syntax. The required syntax for a <value expression> is:
+A <value expression> is a scalar expression that specifies a data value. In 
+this book, we most often use the term ``scalar_expression`` to show you where a 
+<value expression> is allowed in SQL syntax. The required syntax for a <value 
+expression> is: 
 
 ::
 
@@ -126,49 +136,52 @@ this book, we most often use the term "scalar_expression" to show you where a
     <reference value expression> |
     <collection value expression> |
 
-A <value expression> specifies a value that may or may not be selected from a
-Table -- that is, it may be a <value specification> or it may be the result of
-an expression on SQL-data that returns a single number, character string, bit
-string, BLOB, date, time, timestamp, interval, Boolean value, UDT value, row
-of data, REF value or array. The <data type> of a <value expression> is
-determined by the <data type> of the value it evaluates to.
+A <value expression> specifies a value that may or may not be selected from a 
+Table -- that is, it may be a <value specification> or it may be the result of 
+an expression on SQL-data that returns a single number, character string, bit 
+string, ``BLOB``, date, time, timestamp, interval, Boolean value, UDT value, 
+row of data, ``REF`` value or array. The <data type> of a <value expression> is 
+determined by the <data type> of the value it evaluates to. 
 
-The following SQL constructs all qualify as <value expression>s; each can
-optionally include a Collation specification (i.e.: COLLATE <Collation name>)
-to force a collating sequence for the value represented by the <value
-expression>, provided that value's <data type> is character string:
+The following SQL constructs all qualify as <value expression>s; each can 
+optionally include a Collation specification (i.e.: ``COLLATE`` <Collation 
+name>) to force a collating sequence for the value represented by the <value 
+expression>, provided that value's <data type> is character string: 
 
-## A <Column reference>: represents the value of that Column.
+* A <Column reference>: represents the value of that Column.
 
-## A set function specification: represents the value returned by that function.
+* A set function specification: represents the value returned by that function.
 
-## A scalar subquery: represents the value returned by that subquery.
+* A scalar subquery: represents the value returned by that subquery.
 
-## A CASE expression: represents the value returned by that expression.
+* A ``CASE`` expression: represents the value returned by that expression.
 
-## A CAST specification: represents the value as CAST to the target <data type>.
+* A ``CAST`` specification: represents the value as ``CAST`` to the target 
+  <data type>.
 
-## A <subtype treatment>: represents the value as modified.
+* A <subtype treatment>: represents the value as modified.
 
-## A <dereference operation>: represents the value returned by that function.
+* A <dereference operation>: represents the value returned by that function.
 
-## An <array value expression>: represents the value of that array.
+* An <array value expression>: represents the value of that array.
 
-## A <routine invocation>: represents the value returned by that routine.
+* A <routine invocation>: represents the value returned by that routine.
 
-## A <Field reference>: represents the value of that Field of a particular row.
+* A <Field reference>: represents the value of that Field of a particular row.
 
-## A <method invocation> and a <method reference>: represents the value returned by that method.
+* A <method invocation> and a <method reference>: represents the value 
+  returned by that method.
 
-If you want to restrict your code to Core SQL, don't use a <value expression>
-that evaluates to a Boolean value, an array, an interval or a REF value, don't
-use a <subtype treatment> to specify a value and don't use the COLLATE clause
-to force a collating sequence for any value.
+If you want to restrict your code to Core SQL, don't use a <value expression> 
+that evaluates to a Boolean value, an array, an interval or a ``REF`` value, 
+don't use a <subtype treatment> to specify a value and don't use the 
+``COLLATE`` clause to force a collating sequence for any value. 
 
 <row value constructor>
 =======================
 
-A <row value constructor> defines an ordered set of values that make up one row of data. The required syntax for a <row value constructor> is:
+A <row value constructor> defines an ordered set of values that make up one 
+row of data. The required syntax for a <row value constructor> is:
 
 ::
 
@@ -177,40 +190,44 @@ A <row value constructor> defines an ordered set of values that make up one row 
     (<value expression> [ {,<value expression>} ... ]) |
     <row subquery> }
 
-A <row value constructor> constructs a row of data values in one of three possible ways:
+A <row value constructor> constructs a row of data values in one of three 
+possible ways:
 
-## By evaluating a single <value expression>, for example, the
-<character string literal> 'GOODBYE'. In this case, the <value expression> may
-not be enclosed in parentheses. This rule is explicitly stated in the SQL
-Standard to resolve a syntactic ambiguity: in certain circumstances, the syntax: (<value expression>) is permitted.
+1. By evaluating a single <value expression>, for example, the <character 
+   string literal> ``'GOODBYE'``. In this case, the <value expression> may 
+   not be enclosed in parentheses. This rule is explicitly stated in the SQL 
+   Standard to resolve a syntactic ambiguity: in certain circumstances, the 
+   syntax: (<value expression>) is permitted.
 
-## By evaluating two or more comma-delimited <value expression>s enclosed in parentheses, for example: ('GOODBYE',10).
+2. By evaluating two or more comma-delimited <value expression>s enclosed in 
+   parentheses, for example: (``'GOODBYE',10``).
 
-## By evaluating a <row subquery>, for example:
+3. By evaluating a <row subquery>, for example:
 
 ::
 
    ... (SELECT column_2, column_5 FROM Table_2)
 
-The <data type>s of the Column(s) of a <row value constructor> are the <data
-type>s of the <value expression>(s) or the Column(s) of the <row subquery>
-that make up the <row value constructor>. If a <row value constructor> is
-derived from a <row subquery>, then the degree (i.e.: the number of Columns)
-of the <row value constructor> is the degree of the Table that results from
-the evaluation of the <row subquery>; otherwise, the degree of the <row value
-constructor> is the number of <value expression>s that make up the <row value constructor>.
+The <data type>s of the Column(s) of a <row value constructor> are the <data 
+type>s of the <value expression>(s) or the Column(s) of the <row subquery> that 
+make up the <row value constructor>. If a <row value constructor> is derived 
+from a <row subquery>, then the degree (i.e.: the number of Columns) of the 
+<row value constructor> is the degree of the Table that results from the 
+evaluation of the <row subquery>; otherwise, the degree of the <row value 
+constructor> is the number of <value expression>s that make up the <row value 
+constructor>. 
 
-In this case, if the number of rows returned by the <row subquery> is zero,
-the result is a single row containing null values for every Column of the <row
-subquery>. If the number of rows returned  by the subquery is one, the result
-is that single row. (Note: a <row subquery> may not return more than one row.)
+In this case, if the number of rows returned by the <row subquery> is zero, the 
+result is a single row containing null values for every Column of the <row 
+subquery>. If the number of rows returned by the subquery is one, the result is 
+that single row. (Note: a <row subquery> may not return more than one row.)
 
 <target specification>
 ======================
 
-A <target specification> is a scalar expression that specifies a host language
-variable parameter, an SQL parameter or a Column as the target for a data
-value. The required syntax for a <target specification> is:
+A <target specification> is a scalar expression that specifies a host language 
+variable parameter, an SQL parameter or a Column as the target for a data 
+value. The required syntax for a <target specification> is: 
 
 ::
 
@@ -219,9 +236,10 @@ value. The required syntax for a <target specification> is:
     <SQL parameter name> |
     <Column reference>
 
-A <target specification> specifies a place to put a value. Most often, this
-will be a <Column reference> (as in an INSERT statement), but you can also
-assign values to an output SQL parameter (see our chapter on SQL-invoked
-routines) or to a variable in a host language program (see our chapters on
-binding styles). A <simple target specification> is either a host language
-variable, an output SQL parameter or a "known not nullable" Column: it may not be the null value.
+A <target specification> specifies a place to put a value. Most often, this 
+will be a <Column reference> (as in an ``INSERT`` statement), but you can also 
+assign values to an output SQL parameter (see our chapter on SQL-invoked 
+routines) or to a variable in a host language program (see our chapters on 
+binding styles). A <simple target specification> is either a host language 
+variable, an output SQL parameter or a "known not nullable" Column: it may not 
+be the null value.
