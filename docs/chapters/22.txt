@@ -53,29 +53,29 @@ default Collation for both the ``SQL_TEXT`` Character set and the ``UNICODE``
 Character set. It also provides eleven other predefined Collations, all with 
 the ``PAD SPACE`` characteristic. They are: 
 
-+-------------------------+---------------------------------------------------+
-| SQL_CHARACTER           | default Collation for Character set SQL_CHARACTER |
-+-------------------------+---------------------------------------------------+
-| ASCII_GRAPHIC           | default Collation for Character set GRAPHIC_IRV   |
-+-------------------------+---------------------------------------------------+
-| LATIN1                  | default Collation for Character set LATIN1        |
-+-------------------------+---------------------------------------------------+
-| ASCII_FULL              | default Collation for Character set ISO8BIT       |
-+-------------------------+---------------------------------------------------+
-| CODEPAGE_0437           | default Collation for Character set CODEPAGE_0437 |
-+-------------------------+---------------------------------------------------+
-| Collation CODEPAGE_0850 | default Collation for Character set CODEPAGE_0850 |
-+-------------------------+---------------------------------------------------+
-| Collation CODEPAGE_1250 | default Collation for Character set CODEPAGE_1250 |
-+-------------------------+---------------------------------------------------+
-| Collation CODEPAGE_1251 | default Collation for Character set CODEPAGE_1251 |
-+-------------------------+---------------------------------------------------+
-| Collation CODEPAGE_1253 | default Collation for Character set CODEPAGE_1253 |
-+-------------------------+---------------------------------------------------+
-| Collation CODEPAGE_1254 | default Collation for Character set CODEPAGE_1254 |
-+-------------------------+---------------------------------------------------+
-| Collation CODEPAGE_1257 | default Collation for Character set CODEPAGE_1257 |
-+-------------------------+---------------------------------------------------+
++-------------------+-------------------------------------------------------+
+| ``SQL_CHARACTER`` | default Collation for Character set ``SQL_CHARACTER`` |
++-------------------+-------------------------------------------------------+
+| ``GRAPHIC_IRV``   | default Collation for Character set ``GRAPHIC_IRV``   |
++-------------------+-------------------------------------------------------+
+| ``LATIN1``        | default Collation for Character set ``LATIN1``        |
++-------------------+-------------------------------------------------------+
+| ``ISO8BIT``       | default Collation for Character set ``ISO8BIT``       |
++-------------------+-------------------------------------------------------+
+| ``CODEPAGE_0437`` | default Collation for Character set ``CODEPAGE_0437`` |
++-------------------+-------------------------------------------------------+
+| ``CODEPAGE_0850`` | default Collation for Character set ``CODEPAGE_0850`` |
++-------------------+-------------------------------------------------------+
+| ``CODEPAGE_1250`` | default Collation for Character set ``CODEPAGE_1250`` |
++-------------------+-------------------------------------------------------+
+| ``CODEPAGE_1251`` | default Collation for Character set ``CODEPAGE_1251`` |
++-------------------+-------------------------------------------------------+
+| ``CODEPAGE_1253`` | default Collation for Character set ``CODEPAGE_1253`` |
++-------------------+-------------------------------------------------------+
+| ``CODEPAGE_1254`` | default Collation for Character set ``CODEPAGE_1254`` |
++-------------------+-------------------------------------------------------+
+| ``CODEPAGE_1257`` | default Collation for Character set ``CODEPAGE_1257`` |
++-------------------+-------------------------------------------------------+
 
 The pre-defined Collations provided by your DBMS belong to 
 ``INFORMATION_SCHEMA``. The SQL special grantee, ``PUBLIC``, always has a 
@@ -119,7 +119,7 @@ that, since the decimal code for the letter ``a`` is ``97``, it follows that
 ``'A'`` is less than ``'a'`` -- that is, character repertoire order specifies a 
 case-sensitive collating sequence.) 
 
-*Collation names*
+*Collation Names*
 -----------------
 
 A <Collation name> identifies a Collation. The required syntax for a 
@@ -154,7 +154,7 @@ Here are some examples of possible <Collation name>s:
    CATALOG_1.SCHEMA_1.COLLATION_1
    -- a fully qualified user-defined <Collation name>
 
-*Form-of-use conversion names*
+*Form-of-Use Conversion Names*
 ------------------------------
 
 A <Form-of-Use conversion name> identifies a character repertoire's encoding 
