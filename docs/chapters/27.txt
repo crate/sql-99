@@ -545,15 +545,10 @@ subtypes. In these examples, the <keyword> ``UNDER`` means "as a subtype of".
 ::
 
    CREATE TYPE history UNDER book_udt           NOT FINAL;
-
    CREATE TYPE science UNDER book_udt           NOT FINAL;
-
    CREATE TYPE modern UNDER history             NOT FINAL;
-
    CREATE TYPE ancient UNDER history            NOT FINAL;
-
    CREATE TYPE physics UNDER science            NOT FINAL;
-
    CREATE TYPE stamp_collecting UNDER science   NOT FINAL;
 
 Admittedly, these new types lack personality. We've kept it that way so that 
@@ -568,15 +563,10 @@ other words, Tables can have subtables:
 ::
 
    CREATE TABLE History UNDER Book;
-
    CREATE TABLE Science UNDER Book;
-
    CREATE TABLE Ancient UNDER History;
-
    CREATE TABLE Moderns UNDER History;
-
    CREATE TABLE Physics UNDER Science;
-
    CREATE TABLE Stamp_collecting UNDER Science;
 
 Notice that the "subtables" and "supertables" defined are a family whose 
@@ -977,7 +967,6 @@ the DBMS will make these two casts for it:
 ::
 
    CREATE CAST (longitude AS REAL) ... AS ASSIGNMENT;
-
    CREATE CAST (REAL AS longitude) ... AS ASSIGNMENT;
 
 Now, suppose you have a variable ``lo`` of type ``LONGITUDE``. Because of 
@@ -1256,6 +1245,43 @@ type>. The required syntax is:
 
     <deref function> ::=
     DEREF (<reference type> expression>)
+
+*SPECIFICTYPE Function*
+-----------------------
+
+The ``SPECIFICTYPE`` function returns an ``SQL_TEXT`` character string
+containing the fully-qualified name of the UDT to which a given value belongs.
+The required syntax is as follows.
+
+::
+
+    <specifictype function> ::=
+    SPECIFICTYPE (UDT value expression)
+
+*Dereference Operation*
+-----------------------
+
+The <dereference operation> allows you to access a Column of the row identified
+by a REF value. The required syntax is as follows (for details, see Chapter 12
+"Reference Types").
+
+::
+
+    <dereference operation> ::=
+    reference_argument -> <attribute name>
+
+*TYPE Predicate*
+----------------
+
+The ``TYPE`` Predicate returns ``TRUE`` if a given value is within the set of
+values defined by a UDT (or by a list of UDTs which are all in the same subtype
+family). The required syntax is as follows
+
+::
+
+    <type predicate> ::=
+    <UDT value expression> IS [ NOT ] OF
+    ([ ONLY ] <UDT-name-1> [ {,<UDT-name-2>} . . . ])
 
 Is object/relational really object-oriented?
 ============================================
