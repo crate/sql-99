@@ -2390,7 +2390,7 @@ Getting More Out Of Views
 
 A View's virtue is that it isn't the whole picture. Something is hidden. Hidden 
 is good. In the following descriptions, which all show Views being put to some 
-useful purpose, the same refrain could be sung each time: Views Hide -- Good. 
+useful purpose, the same refrain could be sung each time: "Views Hide -- Good". 
 
 One thing we'd like to hide, or abstract, is the retrieval method. For a 
 mailing list, the method might look like this: 
@@ -2439,7 +2439,9 @@ some grouped Views, or we could grant ``PUBLIC`` access to only certain Columns
 in certain Tables. In fact, granting on Column-subset Views is the normal way 
 to do a by-Column ``GRANT`` (see our chapter on AuthorizationIDs). 
 
-.. NOTE::
+
+.. TIP::
+
   Make a one-row permanent Table with:
 
   ::

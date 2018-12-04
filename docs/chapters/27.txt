@@ -6,34 +6,38 @@ Chapter 27 -- User-defined Types
 
 [Obscure Rule] applies for this entire chapter.
 
-SQL began life as a procedurally oriented language, or -- properly speaking --
-as a language with procedures that worked on sets. Nowadays the rage is for
-object oriented languages -- like C++ and Java. The popularity of object
-orientation ("OO" for short) has been so great, that some have attempted to
-supersede SQL with pure "OO DBMSs" (POET is an example). On the other hand, a
-great deal of time and trouble has been invested getting SQL to where it is
-today, so most users and experts have looked to a more moderate solution.
-Namely: extending SQL so that it can handle databases the OO way, but without
-abandoning the current language. We'll call this hybrid object/relational, or O/R for short.
+SQL began life as a procedurally oriented language, or -- properly speaking -- 
+as a language with procedures that worked on sets. Nowadays the rage is for 
+object oriented languages -- like C++ and Java. The popularity of object 
+orientation ("OO" for short) has been so great, that some have attempted to 
+supersede SQL with pure "OO DBMSs" (POET is an example). On the other hand, a 
+great deal of time and trouble has been invested getting SQL to where it is 
+today, so most users and experts have looked to a more moderate solution. 
+Namely: extending SQL so that it can handle databases the OO way, but without 
+abandoning the current language. We'll call this hybrid *object/relational*, or 
+O/R for short. 
 
-The inspirations have come from languages like C++ and Object Pascal, which
-are extensions of C and Pascal. Those extended languages have been successful.
-It appears that there will be an equivalent success for the Object Oriented
-SQL extensions, once DBMS vendors implement them and users get acquainted with them.
+The inspirations have come from languages like C++ and Object Pascal, which are 
+extensions of C and Pascal. Those extended languages have been successful. It 
+appears that there will be an equivalent success for the Object Oriented SQL 
+extensions, once DBMS vendors implement them and users get acquainted with 
+them. 
 
-We're not at that stage yet. What you're going to read about in this chapter
-is the very latest stuff, just accepted as part of the SQL Standard, and still
-quite wet around the edges. Since that's so, we will depart from the usual
-chapter organization. The first parts of this chapter are merely a tutorial
-which (we hope) you'll find is fairly light reading, peppered with liberating
-slogans like "a type is a class" or "a row is an object". The middle parts of
-this chapter are more of a syntactical slog as we get into the details of
-CREATE TYPE and the various SQL statements associated with it; however, we
-have omitted some details which we think will not be part of real DBMS implementations for some years.
+We're not at that stage yet. What you're going to read about in this chapter is 
+the very latest stuff, just accepted as part of the SQL Standard, and still 
+quite wet around the edges. Since that's so, we will depart from the usual 
+chapter organization. The first parts of this chapter are merely a tutorial 
+which (we hope) you'll find is fairly light reading, peppered with liberating 
+slogans like "a type is a class" or "a row is an object". The middle parts of 
+this chapter are more of a syntactical slog as we get into the details of 
+``CREATE TYPE`` and the various SQL statements associated with it; however, we 
+have omitted some details which we think will not be part of real DBMS 
+implementations for some years. 
 
-If you've ever used an object oriented language, you'll find the concepts are
-familiar (which they're supposed to be -- that's the point). However, you must
-start with a good recollection of the earlier chapters on <data type>s, procedures and SQL syntax.
+If you've ever used an object oriented language, you'll find the concepts are 
+familiar (which they're supposed to be -- that's the point). However, you must 
+start with a good recollection of the earlier chapters on <data type>s, 
+procedures and SQL syntax. 
 
 .. rubric:: Table of Contents
 
@@ -46,67 +50,87 @@ UDTs
 Until now, all the SQL <data type>s we've described have predefined <data
 type>s, sometimes called "built-in" or "primitive" <data type>s -- although
 some portions of them are definable by users (for example, the length of a
-CHAR <data type>), most of their inherent structure is already set. The O/R
+``CHAR`` <data type>), most of their inherent structure is already set. The O/R
 part of SQL, though, uses user-defined data types, or UDTs. UDTs are just as
 easy to use as predefined data types; however, they are a lot harder to set up.
 
 Just consider some of the things which are already handled for you (programmed
 in the DBMS) if you use a predefined data type:
 
-## There's a way of storing the data physically in a Table (this is the concept of instantiation, which we'll have some trouble with later).
+* There's a way of storing the data physically in a Table (this is the concept 
+  of *instantiation*, which we'll have some trouble with later). 
 
-## There are comparison operations for the <data type>s, so you can tell whether two values are the same, or one is greater than the other (this is the concept of ordering).
+* There are comparison operations for the <data type>s, so you can tell whether 
+  two values are the same, or one is greater than the other (this is the 
+  concept of *ordering*). 
 
-## There are built-in operators for the <data type>s, for example "+" is used to add to numbers together and produce another number (this is the concept of methods that change values of certain data types).
+* There are built-in operators for the <data type>s, for example ``+`` is used 
+  to add to numbers together and produce another number (this is the concept 
+  of *methods* that change values of certain data types).
 
-## There are cast operations so that values in one <data type> can be converted to another, or interchanged with host language variables (this is the concept of cast methods and transforms).
-With UDTs, you're on your own in all these cases. When you make a UDT, you're going to have to remember that all those things won't be there, unless you put them there yourself.
+* There are cast operations so that values in one <data type> can be 
+  converted to another, or interchanged with host language variables (this is 
+  the concept of *cast methods and transforms*).
 
-However, when you do it, you'll end up with a <data type> that's just as good
-as the predefined types. You'll be able to use your new UDT wherever you could use a predefined type before.
+With UDTs, you're on your own in all these cases. When you make a UDT, 
+you're going to have to remember that all those things won't be there, 
+unless you put them there yourself.
 
-A Schema may contain zero or more UDTs. An SQL UDT is a named, user-defined
-set of valid values. UDTs are dependent on some Schema -- the <UDT name> must
-be unique within the Schema the UDT belongs to (it may not be the same as any
-<Domain name> in its Schema either) -- and are created, altered and dropped
-using standard SQL statements. The Objects that may belong to a UDT are known as Attributes; they depend on some UDT.
+However, when you do it, you'll end up with a <data type> that's just as 
+good as the predefined types. You'll be able to use your new UDT wherever 
+you could use a predefined type before.
 
-A UDT can be either a distinct type -- a UDT that is based on a single
-predefined <data type> -- or a structured type -- a UDT that is based on a list of Attribute definitions.
+A Schema may contain zero or more UDTs. An SQL UDT is a named, user-defined set 
+of valid values. UDTs are dependent on some Schema -- the <UDT name> must be 
+unique within the Schema the UDT belongs to (it may not be the same as any 
+<Domain name> in its Schema either) -- and are created, altered and dropped 
+using standard SQL statements. The Objects that may belong to a UDT are known 
+as Attributes; they depend on some UDT. 
+
+A UDT can be either a distinct type -- a UDT that is based on a single 
+predefined <data type> -- or a structured type -- a UDT that is based on a list 
+of Attribute definitions. 
 
 A UDT is defined by a descriptor that contains twelve pieces of information:
 
-## The <UDT name>, qualified by the <Schema name> of the Schema it belongs to.
+1. The <UDT name>, qualified by the <Schema name> of the Schema it belongs to.
 
-## Whether the UDT is ordered.
+2. Whether the UDT is ordered.
 
-## The UDT's ordering form: either EQUALS, FULL or NONE.
+3. The UDT's ordering form: either ``EQUALS``, ``FULL`` or ``NONE``.
 
-## The UDT's ordering category: either RELATIVE, HASH or STATE.
+4. The UDT's ordering category: either ``RELATIVE``, ``HASH`` or ``STATE``.
 
-## The <specific routine designator> that identifies the UDT's ordering function.
+5. The <specific routine designator> that identifies the UDT's ordering 
+   function.
 
-## If the UDT is a direct subtype of one or more other UDTs, then the names of those UDTs.
+6. If the UDT is a direct subtype of one or more other UDTs, then the names 
+   of those UDTs.
 
-## If the UDT is a distinct type, then the descriptor of the <data type> it's based on; otherwise an Attribute descriptor for each of the UDT's Attributes.
+7. If the UDT is a distinct type, then the descriptor of the <data type> 
+   it's based on; otherwise an Attribute descriptor for each of the UDT's 
+   Attributes.
 
-## The UDT's degree: the number of its Attributes.
+8. The UDT's degree: the number of its Attributes.
 
-## Whether the UDT is instantiable or not instantiable.
+9. Whether the UDT is instantiable or not instantiable.
 
-## Whether the UDT is final or not final.
+10. Whether the UDT is final or not final.
 
-## The UDT's Transform descriptor.
+11. The UDT's Transform descriptor.
 
-## If the UDT's definition includes a method signature list, a descriptor for each method signature named.
+12. If the UDT's definition includes a method signature list, a descriptor 
+    for each method signature named.
 
-To create a UDT, use the CREATE TYPE statement (either as a stand-alone SQL
-statement or within a CREATE SCHEMA statement). CREATE TYPE specifies the
-enclosing Schema, names the UDT and identifies the UDT's set of valid values.
-To destroy a UDT, use the DROP TYPE statement. None of SQL3's UDT syntax is
-Core SQL, so if you want to restrict your code to Core SQL, don't use UDTs.
+To create a UDT, use the ``CREATE TYPE`` statement (either as a stand-alone SQL
+statement or within a ``CREATE SCHEMA`` statement). ``CREATE TYPE`` 
+specifies the enclosing Schema, names the UDT and identifies the UDT's set 
+of valid values. To destroy a UDT, use the ``DROP TYPE`` statement. None of 
+SQL3's UDT syntax is Core SQL, so if you want to restrict your code to Core 
+SQL, don't use UDTs.
 
-UDT names:
+*UDT Names*
+-----------
 
 A <UDT name> identifies a UDT. The required syntax for a <UDT name> is:
 
@@ -115,18 +139,21 @@ A <UDT name> identifies a UDT. The required syntax for a <UDT name> is:
     <UDT name> ::=
     [ <Schema name>. ] unqualified name
 
-A <UDT name> is a <regular identifier> or a <delimited identifier> that is
-unique (for all Domains and UDTs) within the Schema it belongs to. The <Schema
-name> which qualifies a <UDT name> names the Schema that the UDT belongs to
-and can either be explicitly stated, or a default will be supplied by your DBMS as follows:
+A <UDT name> is a <regular identifier> or a <delimited identifier> that is 
+unique (for all Domains and UDTs) within the Schema it belongs to. The <Schema 
+name> which qualifies a <UDT name> names the Schema that the UDT belongs to and 
+can either be explicitly stated, or a default will be supplied by your DBMS as 
+follows: 
 
-## If a <UDT name> in a CREATE SCHEMA statement isn't qualified, the default qualifier is the name of the Schema you're creating.
+* If a <UDT name> in a ``CREATE SCHEMA`` statement isn't qualified, the default 
+  qualifier is the name of the Schema you're creating.
 
-## If the unqualified <UDT name> is found in any other SQL statement in
-a Module, the default qualifier is the name of the Schema identified in the
-SCHEMA clause or AUTHORIZATION clause of the MODULE statement that defines that Module.
+* If the unqualified <UDT name> is found in any other SQL statement in a 
+  Module, the default qualifier is the name of the Schema identified in the
+  ``SCHEMA`` clause or ``AUTHORIZATION`` clause of the ``MODULE`` statement 
+  that defines that Module.
 
-UDT example
+UDT Example
 ===========
 
 Here's an example of a UDT definition:
@@ -140,26 +167,28 @@ Here's an example of a UDT definition:
     NOT FINAL                              -- this is a mandatory Finality Clause
     METHOD profit( ) RETURNS DECIMAL(9,2); -- profit is a method, defined later
 
-This CREATE TYPE statement results in a UDT named BOOK_UDT. The components of
-the UDT are three attributes (named TITLE, BUYING_PRICE and SELLING_PRICE) and
-one method (named PROFIT).
+This ``CREATE TYPE`` statement results in a UDT named ``BOOK_UDT``. The 
+components of the UDT are three attributes (named ``TITLE``, ``BUYING_PRICE`` 
+and ``SELLING_PRICE``) and one method (named ``PROFIT``). 
 
-## The three name-and-data-type pairs "title CHAR(40)" and "buying_price
-DECIMAL(9,2)" and "selling_price DECIMAL(9,2)" are the UDT's Attribute definitions.
+1. The three name-and-data-type pairs ``title CHAR(40)`` and ``buying_price
+   DECIMAL(9,2)`` and ``selling_price DECIMAL(9,2)`` are the UDT's Attribute 
+   definitions.
 
-## The words NOT FINAL matter only for subtyping, which we'll get to
-later. Briefly, though, if a UDT definition doesn't include an UNDER clause,
-the finality clause must specify NOT FINAL.
+2. The words ``NOT FINAL`` matter only for subtyping, which we'll get to
+   later. Briefly, though, if a UDT definition doesn't include an ``UNDER`` 
+   clause, the finality clause must specify ``NOT FINAL``.
 
-## The clause "METHOD profit () RETURNS DECIMAL (9,2)" is a teaser. Like
-an Attribute, a "method" is a component of a UDT. However, this method --
-PROFIT -- is actually a declaration that a function named PROFIT exists. This
-function isn't defined further in the UDT definition -- there is a separate
-SQL statement for defining functions: CREATE METHOD. All we can see at this
-stage is that PROFIT has a name and a (predefined) data type>, just as regular
-Attributes do. Some people would call PROFIT a "derived Attribute".
+3. The clause ``METHOD profit () RETURNS DECIMAL (9,2)`` is a teaser. Like 
+   an Attribute, a "method" is a component of a UDT. However, this method -- 
+   ``PROFIT`` -- is actually a declaration that a function named ``PROFIT 
+   exists``. This function isn't defined further in the UDT definition -- there 
+   is a separate SQL statement for defining functions: ``CREATE METHOD``. All 
+   we can see at this stage is that ``PROFIT`` has a name and a (predefined) 
+   data type>, just as regular Attributes do. Some people would call ``PROFIT`` 
+   a "derived Attribute". 
 
-Columns based on UDTs
+Columns Based on UDTs
 =====================
 
 Let us begin by making a Table, one of whose Columns is a UDT:
@@ -171,7 +200,7 @@ Let us begin by making a Table, one of whose Columns is a UDT:
        serial_number INTEGER);
 
 You can use a UDT wherever the syntax requires <data type>. So far so good.
-Now let's INSERT a new row into the Table. This won't be so simple.
+Now let's ``INSERT`` a new row into the Table. This won't be so simple.
 
 ::
 
@@ -185,17 +214,18 @@ Now let's INSERT a new row into the Table. This won't be so simple.
    END;                                   /* compound statement: end */
 
 To understand the above compound statement, you'll need to look closely at the
-declaration and the four function calls that precede the INSERT statement.
+declaration and the four function calls that precede the ``INSERT`` statement.
 They are simple things, but the terminology is fancy.
 
-First: "DECLARE u book_udt;" is a declaration of a temporary variable named u.
-Nothing new about that (if you remember your PSM chapter), but it shows that
-variables too can be based on UDTs instead of predefined <data type>s.
+**First:** ``DECLARE u book_udt;`` is a declaration of a temporary variable 
+named ``u``. Nothing new about that (if you remember your PSM chapter), but it 
+shows that variables too can be based on UDTs instead of predefined <data 
+type>s. 
 
-Second: "u = book_udt();" is a constructor function. The function we're
-calling is named BOOK_UDT, the same as the UDT. That's not a coincidence. The
-DBMS's job is to create a constructor function automatically. When the "CREATE
-TYPE book_udt1" was executed, this SQL statement happened implicitly:
+**Second:** ``u = book_udt();`` is a constructor function. The function we're 
+calling is named ``BOOK_UDT``, the same as the UDT. That's not a coincidence. 
+The DBMS's job is to create a constructor function automatically. When the 
+``CREATE TYPE book_udt1`` was executed, this SQL statement happened implicitly: 
 
 ::
 
@@ -204,17 +234,17 @@ TYPE book_udt1" was executed, this SQL statement happened implicitly:
    ...
    RETURN V
 
-In this CREATE FUNCTION statement, the RETURN, V, is a value of type
-BOOK_UDT1, with all Attribute instance values equal to their default! What
-does that mean? It means that when we call the BOOK_UDT1 function, the return
-is a "default value" of the BOOK_UDT1 type. That's useful, so it's good to
-know that the DBMS makes a constructor function for every UDT.
+In this ``CREATE FUNCTION`` statement, the ``RETURN V``, is a value of type 
+``BOOK_UDT1``, with all Attribute instance values equal to their default! What 
+does that mean? It means that when we call the ``BOOK_UDT1`` function, the 
+return is a "default value" of the ``BOOK_UDT1`` type. That's useful, so it's 
+good to know that the DBMS makes a constructor function for every UDT. 
 
-Third: "u.title('The Compleat SQL');" is a mutator function. The function
-we're calling is named TITLE, the same as the first Attribute in the UDT. Once
-again, this is not a coincidence. The DBMS's job is to create a mutator
-function automatically. When the "CREATE TYPE book_udt1" was executed, this
-SQL statement also happened implicitly:
+**Third:** ``u.title('The Compleat SQL');`` is a mutator function. The function 
+we're calling is named ``TITLE``, the same as the first Attribute in the UDT. 
+Once again, this is not a coincidence. The DBMS's job is to create a mutator 
+function automatically. When the ``CREATE TYPE book_udt1`` was executed, this 
+SQL statement also happened implicitly: 
 
 ::
 
@@ -227,54 +257,55 @@ SQL statement also happened implicitly:
          CONTAINS SQL
          RETURN NULL ON NULL INPUT
 
-This statement defines a "method" (or "method function") because it is a
-component of a UDT. To invoke the method, we just have to say "<udt
-instance>.<method name> ( <new value> )" and the new value is a CHAR(40)
-string, which is compatible with the Attribute's definition. The reason that
-this method is called a mutator function is that it changes the value in the
-object instance. So now the title in u is 'The Compleat SQL'.
+This statement defines a "method" (or "method function") because it is a 
+component of a UDT. To invoke the method, we just have to say "<udt 
+instance>.<method name> ( <new value> )" and the new value is a ``CHAR(40)`` 
+string, which is compatible with the Attribute's definition. The reason that 
+this method is called a mutator function is that it changes the value in the 
+object instance. So now the title in ``u`` is ``'The Compleat SQL'``. 
 
-You might wonder: why all the fuss? If the whole point is to set U.TITLE to a
-value, why not just:
+You might wonder: why all the fuss? If the whole point is to set ``U.TITLE`` to 
+a value, why not just: 
 
 ::
 
    SET u.title = 'The Compleat SQL';      /* not a good idea! */
 
-Using a SET statement like this would violate an object-oriented principle
-called "encapsulation", according to which: the only access to Attributes is
-via their functions (methods) -- so SET is not legal. If you're used to
-Windows programming, you'll see the benefits of encapsulation: nothing can
-access the storage except pre-approved routines which change if the storage
-method changes.
+Using a ``SET`` statement like this would violate an object-oriented principle 
+called "encapsulation", according to which: the only access to Attributes is 
+via their functions (methods) -- so ``SET`` is not legal. If you're used to 
+Windows programming, you'll see the benefits of encapsulation: nothing can 
+access the storage except pre-approved routines which change if the storage 
+method changes. 
 
-Fourth and fifth: "u.buying_price(10.00;" and "u.selling_price(20.00);" are
-two more mutator functions. When the UDT was created, the DBMS made methods
-for BUYING_PRICE and FOR SELLING_PRICE too, just as it must do for every
-Attribute in a UDT.
+**Fourth and fifth:** ``u.buying_price(10.00;`` and ``u.selling_price(20.00);`` 
+are two more mutator functions. When the UDT was created, the DBMS made methods 
+for ``BUYING_PRICE`` and ``FOR SELLING_PRICE`` too, just as it must do for 
+every Attribute in a UDT. 
 
-The bottom line is: constructor functions are the ordinary way to make new
-instances of UDTs; mutator functions are the ordinary way to change Attributes
-in UDT instances. Using the constructor and the mutators, we have been able to
-set up a fully-initialized UDT instance -- u -- with the contents we want.
+The bottom line is: constructor functions are the ordinary way to make new 
+instances of UDTs; mutator functions are the ordinary way to change Attributes 
+in UDT instances. Using the constructor and the mutators, we have been able to 
+set up a fully-initialized UDT instance -- ``u`` -- with the contents we want. 
 
-Sixth: "INSERT INTO T VALUES (u,1);" is dŠnouement. Clearly, it puts a value
-into Table T. What the value looks like, we have no idea: it's encapsulated.
-We do know, though, that what we put in was {'The Compleat SQL', 10.00,
-20.00}. Insertion phase complete.
+**Sixth:** ``INSERT INTO T VALUES (u,1);`` is dénouement. Clearly, it puts a 
+value into Table ``T``. What the value looks like, we have no idea: it's 
+encapsulated. We do know, though, that what we put in was {``'The Compleat 
+SQL', 10.00, 20.00``}. Insertion phase complete. 
 
-Let us now get something back out of the UDT. You've probably guessed already that we aren't going to just say:
+Let us now get something back out of the UDT. You've probably guessed already 
+that we aren't going to just say: 
 
 ::
 
    SELECT book_column, serial_number
    FROM   T;
 
-To retrieve from a UDT, we need yet another function -- the opposite of a
-mutator -- to get the Attribute values out of BOOK_COLUMN into a
-representation that we can read. Such a function is called an observer
-function and, once again, the DBMS makes observer functions implicitly at the
-time that a UDT is created -- one for each Attribute, like this:
+To retrieve from a UDT, we need yet another function -- the opposite of a 
+mutator -- to get the Attribute values out of ``BOOK_COLUMN`` into a 
+representation that we can read. Such a function is called an *observer 
+function* and, once again, the DBMS makes observer functions implicitly at the 
+time that a UDT is created -- one for each Attribute, like this: 
 
 ::
 
@@ -286,7 +317,7 @@ time that a UDT is created -- one for each Attribute, like this:
       RETURN NULL ON NULL INPUT;
 
 Since the observer method exists to help us get values out, we can use them in
-SELECT statements. To get all the values, we can use this SQL statement:
+``SELECT`` statements. To get all the values, we can use this SQL statement:
 
 ::
 
@@ -296,99 +327,121 @@ SELECT statements. To get all the values, we can use this SQL statement:
    FROM   T
    WHERE  serial_number > 0;
 
-In summary, these are the functions associated with our example UDT BOOK_UDT:
+In summary, these are the functions associated with our example ``UDT 
+BOOK_UDT``:
 
-## One constructor function, named BOOK_UDT.
+* One constructor function, named ``BOOK_UDT``.
 
-## Three mutator functions, named TITLE, BUYING_PRICE and SELLING_PRICE.
+* Three mutator functions, named ``TITLE``, ``BUYING_PRICE`` and 
+  ``SELLING_PRICE``.
 
-## Three observer functions, also named TITLE, BUYING_PRICE and SELLING_PRICE.
-(Actually the above is only for the "default case", we'll worry about options
-later.) As the examples indicated, constructors and mutators and observers are
-all we need for simple storage and retrieval operations.
+* Three observer functions, also named ``TITLE``, ``BUYING_PRICE`` and 
+  ``SELLING_PRICE``. (Actually the above is only for the "default case", we'll 
+  worry about options later.) As the examples indicated, constructors and 
+  mutators and observers are all we need for simple storage and retrieval 
+  operations.
 
-Routine Names and Signatures:
+*Routine Names and Signatures*
+------------------------------
 
 One of the strengths of the Object/Relational system is that all the functions
 have the same name as the Attribute they're associated with, which makes them
 easy to remember. But at first there's a little confusion too! How do we tell
-them apart? If you look closely at these three references, you'll see the differences:
+them apart? If you look closely at these three references, you'll see the 
+differences:
 
-## title -- the name of an Attribute.
+* ``title`` -- the name of an Attribute.
 
-## title( -- the name of an observer method.
+* ``title ()`` -- the name of an observer method.
 
-## title('The Compleat SQL') -- the name of a mutator method.
+* ``title ('The Compleat SQL')`` -- the name of a mutator method.
 
-The DBMS distinguishes between names the same way that you do. The first
-distinction is easy: if it's got parentheses after it, then it must be a
-routine name. The next distinction is that title() has no arguments, while
-title('The Compleat SQL') has one argument. That's the difference between an
-observer and a mutator. Let's express this latter distinction as a general set of rules.
+The DBMS distinguishes between names the same way that you do. The first 
+distinction is easy: if it's got parentheses after it, then it must be a 
+routine name. The next distinction is that ``title()`` has no arguments, while 
+``title('The Compleat SQL')`` has one argument. That's the difference between 
+an observer and a mutator. Let's express this latter distinction as a general 
+set of rules. 
 
-## Rule 1: It is legal for two routines to be "in the same name class" -- that is, two routines with the same name may be in the same Schema.
+**Rule 1**
 
-## Rule 2: Routines are distinguishable by their category. The four categories are "procedures", "functions" and two types of "method".
+It is legal for two routines to be "in the same name class" -- that is, two 
+routines with the same name may be in the same Schema.
 
-## Rule 3: Routines in the same category are distinguishable by the count of parameters, and the declared type of those parameters, in their parameter list.
+**Rule 2**
+
+Routines are distinguishable by their category. The four categories are 
+"procedures", "functions" and two types of "method".
+
+**Rule 3**
+
+Routines in the same category are distinguishable by the count of 
+parameters, and the declared type of those parameters, in their parameter 
+list.
 
 Since the name alone isn't enough, we have to come up with a different term to
 describe "what it is that distinguishes routines". The term that is in common
-use is "signature". The signature of a routine is the routine name plus the
+use is "signature". The *signature* of a routine is the routine name plus the
 routine category plus the parameter-data-type list, and it's what the DBMS
 uses when it needs to figure out what routine you're really trying to call.
 
-Defining a Typed Table based on a UDT
+Defining a Typed Table Based on a UDT
 =====================================
 
-It's one thing to base Columns on UDTs. It's quite another thing to base
-Tables on UDTs. Tables based on UDTs are called "typed Tables" (or
-"referenceable Tables"). They are also called "the two sided coin" -- because
-from one angle, typed Tables look like relations but from another angle they
-look like "instantiated classes" (to borrow a term from OO).
+It's one thing to base Columns on UDTs. It's quite another thing to base Tables 
+on UDTs. Tables based on UDTs are called "typed Tables" (or "referenceable 
+Tables"). They are also called "the two sided coin" -- because from one angle, 
+typed Tables look like relations but from another angle they look like 
+"instantiated classes" (to borrow a term from OO). 
 
-To make a typed Table, use the REF syntax: "CREATE TABLE <Table name> OF <UDT name> ... REF IS <column name>". For example:
+To make a typed Table, use the ``REF`` syntax: ``"CREATE TABLE <Table name> OF 
+<UDT name> ... REF IS <column name>"``. For example:
 
 ::
 
    CREATE TABLE Book
       OF book_udt REF IS self_referencing_column;
 
-To execute this SQL statement, you must have the Privilege to create a Table
--- that is, you must be the Schema owner, and you must have a USAGE privilege
-on the UDT. There are several options and there are some side effects, but let
-us concentrate now on the OO significance: this instantiates the class.
+To execute this SQL statement, you must have the Privilege to create a Table -- 
+that is, you must be the Schema owner, and you must have a ``USAGE`` privilege 
+on the UDT. There are several options and there are some side effects, but let 
+us concentrate now on the OO significance: this instantiates the class. 
 
-As we said, "instantiated classes" are OO terminology. The OO equivalent for
-"user-defined type" is "class". In pure OO languages, creating a class (with
-its Attributes and methods) takes care of everything, since classes are by
-default "instantiable" ("instantiable" is a short way to say "there can be
-instances of the class, namely objects based on the class definition").
+As we said, "instantiated classes" are OO terminology. The OO equivalent for 
+"user-defined type" is "class". In pure OO languages, creating a class (with 
+its Attributes and methods) takes care of everything, since classes are by 
+default "instantiable" ("instantiable" is a short way to say "there can be 
+instances of the class, namely objects based on the class definition"). 
 
-This form of CREATE TABLE takes the Attribute definitions from a UDT and
-transfers them to <Column definition>s in a Table. Since BOOK_UDT has three
-Attributes -- TITLE, BUYING_PRICE, SELLING_PRICE -- the BOOK Table will have
-four Columns -- <self-referencing column>, TITLE, BUYING_PRICE, SELLING_PRICE.
-Of these, only the first Column, <self-referencing column>, needs a bit of explanation.
+This form of ``CREATE TABLE`` takes the Attribute definitions from a UDT and 
+transfers them to <Column definition>s in a Table. Since ``BOOK_UDT`` has three 
+Attributes -- ``TITLE``, ``BUYING_PRICE``, ``SELLING_PRICE`` -- the ``BOOK`` 
+Table will have four Columns -- <self-referencing column>, ``TITLE``, 
+``BUYING_PRICE``, ``SELLING_PRICE``. Of these, only the first Column, 
+<self-referencing column>, needs a bit of explanation. 
 
-A self-referencing Column is the equivalent of what in object-oriented
-terminology would be an "object identifier". All typed Tables have a
-self-referencing Column; that's why typed Tables are sometimes called
-"referenceable Tables". The point about this self-referencing Column is that
-it uniquely identifies a single row. Now, the row in the BOOK Table is going
-to be an instance of the "class" BOOK_UDT -- which means a row is an object.
-So we'll be able to reference this object later, by referring to the value in
-its self-referencing Column. The name of the self-referencing Column is
-whatever we specify in the REF IS clause -- in this case, SELF_REFERENCING_COLUMN.
+A self-referencing Column is the equivalent of what in object-oriented 
+terminology would be an "object identifier". All typed Tables have a 
+self-referencing Column; that's why typed Tables are sometimes called 
+"referenceable Tables". The point about this self-referencing Column is that it 
+uniquely identifies a single row. Now, the row in the ``BOOK`` Table is going 
+to be an instance of the "class" ``BOOK_UDT`` -- which means a row is an 
+object. So we'll be able to reference this object later, by referring to the 
+value in its self-referencing Column. The name of the self-referencing Column 
+is whatever we specify in the ``REF IS`` clause -- in this case, 
+``SELF_REFERENCING_COLUMN``. 
 
-There are several options for generation of self-referencing Column values.
-Theoretically the best option is to derive the values from the Table's primary
-key. But in this phase of the discussion we'll just use the default option:
-VALUES ARE SYSTEM GENERATED. In effect, with the default option, a self-referencing column is an arbitrary row identifier.
+There are several options for generation of self-referencing Column values. 
+Theoretically the best option is to derive the values from the Table's primary 
+key. But in this phase of the discussion we'll just use the default option: 
+``VALUES ARE SYSTEM GENERATED``. In effect, with the default option, a 
+self-referencing column is an arbitrary row identifier. 
 
-Treating a typed Table as a Table:
+*Treating a Typed Table as a Table*
+-----------------------------------
 
-This is the heads side of our two-sided coin. Table BOOK is just a Table. Therefore, all these operations are legal:
+This is the heads side of our two-sided coin. Table ``BOOK`` is just a Table. 
+Therefore, all these operations are legal:
 
 ::
 
@@ -402,9 +455,12 @@ This is the heads side of our two-sided coin. Table BOOK is just a Table. Theref
   FROM   Book
   WHERE  title LIKE '%SQL%';
 
-Notice that in the INSERT statement example, we did not trouble to specify a new value for SELF-REFERENCING COLUMN. That is because the value is system-generated.
+Notice that in the ``INSERT`` statement example, we did not trouble to 
+specify a new value for ``SELF-REFERENCING COLUMN``. That is because the 
+value is system-generated.
 
-Now here is another operation: let us make a new Table which "references" the BOOK Table:
+Now here is another operation: let us make a new Table which "references" 
+the ``BOOK`` Table:
 
 ::
 
@@ -417,107 +473,113 @@ Now here is another operation: let us make a new Table which "references" the BO
     FROM   Book
     WHERE  title = 'The Incompleat SQL';
 
-We described the REF <data type> in our chapter on <reference type>s, and you
-can look up the details there for how REF is defined. Here, at last, is an
-actual use for the REF <data type>. The new row in BOOK_CHAPTER will contain a
-"reference" to a single row in BOOK. This is awfully similar to referencing a
-primary key row from a foreign key, and in fact the BOOK_CHAPTER's BOOK_REF
-COLUMN can be made to have the paraphernalia of a foreign key, including ON DELETE or CASCADE options.
+We described the ``REF`` <data type> in our chapter on <reference type>s, and 
+you can look up the details there for how ``REF`` is defined. Here, at last, is 
+an actual use for the ``REF`` <data type>. The new row in ``BOOK_CHAPTER`` will 
+contain a "reference" to a single row in ``BOOK``. This is awfully similar to 
+referencing a primary key row from a foreign key, and in fact the 
+``BOOK_CHAPTER``\'s ``BOOK_REF_COLUMN`` can be made to have the paraphernalia 
+of a foreign key, including ``ON DELETE`` or ``CASCADE`` options. 
 
-Treating a typed Table as an instantiable class:
+*Treating a Typed Table as an Instantiable class*
+-------------------------------------------------
 
-This is the flip side of our two-sided coin. It is possible to refer to the UDT's Attributes as they are stored (instanced) in the typed Table, using references. For example:
+This is the flip side of our two-sided coin. It is possible to refer to the 
+UDT's Attributes as they are stored (instanced) in the typed Table, using 
+references. For example:
 
 ::
 
    book_udt_reference_value -> profit()
 
-will invoke the PROFIT method on the underlying value in BOOK_UDT.
+will invoke the ``PROFIT`` method on the underlying value in ``BOOK_UDT``.
 
-Further: if we have a "REF (book)" value to steer by, we can perform "navigational" tricks. For example, this expression is legal:
+Further: if we have a "``REF (book)``" value to steer by, we can perform 
+"navigational" tricks. For example, this expression is legal:
 
 ::
 
    book_ref_column -> title
 
-The result is the value in the TITLE Column of BOOK, for the row whose self-referencing Column is the value in the BOOK_REF_COLUMN of BOOK_CHAPTER.
+The result is the value in the ``TITLE`` Column of ``BOOK``, for the row whose 
+self-referencing Column is the value in the ``BOOK_REF_COLUMN`` of 
+``BOOK_CHAPTER``.
 
-Now, getting deeply into the object-oriented business, we arrive at the
-concepts of "subclasses" and "superclasses" -- or, since we're using UDTs,
-"subtypes" and "supertypes". The concept is fairly easy to grasp if we remind
-ourselves that we are merely modelling the real world, and in the real world
-these statements are manifestly true:
+Now, getting deeply into the object-oriented business, we arrive at the 
+concepts of "subclasses" and "superclasses" -- or, since we're using UDTs, 
+"subtypes" and "supertypes". The concept is fairly easy to grasp if we remind 
+ourselves that we are merely modelling the real world, and in the real world 
+these statements are manifestly true: 
 
-## The BOOK_UDT type can be subdivided by topic -- say, SCIENCE or HISTORY.
+* The ``BOOK_UDT`` type can be subdivided by topic -- say, ``SCIENCE`` or 
+  ``HISTORY``.
 
-## The HISTORY type can be further subdivided into ANCIENT and MODERN, while the SCIENCE type can be further subdivided into PHYSICS and (following Lord Kelvin's famous dictum that
-"all science is either physics or stamp collecting") STAMP COLLECTING.
+* The ``HISTORY`` type can be further subdivided into ``ANCIENT`` and 
+  ``MODERN``, while the ``SCIENCE`` type can be further subdivided into 
+  ``PHYSICS`` and (following Lord Kelvin's famous dictum that "all science is 
+  either physics or stamp collecting") ``STAMP COLLECTING``. 
 
-In other words, we can think of a "family of types", of which the proud single
-patriarch is BOOK_UDT (but we avoid the word patriarch and say "maximal
-supertype" instead). HISTORY and SCIENCE are subtypes of BOOK_UDT; therefore,
-by definition, BOOK_UDT is the supertype of HISTORY and SCIENCE. HISTORY, in
-turn, is the supertype of ANCIENT and MODERN, ... and so on.
+In other words, we can think of a "family of types", of which the proud single 
+patriarch is ``BOOK_UDT`` (but we avoid the word patriarch and say "maximal 
+supertype" instead). ``HISTORY`` and ``SCIENCE`` are subtypes of ``BOOK_UDT``; 
+therefore, by definition, ``BOOK_UDT`` is the supertype of ``HISTORY`` and 
+``SCIENCE``. ``HISTORY``, in turn, is the supertype of ``ANCIENT`` and 
+``MODERN``, ... and so on. 
 
-The point of all this is: BOOK_UDT is a data type, so -- like any data type --
-its specification includes a description of its representation and of the
-operations that can be performed on it. That description is applicable as well
-for HISTORY and for STAMP COLLECTING, unless we explicitly say otherwise: the
-subtype inherits the Attributes and methods of the supertype.
+The point of all this is: ``BOOK_UDT`` is a data type, so -- like any data type 
+-- its specification includes a description of its representation and of the 
+operations that can be performed on it. That description is applicable as well 
+for ``HISTORY`` and for ``STAMP COLLECTING``, unless we explicitly say 
+otherwise: the subtype inherits the Attributes and methods of the supertype. 
 
-We could, of course, reflect some subtyping concept using purely relational
-operations (by joining a BOOK Table to a PHYSICS Table, for example). But the
-advantage of object orientation is that such operations are implicit in the
-definition. By declaring that a is a subtype of b, you are saying that a is
-automatically linked to b, so the linking process is practically invisible.
+We could, of course, reflect some subtyping concept using purely relational 
+operations (by joining a ``BOOK`` Table to a ``PHYSICS`` Table, for example). 
+But the advantage of object orientation is that such operations are implicit in 
+the definition. By declaring that ``a`` is a subtype of ``b``, you are saying 
+that ``a`` is automatically linked to ``b``, so the linking process is 
+practically invisible. 
 
-To make the above discussion concrete, here are some SQL statements that make
-subtypes. In these examples, the <keyword> UNDER means "as a subtype of".
+To make the above discussion concrete, here are some SQL statements that make 
+subtypes. In these examples, the <keyword> ``UNDER`` means "as a subtype of". 
 
 ::
 
    CREATE TYPE history UNDER book_udt           NOT FINAL;
-
    CREATE TYPE science UNDER book_udt           NOT FINAL;
-
    CREATE TYPE modern UNDER history             NOT FINAL;
-
    CREATE TYPE ancient UNDER history            NOT FINAL;
-
    CREATE TYPE physics UNDER science            NOT FINAL;
-
    CREATE TYPE stamp_collecting UNDER science   NOT FINAL;
 
-Admittedly, these new types lack personality. We've kept it that way so that
-you can imagine for yourself what additional Attributes or methods you would
-want to add to the subtypes, on top of the "inheritance" that they receive from the supertypes.
+Admittedly, these new types lack personality. We've kept it that way so that 
+you can imagine for yourself what additional Attributes or methods you would 
+want to add to the subtypes, on top of the "inheritance" that they receive from 
+the supertypes. 
 
-Finally, we can flip the coin over again and say: if a type can have subtypes,
-surely the instantiation of a type can have instantiations of subtypes. In other words, Tables can have subtables:
+Finally, we can flip the coin over again and say: "if a type can have subtypes, 
+surely the instantiation of a type can have instantiations of subtypes." In 
+other words, Tables can have subtables: 
 
 ::
 
    CREATE TABLE History UNDER Book;
-
    CREATE TABLE Science UNDER Book;
-
    CREATE TABLE Ancient UNDER History;
-
    CREATE TABLE Moderns UNDER History;
-
    CREATE TABLE Physics UNDER Science;
-
    CREATE TABLE Stamp_collecting UNDER Science;
 
-Notice that the "subtables" and "supertables" defined are a family whose
-relationships match the relationships of the "subtypes" and "supertypes" they are based on. In fact, that is a requirement.
+Notice that the "subtables" and "supertables" defined are a family whose 
+relationships match the relationships of the "subtypes" and "supertypes" they 
+are based on. In fact, that is a requirement. 
 
 Here endeth the tutorial.
 
-CREATE TYPE statement
+CREATE TYPE Statement
 =====================
 
-The CREATE TYPE statement defines a UDT. The required syntax for the CREATE TYPE statement is:
+The ``CREATE TYPE`` statement defines a UDT. The required syntax for the 
+``CREATE TYPE`` statement is:
 
 ::
 
@@ -571,30 +633,35 @@ The CREATE TYPE statement defines a UDT. The required syntax for the CREATE TYPE
           (SQL parameter declaration list)
           RETURNS <data type>
 
-CREATE TYPE defines a new UDT: a named set of valid data values. A UDT is owned by the Schema it belongs to.
+``CREATE TYPE`` defines a new UDT: a named set of valid data values. A UDT 
+is owned by the Schema it belongs to.
 
-## The <UDT name> identifies the UDT and the Schema that it belongs to.
-A <UDT name> that includes an explicit <Schema name> qualifier belongs to the
-Schema named. A <UDT name> that does not include an explicit <Schema name>
-qualifier belongs to the SQL-session default Schema. The <UDT name> must be
-unique (for all Domains and UDTs) within the Schema that owns it. If CREATE
-TYPE is part of a CREATE SCHEMA statement, the <UDT name>, if explicitly
-qualified, must include the <Schema name> of the Schema being created; that
-is, it isn't possible to create a UDT belonging to a different Schema from
-within CREATE SCHEMA.
+* The <UDT name> identifies the UDT and the Schema that it belongs to. A <UDT 
+  name> that includes an explicit <Schema name> qualifier belongs to the Schema 
+  named. A <UDT name> that does not include an explicit <Schema name> qualifier 
+  belongs to the SQL-session default Schema. The <UDT name> must be unique (for 
+  all Domains and UDTs) within the Schema that owns it. If ``CREATE TYPE`` is 
+  part of a ``CREATE SCHEMA`` statement, the <UDT name>, if explicitly 
+  qualified, must include the <Schema name> of the Schema being created; 
+  that is, it isn't possible to create a UDT belonging to a different Schema 
+  from within ``CREATE SCHEMA``. 
 
-There are actually three variants of CREATE TYPE, used in distinct ways:
+There are actually three variants of ``CREATE TYPE``, used in distinct ways: 
 
-::
++----------------------------------+------------------------------+-----------------------------+
+| **Making structured types**      | **Making structured types**  | **Making distinct types**   |
+| **(garden variety UDTs)**        | **(subtype UDTs)**           | **(not really truly UDTs)** |
++==================================+==============================+=============================+
+|   ``CREATE TYPE`` <name>         | ``CREATE TYPE`` <name>       | ``CREATE TYPE`` <name>      |
++----------------------------------+------------------------------+-----------------------------+
+|   ``AS`` <Attribute definitions> | ``UNDER`` <name>             | ``AS`` <predefined type>    |
++----------------------------------+------------------------------+-----------------------------+
+|   ...                            | ...                          | ...                         |
++----------------------------------+------------------------------+-----------------------------+
+|   ``NOT FINAL``                  | ``[NOT] FINAL``              | ``FINAL``                   |
++----------------------------------+------------------------------+-----------------------------+
 
-    Making structured types    Making structured types Making distinct types
-    (garden variety UDTs)      (subtype UDTs)          (not really truly UDTs)
-    CREATE TYPE <name>         CREATE TYPE <name>      CREATE TYPE <name>
-    AS <Attribute definitions> UNDER <name>            AS <predefined type>
-    ...                        ...                     ...
-    NOT FINAL                  [NOT] FINAL             FINAL
-
-If the representation clause is "AS <predefined data type>" -- for example:
+If the representation clause is "``AS`` <predefined data type>" -- for example:
 
 ::
 
@@ -610,70 +677,77 @@ If you use a subtype clause -- for example:
 
    CREATE TYPE a UNDER b ...
 
-you are making a new subtype under an existing supertype. The supertype must
-exist, it must be a structured type UDT that was defined as NOT FINAL and you
-must have the UNDER Privilege on it. Notice that there can be only one
-supertype; this means that SQL, like Java, has a "single inheritance" rule.
-Notice too that you can have both a subtype clause and an Attribute definition
-list in the same CREATE TYPE statement; this means that the subtype can have
-both inherited Attributes (Attributes taken from the supertype) and original
-Attributes (Attributes taken from the new definition, which follow the inherited Attributes).
+you are making a new subtype under an existing supertype. The supertype must 
+exist, it must be a structured type UDT that was defined as ``NOT FINAL`` and 
+you must have the ``UNDER`` Privilege on it. Notice that there can be only one 
+supertype; this means that SQL, like Java, has a "single inheritance" rule. 
+Notice too that you can have both a subtype clause and an Attribute definition 
+list in the same ``CREATE TYPE`` statement; this means that the subtype can 
+have both inherited Attributes (Attributes taken from the supertype) and 
+original Attributes (Attributes taken from the new definition, which follow the 
+inherited Attributes). 
 
-If the representation is "... AS <Attribute list> ...", then each Attribute
-definition must look very much like a <Column definition> looks in a CREATE TABLE statement -- for example:
+If the representation is "... ``AS`` <Attribute list> ...", then each Attribute 
+definition must look very much like a <Column definition> looks in a ``CREATE 
+TABLE`` statement -- for example: 
+
+
 
 ::
 
    attribute_1 CHAR(1000) CHARACTER SET ISO8BIT,
    attribute_2 TIME WITH TIME ZONE DEFAULT '12:00:00'
 
-Constraints (such as NOT NULL) are illegal, though. An <Attribute name> is an
-<identifier>; all <Attribute name>s must be unique within their UDT. The
-Attribute's <data type> may be a UDT, but cyclic references are illegal.
+Constraints (such as ``NOT NULL``) are illegal, though. An <Attribute name> is 
+an <identifier>; all <Attribute name>s must be unique within their UDT. The 
+Attribute's <data type> may be a UDT, but cyclic references are illegal. 
 
-The Standard is contradictory about the instantiable clause. It's safe to
-assume that "instantiable", as in all OO languages, means "can be
-instantiated" (a "non-instantiable" or "abstract" UDT would have no instances
-but could have instantiable subtypes). Use of typed Tables is only possible if
-the type is intantiable.
+The Standard is contradictory about the instantiable clause. It's safe to 
+assume that "instantiable", as in all OO languages, means "can be instantiated" 
+(a "non-instantiable" or "abstract" UDT would have no instances but could have 
+instantiable subtypes). Use of typed Tables is only possible if the type is 
+intantiable. 
 
-The Standard is also contradictory about the finality clause. It probably
-means (as in Java) that the new UDT may have no proper subtypes. That is, no
-further UDT may be created UNDER it. (There is a belief that the clause is for
-distinguishing distinct types from structured types. We don't believe that. We
-repeat that a distinct type s a UDT defined with "AS <predefined type>", all
-other UDTs are structured types.) If the CREATE TYPE statement contains any
-Attribute definitions, then NOT FINAL is mandatory. Otherwise either FINAL or
-NOT FINAL is mandatory.
+The Standard is also contradictory about the finality clause. It probably means 
+(as in Java) that the new UDT may have no proper subtypes. That is, no further 
+UDT may be created ``UNDER`` it. (There is a belief that the clause is for 
+distinguishing distinct types from structured types. We don't believe that. We 
+repeat that a distinct type s a UDT defined with "``AS`` <predefined type>", 
+all other UDTs are structured types.) If the ``CREATE TYPE`` statement contains 
+any Attribute definitions, then ``NOT FINAL`` is mandatory. Otherwise either 
+``FINAL`` or ``NOT FINAL`` is mandatory. 
 
-The reference specification is either "user-generated" (REF USING), "derived"
-(REF <Attribute list>) or "system-generated" (REF IS SYSTEM GENERATED). With
-the default -- REF IS SYSTEM GENERATED -- there is no further specification
-because values are implementation-dependent. With the main option -- REF USING
--- there is a further specification: the <Attribute name> list. Because (as in
-pure relational systems) a row's uniqueness   should depend on Column values,
-the <Attribute name>s here would be an indirect list of a "key value".
+The reference specification is either "user-generated" (``REF USING``), 
+"derived" (``REF`` <Attribute list>) or "system-generated" (``REF IS SYSTEM 
+GENERATED``). With the default -- ``REF IS SYSTEM GENERATED`` -- there is no 
+further specification because values are implementation-dependent. With the 
+main option -- ``REF USING`` -- there is a further specification: the 
+<Attribute name> list. Because (as in pure relational systems) a row's 
+uniqueness should depend on Column values, the <Attribute name>s here would be 
+an indirect list of a "key value". 
 
-The cast option is legal only for distinct types. The cast's source and target
-<data type>s are the <predefined type> specified earlier in the CREATE TYPE
-statement and the name of the UDT, respectively.
+The cast option is legal only for distinct types. The cast's source and target 
+<data type>s are the <predefined type> specified earlier in the ``CREATE TYPE`` 
+statement and the name of the UDT, respectively. 
 
-A UDT's methods are defined in pretty well the same way as functions; indeed a
-method is a function, albeit a function which cannot live without its UDT and
-which is called in a slightly different way than a regular function. The
-default method characteristics are LANGUAGE SQL, PARAMETER STYLE SQL, NOT
-DETERMINISTIC, CONTAINS SQL, NOT NULL CALL. (Note: Although the Standard says
-that NOT DETERMINISTIC is the default, it's hard to believe that this is the
-true intent.) The difference between an "overriding" and an "original" method
-is that an overriding method "overrides" an already-existing method with the
-same name, in some supertype. Method signatures must be distinct. Remember
-that, as noted in the tutorial section of this chapter, structured UDTs have
-implicitly-created methods: one constructor method for the UDT as a whole, n
-mutator methods (one for each Attribute), and n observer methods (one for each
-Attribute). As for distinct types: apparently no implicitly-created methods
-exist for them, but there may be a "transform" function for casting to/from host languages.
+A UDT's methods are defined in pretty well the same way as functions; indeed a 
+method is a function, albeit a function which cannot live without its UDT and 
+which is called in a slightly different way than a regular function. The 
+default method characteristics are ``LANGUAGE SQL``, ``PARAMETER STYLE SQL``, 
+``NOT DETERMINISTIC``, ``CONTAINS SQL``, ``NOT NULL CALL``. (Note: Although the 
+Standard says that ``NOT DETERMINISTIC`` is the default, it's hard to believe 
+that this is the true intent.) The difference between an "overriding" and an 
+"original" method is that an overriding method "overrides" an already-existing 
+method with the same name, in some supertype. Method signatures must be 
+distinct. Remember that, as noted in the tutorial section of this chapter, 
+structured UDTs have implicitly-created methods: one constructor method for the 
+UDT as a whole, *n* mutator methods (one for each Attribute), and *n* observer 
+methods (one for each Attribute). As for distinct types: apparently no 
+implicitly-created methods exist for them, but there may be a "transform" 
+function for casting to/from host languages. 
 
-Distinct types:
+*Distinct Types*
+----------------
 
 The simplest way to make a UDT is with:
 
@@ -681,10 +755,11 @@ The simplest way to make a UDT is with:
 
    CREATE TYPE <UDT name> AS <predefined data type> FINAL;
 
-which -- since it has no Attribute list -- is not a specification of a
-"structured type" with all the OO trimmings. Instead, UDTs made this way are
-called "distinct types". The main idea behind distinct types is that they
-constitute enforceable domains. For example, suppose we define two currency data types:
+which -- since it has no Attribute list -- is not a specification of a 
+"structured type" with all the OO trimmings. Instead, UDTs made this way are 
+called "distinct types". The main idea behind distinct types is that they 
+constitute enforceable domains. For example, suppose we define two currency 
+data types: 
 
 ::
 
@@ -692,21 +767,24 @@ constitute enforceable domains. For example, suppose we define two currency data
 
    CREATE TYPE mark AS DECIMAL(8,2) FINAL;
 
-If we now attempt to pass a "euro" value to a "mark" target, we will fail --
-the distinct type provides us with a simple form of type checking that we
-cannot achieve using an SQL Domain.
+If we now attempt to pass a ``euro`` value to a ``mark`` target, we will fail 
+-- the distinct type provides us with a simple form of type checking that we 
+cannot achieve using an SQL Domain. 
 
-Distinct types have methods, just like structured types. However, they are
-limited in various ways. Usually, when we make generalized comments about
-object-orientation analogies -- such as "UDTs are classes" -- we have structured types in mind, not distinct types.
+Distinct types have methods, just like structured types. However, they are 
+limited in various ways. Usually, when we make generalized comments about 
+object-orientation analogies -- such as "UDTs are classes" -- we have 
+structured types in mind, not distinct types.
 
-CREATE TABLE statement
+CREATE TABLE Statement
 ======================
 
-We've already shown you the CREATE TABLE statement in our chapter on Tables.
-However, there are two options to add to that description now, for Object/Relational Tables.
+We've already shown you the ``CREATE TABLE`` statement in our chapter on 
+Tables. However, there are two options to add to that description now, for 
+Object/Relational Tables. 
 
-The first option has to do with the creation of typed Tables. Here's the syntax:
+The first option has to do with the creation of typed Tables. Here's the 
+syntax: 
 
 ::
 
@@ -719,56 +797,57 @@ The first option has to do with the creation of typed Tables. Here's the syntax:
 In addition to the usual rules for Table creation, here are other rules to
 follow when you use this syntax:
 
-## You must have the USAGE Privilege on <UDT name>.
+* You must have the ``USAGE`` Privilege on <UDT name>.
 
-## <UDT name> must specify a structured UDT.
+* <UDT name> must specify a structured UDT.
 
-## The optional REF clause may appear within the Table element list
-(that is, inside the parentheses along with the Column and Constraint
-definitions). The <self-referencing Column name> must be a valid and distinct
-<identifier>. The three options associated with "REF IS ..." are (like CREATE
-TYPE's REF clause) either "user-generated", "derived" or "system-generated".
-With the default -- SYSTEM GENERATED -- the Column values are
-implementation-dependent. With the main option -- DERIVED -- Column values
-come from the Table's primary key. A typed Table always has one
-self-referencing Column, and its position within the Table is fixed: it is
-always the first Column in the Table. The "REF IS ..." clause only specifies a
-few details about the self-referencing Column. Note: typed Tables are known
-(sometimes) as "referenceable Tables" and (rarely) as "object UDTs".
+* The optional ``REF`` clause may appear within the Table element list (that 
+  is, inside the parentheses along with the Column and Constraint definitions). 
+  The <self-referencing Column name> must be a valid and distinct <identifier>. 
+  The three options associated with "``REF IS ...``" are (like ``CREATE 
+  TYPE``\'s ``REF`` clause) either "user-generated", "derived" or 
+  "system-generated". With the default -- ``SYSTEM GENERATED`` -- the Column 
+  values are implementation-dependent. With the main option -- ``DERIVED`` -- 
+  Column values come from the Table's primary key. A typed Table always has one 
+  self-referencing Column, and its position within the Table is fixed: it is 
+  always the first Column in the Table. The "``REF IS ...``" clause only 
+  specifies a few details about the self-referencing Column. Note: typed Tables 
+  are known (sometimes) as "referenceable Tables" and (rarely) as "object 
+  UDTs". The second option has to do with the creation of subtables. Here's the 
+  syntax: 
 
-The second option has to do with the creation of subtables. Here's the syntax:
+  ::
 
-::
-
-    CREATE TABLE <subtable name>
-    ...
-    UNDER <supertable name>
-    ...
+      CREATE TABLE <subtable name>
+      ...
+      UNDER <supertable name>
+      ...
 
 In addition to the usual rules for Table creation, here are other rules to
 follow when you use this syntax:
 
-## You must have UNDER privileges on <supertable name>.
+* You must have ``UNDER`` privileges on <supertable name>.
 
-## Both the subtable and the supertable must be typed Tables.
+* Both the subtable and the supertable must be typed Tables.
 
-## The subtable/supertable relationship must mirror the
-subtype/supertype relationship. For example: if ty1 is a subtype of ty2, and
-ta1 is a typed Table based on ty1, and ta2 is a typed Table based on ty2, then
-it is legal to create ta1 UNDER ta2 -- but it is not legal to create ta2 UNDER ta1.
+* The subtable/supertable relationship must mirror the subtype/supertype 
+  relationship. For example: if ``ty1`` is a subtype of ``ty2``, and ``ta1`` is 
+  a typed Table based on ``ty1``, and ``ta2`` is a typed Table based on 
+  ``ty2``, then it is legal to create ``ta1 UNDER ta2`` -- but it is not legal 
+  to create ``ta2 UNDER ta1``. 
 
-CREATE CAST statement
+CREATE CAST Statement
 =====================
 
-With uDTS, you'll need some way of assigning UDT values to predefined <data
-type> targets, or vice versa. Further, if you have two distinct UDTs -- say
-UDT1 and UDT2 -- then you'll also need some way to assign values based on UDT1
-to UDT2 targets, or vice versa. This might all be complicated by the fact that
-subtypes contain their supertypes' Attributes, which should imply a degree of
-mutual assignability. In sum, you need the ability to "cast" a UDT to or from
-another data type. The solution is to create a user-defined cast for the
-chosen <data type>s, with the CREATE CAST statement. The required syntax for
-the CREATE CAST statement is:
+With UDTs, you'll need some way of assigning UDT values to predefined <data 
+type> targets, or vice versa. Further, if you have two distinct UDTs -- say 
+UDT1 and UDT2 -- then you'll also need some way to assign values based on UDT1 
+to UDT2 targets, or vice versa. This might all be complicated by the fact that 
+subtypes contain their supertypes' Attributes, which should imply a degree of 
+mutual assignability. In sum, you need the ability to "cast" a UDT to or from 
+another data type. The solution is to create a user-defined cast for the chosen 
+<data type>s, with the ``CREATE CAST`` statement. The required syntax for the 
+``CREATE CAST`` statement is: 
 
 ::
 
@@ -776,18 +855,19 @@ the CREATE CAST statement is:
     WITH <specific routine designator>
     [ AS ASSIGNMENT ]
 
-A UDT value is assignable to a UDT target only if the source value is a
-subtype of the target UDT. There can be only one user-defined cast for any
-given combination of source and target types. Either <source type> or <target
-type> must be either UDT or REF, but the other operand can be any <data type>.
-To execute CREATE CAST, you must be the owner of both the cast function
-identified by <specific routine designator>) and the <target type> (if it is a UDT).
+A UDT value is assignable to a UDT target only if the source value is a subtype 
+of the target UDT. There can be only one user-defined cast for any given 
+combination of source and target types. Either <source type> or <target type> 
+must be either UDT or ``REF``, but the other operand can be any <data type>. To 
+execute ``CREATE CAST``, you must be the owner of both the cast function 
+identified by <specific routine designator>) and the <target type> (if it is a 
+UDT). 
 
-The <specific routine designator> is usually a signature -- for example,
-"FUNCTION f (SMALLINT)" can be a <specific routine designator>. It is also
-possible to identify a routine using a specific name, which is a unique,
-possibly mangled, name that is usually assigned by the DBMS. The cast function
-identified by the <specific routine designator> must have the general form:
+The <specific routine designator> is usually a signature -- for example, 
+"``FUNCTION f (SMALLINT)``" can be a <specific routine designator>. It is also 
+possible to identify a routine using a specific name, which is a unique, 
+possibly mangled, name that is usually assigned by the DBMS. The cast function 
+identified by the <specific routine designator> must have the general form: 
 
 ::
 
@@ -796,9 +876,9 @@ identified by the <specific routine designator> must have the general form:
    ... { NO SQL | CONTAINS SQL }
    ...
 
-AS ASSIGNMENT (which is not the default) means that the cast is "implicitly
-invocable" during assignment operations. That is, if x is UDT_1, and there is
-an implicitly-invocable cast, then this is a legal assignment:
+``AS ASSIGNMENT`` (which is not the default) means that the cast is "implicitly 
+invocable" during assignment operations. That is, if ``x`` is ``UDT_1``, and 
+there is an implicitly-invocable cast, then this is a legal assignment: 
 
 ::
 
@@ -810,27 +890,39 @@ Otherwise, this is a legal assignment:
 
    x = CAST ('F' AS UDT_1)
 
-[Obscure Rule] An assignment might involve a choice between several possible
-"implicitly invocable" cast functions. The DBMS picks the one that fits these
-criteria:
+[Obscure Rule] An assignment might involve a choice between several possible 
+"implicitly invocable" cast functions. The DBMS picks the one that fits these 
+criteria: 
 
-## It's an implicitly-invocable cast function -- i.e.: it was mentioned with AS ASSIGNABLE.
+* It's an implicitly-invocable cast function -- i.e.: it was mentioned with 
+  ``AS ASSIGNABLE``.
 
-## The cast function's result <data type> is the target's declared type.
+* The cast function's result <data type> is the target's declared type.
 
-## The cast function has one parameter, and that parameter has a "declared type", and that declared type is in the "type precedence list" of the declared type of the source value.
-If there are two cast functions which meet all these requirements, the DBMS picks the one whose declared type is highest in the "type precedence list".
+* The cast function has one parameter, and that parameter has a "declared 
+  type", and that declared type is in the "type precedence list" of the 
+  declared type of the source value. If there are two cast functions which 
+  meet all these requirements, the DBMS picks the one whose declared type is 
+  highest in the "type precedence list".
 
-** TIP: If you decide to make a user-defined cast for "a to b", be reciprocal:
-make a user-defined cast for "b to a" as well. Users expect all casts to be two-way.
+.. TIP::
 
-** TIP: For hierarchy's sake: if A1 is a supertype of A2, and B1 is a supertype of B2, then make casts from A1 to B1 and from A2 to B2 -- not A1 to B2 nor A2 to B1. That is, cast from super to super and from sub to sub.
+   If you decide to make a user-defined cast for "a to b", be reciprocal: 
+   make a user-defined cast for "b to a" as well. Users expect all casts to 
+   be two-way.
 
-Here is a user-defined cast for the BOOK_UDT type which we used in earlier
-examples. The UDT has three Attributes (title CHAR(40), buying_price
-DECIMAL(9,2), selling_price DECIMAL(9,2)). Since each Attribute's type is
-either CHAR or castable to CHAR, we'll make a function which simply
-concatenates each Attribute into one big character string. Here's how:
+.. TIP::
+
+   For hierarchy's sake: if ``A1`` is a supertype of ``A2``, and ``B1`` is a 
+   supertype of ``B2``, then make casts from ``A1`` to ``B1`` and from 
+   ``A2`` to ``B2`` -- not ``A1`` to ``B2`` nor ``A2`` to ``B1``. That is, 
+   cast from super to super and from sub to sub.
+
+Here is a user-defined cast for the ``BOOK_UDT`` type which we used in earlier 
+examples. The UDT has three Attributes (``title CHAR(40)``, ``buying_price 
+DECIMAL(9,2)``, ``selling_price DECIMAL(9,2)``). Since each Attribute's type is 
+either ``CHAR`` or castable to ``CHAR``, we'll make a function which simply 
+concatenates each Attribute into one big character string. Here's how: 
 
 ::
 
@@ -853,16 +945,18 @@ Now that we have a function, we can make a cast for the function:
    CREATE CAST (book_udt AS CHAR(60))
    WITH FUNCTION f (book_udt);
 
-Now that we have a cast, we can use BOOK_UDT in a CAST expression:
+Now that we have a cast, we can use ``BOOK_UDT`` in a ``CAST`` expression:
 
 ::
 
   SELECT CAST(book_udt AS CHAR(60))
   FROM   Books;
 
-Thus, we can design our own external representation of a UDT, without worrying about its internal representation.
+Thus, we can design our own external representation of a UDT, without 
+worrying about its internal representation.
 
-For distinct type UDTs only, the DBMS automatically creates two casts. For example, if you make this UDT:
+For distinct type UDTs only, the DBMS automatically creates two casts. For 
+example, if you make this UDT:
 
 ::
 
@@ -873,41 +967,46 @@ the DBMS will make these two casts for it:
 ::
 
    CREATE CAST (longitude AS REAL) ... AS ASSIGNMENT;
-
    CREATE CAST (REAL AS longitude) ... AS ASSIGNMENT;
 
-Now, suppose you have a variable "lo" of type LONGITUDE. Because of the automatic cast, it's legal to cast a <literal> to LONGITUDE, for example:
+Now, suppose you have a variable ``lo`` of type ``LONGITUDE``. Because of 
+the automatic cast, it's legal to cast a <literal> to ``LONGITUDE``, for 
+example:
 
 ::
 
     SET lo = CAST (33.59 AS longitude);
 
-Not only that, though! The casts are AS ASSIGNMENT casts, so this SQL statement is also legal:
+Not only that, though! The casts are ``AS ASSIGNMENT`` casts, so this SQL 
+statement is also legal:
 
 ::
 
    SET lo = 33.59;
 
-The AS ASSIGNMENT feature, which got into the SQL Standard at a very late
+The ``AS ASSIGNMENT`` feature, which got into the SQL Standard at a very late
 stage, is bound to confuse some people: they'll think that "distinct types"
 are just a way to rename predefined <data type>s. That would be a delusion.
-The reason that "SET lo = 33.59;" is legal is that there is an implicit cast
+The reason that ``SET lo = 33.59;`` is legal is that there is an implicit cast
 (the DBMS makes it silently) which happens to be an implicitly invoked cast
-(it contains an AS ASSIGNMENT clause).
+(it contains an ``AS ASSIGNMENT`` clause).
 
-** TIP: Implicitly invocable casts are convenient but error-prone. If you
-don't want to allow loosely-typed phrases like "money_column = 5.00", you
-should DROP the cast that the DBMS created and then explicitly make it again -
-- but without specifying "AS ASSIGNMENT" in the definition.
+.. TIP::
 
-CREATE ORDERING statement
+   Implicitly invocable casts are convenient but error-prone. If you don't 
+   want to allow loosely-typed phrases like ``money_column = 5.00``, you 
+   should ``DROP`` the cast that the DBMS created and then explicitly make 
+   it again -- but without specifying ``AS ASSIGNMENT`` in the definition.
+
+CREATE ORDERING Statement
 =========================
 
-For UDT values, you'll need some way of knowing that "udt-value-1 is greater
-than udt-value-2" -- or less, or equal. Otherwise you'll be unable to use UDTs
-in search conditions, or in ORDER BY clauses, or in GROUP BY clauses, or after
-the word DISTINCT. The solution is to create an ordering for the UDT with the
-CREATE ORDERING statement. The required syntax for the CREATE ORDERING statement is:
+For UDT values, you'll need some way of knowing that "udt-value-1 is greater 
+than udt-value-2" -- or less, or equal. Otherwise you'll be unable to use UDTs 
+in search conditions, or in ``ORDER BY`` clauses, or in ``GROUP BY`` clauses, 
+or after the word ``DISTINCT``. The solution is to create an ordering for the 
+UDT with the ``CREATE ORDERING`` statement. The required syntax for the 
+``CREATE ORDERING`` statement is: 
 
 ::
 
@@ -920,45 +1019,50 @@ CREATE ORDERING statement. The required syntax for the CREATE ORDERING statement
        HASH WITH <specific routine designator> |
        STATE [ <specific name> ]
 
-A UDT value is comparable to another UDT value only if both UDTs are in the
-same subtype family. There can be only one ordering for a UDT. To execute
-CREATE ORDERING, you must be the owner of both the UDT and routine named in
-the <ordering category>. Since UDTs in the same type family are related, all
-orderings for UDTs within the same type family must all be defined either with
-EQUALS ONLY BY or with ORDER FULL BY.
+A UDT value is comparable to another UDT value only if both UDTs are in the 
+same subtype family. There can be only one ordering for a UDT. To execute 
+``CREATE ORDERING``, you must be the owner of both the UDT and routine named in 
+the <ordering category>. Since UDTs in the same type family are related, all 
+orderings for UDTs within the same type family must all be defined either with 
+``EQUALS ONLY BY`` or with ``ORDER FULL BY``. 
 
-A <specific routine designator> is usually a signature. For example, "FUNCTION
-f (SMALLINT)" can be a <specific routine designator>. It is also possible to
-identify a routine using a <specific name>: an additional routine name, used
-to uniquely identify a routine. A routine's <specific name> is usually
-assigned by the DBMS. The ordering routine must be DETERMINISTIC and must not
-possibly modify SQL-data.
+A <specific routine designator> is usually a signature. For example, ``FUNCTION 
+f (SMALLINT)`` can be a <specific routine designator>. It is also possible to 
+identify a routine using a <specific name>: an additional routine name, used to 
+uniquely identify a routine. A routine's <specific name> is usually assigned by 
+the DBMS. The ordering routine must be ``DETERMINISTIC`` and must not possibly 
+modify SQL-data. 
 
-The <ordering category> "RELATIVE WITH <specific routine designator>" is legal
-only for maximal supertypes (i.e.: types that have no proper supertypes of
-their own). RELATIVE WITH functions have two parameters (both are UDT types)
-and return an INTEGER.
+The <ordering category> "``RELATIVE WITH`` <specific routine designator>" is 
+legal only for maximal supertypes (i.e.: types that have no proper supertypes 
+of their own). ``RELATIVE WITH`` functions have two parameters (both are UDT 
+types) and return an ``INTEGER``. 
 
-The <ordering category> "HASH WITH <specific routine designator>" is legal for
-subtypes, but only if their supertypes are also defined with HASH WITH
-orderings. Typically, the <specific routine designator> named will identify an
-observer method for one of the UDT's Attributes. HASH WITH functions have one
-parameter (its type is UDT) and return a predefined <data type>.
+The <ordering category> "``HASH WITH`` <specific routine designator>" is legal 
+for subtypes, but only if their supertypes are also defined with ``HASH WITH`` 
+orderings. Typically, the <specific routine designator> named will identify an 
+observer method for one of the UDT's Attributes. ``HASH WITH`` functions have 
+one parameter (its type is UDT) and return a predefined <data type>. 
 
-The <ordering category> "STATE" is legal only for maximal supertypes. If you
-specify STATE, the DBMS implicitly creates a function named EQUALS. It is the
-duty of the EQUALS function to return TRUE if all Attribute values are equal.
+The <ordering category> ``STATE`` is legal only for maximal supertypes. If you 
+specify ``STATE``, the DBMS implicitly creates a function named ``EQUALS``. It 
+is the duty of the ``EQUALS`` function to return ``TRUE`` if all Attribute 
+values are equal. 
 
-Because the ordering routine is user-defined, it's impossible to say exactly
-what the various ordering categories imply. The following is a generalization:
+Because the ordering routine is user-defined, it's impossible to say exactly 
+what the various ordering categories imply. The following is a generalization: 
 
-## An EQUALS function returns TRUE if all values are equal; otherwise it returns FALSE. It never returns UNKNOWN.
+* An ``EQUALS`` function returns ``TRUE`` if all values are equal; otherwise it 
+  returns ``FALSE``. It never returns ``UNKNOWN``.
 
-## A RELATIVE function returns an integer value less than zero for less than values, returns zero for equal values and returns an integer greater than zero for greater than values.
+* A ``RELATIVE`` function returns an integer value less than zero for less than 
+  values, returns zero for equal values and returns an integer greater than 
+  zero for greater than values.
 
-## A HASH function returns an absolute ordering within the predefined <data type>.
+* A ``HASH`` function returns an absolute ordering within the predefined <data 
+  type>.
 
-Here's an example of CREATE ORDERING:
+Here's an example of ``CREATE ORDERING``:
 
 ::
 
@@ -966,7 +1070,8 @@ Here's an example of CREATE ORDERING:
    ORDER FULL BY HASH WITH
       FUNCTION title (book_udt);   /* observer function for title Attribute */
 
-There is no need to create an ordering for a distinct type. As with casts, the DBMS implicitly does the following when CREATE TYPE is executed:
+There is no need to create an ordering for a distinct type. As with casts, 
+the DBMS implicitly does the following when ``CREATE TYPE`` is executed:
 
 ::
 
@@ -974,13 +1079,16 @@ There is no need to create an ordering for a distinct type. As with casts, the D
    ORDER FULL BY HASH WITH
       FUNCTION <Schema name>.<cast-to-source identifier> (<UDT name>);
 
-Comparisons of distinct types work exactly the same way as comparisons of the predefined <data type>s they are based on.
+Comparisons of distinct types work exactly the same way as comparisons of 
+the predefined <data type>s they are based on.
 
-** TIP: When you create a maximal supertype, make sure to execute a CREATE
-ORDERING statement for that type. When you create a subtype, the matter is
-less urgent because subtypes inherit from their supertypes.
+.. TIP::
 
-Other processes for Object/Relational Users
+   When you create a maximal supertype, make sure to execute a ``CREATE 
+   ORDERING`` statement for that type. When you create a subtype, the matter is 
+   less urgent because subtypes inherit from their supertypes. 
+
+Other Processes for Object/Relational Users
 ===========================================
 
 There are several other SQL statements and expression which are useful, but
@@ -989,9 +1097,11 @@ are simply analogs of statements we have already seen; only the type of Schema
 Object is different. We therefore limit ourselves to noting their existence
 here, in the hope that you'll find the details to be intuitive.
 
-ALTER TYPE statement
+*ALTER TYPE Statement*
+----------------------
 
-The ALTER TYPE statement lets you change the definition of a UDT. The required syntax for the ALTER TYPE statement is:
+The ``ALTER TYPE`` statement lets you change the definition of a UDT. The 
+required syntax for the ``ALTER TYPE`` statement is:
 
 ::
 
@@ -1001,9 +1111,12 @@ The ALTER TYPE statement lets you change the definition of a UDT. The required s
        ADD ATTRIBUTE <Attribute definition> |
        DROP ATTRIBUTE <Attribute name>
 
-CREATE METHOD statement
+*CREATE METHOD Statement*
+-------------------------
 
-The CREATE METHOD statement lets you make a new method -- it's actually a special form of the CREATE FUNCTION statement. The required syntax for the CREATE METHOD statement is:
+The ``CREATE METHOD`` statement lets you make a new method -- it's actually 
+a special form of the ``CREATE FUNCTION`` statement. The required syntax 
+for the ``CREATE METHOD`` statement is:
 
 ::
 
@@ -1014,10 +1127,11 @@ The CREATE METHOD statement lets you make a new method -- it's actually a specia
     [ SPECIFIC <specific name> ]
     <routine body>
 
-(See our chapter on procedures for a definition of <routine body>.)
+(See our chapter on procedures for a definition of <routine body>.) 
 
-A method is a function which is associated with a UDT. Methods and functions
-can look quite different, even when they're the same thing. Consider these two examples:
+A method is a function which is associated with a UDT. Methods and functions 
+can look quite different, even when they're the same thing. Consider these two 
+examples: 
 
 ::
 
@@ -1026,15 +1140,17 @@ can look quite different, even when they're the same thing. Consider these two e
     RETURNS FLOAT                        RETURNS FLOAT
                                          FOR book_udt
 
-These examples -- shorn of unnecessary detail -- illustrate a confusing fact:
-the function and the method are the same thing! When you want to list a
-method's parameters, you should "augment" the parameter list by adding one
-parameter, called the "self" parameter, in ordinal position 1.
+These examples -- shorn of unnecessary detail -- illustrate a confusing fact: 
+the function and the method are the same thing! When you want to list a 
+method's parameters, you should "augment" the parameter list by adding one 
+parameter, called the "self" parameter, in ordinal position 1. 
 
-CREATE TRANSFORM statement
+*CREATE TRANSFORM Statement*
+----------------------------
 
-The CREATE TRANSFORM statement lets you make a method that will be used in
-casting for host languages. The required syntax for the CREATE TRANSFORM statement is:
+The ``CREATE TRANSFORM`` statement lets you make a method that will be used in 
+casting for host languages. The required syntax for the ``CREATE TRANSFORM`` 
+statement is: 
 
 ::
 
@@ -1046,157 +1162,238 @@ casting for host languages. The required syntax for the CREATE TRANSFORM stateme
        TO SQL WITH <specific routine designator> |
        FROM SQL WITH <specific routine designator>
 
-A TRANSFORM is an SQL-invoked function that is automatically invoked when you
-transfer UDT values to and from a host language program. It identifies one or
-two functions -- each identified by a <group name> (the name is either an <identifier> of the <keyword> DEFAULT).
+A ``TRANSFORM`` is an SQL-invoked function that is automatically invoked when 
+you transfer UDT values to and from a host language program. It identifies one 
+or two functions -- each identified by a <group name> (the name is either an 
+<identifier> of the <keyword> ``DEFAULT``). 
 
-The TRANSFORM's TO SQL function casts a predefined <data type> value to a UDT
-value and gets invoked whenever a UDT value is passed to the DBMS by a host
-language program or external routine. The TRANSFORM's FROM SQL function casts
-a UDT value to a predefined <data type> value and gets invoked whenever a UDT
-value is passed from the DBMS to a host language program or external routine.
+The ``TRANSFORM``\'s ``TO SQL`` function casts a predefined <data type> value 
+to a UDT value and gets invoked whenever a UDT value is passed to the DBMS by a 
+host language program or external routine. The ``TRANSFORM``\'s ``FROM SQL`` 
+function casts a UDT value to a predefined <data type> value and gets invoked 
+whenever a UDT value is passed from the DBMS to a host language program or 
+external routine. 
 
-DROP CAST statement
+*DROP CAST Statement*
+---------------------
 
-The DROP CAST statement lets you destroy a user-defined cast. The required syntax for the DROP CAST statement is:
+The ``DROP CAST`` statement lets you destroy a user-defined cast. The 
+required syntax for the ``DROP CAST`` statement is:
 
 ::
 
     DROP CAST (<source type> AS <target type> {CASCADE | RESTRICT}
 
-DROP ORDERING statement
+*DROP ORDERING Statement*
+-------------------------
 
-The DROP ORDERING statement lets you destroy an ordering for a UDT. The required syntax for the DROP ORDERING statement is:
+The ``DROP ORDERING`` statement lets you destroy an ordering for a UDT. The 
+required syntax for the ``DROP ORDERING`` statement is:
 
 ::
 
     DROP ORDERING FOR <UDT name> {CASCADE | RESTRICT}
 
-DROP TRANSFORM statement
+*DROP TRANSFORM Statement*
+--------------------------
 
-The DROP TRANSFORM statement lets you destroy a transform. The required syntax for the DROP TRANSFORM statement is:
+The ``DROP TRANSFORM`` statement lets you destroy a transform. The required 
+syntax for the ``DROP TRANSFORM`` statement is:
 
 ::
 
     DROP TRANSFORM {ALL | <group name>} FOR <UDT name> {CASCADE | RESTRICT}
 
-DROP TYPE statement
+*DROP TYPE Statement*
+---------------------
 
-The DROP TYPE statement lets you destroy a UDT. The required syntax for the DROP TYPE statement is:
+The ``DROP TYPE`` statement lets you destroy a UDT. The required syntax for the 
+``DROP TYPE`` statement is:
 
 ::
 
     DROP TYPE <UDT name> {CASCADE | RESTRICT}
 
-NEW statement
+*NEW Statement*
+---------------
 
-The NEW statement lets you invoke a method on a newly-constructed value of a structured type. The required syntax for the NEW statement is:
+The ``NEW`` statement lets you invoke a method on a newly-constructed value 
+of a structured type. The required syntax for the ``NEW`` statement is:
 
 ::
 
     NEW <method invocation>
 
-TREAT statement
+*TREAT Statement*
+-----------------
 
-The TREAT statement lets you modify the declared type of a structured type
-expression to a type of one of its supertypes. The required syntax for the
-TREAT statement is:
+The ``TREAT`` statement lets you modify the declared type of a structured type 
+expression to a type of one of its supertypes. The required syntax for the 
+``TREAT`` statement is: 
 
 ::
 
     TREAT (<subtype expression> AS <target UDT>)
 
-DEREF function
+*DEREF Function*
+----------------
 
-The DEREF function lets you obtain the data value referenced by a <reference type>. The required syntax is:
+The ``DEREF`` function lets you obtain the data value referenced by a <reference 
+type>. The required syntax is:
 
 ::
 
     <deref function> ::=
     DEREF (<reference type> expression>)
 
-Is Object/Relational really Object Oriented?
+*SPECIFICTYPE Function*
+-----------------------
+
+The ``SPECIFICTYPE`` function returns an ``SQL_TEXT`` character string
+containing the fully-qualified name of the UDT to which a given value belongs.
+The required syntax is as follows.
+
+::
+
+    <specifictype function> ::=
+    SPECIFICTYPE (UDT value expression)
+
+*Dereference Operation*
+-----------------------
+
+The <dereference operation> allows you to access a Column of the row identified
+by a REF value. The required syntax is as follows (for details, see Chapter 12
+"Reference Types").
+
+::
+
+    <dereference operation> ::=
+    reference_argument -> <attribute name>
+
+*TYPE Predicate*
+----------------
+
+The ``TYPE`` Predicate returns ``TRUE`` if a given value is within the set of
+values defined by a UDT (or by a list of UDTs which are all in the same subtype
+family). The required syntax is as follows
+
+::
+
+    <type predicate> ::=
+    <UDT value expression> IS [ NOT ] OF
+    ([ ONLY ] <UDT-name-1> [ {,<UDT-name-2>} . . . ])
+
+Is object/relational really object-oriented?
 ============================================
 
-Is O/R really OO? Lets go through the features that are considered to be
-standard parts of an object-oriented specification and see whether SQL3
-delivers them. (In this list, "UDT" means "UDTs which are structured types".)
+Is O/R really OO? Lets go through the features that are considered to be 
+standard parts of an object-oriented specification and see whether SQL3 
+delivers them. (In this list, "UDT" means "UDTs which are structured types".) 
 
-## Classes. UDTs are classes. SQL3 vocabulary may include words like
-"type family" where most languages' vocabulary would have "class family", but
-the essential functionality is the same.
+**Classes**
 
-## Encapsulation. SQL3 keeps data representation separate from data
-access, but does not allow for PRIVATE and PUBLIC Attribute definitions --
-those are matters for GRANT and REVOKE to handle.
+UDTs are classes. SQL3 vocabulary may include words like "type family" where 
+most languages' vocabulary would have "class family", but the essential 
+functionality is the same. 
 
-## Extensibility. It is possible to put together packages consisting of
-new type families, methods and representations. Such packages exist today,
-although to a large extent -- for efficiency reasons -- the methods are
-external functions written in some other language.
+**Encapsulation**
 
-## Inheritance. A UDT may be defined under another UDT. Subtypes inherit
-the methods and Attributes of their supertypes. Inheritance is single, as in
-most pure object-oriented languages.
+SQL3 keeps data representation separate from data access, but does not allow 
+for PRIVATE and PUBLIC Attribute definitions -- those are matters for ``GRANT`` 
+and ``REVOKE`` to handle. 
 
-## Instantiation. SQL3's UDTs may be used in place of predefined <data
-type>s in SQL-data statements. Rows in typed Tables may be treated as objects,
-complete with object identifiers.
+**Extensibility**
 
-## Introspection. SQL already has a clean way to find out what a
-database's structural components are: INFORMATION_SCHEMA. It should be no big
-deal to put wrappers around SQL statements that SELECT from
-INFORMATION_SCHEMA. Unfortunately, it is more likely that wrappers will
-instead be put around the unwieldy CLI Catalog functions (see our chapter on
-CLI Catalog functions).
+It is possible to put together packages consisting of new type families, 
+methods and representations. Such packages exist today, although to a large 
+extent -- for efficiency reasons -- the methods are external functions written 
+in some other language. 
 
-## Polymorphism. Multiple methods in a type family may have the same
-name. The DBMS will choose the specific method based on the signature. This is Java-like.
+**Inheritance**
 
-It should be admitted that, like any hybrid, SQL3 will look bad to purists on
-both sides. The relational theorists will note that SQL3's new features --
-especially self-referencing columns -- allow for "pointer-chasing" demons
-which we thought were buried along with pre-SQL DBMSs. The object oriented
-aficionados may decry the ease with which encapsulation can be broken, at
-least in appearance, by recourse to SQL-92 manipulation methods. From both
-directions, SQL3 will get flak as a chimera -- a monster with a lion's head on
-a goat's body with a serpent's tail -- which certainly betrays its origins as an animal designed by a committee.
+A UDT may be defined under another UDT. Subtypes inherit the methods and 
+Attributes of their supertypes. Inheritance is single, as in most pure 
+object-oriented languages. 
 
-All such criticisms are beside the point, though. SQL3 was put together to
-meet certain needs which are urgent in the current market environment:
+**Instantiation**
 
-## To meld with object-oriented host languages, especially Java.
+SQL3's UDTs may be used in place of predefined <data type>s in SQL-data 
+statements. Rows in typed Tables may be treated as objects, complete with 
+object identifiers. 
 
-## To allow for multi-media extensions.
+**Introspection**
 
-## To pre-empt the chaos which would result from non-standard vendor definitions, or competition from pure OO DBMSs.
+SQL already has a clean way to find out what a database's structural components 
+are: ``INFORMATION_SCHEMA``. It should be no big deal to put wrappers around 
+SQL statements that ``SELECT`` from ``INFORMATION_SCHEMA``. Unfortunately, it 
+is more likely that wrappers will instead be put around the unwieldy CLI 
+Catalog functions (see our chapter on CLI Catalog functions). 
 
-Given these goals, Object/Relational SQL3 is a reasonable development. We now wait to see whether users will find that it truly meets these urgent needs.
+**Polymorphism**
+
+Multiple methods in a type family may have the same name. The DBMS will choose 
+the specific method based on the signature. This is Java-like. 
+
+It should be admitted that, like any hybrid, SQL3 will look bad to purists on 
+both sides. The relational theorists will note that SQL3's new features -- 
+especially self-referencing columns -- allow for "pointer-chasing" demons which 
+we thought were buried along with pre-SQL DBMSs. The object oriented 
+aficionados may decry the ease with which encapsulation can be broken, at least 
+in appearance, by recourse to SQL-92 manipulation methods. From both 
+directions, SQL3 will get flak as a chimera -- a monster with a lion's head on 
+a goat's body with a serpent's tail -- which certainly betrays its origins as 
+an animal designed by a committee. 
+
+All such criticisms are beside the point, though. SQL3 was put together to meet 
+certain needs which are urgent in the current market environment: 
+
+* To meld with object-oriented host languages, especially Java.
+
+* To allow for multi-media extensions.
+
+* To pre-empt the chaos which would result from non-standard vendor 
+  definitions, or competition from pure OO DBMSs.
+
+Given these goals, Object/Relational SQL3 is a reasonable development. We 
+now wait to see whether users will find that it truly meets these urgent 
+needs.
 
 Dialects
 ========
 
-Some SQL vendors have already introduced Object/Relational features. We give especial note to:
+.. |tm| unicode:: U+2122
 
-UniSQL: A smaller group, which gained note in 1992 for being the first to
-introduce an Object/Relational SQL (though some O/R features can be traced all
-the way back to 1980s versions of DB2 and Ingres).
+Some SQL vendors have already introduced Object/Relational features. We give 
+especial note to:
 
-IBM: Offers "relational extenders", which are packages containing UDTs,
-user-defined functions, triggers and constraints. At the moment, IBM's
-"universal database" is probably the implementation which is closest to the
-SQL3 Object/Relational spec.
+**UniSQL**
 
-Informix: Bought Illustra (one of the Object/Relational pioneers) and since
-then has won some praise for its "DataBlades" (tm) plug-ins, which are
-described as data-type extensions -- that is, Informix emphasizes the utility
-of defining your own data types, rather than the purported benefits of OO.
+A smaller group, which gained note in 1992 for being the first to introduce an 
+Object/Relational SQL (though some O/R features can be traced all the way back 
+to 1980s versions of DB2 and Ingres). 
 
-Oracle: Oracle8's "cartridges" are another name for what we might call "class
-libraries" in pure OO contexts. So far, most cartridges have been multimedia
-packages, for example "Video cartridges" and "Spatial cartridges". For
-performance reasons, Oracle's Object/Relational features have not been popular
-among its users, till recently.
+**IBM**
 
-And finally, watch Sun. The world is waiting to see the impact of JavaBlend,
-which purportedly will merge Java with SQL3's Object/Relational extensions.
+Offers "relational extenders", which are packages containing UDTs, user-defined 
+functions, triggers and constraints. At the moment, IBM's "universal database" 
+is probably the implementation which is closest to the SQL3 Object/Relational 
+spec. 
+
+**Informix**
+
+Bought Illustra (one of the Object/Relational pioneers) and since then has won 
+some praise for its "DataBlades"|tm| plug-ins, which are described as 
+data-type extensions -- that is, Informix emphasizes the utility of defining 
+your own data types, rather than the purported benefits of OO. 
+
+**Oracle**
+
+Oracle8's "cartridges" are another name for what we might call "class 
+libraries" in pure OO contexts. So far, most cartridges have been multimedia 
+packages, for example "Video cartridges" and "Spatial cartridges". For 
+performance reasons, Oracle's Object/Relational features have not been popular 
+among its users, till recently. 
+
+And finally, watch Sun. The world is waiting to see the impact of 
+"JavaBlend"|tm| which purportedly will merge Java with SQL3's 
+Object/Relational extensions. 
