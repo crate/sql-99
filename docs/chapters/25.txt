@@ -1010,11 +1010,67 @@ indicators, ``DYNAMIC RESULT SETS`` clauses, ``TRANSFORM GROUP`` clauses or
 duplicate <Routine name>s when defining an SQL-invoked routine and don't define 
 any SQL-invoked methods. 
 
+ALTER ROUTINE/PROCEDURE/FUNCTION/METHOD Statement
+=================================================
+
+The ``ALTER ROUTINE/PROCEDURE/FUNCTION/METHOD`` statement lets you change an
+SQL-invoked routine. The required syntax for the ``ALTER
+ROUTINE/PROCEDURE/FUNCTION/METHOD`` statement is as follows.
+
+::
+
+    ALTER <specific routine designator> <routine characteristics> {CASCADE | RESTRICT}
+
+        <specific routine designator> ::=
+        ROUTINE <Routine name> [ <data type>s ] |
+        PROCEDURE <Routine name> [ <data type>s ] |
+        FUNCTION <Routine name> [ <data type>s ] |
+        [ INSTANCE | STATIC ] METHOD <Routine name> [ <data type>s ] |
+        SPECIFIC ROUTINE <Routine name> <specific name> |
+        SPECIFIC PROCEDURE <Routine name> <specific name> |
+        SPECIFIC FUNCTION <Routine name> <specific name>
+        <data type>s ::=
+        ([ <data type> [ {,<data type>} . . . ] ])
+
+``ALTER ROUTINE/PROCEDURE/FUNCTION/METHOD`` changes an SQL-invoked routine. We
+showed you the syntax for the <routine characteristics> clause beginning
+earlier, so here we'll just briefly list the characteristics which can be
+altered:
+
+ * ``LANGUAGE`` (either ``ADA``, ``C``, ``COBOL``, ``FORTRAN``, ``MUMPS``,
+   ``PASCAL``, ``PLI``, ``SQL``).
+ * ``PARAMETER STYLE`` (either ``SQL`` or ``GENERAL``).
+ * SQL-data access indication (either ``NO SQL``, ``CONTAINS SQL``, ``READS SQL
+   DATA``, ``MODIFIES SQL DATA``).
+ * null-call clause (either ``RETURN NULL ON NULL INPUT`` or ``CALL ON NULL
+   INPUT)``.
+ * ``DYNAMIC RESULTS SETS`` (followed by an unsigned integer).
+ * ``NAME`` <external routine name>.
+
+Notice that <routine body> is not in the list; this ``ALTER`` statement doesn't
+let you change the actions the routine takes.
+
+For example, suppose you want to change the name of a procedure's external
+(Pascal) routine, from whatever it used to be to ``Update_Test_In_C``. The
+following SQL statement would accomplish this:
+
+::
+
+    ALTER PROCEDURE Routine_1
+    NAME "Update_Test_In_C"
+    RESTRICT;
+
+You shouldn't use ``ALTER ROUTINE/PROCEDURE/FUNCTION/METHOD`` if the routine is
+referenced by some other Object. But if you do, the ``RESTRICT`` <keyword> will
+cause the ``ALTER`` to fail. If the ``ALTER`` statement includes ``CASCADE``
+rather than ``RESTRICT``, the change will cascade down through all dependent
+routines.
+
 DROP ROUTINE/PROCEDURE/FUNCTION Statement
 =========================================
 
-The ``DROP ROUTINE/PROCEDURE/FUNCTION`` statement destroys an SQL-invoked 
-procedure or function. The required syntax for the ``DROP 
+The ``DROP ROUTINE/PROCEDURE/FUNCTION`` statement destroys an SQL-invoked
+procedure or function. The required syntax for the ``DROP
 ROUTINE/PROCEDURE/FUNCTION`` statement is:
 
 ::
