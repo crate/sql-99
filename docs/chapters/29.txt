@@ -4,15 +4,15 @@
 Chapter 29 -- Simple Search Conditions
 ======================================
 
-We've come at last to the point where we can begin showing you the most 
-important aspect of SQL -- how to query your "database". In this chapter, 
+We've come at last to the point where we can begin showing you the most
+important aspect of SQL -- how to query your "database". In this chapter,
 we'll begin by describing simple search conditions.
 
 .. rubric:: Table of Contents
 
 .. contents::
     :local:
-	
+
 .. |br| raw:: html
 
    <br />
@@ -20,13 +20,13 @@ we'll begin by describing simple search conditions.
 Truth Values
 ============
 
-In our chapter on the Boolean <data type>, we noted what SQL's truth values 
-are: ``TRUE``, ``FALSE`` and ``UNKNOWN``. But what are truth values for? 
+In our chapter on the Boolean <data type>, we noted what SQL's truth values
+are: ``TRUE``, ``FALSE`` and ``UNKNOWN``. But what are truth values for?
 There are four possible answers to that question:
 
-1. To support conditional branches and loops, as in traditional programming 
-   languages. There are optional SQL3 constructs like "``IF`` (condition is 
-   ``TRUE``) ``THEN`` (perform this operation)". However, that's advanced 
+1. To support conditional branches and loops, as in traditional programming
+   languages. There are optional SQL3 constructs like "``IF`` (condition is
+   ``TRUE``) ``THEN`` (perform this operation)". However, that's advanced
    stuff. We'll discuss program control operations in a later chapter.
 
 2. To store in the database. For that, we have the ``BOOLEAN`` <data type>.
@@ -35,36 +35,36 @@ There are four possible answers to that question:
 
 4. To support relational restriction.
 
-It is answer #4 -- "to support relational restriction" -- that most people 
-think of first. Commonly, they would use simple terms for the process -- like 
-"finding" or "searching" -- since the essence of the affair is indeed simple: 
-they just want to pick certain rows from a Table; say, the ones where the 
-``NAME`` Column contains Smith, or the ones where the value in the ``SPENDING`` 
-Column is greater than the value in the ``BUDGET`` Column. These are such 
-simple questions that they seem trite, but they already illustrate some 
-distinguishing features of SQL searching. 
+It is answer #4 -- "to support relational restriction" -- that most people
+think of first. Commonly, they would use simple terms for the process -- like
+"finding" or "searching" -- since the essence of the affair is indeed simple:
+they just want to pick certain rows from a Table; say, the ones where the
+``NAME`` Column contains Smith, or the ones where the value in the ``SPENDING``
+Column is greater than the value in the ``BUDGET`` Column. These are such
+simple questions that they seem trite, but they already illustrate some
+distinguishing features of SQL searching.
 
-First of all, they show that rows are picked by content, not by address. 
-Although most SQL packages have some option for selecting rows according to 
-their position or ordinal location, the makers of relational theory did not 
-intend that to be an important part of the search process. 
+First of all, they show that rows are picked by content, not by address.
+Although most SQL packages have some option for selecting rows according to
+their position or ordinal location, the makers of relational theory did not
+intend that to be an important part of the search process.
 
-Secondarily, they show that Column values must meet certain conditions (such as 
-being equal or being greater). We can easily contrive exceptions to this 
-statement; for example some searches do not involve Column values. But 
-certainly the idea that "conditions must be met" is universal. For successful 
-searching, you have to know how to conceive and specify these conditions. 
+Secondarily, they show that Column values must meet certain conditions (such as
+being equal or being greater). We can easily contrive exceptions to this
+statement; for example some searches do not involve Column values. But
+certainly the idea that "conditions must be met" is universal. For successful
+searching, you have to know how to conceive and specify these conditions.
 
-As we said at the beginning, in this chapter we will concern ourselves only 
-with the simpler conditional expressions which are necessary for searching. 
-Before we do that, though, we'll briefly discuss the SQL statement that you 
-will use with search conditions most often: the ``SELECT`` statement. 
+As we said at the beginning, in this chapter we will concern ourselves only
+with the simpler conditional expressions which are necessary for searching.
+Before we do that, though, we'll briefly discuss the SQL statement that you
+will use with search conditions most often: the ``SELECT`` statement.
 
 SELECT Statement
 ================
 
-The ``SELECT`` statement retrieves data from one or more Tables. Here is the 
-required syntax for a simple ``SELECT`` statement (or, as the SQL Standard 
+The ``SELECT`` statement retrieves data from one or more Tables. Here is the
+required syntax for a simple ``SELECT`` statement (or, as the SQL Standard
 calls it, a <query specification>):
 
 ::
@@ -75,26 +75,26 @@ calls it, a <query specification>):
     [ WHERE search condition ]
     [ GROUP BY Columns [ HAVING condition ] ]
 
-The ``SELECT`` statement queries your SQL-data: it returns a results Table 
-derived from the Tables referred to in the ``FROM`` clause. The derivation of 
-the result Table can be described as a sequence of operations in which the 
-result of each operation is input for the next. The sequence of the operations 
-is ``FROM``, then ``WHERE``, then ``GROUP BY``, then ``HAVING``, then the 
-select list (that is, the list of Column expressions) and the descriptions of 
-the clauses that follow appear in this order. 
+The ``SELECT`` statement queries your SQL-data: it returns a results Table
+derived from the Tables referred to in the ``FROM`` clause. The derivation of
+the result Table can be described as a sequence of operations in which the
+result of each operation is input for the next. The sequence of the operations
+is ``FROM``, then ``WHERE``, then ``GROUP BY``, then ``HAVING``, then the
+select list (that is, the list of Column expressions) and the descriptions of
+the clauses that follow appear in this order.
 
 *FROM Clause*
 -------------
 
-The ``FROM`` clause supplies a list of <Table references> for the query. A 
-<Table reference> is any expression which results in a Table but is usually 
-just a <Table name> or a <Correlation name> that identifies a Table that 
-contains SQL-data you want to query. <Column name>s throughout the ``SELECT`` 
-statement must be unambiguous; that is, they must be qualified with a 
-<Correlation name> if one was defined for the Table that owns them, and with 
-their <Table name> if ``SELECT`` is retrieving data from multiple Tables which 
-have Columns with identical names. The required syntax for the ``FROM`` clause 
-is: 
+The ``FROM`` clause supplies a list of <Table references> for the query. A
+<Table reference> is any expression which results in a Table but is usually
+just a <Table name> or a <Correlation name> that identifies a Table that
+contains SQL-data you want to query. <Column name>s throughout the ``SELECT``
+statement must be unambiguous; that is, they must be qualified with a
+<Correlation name> if one was defined for the Table that owns them, and with
+their <Table name> if ``SELECT`` is retrieving data from multiple Tables which
+have Columns with identical names. The required syntax for the ``FROM`` clause
+is:
 
 ::
 
@@ -103,15 +103,15 @@ is:
 **Table Reference**
 ___________________
 
-Several times throughout this book, we make the comment that the result of an 
-SQL query is a Table. To understand the entire syntax that you may use to 
-formulate a query then, you'll have to start with what a Table is -- and we've 
-already shown you that a Table is a set of Columns and row. Up until now, 
-though, whenever we've talked about Tables, we've referred to them only with a 
-<Table name>. Since the result of a query is a Table derived by evaluating that 
-query, not all SQL Tables have an explicit <Table name> -- so SQL allows you to 
-refer to any Table using a <Table reference>. The required syntax for a <Table 
-reference> is: 
+Several times throughout this book, we make the comment that the result of an
+SQL query is a Table. To understand the entire syntax that you may use to
+formulate a query then, you'll have to start with what a Table is -- and we've
+already shown you that a Table is a set of Columns and row. Up until now,
+though, whenever we've talked about Tables, we've referred to them only with a
+<Table name>. Since the result of a query is a Table derived by evaluating that
+query, not all SQL Tables have an explicit <Table name> -- so SQL allows you to
+refer to any Table using a <Table reference>. The required syntax for a <Table
+reference> is:
 
 ::
 
@@ -124,15 +124,15 @@ reference> is:
        <derived Column list> ::=
        <Column name> [ {,<Column name> }... ]
 
-A <Table reference> is simply a reference to some Table: this may be a 
-reference to a named Table (that is, a <Table name> that identifies a Base 
-table or a View) or a reference to a Table returned by a query. Thus there are 
-five possible options for a <Table reference>: 
+A <Table reference> is simply a reference to some Table: this may be a
+reference to a named Table (that is, a <Table name> that identifies a Base
+table or a View) or a reference to a Table returned by a query. Thus there are
+five possible options for a <Table reference>:
 
-1. It can refer to a Base table or a View using a <Table name>. The optional 
-   <keyword> ``ONLY`` in front of such a reference can only be used if the 
-   reference is to a typed Table. In that case, the <Table reference> refers 
-   to every row of the Table (or result Table), except for any rows that 
+1. It can refer to a Base table or a View using a <Table name>. The optional
+   <keyword> ``ONLY`` in front of such a reference can only be used if the
+   reference is to a typed Table. In that case, the <Table reference> refers
+   to every row of the Table (or result Table), except for any rows that
    have a subrow in a proper subtable of that Table.
 
 2. It can refer to a result Table using a <query name>.
@@ -141,27 +141,27 @@ five possible options for a <Table reference>:
 
 4. It can refer the result of a join of multiple Tables.
 
-5. It can refer to a lateral Table: the result of a parenthesized <query 
+5. It can refer to a lateral Table: the result of a parenthesized <query
    expression> preceded by the <keyword> ``LATERAL``.
 
-In each case, you can optionally provide a <Correlation name> for the Table 
-being referred to, as well as explicit names for each of the Columns belonging 
-to the Table being referred to (the names specified must, of course, be unique 
-for that reference). 
+In each case, you can optionally provide a <Correlation name> for the Table
+being referred to, as well as explicit names for each of the Columns belonging
+to the Table being referred to (the names specified must, of course, be unique
+for that reference).
 
-If you want to restrict your code to Core SQL, don't use a <query name> to make 
-up a <Table reference> and don't use the <keyword> ``ONLY`` to make up a <Table 
-reference> that refers to a typed Table. 
+If you want to restrict your code to Core SQL, don't use a <query name> to make
+up a <Table reference> and don't use the <keyword> ``ONLY`` to make up a <Table
+reference> that refers to a typed Table.
 
 *WHERE Clause*
 --------------
 
-The optional ``WHERE`` clause is used to set the retrieval conditions for rows. 
-Any rows that don't fall into the guidelines specified are eliminated from the 
-results Table. The search conditions specified may include the arithmetic and 
-Boolean operators, the SQL predicates (e.g.: comparison, ``BETWEEN``, ``LIKE``) 
-and the SQL scalar functions, as well as parentheses to set the desired 
-evaluation order. The required syntax for the ``WHERE`` clause is: 
+The optional ``WHERE`` clause is used to set the retrieval conditions for rows.
+Any rows that don't fall into the guidelines specified are eliminated from the
+results Table. The search conditions specified may include the arithmetic and
+Boolean operators, the SQL predicates (e.g.: comparison, ``BETWEEN``, ``LIKE``)
+and the SQL scalar functions, as well as parentheses to set the desired
+evaluation order. The required syntax for the ``WHERE`` clause is:
 
 ::
 
@@ -170,48 +170,48 @@ evaluation order. The required syntax for the ``WHERE`` clause is:
 *GROUP BY Clause*
 -----------------
 
-The optional ``GROUP BY`` clause logically rearranges the interim result 
-returned by the ``WHERE`` clause into groups. The result is a set of rows where 
-each common datum is gathered into one group. That is, within a group, all 
-values of a grouping Column are the same value. For grouping, all ``NULL``\s 
-are considered equal: they form one group. Because every row that contains a 
-group contains the same value for that group, the name of a grouping Column can 
-be used in a condition for the ``HAVING`` clause or to identify a result Column 
-in the select list. We'll show you the required syntax for the ``GROUP BY`` 
-clause in our chapter on grouping. 
+The optional ``GROUP BY`` clause logically rearranges the interim result
+returned by the ``WHERE`` clause into groups. The result is a set of rows where
+each common datum is gathered into one group. That is, within a group, all
+values of a grouping Column are the same value. For grouping, all ``NULL``\s
+are considered equal: they form one group. Because every row that contains a
+group contains the same value for that group, the name of a grouping Column can
+be used in a condition for the ``HAVING`` clause or to identify a result Column
+in the select list. We'll show you the required syntax for the ``GROUP BY``
+clause in our chapter on grouping.
 
 *HAVING Clause*
 ---------------
 
-The optional ``HAVING`` clause is used to set the retrieval conditions for 
-groups. Any groups that don't fall into the guidelines specified are eliminated 
-from the results Table. The search conditions specified may include the 
-arithmetic and Boolean operators, the SQL predicates (e.g.: comparison, 
-``BETWEEN``, ``LIKE``) and the SQL scalar functions, as well as parentheses to 
-set the desired evaluation order. ``HAVING`` is normally applied to the interim 
-result returned by the ``GROUP BY`` clause. If a ``SELECT`` statement doesn't 
-include a ``GROUP BY`` clause, then ``HAVING`` treats all rows of the interim 
-result as a single group. We'll show you the required syntax for the ``HAVING`` 
-clause in our chapter on grouping. 
+The optional ``HAVING`` clause is used to set the retrieval conditions for
+groups. Any groups that don't fall into the guidelines specified are eliminated
+from the results Table. The search conditions specified may include the
+arithmetic and Boolean operators, the SQL predicates (e.g.: comparison,
+``BETWEEN``, ``LIKE``) and the SQL scalar functions, as well as parentheses to
+set the desired evaluation order. ``HAVING`` is normally applied to the interim
+result returned by the ``GROUP BY`` clause. If a ``SELECT`` statement doesn't
+include a ``GROUP BY`` clause, then ``HAVING`` treats all rows of the interim
+result as a single group. We'll show you the required syntax for the ``HAVING``
+clause in our chapter on grouping.
 
 *SELECT LIST Clause*
 --------------------
 
-The select list produces a final results Table by selecting only those Columns 
-(or Column expressions) specified. The select list may include <Column name>s, 
-<Column reference>s, Column expressions (that is, any expression which 
-evaluates to a single Column, such as a scalar subquery) or an asterisk, as 
-well as one of the <keyword>s ``DISTINCT`` or ``ALL``. (The asterisk is a 
-shorthand for a list of all the Columns of the Tables named in the ``FROM`` 
-clause. The ``DISTINCT`` option ensures that duplicate rows are eliminated from 
-the result. The ``ALL`` option, which is the default, ensures that duplicate 
-rows are included in the result.) A Column expression can be a <literal>, a 
-scalar function or some other expression derived from the Columns whose values 
-you want to retrieve but may not include any expression that will evaluate to a 
-Column with a ``BLOB``, ``CLOB`` or ``NCLOB`` <data type> if ``DISTINCT`` is 
-specified. You can use the optional ``AS`` name clause to specify a name for a 
-Column expression; it will be used to identify that result for the entire 
-``SELECT`` statement. The required syntax for a select list is: 
+The select list produces a final results Table by selecting only those Columns
+(or Column expressions) specified. The select list may include <Column name>s,
+<Column reference>s, Column expressions (that is, any expression which
+evaluates to a single Column, such as a scalar subquery) or an asterisk, as
+well as one of the <keyword>s ``DISTINCT`` or ``ALL``. (The asterisk is a
+shorthand for a list of all the Columns of the Tables named in the ``FROM``
+clause. The ``DISTINCT`` option ensures that duplicate rows are eliminated from
+the result. The ``ALL`` option, which is the default, ensures that duplicate
+rows are included in the result.) A Column expression can be a <literal>, a
+scalar function or some other expression derived from the Columns whose values
+you want to retrieve but may not include any expression that will evaluate to a
+Column with a ``BLOB``, ``CLOB`` or ``NCLOB`` <data type> if ``DISTINCT`` is
+specified. You can use the optional ``AS`` name clause to specify a name for a
+Column expression; it will be used to identify that result for the entire
+``SELECT`` statement. The required syntax for a select list is:
 
 ::
 
@@ -221,7 +221,7 @@ Column expression; it will be used to identify that result for the entire
        expression [ [ AS ] <Column name> ] [ , ... ] |
        *
 
-Let's try some ``SELECT`` examples on a small group of Tables. They look like 
+Let's try some ``SELECT`` examples on a small group of Tables. They look like
 this (a question mark in a Column represents a null value):
 
 +---------------------------------------------------+
@@ -295,7 +295,7 @@ this (a question mark in a Column represents a null value):
 *Simple Retrieval*
 ------------------
 
-To find all departments with employees (retrieve a single Column from a 
+To find all departments with employees (retrieve a single Column from a
 Table), the following SQL statements are equivalent:
 
 ::
@@ -305,10 +305,10 @@ Table), the following SQL statements are equivalent:
    SELECT Employee.dept FROM Employee;
    SELECT ALL Employee.dept FROM Employee;
 
-The first two examples use unqualified <Column name>s in the select list, while 
-the last three use <Column reference>s (that is, <Column name>s qualified with 
-their <Table name>s). Unless the lack of a qualifier makes a <Column name> 
-ambiguous, the qualifier is unnecessary. The result in all cases is: 
+The first two examples use unqualified <Column name>s in the select list, while
+the last three use <Column reference>s (that is, <Column name>s qualified with
+their <Table name>s). Unless the lack of a qualifier makes a <Column name>
+ambiguous, the qualifier is unnecessary. The result in all cases is:
 
 +----------+
 | ``DEPT`` |
@@ -334,8 +334,8 @@ ambiguous, the qualifier is unnecessary. The result in all cases is:
 | B        |
 +----------+
 
-Departments are duplicated in the result because ``SELECT`` doesn't eliminate 
-them unless the ``DISTINCT`` option is used, as in these equivalent SQL 
+Departments are duplicated in the result because ``SELECT`` doesn't eliminate
+them unless the ``DISTINCT`` option is used, as in these equivalent SQL
 statements:
 
 ::
@@ -359,7 +359,7 @@ The result in both cases is:
 | E        |
 +----------+
 
-To find the name of each department's manager (retrieve multiple Columns 
+To find the name of each department's manager (retrieve multiple Columns
 from one Table):
 
 ::
@@ -382,7 +382,7 @@ The result is:
 | E        | GREEN E      |
 +----------+--------------+
 
-To retrieve all Columns of one Table, these three SQL statements are 
+To retrieve all Columns of one Table, these three SQL statements are
 equivalent:
 
 ::
@@ -391,14 +391,14 @@ equivalent:
    SELECT * FROM Payroll;
    SELECT Payroll.* FROM Payroll;
 
-The result in all three cases is the entire ``PAYROLL`` Table. (An asterisk 
-can be used as shorthand for "all Columns" and can be qualified just as a 
+The result in all three cases is the entire ``PAYROLL`` Table. (An asterisk
+can be used as shorthand for "all Columns" and can be qualified just as a
 <Column name> can be.)
 
 *Qualified Retrieval*
 ---------------------
 
-To find all employees working in department A (retrieve one Column which 
+To find all employees working in department A (retrieve one Column which
 fulfills one search condition):
 
 ::
@@ -415,10 +415,10 @@ The result is:
 | SMITH       |
 +-------------+
 
-Remember that <character string literal>s must always be enclosed in single 
+Remember that <character string literal>s must always be enclosed in single
 quotes.
 
-To find department A employees with an employee number smaller than 10 
+To find department A employees with an employee number smaller than 10
 (retrieve one Column fulfilling multiple search conditions):
 
 ::
@@ -434,7 +434,7 @@ The result is:
 | KOO         |
 +-------------+
 
-To find the full name of the department A employee whose employee number is 
+To find the full name of the department A employee whose employee number is
 10 (retrieve multiple Columns fulfilling multiple conditions from a Table):
 
 ::
@@ -473,13 +473,13 @@ The result is:
 | 10         | Hourly Rate=    | 16.00    |
 +------------+-----------------+----------+
 
-The second Column of the result is derived from the <character string 
+The second Column of the result is derived from the <character string
 literal> expression in the select list.
 
 *Retrieval with an Arithmetic Expression*
 -----------------------------------------
 
-To calculate an employee's daily pay from the hourly rate earned (retrieve 
+To calculate an employee's daily pay from the hourly rate earned (retrieve
 multiple Columns from a Table with an arithmetic expression):
 
 ::
@@ -500,13 +500,13 @@ The result is:
 | 10         | Daily Rate=  | 128.00         |
 +------------+--------------+----------------+
 
-The third Column of the result is derived from the arithmetic expression in 
+The third Column of the result is derived from the arithmetic expression in
 the select list.
 
 *Retrieval with LIKE*
 ---------------------
 
-To find all employees with surnames beginning with "M" (retrieve all values 
+To find all employees with surnames beginning with "M" (retrieve all values
 matching a simple string pattern):
 
 ::
@@ -522,7 +522,7 @@ The result is:
 | 2          | MARSH       |
 +------------+-------------+
 
-To find the departments whose manager's surname has the letter "R" as the 
+To find the departments whose manager's surname has the letter "R" as the
 second character:
 
 ::
@@ -540,7 +540,7 @@ The result is:
 | E        | GREEN E      |
 +----------+--------------+
 
-To find all employees whose given name does not include the letter "A" 
+To find all employees whose given name does not include the letter "A"
 (retrieve values which do not match a simple string pattern):
 
 ::
@@ -565,7 +565,7 @@ The result is:
 *Retrieval with SIMILAR*
 ------------------------
 
-To find all employees whose location starts with 2 digits (retrieve all 
+To find all employees whose location starts with 2 digits (retrieve all
 values matching a complicated string pattern):
 
 ::
@@ -593,7 +593,7 @@ The result is:
 | 40         | 10TH FLOOR           |
 +------------+----------------------+
 
-To find all employees whose location doesn't start with 2 digits (retrieve 
+To find all employees whose location doesn't start with 2 digits (retrieve
 all values that don't match a complicated string pattern):
 
 ::
@@ -613,13 +613,13 @@ The result is:
 | 20         | WAREHOUSE     |
 +------------+---------------+
 
-(We discussed the ``SIMILAR`` predicate in our chapter on character 
+(We discussed the ``SIMILAR`` predicate in our chapter on character
 strings.)
 
 *Retrieval with IS NULL*
 ------------------------
 
-To find all employees with unknown addresses on file (retrieve all rows 
+To find all employees with unknown addresses on file (retrieve all rows
 containing a null value):
 
 ::
@@ -636,7 +636,7 @@ The result is:
 | 40         | WARREN      | NANCY     |
 +------------+-------------+-----------+
 
-To find the departments with known managers (retrieve all rows that don't 
+To find the departments with known managers (retrieve all rows that don't
 contain null values):
 
 ::
@@ -718,14 +718,14 @@ The result is:
 | SMITH       | 5                  | 4                  |
 +-------------+--------------------+--------------------+
 
-(The ``CHAR_LENGTH`` function returns a character string's length inclusive 
-of blanks and trailing zeros. This example assumes that ``SURNAME`` is a 
+(The ``CHAR_LENGTH`` function returns a character string's length inclusive
+of blanks and trailing zeros. This example assumes that ``SURNAME`` is a
 variable length Column.)
 
 *Retrieval using Date Arithmetic*
 ---------------------------------
 
-To find the number of days since the last pay date (assume the current date 
+To find the number of days since the last pay date (assume the current date
 is November 10, 1989):
 
 ::
@@ -764,11 +764,11 @@ The result is:
 *Joins*
 -------
 
-The ability to join a Table to others is one of the most powerful features 
-of SQL. A *join* is an operation in which data is retrieved from multiple 
+The ability to join a Table to others is one of the most powerful features
+of SQL. A *join* is an operation in which data is retrieved from multiple
 Tables. Here are some examples.
 
-To find all information available on all employees (retrieve a join of all 
+To find all information available on all employees (retrieve a join of all
 Columns) the following SQL statements are equivalent:
 
 ::
@@ -781,12 +781,12 @@ Columns) the following SQL statements are equivalent:
    FROM   Employee,Payroll
    WHERE  Employee.empnum=Payroll.empnum;
 
-The result is the entire ``EMPLOYEE`` Table joined with the entire ``PAYROLL`` 
-Table over their matching employee numbers; ten rows and ten columns in all. 
-Note the <Column reference>s for the ``EMPNUM`` Column, necessary to avoid 
-ambiguity. To eliminate duplicate Columns from the result, specific <Column 
-reference>s (rather than ``*``) must also be listed in the select list, as in 
-this SQL statement: 
+The result is the entire ``EMPLOYEE`` Table joined with the entire ``PAYROLL``
+Table over their matching employee numbers; ten rows and ten columns in all.
+Note the <Column reference>s for the ``EMPNUM`` Column, necessary to avoid
+ambiguity. To eliminate duplicate Columns from the result, specific <Column
+reference>s (rather than ``*``) must also be listed in the select list, as in
+this SQL statement:
 
 ::
 
@@ -818,7 +818,7 @@ The result is:
 | TURNER      | JONES B     |
 +-------------+-------------+
 
-To find the pay rates and locations of all department A employees (join 
+To find the pay rates and locations of all department A employees (join
 values fulfilling multiple conditions from multiple Tables):
 
 ::
@@ -827,7 +827,7 @@ values fulfilling multiple conditions from multiple Tables):
    FROM   Employee,Payroll
    WHERE  dept='A' AND Employee.empnum=Payroll.empnum;
 
-The result is the ``EMPLOYEE`` Table joined with the ``PAYROLL`` Table, for 
+The result is the ``EMPLOYEE`` Table joined with the ``PAYROLL`` Table, for
 all rows where the ``DEPT`` column contains ``'A'``.
 
 To find the department and payroll data for employee 35:
@@ -869,33 +869,33 @@ The result is:
 Predicates
 ==========
 
-You'll have noticed by now that the fundamental SQL condition is the predicate. 
-It states a condition whose result is either ``TRUE``, ``FALSE`` or 
-``UNKNOWN``. An example of a predicate is the familiar expression: 
+You'll have noticed by now that the fundamental SQL condition is the predicate.
+It states a condition whose result is either ``TRUE``, ``FALSE`` or
+``UNKNOWN``. An example of a predicate is the familiar expression:
 
 ::
 
    Example #1: x = 5
 
-Specifically, Example#1 is an example of a "<comparison predicate>". Note that 
-the predicate contains a single condition. This is not a predicate: 
+Specifically, Example#1 is an example of a "<comparison predicate>". Note that
+the predicate contains a single condition. This is not a predicate:
 
 ::
 
    Example #2: x = 5 AND y = 6
 
-because ``AND`` is a Boolean operator that combines two predicates. However, 
-both Example #1 and Example #2 are examples of "search conditions", and we will 
-get back to Boolean operators later on. 
+because ``AND`` is a Boolean operator that combines two predicates. However,
+both Example #1 and Example #2 are examples of "search conditions", and we will
+get back to Boolean operators later on.
 
-The one thing we can say about predicates in general is that they describe 
-operations which take non-truth-value arguments and return truth-value results. 
-The truth value might be ``TRUE`` or ``FALSE``; for most predicates (but not 
-all) the truth value might also be ``UNKNOWN``. 
+The one thing we can say about predicates in general is that they describe
+operations which take non-truth-value arguments and return truth-value results.
+The truth value might be ``TRUE`` or ``FALSE``; for most predicates (but not
+all) the truth value might also be ``UNKNOWN``.
 
-Listed below are the fourteen SQL3 predicates, of which ten are SQL-92 
-predicates and seven are acceptable in Core SQL, and of which all but five may 
-return any of ``TRUE``, ``FALSE`` or ``UNKNOWN`` (T,F,U). 
+Listed below are the fourteen SQL3 predicates, of which ten are SQL-92
+predicates and seven are acceptable in Core SQL, and of which all but five may
+return any of ``TRUE``, ``FALSE`` or ``UNKNOWN`` (T,F,U).
 
 +-----------------------------------+-------------------------+-------------+-----------+---------+
 | ``STANDARD  NAME``                | ``KEYWORDS OR SYMBOLS`` | ``SQL-92?`` | ``CORE?`` | ``TFU`` |
@@ -941,11 +941,11 @@ The required syntax for a <comparison predicate> is:
     <comparison predicate> ::=
     expression_1 comparison operator expression_2
 
-A <comparison predicate> compares two values and returns either ``TRUE``, 
-``FALSE`` or ``UNKNOWN``. (If either argument is ``NULL``, the <comparison 
-predicate> returns ``UNKNOWN``.) There are six comparison operators. Listed 
-below are their symbols, their official names, their converses (i.e.: what the 
-operator would be if the predicate was negated) and two examples of predicates 
+A <comparison predicate> compares two values and returns either ``TRUE``,
+``FALSE`` or ``UNKNOWN``. (If either argument is ``NULL``, the <comparison
+predicate> returns ``UNKNOWN``.) There are six comparison operators. Listed
+below are their symbols, their official names, their converses (i.e.: what the
+operator would be if the predicate was negated) and two examples of predicates
 which contain the symbol and are ``TRUE``.
 
 +--------+--------------+-------------------------------------+----------+
@@ -970,11 +970,11 @@ which contain the symbol and are ``TRUE``.
 |        |              | ``'A'<>'B'``                        |          |
 +--------+--------------+-------------------------------------+----------+
 
-There is nothing about the SQL comparison operators which would surprise the 
-experienced programmer, although the use of the symbol ``<>`` for "not equals" 
-is worth noting. There are some old DBMSs which accept != instead, but only 
-``<>`` is acceptable in standard SQL. Most commonly, the first comparand is a 
-<Column name> and the second is a <literal>, e.g.: 
+There is nothing about the SQL comparison operators which would surprise the
+experienced programmer, although the use of the symbol ``<>`` for "not equals"
+is worth noting. There are some old DBMSs which accept != instead, but only
+``<>`` is acceptable in standard SQL. Most commonly, the first comparand is a
+<Column name> and the second is a <literal>, e.g.:
 
 ::
 
@@ -983,20 +983,20 @@ is worth noting. There are some old DBMSs which accept != instead, but only
 
 Some general rules:
 
-* The two expression arguments must be "comparable". Generally, this is the 
-  case if they have comparable <data type>s; for example, if both are numeric. 
-  If the comparands are rows, each corresponding pair of Fields must have 
-  comparable <data type>s. We discussed what is meant by a comparable <data 
-  type> in our chapters on each of the SQL predefined <data type>s; refer to 
-  those discussions for complete details on how comparisons work on a specific 
-  <data type>. 
+* The two expression arguments must be "comparable". Generally, this is the
+  case if they have comparable <data type>s; for example, if both are numeric.
+  If the comparands are rows, each corresponding pair of Fields must have
+  comparable <data type>s. We discussed what is meant by a comparable <data
+  type> in our chapters on each of the SQL predefined <data type>s; refer to
+  those discussions for complete details on how comparisons work on a specific
+  <data type>.
 
-* For ``BLOB``\s, ``CLOB``\s, ``NCLOB``\s, ``REF``\s and ``ARRAY``\s, the only 
-  legal comparison operators are ``=`` and ``<>``. There may also be some 
-  restrictions for UDTs. 
+* For ``BLOB``\s, ``CLOB``\s, ``NCLOB``\s, ``REF``\s and ``ARRAY``\s, the only
+  legal comparison operators are ``=`` and ``<>``. There may also be some
+  restrictions for UDTs.
 
-It's remarkable to think that, in primitive DBMSs, the Column/<literal> 
-comparison was pretty well all that there was. But today we can get much 
+It's remarkable to think that, in primitive DBMSs, the Column/<literal>
+comparison was pretty well all that there was. But today we can get much
 fancier:
 
 ::
@@ -1033,24 +1033,24 @@ The required syntax for a <between predicate> is:
     expression_1 [ NOT ] BETWEEN [ ASYMMETRIC | SYMMETRIC ]
     expression_2 AND expression_3
 
-A <between predicate> compares a value to a range of values and returns either 
-``TRUE``, ``FALSE`` or ``UNKNOWN``. (If any argument is ``NULL``, the <between 
-predicate> returns ``UNKNOWN``.) ``BETWEEN`` searches for data in a specific 
-range. ``NOT BETWEEN`` searches for data that do not fall into the range given. 
+A <between predicate> compares a value to a range of values and returns either
+``TRUE``, ``FALSE`` or ``UNKNOWN``. (If any argument is ``NULL``, the <between
+predicate> returns ``UNKNOWN``.) ``BETWEEN`` searches for data in a specific
+range. ``NOT BETWEEN`` searches for data that do not fall into the range given.
 
 Some general rules:
 
-* The three expressions must be comparable. If the comparands are rows, they 
-  must be of the same degree and each corresponding pair of Fields must have 
-  comparable <data type>s. 
+* The three expressions must be comparable. If the comparands are rows, they
+  must be of the same degree and each corresponding pair of Fields must have
+  comparable <data type>s.
 
-* The <between predicate> can't be used with ``BLOB``\s, ``CLOB``\s, 
-  ``NCLOB``\s, ``REF``\s and ``ARRAY``\s. 
+* The <between predicate> can't be used with ``BLOB``\s, ``CLOB``\s,
+  ``NCLOB``\s, ``REF``\s and ``ARRAY``\s.
 
-The ``ASYMMETRIC`` <between predicate> is ``TRUE`` if the value of 
-``expression_1`` is greater than or equals the value of ``expression_2`` and 
-the value of ``expression_1`` is less than or equals the value of 
-``expression_3``. For example, these <between predicate>s are all ``TRUE``: 
+The ``ASYMMETRIC`` <between predicate> is ``TRUE`` if the value of
+``expression_1`` is greater than or equals the value of ``expression_2`` and
+the value of ``expression_1`` is less than or equals the value of
+``expression_3``. For example, these <between predicate>s are all ``TRUE``:
 
 ::
 
@@ -1058,7 +1058,7 @@ the value of ``expression_1`` is less than or equals the value of
    'B' BETWEEN 'A' AND 'B'
    CURRENT_TIME BETWEEN TIME '00:00:00.000000' AND TIME '23:59:59.999999'
 
-``NOT BETWEEN`` is simply the negation of ``BETWEEN`` so this predicate is 
+``NOT BETWEEN`` is simply the negation of ``BETWEEN`` so this predicate is
 also ``TRUE``:
 
 ::
@@ -1067,13 +1067,13 @@ also ``TRUE``:
 
 ``ASYMMETRIC`` is the predicate's default condition.
 
-The ``SYMMETRIC`` <between predicate> is ``TRUE`` either *(a)* if the value of 
-``expression_1`` is greater than or equals the value of ``expression_2`` and 
-the value of ``expression_1`` is less than or equals the value of 
-``expression_3`` or *(b)* if the value of ``expression_1`` is greater than or 
-equals the value of ``expression_3`` and the value of ``expression_1`` is less 
-than or equals the value of ``expression_2``. For example, these <between 
-predicate>s are both ``TRUE``: 
+The ``SYMMETRIC`` <between predicate> is ``TRUE`` either *(a)* if the value of
+``expression_1`` is greater than or equals the value of ``expression_2`` and
+the value of ``expression_1`` is less than or equals the value of
+``expression_3`` or *(b)* if the value of ``expression_1`` is greater than or
+equals the value of ``expression_3`` and the value of ``expression_1`` is less
+than or equals the value of ``expression_2``. For example, these <between
+predicate>s are both ``TRUE``:
 
 ::
 
@@ -1082,17 +1082,17 @@ predicate>s are both ``TRUE``:
 
 The ``SYMMETRIC`` option is new to SQL with SQL3.
 
-In short, ``BETWEEN`` is just a shorthand for a combination of ``>=`` and 
-``<=`` comparisons, so the same rules that apply for comparisons of specific 
+In short, ``BETWEEN`` is just a shorthand for a combination of ``>=`` and
+``<=`` comparisons, so the same rules that apply for comparisons of specific
 <data type>s apply to ``BETWEEN`` as well.
 
 **Retrieval with BETWEEN**
 __________________________
 
-Here are two <between predicate> retrieval examples from the sample Tables 
-shown at the beginning of this chapter. First, to find the names of the manager 
-of departments A, B and C (retrieve values that match any in a specified 
-range): 
+Here are two <between predicate> retrieval examples from the sample Tables
+shown at the beginning of this chapter. First, to find the names of the manager
+of departments A, B and C (retrieve values that match any in a specified
+range):
 
 ::
 
@@ -1111,9 +1111,9 @@ The result is:
 | C        | BROWN C      |
 +----------+--------------+
 
-To find the employee numbers of all employees whose pay rate is either less 
-than 8.00 or greater than 16.00 (retrieve values not falling into a specified 
-range): 
+To find the employee numbers of all employees whose pay rate is either less
+than 8.00 or greater than 16.00 (retrieve values not falling into a specified
+range):
 
 ::
 
@@ -1142,38 +1142,38 @@ The required syntax for a <distinct predicate> is:
     <distinct predicate> ::=
     expression_1 IS DISTINCT FROM expression_2
 
-A <distinct predicate> tests two values to see whether they are distinct and 
-returns either ``TRUE`` or ``FALSE``. The <distinct predicate> is new to SQL 
+A <distinct predicate> tests two values to see whether they are distinct and
+returns either ``TRUE`` or ``FALSE``. The <distinct predicate> is new to SQL
 with SQL3.
 
 Some general rules:
 
-* The two expressions must be comparable. If the comparands are rows, they 
-  must be of the same degree and each corresponding pair of Fields must have 
+* The two expressions must be comparable. If the comparands are rows, they
+  must be of the same degree and each corresponding pair of Fields must have
   comparable <data type>s.
 
-* The <distinct predicate> can't be used with ``BLOB``\s, ``CLOB``\s or 
+* The <distinct predicate> can't be used with ``BLOB``\s, ``CLOB``\s or
   ``NCLOB``\s.
 
-The <distinct predicate> is ``TRUE`` if the value of ``expression_1`` is not 
-equal to the value of ``expression_2`` -- that is, ``IS DISTINCT FROM`` is the 
-same as the ``<>`` <comparison predicate> in every way -- except one. If 
-``expression_1`` is ``NULL`` and ``expression_2`` is ``NULL``, this predicate 
-returns ``UNKNOWN``: 
+The <distinct predicate> is ``TRUE`` if the value of ``expression_1`` is not
+equal to the value of ``expression_2`` -- that is, ``IS DISTINCT FROM`` is the
+same as the ``<>`` <comparison predicate> in every way -- except one. If
+``expression_1`` is ``NULL`` and ``expression_2`` is ``NULL``, this predicate
+returns ``UNKNOWN``:
 
 ::
 
    expression_1 <> expression_2
 
-(all comparisons return ``UNKNOWN`` if either argument is ``NULL``). On the 
+(all comparisons return ``UNKNOWN`` if either argument is ``NULL``). On the
 other hand, this predicate will return ``FALSE``:
 
 ::
 
    expression_1 IS DISTINCT FROM expression_2
 
-That is, two ``NULL`` values are not distinct from one other. And if 
-``expression_1`` is ``NULL`` and ``expression_2`` is non-null, this predicate 
+That is, two ``NULL`` values are not distinct from one other. And if
+``expression_1`` is ``NULL`` and ``expression_2`` is non-null, this predicate
 returns ``UNKNOWN``:
 
 ::
@@ -1186,21 +1186,21 @@ On the other hand, this predicate will return ``TRUE``:
 
    expression_1 IS DISTINCT FROM expression_2
 
-That is, a ``NULL`` value is distinct from every non-null value. (For arrays, 
-``IS DISTINCT FROM`` tests each corresponding pair of array elements. If the 
-arrays are empty, or if any element of the first array contains the same value 
-as its corresponding element in the second array, or if both elements are 
-``NULL``, ``IS DISTINCT FROM`` returns ``FALSE``.) Except for the difference 
-when ``NULL``\s are involved, ``IS DISTINCT FROM`` is just a shorthand for the 
-``<>`` comparison, so the same rules that apply for comparisons of specific 
-<data type>s apply to ``IS DISTINCT FROM`` as well. 
+That is, a ``NULL`` value is distinct from every non-null value. (For arrays,
+``IS DISTINCT FROM`` tests each corresponding pair of array elements. If the
+arrays are empty, or if any element of the first array contains the same value
+as its corresponding element in the second array, or if both elements are
+``NULL``, ``IS DISTINCT FROM`` returns ``FALSE``.) Except for the difference
+when ``NULL``\s are involved, ``IS DISTINCT FROM`` is just a shorthand for the
+``<>`` comparison, so the same rules that apply for comparisons of specific
+<data type>s apply to ``IS DISTINCT FROM`` as well.
 
 **Retrieval with IS DISTINCT FROM**
 ___________________________________
 
-Here is a <distinct predicate> retrieval example from the sample Tables shown 
-at the beginning of this chapter. To find the names of employees who don't live 
-at 234 West (retrieve values that are distinct from a specified value): 
+Here is a <distinct predicate> retrieval example from the sample Tables shown
+at the beginning of this chapter. To find the names of employees who don't live
+at 234 West (retrieve values that are distinct from a specified value):
 
 ::
 
@@ -1229,27 +1229,27 @@ The result is:
 | NANCY      | WARREN       |
 +------------+--------------+
 
-Note that the final row is included in the result despite the fact that 
-Nancy's Warren address is unknown; that is, there is a null value in the 
+Note that the final row is included in the result despite the fact that
+Nancy's Warren address is unknown; that is, there is a null value in the
 ``ADDRESS`` Column for that employee.
 
-If you want to restrict your code to Core SQL, don't use the <distinct 
+If you want to restrict your code to Core SQL, don't use the <distinct
 predicate>.
 
 Search Conditions
 =================
 
-A search condition consists of one or more Boolean value expressions. A Boolean 
-value is either ``TRUE`` or ``FALSE`` or ``UNKNOWN``. In SQL-92, only a 
-predicate can return ``TRUE``, ``FALSE`` or ``UNKNOWN`` and therefore all 
-search conditions are predicates (or multiple predicates) with Boolean 
-operators. In SQL3, the definition is broader because there is another source 
-for Boolean values, namely <literal>s or Column values of <data type> 
-``BOOLEAN``, therefore search conditions might also contain values of <data 
-type> ``BOOLEAN``. 
+A search condition consists of one or more Boolean value expressions. A Boolean
+value is either ``TRUE`` or ``FALSE`` or ``UNKNOWN``. In SQL-92, only a
+predicate can return ``TRUE``, ``FALSE`` or ``UNKNOWN`` and therefore all
+search conditions are predicates (or multiple predicates) with Boolean
+operators. In SQL3, the definition is broader because there is another source
+for Boolean values, namely <literal>s or Column values of <data type>
+``BOOLEAN``, therefore search conditions might also contain values of <data
+type> ``BOOLEAN``.
 
-Here are six examples of search conditions. The first two consist of a 
-simple predicate and a simple Boolean, respectively. The other four are more 
+Here are six examples of search conditions. The first two consist of a
+simple predicate and a simple Boolean, respectively. The other four are more
 complex: they contain Boolean operators.
 
 ::
@@ -1260,35 +1260,35 @@ complex: they contain Boolean operators.
    x = 1 OR y = 3
    (boolean_column_1 OR boolean_column_2) IS FALSE
 
-We discussed the Boolean operators in our chapter on the ``BOOLEAN`` <data 
+We discussed the Boolean operators in our chapter on the ``BOOLEAN`` <data
 type>. Here's a quick recap.
 
-* The ``IS [NOT] {TRUE | FALSE | UNKNOWN}`` Boolean operator is rarely seen. 
-  Its effect is to change a Boolean value (which is ``TRUE`` or ``FALSE`` or 
-  ``UNKNOWN``) to either ``TRUE`` or ``FALSE``. For example, given a search 
-  condition "``(x = 5) IS UNKNOWN``", if ``x`` is ``NULL`` then the predicate 
-  "``x = 5``" returns ``UNKNOWN``, therefore the search condition as a whole is 
-  ``TRUE``. 
+* The ``IS [NOT] {TRUE | FALSE | UNKNOWN}`` Boolean operator is rarely seen.
+  Its effect is to change a Boolean value (which is ``TRUE`` or ``FALSE`` or
+  ``UNKNOWN``) to either ``TRUE`` or ``FALSE``. For example, given a search
+  condition "``(x = 5) IS UNKNOWN``", if ``x`` is ``NULL`` then the predicate
+  "``x = 5``" returns ``UNKNOWN``, therefore the search condition as a whole is
+  ``TRUE``.
 
-* The ``NOT`` Boolean operator reverses ``TRUE``\s and ``FALSE``\s, but leaves 
-  ``UNKNOWN``\s alone. There is a trap here: the search condition "``NOT (x = 
-  1)``" differs slightly from "``(x = 1) IS FALSE``" (you can see why if you 
-  assume again that the value of ``x`` is ``NULL``). In any case, "``NOT (x = 
-  1)``" is a bad style choice because people have trouble reading Boolean 
-  operators. The better choice is "``(x <> 1)``". 
+* The ``NOT`` Boolean operator reverses ``TRUE``\s and ``FALSE``\s, but leaves
+  ``UNKNOWN``\s alone. There is a trap here: the search condition "``NOT (x =
+  1)``" differs slightly from "``(x = 1) IS FALSE``" (you can see why if you
+  assume again that the value of ``x`` is ``NULL``). In any case, "``NOT (x =
+  1)``" is a bad style choice because people have trouble reading Boolean
+  operators. The better choice is "``(x <> 1)``".
 
-* The ``AND`` Boolean operator combines two Boolean values: if both are 
-  ``TRUE``, the result is ``TRUE``. For example, this search condition is true: 
-  "``5 > 0 AND 0 = 0 AND 0 <= 5``". However, this search condition is false: 
-  "``5 > 0 AND 0 = 0 AND 0 >0 5``". 
+* The ``AND`` Boolean operator combines two Boolean values: if both are
+  ``TRUE``, the result is ``TRUE``. For example, this search condition is true:
+  "``5 > 0 AND 0 = 0 AND 0 <= 5``". However, this search condition is false:
+  "``5 > 0 AND 0 = 0 AND 0 >0 5``".
 
-* The ``OR`` Boolean operator combines two Boolean values: if either one is 
-  ``TRUE``, the result is ``TRUE``. 
+* The ``OR`` Boolean operator combines two Boolean values: if either one is
+  ``TRUE``, the result is ``TRUE``.
 
 *Search Conditions in Clauses*
 ------------------------------
 
-Since an SQL3 search condition returns a Boolean value, it can be used in 
+Since an SQL3 search condition returns a Boolean value, it can be used in
 situations which would appear exotic/erroneous in SQL-92, for example:
 
 ::
@@ -1297,10 +1297,10 @@ situations which would appear exotic/erroneous in SQL-92, for example:
    FROM   Table_1
    WHERE  boolean_column=(char_column LIKE 'A%');
 
-But our immediate interest is not exotica. We want to look at some plain 
-everyday clauses which contain search conditions as a matter of course. The 
-interesting thing about these clauses is that they contain implicit Boolean 
-operators. Here are the clauses and the implicit Boolean operators. 
+But our immediate interest is not exotica. We want to look at some plain
+everyday clauses which contain search conditions as a matter of course. The
+interesting thing about these clauses is that they contain implicit Boolean
+operators. Here are the clauses and the implicit Boolean operators.
 
 +---------------------------------------+---------------------------+
 | Clause                                | Implicit Boolean Operator |
@@ -1318,26 +1318,26 @@ operators. Here are the clauses and the implicit Boolean operators.
 | ``HAVING``                            | ``IS TRUE``               |
 +---------------------------------------+---------------------------+
 
-Notice that the implicit Boolean looks for ``TRUE`` in every case but one -- we 
-talked about the ``CHECK`` clause in our chapter on Constraints and Assertions 
-and noted that a condition that evaluates to ``UNKNOWN`` also satisfies a 
-Constraint. Everywhere else though, although SQL has lots of rules for 
-generating and manipulating ``UNKNOWN`` values, it normally throws them away in 
-the final step of a search. So, if you want to see results which are either 
-``TRUE`` or ``UNKNOWN``, you must force them through with this expression: 
+Notice that the implicit Boolean looks for ``TRUE`` in every case but one -- we
+talked about the ``CHECK`` clause in our chapter on Constraints and Assertions
+and noted that a condition that evaluates to ``UNKNOWN`` also satisfies a
+Constraint. Everywhere else though, although SQL has lots of rules for
+generating and manipulating ``UNKNOWN`` values, it normally throws them away in
+the final step of a search. So, if you want to see results which are either
+``TRUE`` or ``UNKNOWN``, you must force them through with this expression:
 
 ::
 
    "... WHERE (search condition) IS NOT FALSE"
 
-Since ``IS NOT FALSE`` is evaluated before ``WHERE``, all ``UNKNOWN``\s are 
-converted to ``TRUE``\s before the ``WHERE``\'s implicit ``IS TRUE`` Boolean 
-operator takes effect. (Actually, most people don't want to see results which 
-are ``UNKNOWN``, but forcing them through is handy if you want to simulate the 
-effect of a ``CHECK`` Constraint search condition.) 
+Since ``IS NOT FALSE`` is evaluated before ``WHERE``, all ``UNKNOWN``\s are
+converted to ``TRUE``\s before the ``WHERE``\'s implicit ``IS TRUE`` Boolean
+operator takes effect. (Actually, most people don't want to see results which
+are ``UNKNOWN``, but forcing them through is handy if you want to simulate the
+effect of a ``CHECK`` Constraint search condition.)
 
-There is also an implicit Boolean ``AND`` operator between clauses. For 
-example, this SQL statement: 
+There is also an implicit Boolean ``AND`` operator between clauses. For
+example, this SQL statement:
 
 ::
 
@@ -1356,13 +1356,13 @@ is effectively the same as this SQL statement:
    WHERE  Table_1.column_1 = Table_2.column_1 AND
           Table_1.column2 = 5;
 
-However, such a transformation ignores evaluation order. We'll get back to 
+However, such a transformation ignores evaluation order. We'll get back to
 joins in a later chapter.
 
 **Some example searches**
 _________________________
 
-The main use of search conditions is to search. Let's try some examples on a 
+The main use of search conditions is to search. Let's try some examples on a
 small Table. This Table, which we'll call ``TEAMS``, contains this data:
 
 +-----------------------------------------------------------------------------------+
@@ -1399,7 +1399,7 @@ SQL query:
 
 Answer: Winnipeg.
 
-* Question: What teams, other than the Edmonton Eskimos, have stadia with a 
+* Question: What teams, other than the Edmonton Eskimos, have stadia with a
   capacity of over 40000?
 
 SQL query
@@ -1413,7 +1413,7 @@ SQL query
 
 Answer: Calgary, Toronto.
 
-* Question: What teams, other than the Edmonton Eskimos, might have stadia 
+* Question: What teams, other than the Edmonton Eskimos, might have stadia
   with a capacity of over 40000?
 
 SQL query:
@@ -1427,7 +1427,7 @@ SQL query:
 
 Answer: Calgary, Toronto, Vancouver.
 
-* Question: Show teams whose revenue per seat is more than $1000, as well as 
+* Question: Show teams whose revenue per seat is more than $1000, as well as
   teams which are in the top half of the standings.
 
 SQL query:
@@ -1450,17 +1450,17 @@ SQL query:
    FROM   Teams
    WHERE  TRUE;
 
-Answer: Calgary, Edmonton, Hamilton, Montreal, Regina, Toronto, Vancouver, 
+Answer: Calgary, Edmonton, Hamilton, Montreal, Regina, Toronto, Vancouver,
 Winnipeg.
 
-This SQL statement is the same as ``SELECT * FROM Teams`` and it shows an 
-interesting SQL3 development. Whereas in SQL-92 it was necessary to express 
-"always true" and "always false" with explicit literal expressions like ``1 = 
-1`` and ``1 <> 2``, it's now possible to use a simple <Boolean literal>. 
+This SQL statement is the same as ``SELECT * FROM Teams`` and it shows an
+interesting SQL3 development. Whereas in SQL-92 it was necessary to express
+"always true" and "always false" with explicit literal expressions like ``1 =
+1`` and ``1 <> 2``, it's now possible to use a simple <Boolean literal>.
 
-Here's a few more examples, this time from the sample Tables shown at the 
-beginning of this chapter. First, to find the employees who are located in the 
-basement or whose pay rate is between 5.00 and 6.00: 
+Here's a few more examples, this time from the sample Tables shown at the
+beginning of this chapter. First, to find the employees who are located in the
+basement or whose pay rate is between 5.00 and 6.00:
 
 ::
 
@@ -1481,7 +1481,7 @@ The result is:
 | 4          | 8.00     | BASEMENT         |
 +------------+----------+------------------+
 
-To find the names of employees with employee numbers less than 10 who also 
+To find the names of employees with employee numbers less than 10 who also
 work in Department B:
 
 ::
@@ -1500,10 +1500,10 @@ The result is:
 SQL's <case expression>
 =======================
 
-The ``CASE`` expression is not a filtering operation, but it fits in this 
-context because ``CASE`` specifies a conditional value: it takes a search 
-condition as input and returns a scalar value. The required syntax for the 
-<case expression> is: 
+The ``CASE`` expression is not a filtering operation, but it fits in this
+context because ``CASE`` specifies a conditional value: it takes a search
+condition as input and returns a scalar value. The required syntax for the
+<case expression> is:
 
 ::
 
@@ -1530,7 +1530,7 @@ condition as input and returns a scalar value. The required syntax for the
 
              <result> ::= <value expression> | NULL
 
-The <case abbreviation>s ``NULLIF`` and ``COALESCE`` are both shorthands for 
+The <case abbreviation>s ``NULLIF`` and ``COALESCE`` are both shorthands for
 a simple ``CASE`` expression. For example, this expression:
 
 ::
@@ -1545,7 +1545,7 @@ is equivalent to this expression:
       ELSE value_1
    END
 
-Use ``NULLIF`` when you have some special value instead of ``NULL``, for 
+Use ``NULLIF`` when you have some special value instead of ``NULL``, for
 example the displayable ``?`` to represent a null value.
 
 This expression:
@@ -1562,8 +1562,8 @@ is equivalent to this expression:
       ELSE value_2
    END
 
-And an expression containing more than two ``COALESCE`` values is equivalent to 
-a series of ``COALESCE`` expressions, which are in turn equivalent to a series 
+And an expression containing more than two ``COALESCE`` values is equivalent to
+a series of ``COALESCE`` expressions, which are in turn equivalent to a series
 of ``CASE`` conditions. For example, this expression:
 
 ::
@@ -1578,24 +1578,24 @@ is equivalent to this expression:
       ELSE COALESCE(value_2,value_3)
    END
 
-A simple ``CASE`` expression operates on a <value expression>: any expression 
-that returns a scalar value, except for a routine that is possibly 
-non-deterministic or that might modify SQL-data. The <data type> of this 
-``CASE`` operand must be comparable with the <data type> of the ``WHEN`` 
-clause's <value expression>(since the simple ``CASE`` expression compares the 
-two to see if they are equal) and with the ``ELSE`` clause's <result>. (If you 
-omit the ``ELSE`` clause, it defaults to ``ELSE NULL``.) 
+A simple ``CASE`` expression operates on a <value expression>: any expression
+that returns a scalar value, except for a routine that is possibly
+non-deterministic or that might modify SQL-data. The <data type> of this
+``CASE`` operand must be comparable with the <data type> of the ``WHEN``
+clause's <value expression>(since the simple ``CASE`` expression compares the
+two to see if they are equal) and with the ``ELSE`` clause's <result>. (If you
+omit the ``ELSE`` clause, it defaults to ``ELSE NULL``.)
 
-A searched ``CASE`` expression also operates on a <value expression> that must 
-be comparable with the <data type> of the ``WHEN`` clause's operands and the 
-<data type> of the ``ELSE`` clause's <result>. You may specify any appropriate 
-search condition in a searched ``CASE`` expression's ``WHEN`` clause. Once 
-again, the ``CASE`` operand may be any expression that returns a scalar value, 
-except for a routine that is possibly non-deterministic or that might modify 
-SQL-data, and the default ``ELSE`` clause is ``ELSE NULL``. 
+A searched ``CASE`` expression also operates on a <value expression> that must
+be comparable with the <data type> of the ``WHEN`` clause's operands and the
+<data type> of the ``ELSE`` clause's <result>. You may specify any appropriate
+search condition in a searched ``CASE`` expression's ``WHEN`` clause. Once
+again, the ``CASE`` operand may be any expression that returns a scalar value,
+except for a routine that is possibly non-deterministic or that might modify
+SQL-data, and the default ``ELSE`` clause is ``ELSE NULL``.
 
-Here are two equivalent examples of ``CASE`` expressions (the first example is 
-a searched ``CASE``, the second is a simple ``CASE``). 
+Here are two equivalent examples of ``CASE`` expressions (the first example is
+a searched ``CASE``, the second is a simple ``CASE``).
 
 ::
 
@@ -1613,17 +1613,17 @@ a searched ``CASE``, the second is a simple ``CASE``).
 
 The searched ``CASE`` expression works as follows:
 
-* Find the first ``WHEN`` clause whose search condition is ``TRUE``. Return the 
-  value given in that ``WHEN`` clause's ``THEN`` sub-clause. 
+* Find the first ``WHEN`` clause whose search condition is ``TRUE``. Return the
+  value given in that ``WHEN`` clause's ``THEN`` sub-clause.
 
-* If no ``WHEN`` search condition is ``TRUE``, return the value given in the 
-  ``ELSE`` clause. 
+* If no ``WHEN`` search condition is ``TRUE``, return the value given in the
+  ``ELSE`` clause.
 
-* All returnable values (in ``THEN`` clauses and in the ``ELSE`` clause) must 
-  have <data type>s that are comparable with the ``CASE`` operand. 
+* All returnable values (in ``THEN`` clauses and in the ``ELSE`` clause) must
+  have <data type>s that are comparable with the ``CASE`` operand.
 
-* At least one of the ``THEN`` values must be non-null. For example, this 
-  expression is not legal: 
+* At least one of the ``THEN`` values must be non-null. For example, this
+  expression is not legal:
 
 
 
@@ -1643,7 +1643,7 @@ people prefer simple ``CASE`` expressions because they're similar to Pascal's
 case, or C's switch. (Notice, however, that the parallels are inexact, because
 SQL's ``CASE`` is an expression, while Pascal's case and C's switch are statements.)
 
-We will now repeat one of the questions that we asked in the previous 
+We will now repeat one of the questions that we asked in the previous
 section, about the ``TEAMS`` Table.
 
 * Question: What city is represented by the Blue Bombers?
@@ -1662,39 +1662,39 @@ SQL query:
 Answer:
 
 | CITY
-| *********
-| *********
-| *********
-| *********
-| *********
-| *********
-| *********
+| \*\*\*\*\*\*\*\*\*
+| \*\*\*\*\*\*\*\*\*
+| \*\*\*\*\*\*\*\*\*
+| \*\*\*\*\*\*\*\*\*
+| \*\*\*\*\*\*\*\*\*
+| \*\*\*\*\*\*\*\*\*
+| \*\*\*\*\*\*\*\*\*
 | Winnipeg
 
-The answer is the same, but with a lot of dross. It's possible to use ``CASE`` 
-expressions this way as retrieval substitutes, but the more common applications 
-are *(a)* to make up for SQL's lack of an enumerated <data type>, *(b)* to 
-perform complicated if/then calculations, *(c)* for translation and *(d)* to 
-avoid exceptions. We find ``CASE`` expressions to be indispensable, and it 
-amazes us that in pre-SQL-92 DBMSs they didn't exist. 
+The answer is the same, but with a lot of dross. It's possible to use ``CASE``
+expressions this way as retrieval substitutes, but the more common applications
+are *(a)* to make up for SQL's lack of an enumerated <data type>, *(b)* to
+perform complicated if/then calculations, *(c)* for translation and *(d)* to
+avoid exceptions. We find ``CASE`` expressions to be indispensable, and it
+amazes us that in pre-SQL-92 DBMSs they didn't exist.
 
 *Rules of Aggregation*
 ----------------------
 
-The ``THEN`` values in a ``CASE`` expression, as well as the results of set 
-operations or arrays, are considered to be aggregations; that is, they have a 
-<data type> that is determined by evaluating the <data type>s of each value in 
-a set. The aggregation rules determine which <data type>s are compatible, and 
-what the <data type> of the result is. Stated in a very general way, the 
-aggregation rules are that "what's compatible for assignment is compatible for 
-aggregation", "varying trumps fixed" and "long trumps short". More 
-specifically: 
+The ``THEN`` values in a ``CASE`` expression, as well as the results of set
+operations or arrays, are considered to be aggregations; that is, they have a
+<data type> that is determined by evaluating the <data type>s of each value in
+a set. The aggregation rules determine which <data type>s are compatible, and
+what the <data type> of the result is. Stated in a very general way, the
+aggregation rules are that "what's compatible for assignment is compatible for
+aggregation", "varying trumps fixed" and "long trumps short". More
+specifically:
 
-* All numeric -- ``INT``, ``SMALLINT``, ``NUMERIC``, ``DECIMAL``, ``FLOAT``, 
-  ``REAL``, ``DOUBLE PRECISION`` -- values are compatible. If any aggregated 
-  value is approximate numeric, the result is approximate numeric; otherwise 
-  the result is exact numeric and the result's scale is the biggest scale of 
-  any of the aggregated values. For example, this expression: 
+* All numeric -- ``INT``, ``SMALLINT``, ``NUMERIC``, ``DECIMAL``, ``FLOAT``,
+  ``REAL``, ``DOUBLE PRECISION`` -- values are compatible. If any aggregated
+  value is approximate numeric, the result is approximate numeric; otherwise
+  the result is exact numeric and the result's scale is the biggest scale of
+  any of the aggregated values. For example, this expression:
 
 ::
 
@@ -1704,16 +1704,16 @@ specifically:
       ELSE NULL
    END
 
-should return a result with a <data type> of ``DECIMAL(9,3)``. (We say should 
-because some of the decisions here are implementation-defined -- the only 
-guaranteed facts are that the scale will be 3 and the <data type> will be some 
-sort of exact numeric.) 
+should return a result with a <data type> of ``DECIMAL(9,3)``. (We say should
+because some of the decisions here are implementation-defined -- the only
+guaranteed facts are that the scale will be 3 and the <data type> will be some
+sort of exact numeric.)
 
-* All ``BIT`` or ``BIT VARYING`` values are compatible. If any aggregated value 
-  is a ``BIT VARYING`` then the result is a ``BIT VARYING``; otherwise the 
-  result is a ``BIT``. The result's length is the length of the longest 
-  aggregated value. For example, if a Table was defined with "``... column_1 
-  BIT(5),column_2 BIT VARYING(4) ...``", this expression: 
+* All ``BIT`` or ``BIT VARYING`` values are compatible. If any aggregated value
+  is a ``BIT VARYING`` then the result is a ``BIT VARYING``; otherwise the
+  result is a ``BIT``. The result's length is the length of the longest
+  aggregated value. For example, if a Table was defined with "``... column_1
+  BIT(5),column_2 BIT VARYING(4) ...``", this expression:
 
 ::
 
@@ -1723,39 +1723,39 @@ will return a result with a <data type> of ``BIT VARYING(5)``.
 
 * All ``BLOB`` values are compatible.
 
-* All ``CHAR``, ``NCHAR``, ``VARCHAR``, ``NCHAR VARYING``, ``CLOB`` and 
-  ``NCLOB`` values are compatible, provided the Character set is the same. 
-  If any aggregated value is a ``CLOB`` then the result is a ``CLOB``; 
-  otherwise if any value is a ``VARCHAR`` then the result is a 
-  ``VARCHAR``; otherwise the result is a ``CHAR``. The result's length is 
-  the length of the longest aggregated value. The result's Collation will 
-  depend on coercibility; see the appropriate tables in our chapter on 
-  character strings. For example, this expression: 
+* All ``CHAR``, ``NCHAR``, ``VARCHAR``, ``NCHAR VARYING``, ``CLOB`` and
+  ``NCLOB`` values are compatible, provided the Character set is the same.
+  If any aggregated value is a ``CLOB`` then the result is a ``CLOB``;
+  otherwise if any value is a ``VARCHAR`` then the result is a
+  ``VARCHAR``; otherwise the result is a ``CHAR``. The result's length is
+  the length of the longest aggregated value. The result's Collation will
+  depend on coercibility; see the appropriate tables in our chapter on
+  character strings. For example, this expression:
 
 ::
 
    CASE ... THEN 'a' ... THEN 'abcd' ... ELSE 'abc' END
 
-will return a result with a <data type> of ``CHAR(4)``, because <character 
-string literal>s are fixed-length character strings and the size of the largest 
-aggregated <literal> is 4 characters. 
+will return a result with a <data type> of ``CHAR(4)``, because <character
+string literal>s are fixed-length character strings and the size of the largest
+aggregated <literal> is 4 characters.
 
 * All ``DATE`` values are compatible.
 
-* All ``TIME`` and ``TIME WITH TIME ZONE`` values are compatible. If any 
-  aggregated value is ``TIME WITH TIME ZONE``, the result is ``TIME WITH TIME 
-  ZONE``; otherwise the result is ``TIME``. The fractional precision of the 
-  result is the largest fractional precision of any of the aggregated values. 
+* All ``TIME`` and ``TIME WITH TIME ZONE`` values are compatible. If any
+  aggregated value is ``TIME WITH TIME ZONE``, the result is ``TIME WITH TIME
+  ZONE``; otherwise the result is ``TIME``. The fractional precision of the
+  result is the largest fractional precision of any of the aggregated values.
 
-* All ``TIMESTAMP`` and ``TIMESTAMP WITH TIME ZONE`` values are compatible. If 
-  any aggregated value is ``TIMESTAMP WITH TIME ZONE``, the result is 
-  ``TIMESTAMP WITH TIME ZONE``; otherwise the result is ``TIMESTAMP``. The 
-  fractional precision of the result is the largest fractional precision of any 
-  of the aggregated values. 
+* All ``TIMESTAMP`` and ``TIMESTAMP WITH TIME ZONE`` values are compatible. If
+  any aggregated value is ``TIMESTAMP WITH TIME ZONE``, the result is
+  ``TIMESTAMP WITH TIME ZONE``; otherwise the result is ``TIMESTAMP``. The
+  fractional precision of the result is the largest fractional precision of any
+  of the aggregated values.
 
-* All year-month ``INTERVAL`` values are compatible. The datetime fields of the 
-  result are from the earliest to the latest fields in any aggregated value. 
-  For example, this expression: 
+* All year-month ``INTERVAL`` values are compatible. The datetime fields of the
+  result are from the earliest to the latest fields in any aggregated value.
+  For example, this expression:
 
 ::
 
@@ -1763,18 +1763,18 @@ aggregated <literal> is 4 characters.
 
 will return a result with a <data type> of ``INTERVAL YEAR TO MONTH``.
 
-* All day-time ``INTERVAL`` values are compatible. The datetime fields of 
-  the result are from the earliest to the latest fields in any aggregated 
+* All day-time ``INTERVAL`` values are compatible. The datetime fields of
+  the result are from the earliest to the latest fields in any aggregated
   value.
 
 * All ``BOOLEAN`` values are compatible.
 
 * All ``REF`` values of the same referenced type (UDT) are compatible.
 
-* ALL UDT values whose most specific types have some common supertype are 
+* All UDT values whose most specific types have some common supertype are
   compatible.
 
-If you want to restrict your code to Core SQL, don't use ``BLOB``\s, 
+If you want to restrict your code to Core SQL, don't use ``BLOB``\s,
 ``CLOB``\s or ``NCLOB``\s in a ``CASE`` expression.
 
 Dialects
@@ -1789,7 +1789,7 @@ conditions, so don't depend heavily on these SQL3 features:
 
 * ``SYMMETRIC`` <between predicate>
 
-You'll find even stricter limitations if you don't use a fairly powerful DBMS 
--- there are some that don't support row-value comparisons, ``IS [NOT] 
-{TRUE|FALSE|UNKNOWN}`` and the more difficult predicates (e.g.: ``MATCH`` and 
+You'll find even stricter limitations if you don't use a fairly powerful DBMS
+-- there are some that don't support row-value comparisons, ``IS [NOT]
+{TRUE|FALSE|UNKNOWN}`` and the more difficult predicates (e.g.: ``MATCH`` and
 ``OVERLAPS``).
