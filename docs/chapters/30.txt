@@ -320,8 +320,8 @@ In a typical programming life, you'll never encounter a lone theta-join (or if
 you do, you're looking at some sort of an error). The common cases are always 
 double theta-joins. Here is an example: 
 
-**Double Theta: > Combined with Equijoin**
-__________________________________________
+Double Theta: > Combined with Equijoin
+______________________________________
 
 "List identification numbers of borrowers who took out books on two 
 different days."
