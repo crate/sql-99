@@ -4,25 +4,25 @@
 Chapter 33 -- Searching with Groups
 ===================================
 
-This chapter deals with three optional points of a SELECT statement: the GROUP
-BY clause, the set functions {AVG, COUNT, MAX, MIN, SUM, EVERY, ANY, SOME,
-GROUPING} and the HAVING clause. Often these things appear together: the
-common factor is summaries, or amalgams, of Columns -- with groups, rather
-than with details. We group together where values are equal. For example,
-confronted with the detail list {Smith Smith Smith Jones Jones}, we could
-summarize it to be: "three Smiths, two Joneses". Such a summary is known in
-SQL as a grouped Table.
+This chapter deals with three optional points of a ``SELECT`` statement: the 
+``GROUP BY`` clause, the set functions {``AVG, COUNT, MAX, MIN, SUM, EVERY, 
+ANY, SOME, GROUPING``} and the ``HAVING`` clause. Often these things appear 
+together: the common factor is summaries, or amalgams, of Columns -- with 
+groups, rather than with details. We group together where values are equal. For 
+example, confronted with the detail list {Smith Smith Smith Jones Jones}, we 
+could summarize it to be: "three Smiths, two Joneses". Such a summary is known 
+in SQL as a *grouped Table*. 
 
 .. rubric:: Table of Contents
 
 .. contents::
     :local:
 
-GROUP BY clause
+GROUP BY Clause
 ===============
 
-The GROUP BY clause is an optional portion of the SELECT statement. It defines
-a grouped Table. The required syntax for the GROUP BY clause is:
+The ``GROUP BY`` clause is an optional portion of the ``SELECT`` statement. 
+It defines a grouped Table. The required syntax for the ``GROUP BY`` clause is:
 
 ::
 
@@ -49,11 +49,11 @@ a grouped Table. The required syntax for the GROUP BY clause is:
              CUBE (<grouping Column reference list>) |
              ()
 
-GROUP BY defines a grouped Table: a set of groups of rows, where each group
-consists of the rows in which all the values of the grouping Column(s) are
-equal (the group is the entire Table if you use the HAVING clause without a
-preceding GROUP BY clause). Here are three SELECT statements; each contains a
-GROUP BY clause:
+``GROUP BY`` defines a grouped Table: a set of groups of rows, where each group 
+consists of the rows in which all the values of the grouping Column(s) are 
+equal (the group is the entire Table if you use the ``HAVING`` clause without a 
+preceding ``GROUP BY`` clause). Here are three ``SELECT`` statements; each 
+contains a ``GROUP BY`` clause: 
 
 ::
 
@@ -68,100 +68,127 @@ GROUP BY clause:
    WHERE    column_1 BETWEEN 10 AND 50
    GROUP BY column_1 HAVING SUM(column_1)>12;
 
-These examples illustrate that the GROUP BY clause contains a list of <Column
-reference>s (the grouping Columns) and that it comes at a certain place within
-the various optional or compulsory clauses of a SELECT statement. In each
-case, the grouping <Column reference> names a Column that belongs to a Table
-named in the SELECT ... FROM clause -- the argument of the GROUP BY clause is
-a list of (optionally qualified) <Column name>s and only <Column name>s; SQL
-doesn't allow you to use <literal>s, Column expressions, or any
-operator/function except COLLATE in a GROUP BY clause. In addition, when a
-SELECT statement includes GROUP BY, the statement's select list may consist
-only of references to Columns that are single-valued per group -- this means
-that the select list can't include a reference to an interim result Column
-that isn't also included in the GROUP BY clause unless that Column is an
-argument for one of the set functions (AVG, COUNT, MAX, MIN, SUM, EVERY, ANY,
-SOME; each of which reduce the collection of values from a Column to a single
-value). These are severe restrictions, but we'll show you ways to get around
-some of the restrictions.
+These examples illustrate that the ``GROUP BY`` clause contains a list of 
+<Column reference>s (the grouping Columns) and that it comes at a certain place 
+within the various optional or compulsory clauses of a ``SELECT`` statement. In 
+each case, the grouping <Column reference> names a Column that belongs to a 
+Table named in the ``SELECT ... FROM`` clause -- the argument of the ``GROUP 
+BY`` clause is a list of (optionally qualified) <Column name>s and only <Column 
+name>s; SQL doesn't allow you to use <literal>s, Column expressions, or any 
+operator/function except ``COLLATE`` in a ``GROUP BY`` clause. In addition, 
+when a ``SELECT`` statement includes ``GROUP BY``, the statement's select list 
+may consist only of references to Columns that are single-valued per group -- 
+this means that the select list can't include a reference to an interim result 
+Column that isn't also included in the ``GROUP BY`` clause unless that Column 
+is an argument for one of the set functions (``AVG, COUNT, MAX, MIN, SUM, 
+EVERY, ANY, SOME``; each of which reduce the collection of values from a Column 
+to a single value). These are severe restrictions, but we'll show you ways to 
+get around some of the restrictions. 
 
-The GROUP BY clause allows you to summarize SQL-data. For an example of how it
-works, let's look at some basic queries on one of the sample Tables we defined
-in our chapter on simple search conditions: the PAYROLL Table, which looks
-like this:
+The ``GROUP BY`` clause allows you to summarize SQL-data. For an example of how 
+it works, let's look at some basic queries on one of the sample Tables we 
+defined in our chapter on "Simple Search Conditions": the ``PAYROLL`` Table, 
+which looks like this: 
 
-::
 
-    PAYROLL
-    EMPNUM      RATE        LOCATION          PAID              APPT
-     1           6.00       10TH FLOOR        1989-10-31        10:15:00
-     2           5.00       16TH FLOOR        1989-09-30        10:20:00
-     3           5.00       WAREHOUSE         1989-09-30        10:30:00
-     4           8.00       BASEMENT          1989-10-15        12:00:10
-    10          16.00       16TH FLOOR        1989-09-30        12:30:00
-    11          16.00       16TH FLOOR        1989-10-15        13:15:10
-    20           9.00       WAREHOUSE         1989-10-15        14:00:00
-    28          ?           16TH FLOOR        1989-09-15        14:10:00
-    35           9.00       10TH FLOOR        1989-10-31        14:20:00
-    40          16.00       10TH FLOOR        1989-10-31        14:35:07
++-----------------------------------------------------------------------+
+| *PAYROLL*                                                             |
++============+==========+==============+================+===============+
+| ``EMPNUM`` | ``RATE`` | ``LOCATION`` | ``PAID``       | ``APPT``      |
++------------+----------+--------------+----------------+---------------+
+| 1          | 6.00     | 10TH FLOOR   | 1989-10-31     | 10:15:00      |
++------------+----------+--------------+----------------+---------------+
+| 2          | 5.00     | 16TH FLOOR   | 1989-09-30     | 10:20:00      |
++------------+----------+--------------+----------------+---------------+
+| 3          | 5.00     | WAREHOUSE    | 1989-09-30     | 10:30:00      |
++------------+----------+--------------+----------------+---------------+
+| 4          | 8.00     | BASEMENT     | 1989-10-15     | 12:00:10      |
++------------+----------+--------------+----------------+---------------+
+| 10         | 16.00    | 16TH FLOOR   | 1989-09-30     | 12:30:00      |
++------------+----------+--------------+----------------+---------------+
+| 11         | 16.00    | 16TH FLOOR   | 1989-10-15     | 13:15:10      |
++------------+----------+--------------+----------------+---------------+
+| 20         | 9.00     | WAREHOUSE    | 1989-10-15     | 14:00:00      |
++------------+----------+--------------+----------------+---------------+
+| 28         | ?        | 16TH FLOOR   | 1989-09-15     | 14:10:00      |
++------------+----------+--------------+----------------+---------------+
+| 35         | 9.00     | 10TH FLOOR   | 1989-10-31     | 14:20:00      |
++------------+----------+--------------+----------------+---------------+
+| 40         | 16.00    | 10TH FLOOR   | 1989-10-31     | 14:35:07      |
++------------+----------+--------------+----------------+---------------+
 
-The simplest GROUP BY example on PAYROLL groups the LOCATION Column into its
-four different values. Here's the SELECT statement:
+The simplest ``GROUP BY`` example on ``PAYROLL`` groups the ``LOCATION`` 
+Column into its four different values. Here's the ``SELECT`` statement:
 
 ::
 
    SELECT   location FROM Payroll
    GROUP BY location;
 
-To get the result for this SELECT statement, your DBMS will first evaluate the
-FROM clause to construct an interim result Table (in this case, the entire
-PAYROLL Table), then pass this interim result to the GROUP BY clause. When it
-evaluates the GROUP BY clause, it breaks the interim result into groups which
-have the same values in LOCATION (the grouping Column), then passes this
-interim result to the select list. When it evaluates the select list, your
-DBMS throws out all Columns which aren't named in the select list. The result,
-then, is:
+To get the result for this ``SELECT`` statement, your DBMS will first 
+evaluate the ``FROM`` clause to construct an interim result Table (in 
+this case, the entire ``PAYROLL`` Table), then pass this interim result 
+to the ``GROUP BY`` clause. When it evaluates the ``GROUP BY`` clause, 
+it breaks the interim result into groups which have the same values in 
+``LOCATION`` (the grouping Column), then passes this interim result to 
+the select list. When it evaluates the select list, your DBMS throws out 
+all Columns which aren't named in the select list. The result, then, is: 
 
-::
 
-    LOCATION
-    10TH FLOOR
-    16TH FLOOR
-    WAREHOUSE
-    BASEMENT
++-----------------+
+| ``LOCATION``    |
++-----------------+
+| 10TH FLOOR      |
++-----------------+
+| 16TH FLOOR      |
++-----------------+
+| WAREHOUSE       |
++-----------------+
+| BASEMENT        |
++-----------------+
 
-A slightly more complicated example groups PAYROLL's LOCATION and RATE
-Columns. Here's the SELECT statement:
+A slightly more complicated example groups ``PAYROLL``\'s ``LOCATION`` and 
+``RATE`` Columns. Here's the ``SELECT`` statement:
 
 ::
 
    SELECT   location, rate FROM Payroll
    GROUP BY location, rate;
 
-To get the result for this SELECT statement, your DBMS will follow the same
-steps we described for the last example -- up until it reaches the interim
-result that contains groups which have the same values in LOCATION (the first
-grouping Column). At this point, instead of passing the result to the select
-list, the DBMS will now break the new interim result into groups which have
-the same values in LOCATION and RATE (the second grouping Column). This
-interim result is then passed on to the select list for evaluation. The final
-result is (note that the NULL value in the RATE Column is in a group of its
-own; for GROUP BY all NULLs form a single group):
+To get the result for this ``SELECT`` statement, your DBMS will follow the same 
+steps we described for the last example -- up until it reaches the interim 
+result that contains groups which have the same values in ``LOCATION`` (the 
+first grouping Column). At this point, instead of passing the result to the 
+select list, the DBMS will now break the new interim result into groups which 
+have the same values in ``LOCATION`` and ``RATE`` (the second grouping Column). 
+This interim result is then passed on to the select list for evaluation. The 
+final result is (note that the ``NULL`` value in the ``RATE`` Column is in a 
+group of its own; for ``GROUP BY`` all ``NULL``\s form a single group): 
 
-::
++--------------+----------+
+| ``LOCATION`` | ``RATE`` |
++--------------+----------+
+| 10TH FLOOR   | 6.00     |
++--------------+----------+
+| 10TH FLOOR   | 9.00     |
++--------------+----------+
+| 10TH FLOOR   | 16.00    |
++--------------+----------+
+| 16TH FLOOR   | 5.00     |
++--------------+----------+
+| 16TH FLOOR   | 16.00    |
++--------------+----------+
+| 16TH FLOOR   | ?        |
++--------------+----------+
+| WAREHOUSE    | 5.00     |
++--------------+----------+
+| WAREHOUSE    | 9.00     |
++--------------+----------+
+| BASEMENT     | 8.00     |
++--------------+----------+
 
-    LOCATION      RATE
-    10TH FLOOR     6.00
-    10TH FLOOR     9.00
-    10TH FLOOR    16.00
-    16TH FLOOR     5.00
-    16TH FLOOR    16.00
-    16TH FLOOR    ?
-    WAREHOUSE      5.00
-    WAREHOUSE      9.00
-    BASEMENT       8.00
-
-One last example: grouping with a WHERE clause. Here's a SELECT statement:
+One last example: grouping with a ``WHERE`` clause. Here's a ``SELECT`` 
+statement:
 
 ::
 
@@ -169,54 +196,61 @@ One last example: grouping with a WHERE clause. Here's a SELECT statement:
    WHERE    rate > 6.00
    GROUP BY location, rate;
 
-To get the result for this SELECT statement, your DBMS will get a copy of the
-PAYROLL Table (evaluate the FROM clause), remove any rows where the RATE value
-is less than or equal to 6 (evaluate the WHERE clause), break the result into
-groups which have the same values in LOCATION and RATE (evaluate the GROUP BY
-clause) and remove any groups which aren't named in the select list. The
-result is:
+To get the result for this ``SELECT`` statement, your DBMS will get a copy of 
+the ``PAYROLL`` Table (evaluate the ``FROM`` clause), remove any rows where the 
+``RATE`` value is less than or equal to 6 (evaluate the ``WHERE`` clause), 
+break the result into groups which have the same values in ``LOCATION`` and 
+``RATE`` (evaluate the ``GROUP BY`` clause) and remove any groups which aren't 
+named in the select list. The result is: 
 
-::
++-----------------+------------+
+| ``LOCATION``    | ``RATE``   |
++-----------------+------------+
+| 10TH FLOOR      | 9.00       |
++-----------------+------------+
+| 10TH FLOOR      | 16.00      |
++-----------------+------------+
+| 16TH FLOOR      | 16.00      |
++-----------------+------------+
+| 16TH FLOOR      | ?          |
++-----------------+------------+
+| WAREHOUSE       | 9.00       |
++-----------------+------------+
+| BASEMENT        | 8.00       |
++-----------------+------------+
 
-    LOCATION     RATE
-    10TH FLOOR    9.00
-    10TH FLOOR   16.00
-    16TH FLOOR   16.00
-    16TH FLOOR   ?
-    WAREHOUSE     9.00
-    BASEMENT      8.00
+*Rules For Grouping Columns*
+----------------------------
 
-Rules For Grouping Columns:
+In the ``GROUP BY`` clause:
 
-In the GROUP BY clause:
+* Each Column in a ``GROUP BY`` clause must unambiguously name a Column that 
+  belongs to a Table named in the ``SELECT`` statement's ``FROM`` clause. The 
+  name may be qualified, i.e.: it may be a <Column reference>. Such a Column is 
+  called a grouping Column: its values will be grouped for the final result. 
 
-## Each Column in a GROUP BY clause must unambiguously name a Column
-that belongs to a Table named in the SELECT statement's FROM clause. The name
-may be qualified, i.e.: it may be a <Column reference>. Such a Column is
-called a grouping Column: its values will be grouped for the final result.
+* The grouping Column <data type> may not be ``BLOB``, ``CLOB``, ``NCLOB`` or 
+  ``ARRAY``. 
 
-## The grouping Column <data type> may not be BLOB, CLOB, NCLOB or
-ARRAY.
-
-## If the grouping Column <data type> is CHAR or VARCHAR, then the
-<Column reference> may be accompanied by COLLATE <Collation name>. This
-addition was added to SQL with SQL-92 and may not be supported by all DBMSs.
-The idea is that you should be able to match for upper|lower case, or use PAD
-SPACES when you're defining a group's values. Other than COLLATE, all SQL
-operators and functions are illegal in a GROUP BY clause.
+* If the grouping Column <data type> is ``CHAR`` or ``VARCHAR``, then the 
+  <Column reference> may be accompanied by ``COLLATE`` <Collation name>. This 
+  addition was added to SQL with SQL-92 and may not be supported by all DBMSs. 
+  The idea is that you should be able to match for upper|lower case, or use 
+  ``PAD SPACES`` when you're defining a group's values. Other than ``COLLATE``, 
+  all SQL operators and functions are illegal in a ``GROUP BY`` clause. 
 
 In the select list:
 
-## You must follow "The Single-Value Rule" -- every Column named in the
-select list must also be a grouping Column, unless it is an argument for one
-of the set functions.
+* You must follow "The Single-Value Rule" -- every Column named in the select 
+  list must also be a grouping Column, unless it is an argument for one of the 
+  set functions. 
 
-## The select list may include derived Columns -- <literal>s, scalar
-functions, and <Column name>s within expressions (only the GROUP BY clause
-disallows expressions).
+* The select list may include derived Columns -- <literal>s, scalar functions, 
+  and <Column name>s within expressions (only the ``GROUP BY`` clause disallows 
+  expressions). 
 
-Here are some examples of grouped SELECT statements, legal and not (a is a
-Column of Table T):
+Here are some examples of grouped ``SELECT`` statements, legal and not 
+(``a`` is a Column of Table ``T``):
 
 ::
 
@@ -246,25 +280,30 @@ Column of Table T):
    SELECT a+5 FROM T GROUP BY a+5;
       -- illegal: expression in GROUP BY
 
-** TRAP: The superficial similarity of the GROUP BY clause and the ORDER BY
-clause often misleads people. The big difference is that grouping is done on
-the input (that is, the Tables named in the FROM clause), while ordering is
-done on the output (that is, the Columns named in the select list). So,
-although you can say "ORDER BY integer" (only in SQL-92 though) and "ORDER BY
-expression", it makes no sense to say "GROUP BY integer" or "GROUP BY
-expression". On the other hand, grouping Columns don't have to be in the
-select list, as sorted Columns must.
+.. CAUTION:: 
 
-** TRAP: The SQL Standard doesn't specify how many Columns can be grouped or
-what the size of a grouping Column may be (except that it can't be a large
-object string), but most DBMSs allow fairly small numbers and sizes. When
-people create Tables, they often allot hundreds of characters for VARCHAR
-Columns (like "address" or "comment"), thinking that there is plenty of room
-in the row. Later they find that their DBMS can't use those Columns In a GROUP
-BY clause, due to their size. Moral: Don't make Columns bigger than they have
-to be.
+  The superficial similarity of the ``GROUP BY`` clause and the ``ORDER BY`` 
+  clause often misleads people. The big difference is that grouping is done on 
+  the input (that is, the Tables named in the ``FROM`` clause), while ordering 
+  is done on the output (that is, the Columns named in the select list). So, 
+  although you can say "``ORDER BY`` integer" (only in SQL-92 though) and 
+  "``ORDER BY`` expression", it makes no sense to say "``GROUP BY`` integer" or 
+  "``GROUP BY`` expression". On the other hand, grouping Columns don't have to 
+  be in the select list, as sorted Columns must. 
 
-## The Single-Value Rule
+.. CAUTION:: 
+
+  The SQL Standard doesn't specify how many Columns can be grouped or what the 
+  size of a grouping Column may be (except that it can't be a large object 
+  string), but most DBMSs allow fairly small numbers and sizes. When people 
+  create Tables, they often allot hundreds of characters for ``VARCHAR`` 
+  Columns (like "address" or "comment"), thinking that there is plenty of room 
+  in the row. Later they find that their DBMS can't use those Columns In a 
+  ``GROUP BY`` clause, due to their size. Moral: Don't make Columns bigger than 
+  they have to be. 
+
+The Single-Value Rule
+_____________________
 
 The rationale for this rule is as follows. Suppose you have a list of cities
 and countries. If this SQL statement were legal:
@@ -274,18 +313,18 @@ and countries. If this SQL statement were legal:
    SELECT    city, country FROM Cities_And_Countries
    GROUP BY country;
 
-what value would come out in the CITY Column? There are plausible answers such
-as "any city will do provided it's in the country", or "the DBMS should assume
-that we want to group by both country and city". The problem with those
-answers is that they try to compensate for a formal user error. What the user
-really needs to know is "that does not compute".
+what value would come out in the ``CITY`` Column? There are plausible answers 
+such as "any city will do provided it's in the country", or "the DBMS should 
+assume that we want to group by both country and city". The problem with those 
+answers is that they try to compensate for a formal user error. What the user 
+really needs to know is "that does not compute". 
 
-The rule does not mean that all values must be distinct. We could multiply
-everything times zero, yielding zeros in every Column in the select list, and
-we would still be specifying "single-valued per group". The true meaning is
-that there must be, for each group, one (and only one) value which is
-appropriate as an answer for the query. Sometimes the DBMS doesn't realize
-this, as in a SQL statement like:
+The rule does not mean that all values must be distinct. We could multiply 
+everything times zero, yielding zeros in every Column in the select list, and 
+we would still be specifying "single-valued per group". The true meaning is 
+that there must be, for each group, one (and only one) value which is 
+appropriate as an answer for the query. Sometimes the DBMS doesn't realize 
+this, as in a SQL statement like: 
 
 ::
 
@@ -303,11 +342,12 @@ grouping Column to the statement:
 The single-value rule is sensible and it is Standard SQL. Don't be  misled by
 a "textbook" describing the one DBMS which does not follow the Standard.
 
-## Grouping by expressions
+Grouping by Expressions
+_______________________
 
-We said earlier that, while you can use "GROUP BY Column list" in your SELECT
-statements, you can't use "GROUP BY expression list". This means that these
-two SQL statements are both illegal:
+We said earlier that, while you can use "``GROUP BY`` Column list" in your 
+``SELECT`` statements, you can't use "``GROUP BY`` expression list". This means 
+that these two SQL statements are both illegal: 
 
 ::
 
@@ -317,7 +357,7 @@ two SQL statements are both illegal:
    SELECT   EXTRACT(MONTH FROM bdate) AS ebdate FROM Table_1
    GROUP BY ebdate;
 
-Looks like we can't group by MONTH: we have to group by the whole date.
+Looks like we can't group by ``MONTH``: we have to group by the whole date.
 Bummer. Luckily, there is a way out if you have SQL-92 and some patience:
 
 ::
@@ -326,18 +366,19 @@ Bummer. Luckily, there is a way out if you have SQL-92 and some patience:
    FROM     (SELECT EXTRACT(MONTH FROM bdate) AS ebdate FROM Table_1)
    GROUP BY ebdate;
 
-This example uses a Table subquery in the FROM clause, and puts all the
-necessary calculations inside that Table subquery. The outer SELECT does a
-grouping of the result -- which is now legal, since the EBDATE Column is
-clearly identified as a Column belonging to the Table named in the FROM
-clause. If your DBMS doesn't support Table subqueries in the FROM clause, try
-making a View, or a temporary Table, with the same logic. Whatever you do will
-be slow, because two Tables are being produced, one for the temporary Table
-and one for the grouping.
+This example uses a Table subquery in the ``FROM`` clause, and puts all the 
+necessary calculations inside that Table subquery. The outer ``SELECT`` does a 
+grouping of the result -- which is now legal, since the ``EBDATE`` Column is 
+clearly identified as a Column belonging to the Table named in the ``FROM`` 
+clause. If your DBMS doesn't support Table subqueries in the ``FROM`` clause, 
+try making a View, or a temporary Table, with the same logic. Whatever you do 
+will be slow, because two Tables are being produced, one for the temporary 
+Table and one for the grouping. 
 
-New syntax:
+*New Syntax*
+------------
 
-Until now, all of our examples have shown GROUP BY followed by one or more
+Until now, all of our examples have shown ``GROUP BY`` followed by one or more
 <Column reference>s. This was the only available option until SQL3, which adds
 this syntax:
 
@@ -356,7 +397,7 @@ this syntax:
     GROUP BY CUBE(grouping Columns),<grouping set list>
     GROUP BY (),<grouping set list>
 
-"GROUP BY GROUPING SETS" effectively allows groups within groups -- in one
+``GROUP BY GROUPING SETS`` effectively allows groups within groups -- in one
 pass, it generates multiple aggregated groups that would otherwise require a
 set operator to put the different result sets together. For example:
 
@@ -367,17 +408,18 @@ set operator to put the different result sets together. For example:
    WHERE    A.number = B.number
    GROUP BY GROUPING SETS (A.id,(A.id,B.name));
 
-In this example, the GROUP BY clause determines the first requirement --
-groups of IDs -- by grouping the A.ID values from the TABLE_1 Table. It then
-determines the second requirement -- number of IDs by ID and NAME -- by
-grouping the A.ID values from TABLE_1 with the B.NAME values from TABLE_2.
+In this example, the ``GROUP BY`` clause determines the first requirement -- 
+groups of IDs -- by grouping the ``A.ID`` values from the ``TABLE_1`` Table. It 
+then determines the second requirement -- number of IDs by ``ID`` and ``NAME`` 
+-- by grouping the ``A.ID`` values from ``TABLE_1`` with the ``B.NAME`` values 
+from ``TABLE_2``. 
 
-The grouping forms like "GROUP BY (grouping Columns), <grouping set list>",
-also known as concatenated grouping, puts groups together.
+The grouping forms like "``GROUP BY`` (grouping Columns), <grouping set list>", 
+also known as *concatenated grouping*, puts groups together. 
 
-A <grouping specification> of () (called grand total in the Standard) is
-equivalent to grouping the entire result Table; i.e.: to the result returned
-by:
+A <grouping specification> of () (called *grand total* in the Standard) is 
+equivalent to grouping the entire result Table; i.e.: to the result returned 
+by: 
 
 ::
 
@@ -385,9 +427,9 @@ by:
    WHERE  conditions
    HAVING conditions
 
-A <grouping specification> of ROLLUP means get one group out of all grouping
-Columns, by rolling each group into the next until only one remains. It is
-equivalent to the result returned by:
+A <grouping specification> of ``ROLLUP`` means get one group out of all 
+grouping Columns, by rolling each group into the next until only one 
+remains. It is equivalent to the result returned by:
 
 ::
 
@@ -402,7 +444,7 @@ equivalent to the result returned by:
      () )
    HAVING   conditions
 
-A <grouping specification> of CUBE means get one group out of all grouping
+A <grouping specification> of ``CUBE`` means get one group out of all grouping
 Columns, by grouping all possible combinations of the grouping Columns. It is
 equivalent to the result returned by:
 
@@ -430,22 +472,29 @@ equivalent to the result returned by:
      () )
    HAVING   conditions
 
-As an example of these new options, assume there is a Table, TABLE_1, that
+As an example of these new options, assume there is a Table, ``TABLE_1``, that
 looks like this:
 
-::
++--------------------------------------------+
+| ``TABLE_1``                                |
++==============+==============+==============+
+| ``COLUMN_1`` | ``COLUMN_2`` | ``COLUMN_3`` |
++--------------+--------------+--------------+
+| 1            | A            | .55          |
++--------------+--------------+--------------+
+| 1            | A            | .55          |
++--------------+--------------+--------------+
+| 1            | B            | 1.00         |
++--------------+--------------+--------------+
+| 1            | B            | 1.35         |
++--------------+--------------+--------------+
+| 2            | A            | 6.00         |
++--------------+--------------+--------------+
+| 2            | A            | 1.77         |
++--------------+--------------+--------------+
 
-    TABLE_1
-    COLUMN_1   COLUMN_2   COLUMN_3
-    1          A           .55
-    1          A           .55
-    1          B          1.00
-    1          B          1.35
-    2          A          6.00
-    2          A          1.77
-
-Let's do an ordinary GROUP BY, with only <Column reference>s as grouping
-Columns, on TABLE_1:
+Let's do an ordinary ``GROUP BY``, with only <Column reference>s as grouping
+Columns, on ``TABLE_1``:
 
 ::
 
@@ -457,14 +506,17 @@ Columns, on TABLE_1:
 
 The result is:
 
-::
++--------------+--------------+-----------+
+| ``COLUMN_1`` | ``COLUMN_2`` | ``"SUM"`` |
++--------------+--------------+-----------+
+| 1            | A            | 1.10      |
++--------------+--------------+-----------+
+| 1            | B            | 2.35      |
++--------------+--------------+-----------+
+| 2            | A            | 7.77      |
++--------------+--------------+-----------+
 
-    COLUMN_1   COLUMN_2   "SUM"
-    1          A          1.10
-    1          B          2.35
-    2          A          7.77
-
-Now let's do a GROUP BY with ROLLUP:
+Now let's do a ``GROUP BY`` with ``ROLLUP``:
 
 ::
 
@@ -476,24 +528,30 @@ Now let's do a GROUP BY with ROLLUP:
 
 This time, the result is:
 
-::
++--------------+--------------+-----------+
+| ``COLUMN_1`` | ``COLUMN_2`` | ``"SUM"`` |
++--------------+--------------+-----------+
+| 1            | A            | 1.10      |
++--------------+--------------+-----------+
+| 1            | B            | 2.35      |
++--------------+--------------+-----------+
+| 1            | ``NULL``     | 3.45      |
++--------------+--------------+-----------+
+| 2            | A            | 7.77      |
++--------------+--------------+-----------+
+| 2            | ``NULL``     | 7.77      |
++--------------+--------------+-----------+
+| ``NULL``     | ``NULL``     | 11.22     |
++--------------+--------------+-----------+
 
-    COLUMN_1   COLUMN_2   "SUM"
-    1          A          1.10
-    1          B          2.35
-    1          NULL       3.45
-    2          A          7.77
-    2          NULL       7.77
-    NULL       NULL      11.22
+In addition to the same groups returned by the ordinary ``GROUP BY``, ``GROUP 
+BY ROLLUP`` gets a group of each group: the group of ``COLUMN_1`` "1" values 
+(with a ``NULL`` for the grouping of "A" and "B" in ``COLUMN_2``), the group of 
+``COLUMN_1`` "2" values (with a ``NULL`` for the grouping of "A" in 
+``COLUMN_2``) and the group of ``COLUMN_1`` "1" and "2" values (with a ``NULL`` 
+for the grouping of "A" and "B" in ``COLUMN_2``). 
 
-In addition to the same groups returned by the ordinary GROUP BY, GROUP BY
-ROLLUP gets a group of each group: the group of COLUMN_1 "1" values (with a
-NULL for the grouping of "A" and "B" in COLUMN_2), the group of COLUMN_1 "2"
-values (with a NULL for the grouping of "A" in COLUMN_2) and the group of
-COLUMN_1 "1" and "2" values (with a NULL for the grouping of "A" and "B" in
-COLUMN_2).
-
-Finally, let's do a GROUP BY with CUBE:
+Finally, let's do a ``GROUP BY`` with ``CUBE``:
 
 ::
 
@@ -505,34 +563,44 @@ Finally, let's do a GROUP BY with CUBE:
 
 This time, the result is:
 
-::
++--------------+--------------+-----------+
+| ``COLUMN_1`` | ``COLUMN_2`` | ``"SUM"`` |
++--------------+--------------+-----------+
+| 1            | A            | 1.10      |
++--------------+--------------+-----------+
+| 1            | B            | 2.35      |
++--------------+--------------+-----------+
+| 1            | ``NULL``     | 3.45      |
++--------------+--------------+-----------+
+| 2            | A            | 7.77      |
++--------------+--------------+-----------+
+| 2            | ``NULL``     | 7.77      |
++--------------+--------------+-----------+
+| ``NULL``     | A            | 8.87      |
++--------------+--------------+-----------+
+| ``NULL``     | B            | 2.35      |
++--------------+--------------+-----------+
+| ``NULL``     | ``NULL``     | 11.22     |
++--------------+--------------+-----------+
 
-    COLUMN_1   COLUMN_2   "SUM"
-    1          A           1.10
-    1          B           2.35
-    1          NULL        3.45
-    2          A           7.77
-    2          NULL        7.77
-    NULL       A           8.87
-    NULL       B           2.35
-    NULL       NULL       11.22
+In addition to the same groups returned by the ``GROUP BY ROLLUP``, ``GROUP BY 
+CUBE`` gets a group of each combination of groups: the group of ``COLUMN_1`` 
+"1" values, the group of ``COLUMN_1`` "2" values, the group of ``COLUMN_2`` "A" 
+values (with a ``NULL`` for the grouping of "1" and "2" in ``COLUMN_1``) and 
+the group of ``COLUMN_2`` "B" values (with a ``NULL`` for the grouping of "1" 
+in ``COLUMN_1``). 
 
-In addition to the same groups returned by the GROUP BY ROLLUP, GROUP BY CUBE
-gets a group of each combination of groups: the group of COLUMN_1 "1" values,
-the group of COLUMN_1 "2" values, the group of COLUMN_2 "A" values (with a
-NULL for the grouping of "1" and "2" in COLUMN_1) and the group of COLUMN_2
-"B" values (with a NULL for the grouping of "1" in COLUMN_1).
-
-If you want to restrict your code to Core SQL, don't use ROLLUP or CUBE, and
-don't add a COLLATE clause to any grouping Column reference.
+If you want to restrict your code to Core SQL, don't use ``ROLLUP`` or 
+``CUBE``, and don't add a ``COLLATE`` clause to any grouping Column reference. 
 
 Set Functions
 =============
 
-The SQL set functions -- more commonly called aggregate functions -- are AVG,
-COUNT, MAX, MIN, SUM, EVERY, ANY, SOME. Each one takes the collection of
-values from a Column and reduces the collection to a single value. The
-required syntax for a set function specification is:
+The SQL set functions -- more commonly called *aggregate functions* -- are 
+``AVG``, ``COUNT``, ``MAX``, ``MIN``, ``SUM``, ``EVERY``, ``ANY``, ``SOME``. 
+Each one takes the collection of values from a Column and reduces the 
+collection to a single value. The required syntax for a set function 
+specification is: 
 
 ::
 
@@ -550,298 +618,315 @@ required syntax for a set function specification is:
           <grouping operation> ::=
           GROUPING (<Column reference>)
 
-The Column expression that follows a <general set function> can be a <Column
-reference>, a <literal>, a scalar function or an arithmetic expression -- in
-short, it can be any expression (other than a query or subquery or another set
-function) which evaluates to a Column, as long as that Column doesn't have a
-<data type> of BLOB, CLOB or NCLOB. Each <general set function> operates on
-the entire collection of non-null values in its Column argument -- grouping
-rules apply because grouping is implied -- and can optionally be qualified
-with either DISTINCT or ALL. If you specify DISTINCT, your DBMS will eliminate
-any duplicate values from the Column before applying the set function. If you
-specify ALL, your DBMS will apply the set function to every non-null value in
-the Column. The default is ALL. When a set function eliminates NULLs, your
-DBMS will return the SQLSTATE warning 01003 "warning-null value eliminated in
-set function".
-
-Here's an example Table; we'll use it for the explanations of the set
-functions that follow:
-
-::
-
-    TABLE_1
-    COLUMN_1
-    10
-    20
-    10
-    20
-    30
-    NULL
-
-The COUNT function has two forms: it can have an asterisk as an argument or a
-Column expression as an argument. It returns an integer.
-
-## COUNT(*) returns the number of rows in the argument Table, rather
-than the number of values in any particular Column, so this SQL statement
-returns 6:
-
-::
-
-   SELECT COUNT(*) FROM Table_1
-
-## COUNT(Column) and COUNT(ALL Column) are equivalent: both return the
-number of non-null values in "Column", so these SQL statements both return 5:
-
-::
-
-   SELECT COUNT(column_1) FROM Table_1;
-
-   SELECT COUNT(ALL column_1) FROM Table_1;
-
-## COUNT(DISTINCT Column) returns the number of unique, non-null values
-in "Column", so this SQL statement returns 3:
-
-::
-
-   SELECT COUNT(DISTINCT column_1) FROM Table_1;
-
-The MAX function returns the maximum value and can't be used with Columns that
-have a <data type> of ROW, REF, BLOB, CLOB or NCLOB, or with a UDT. The <data
-type> and size of the result will be the same as the <data type> and size of
-the expression itself.
-
-## MAX(Column), MAX(ALL Column) and MAX(DISTINCT Column) are equivalent:
-all three return the largest of the non-null values in "Column", so these SQL
-statements all return 30:
-
-::
-
-   SELECT MAX(column_1) FROM Table_1;
-
-   SELECT MAX(ALL column_1) FROM Table_1;
-
-   SELECT MAX(DISTINCT column_1) FROM Table_1;
-
-It's rare to find explicit ALL or DISTINCT with MAX.
-
-The MIN function returns the minimum value and can't be used with Columns that
-have a <data type> of ROW, REF, BLOB, CLOB or NCLOB, or with a UDT. The <data
-type> and size of the result will be the same as the <data type> and size of
-the expression itself.
-
-## MIN(Column), MIN(ALL Column) and MIN(DISTINCT Column) are equivalent:
-all three return the smallest of the non-null values in "Column", so these SQL
-statements all return 10:
-
-::
-
-   SELECT MIN(column_1) FROM Table_1;
-
-   SELECT MIN(ALL column_1) FROM Table_1;
-
-   SELECT MIN(DISTINCT column_1) FROM Table_1;
-
-As with MAX, it's rare to find explicit ALL or DISTINCT with MIN.
-
-The SUM function returns a total and can't be used with Columns that have a
-<data type> of ROW, REF, BLOB, CLOB or NCLOB, or with a UDT. The <data type>
-of the expression must be numeric or INTERVAL; in the first case, the result
-<data type> will also be numeric, with the same scale as the expression, but
-(possibly) a larger precision. That's necessary -- consider what would happen
-if you had a DECIMAL(2) Column containing two values: 51, 51. The result of
-SUM would be 102, which is DECIMAL(3), so the DBMS has to be able to increase
-the precision for the result. If you're not sure that your DBMS will give SUM
-a great enough precision, increase the precision of the expression using a
-CAST function. In the second case, the result <data type> will be INTERVAL
-with the same precision as the expression.
-
-## SUM(Column) and SUM(ALL Column) are equivalent: both return the total
-of the non-null values in "Column", so these SQL statements both return 90:
-
-::
-
-   SELECT SUM(column_1) FROM Table_1;
-
-   SELECT SUM(ALL column_1) FROM Table_1;
-
-## SUM(DISTINCT Column) returns the total of the unique, non-null values
-in "Column", so this SQL statement returns 60:
-
-::
-
-   SELECT SUM(DISTINCT column_1) FROM Table_1;
-
-The AVG function returns an average and can't be used with Columns that have a
-<data type> of ROW, REF, BLOB, CLOB or NCLOB, or with a UDT. The <data type>
-of the expression must be numeric or INTERVAL; in the first case, the result
-<data type> will also be numeric, with scale and precision equal to or greater
-than the expression's scale and precision (most DBMSs increase the scale but
-leave the precision alone). In the second case, the result <data type> will be
-INTERVAL with the same precision as the expression.
-
-## AVG(Column) and AVG(ALL Column) are equivalent: both return the
-average of the non-null values in "Column", so these SQL statements both
-return 18:
-
-::
-
-   SELECT AVG(column_1) FROM Table_1;
-
-   SELECT AVG(ALL column_1) FROM Table_1;
-
-## AVG(DISTINCT Column) returns the average of the unique, non-null
-values in "Column", so this SQL statement returns 20:
-
-::
-
-   SELECT AVG(DISTINCT column_1) FROM Table_1;
-
-The EVERY function, new to SQL with SQL3, returns a truth value and can only
-be used with Columns that have a <data type> of BOOLEAN.
-
-## EVERY(Column), EVERY(ALL Column) and EVERY(DISTINCT Column) are
-equivalent: all three return FALSE if any of the values in "Column" are FALSE
-and all three return TRUE if no value in "Column" is FALSE. For these two
-Tables:
-
-::
-
-    TABLE_1                     TABLE_2
-    COLUMN_1                    COLUMN_1
-    TRUE                        TRUE
-    TRUE                        TRUE
-    FALSE                       UNKNOWN
-    FALSE
-    UNKNOWN
-
-these SQL statements all return FALSE:
-
-::
-
-   SELECT EVERY(column_1) FROM Table_1;
-
-   SELECT EVERY(ALL column_1) FROM Table_1;
-
-   SELECT EVERY(DISTINCT column_1) FROM Table_1;
-
-And these SQL statements all return TRUE:
-
-::
-
-   SELECT EVERY(column_1) FROM Table_2;
-
-   SELECT EVERY(ALL column_1) FROM Table_2;
-
-   SELECT EVERY(DISTINCT column_1) FROM Table_2;
-
-The ANY function (and its, synonym, SOME), new to SQL with SQL3, returns a
-truth value and can only be used with Columns that have a <data type> of
-BOOLEAN.
-
-## ANY(Column), ANY(ALL Column) and ANY(DISTINCT Column) are equivalent:
-all three return TRUE if any of the values in "Column" are TRUE and all three
-return FALSE if no value in "Column" is TRUE. For these two Tables:
-
-::
-
-    TABLE_1                     TABLE_2
-    COLUMN_1                    COLUMN_1
-    TRUE                        FALSE
-    TRUE                        FALSE
-    FALSE                       UNKNOWN
-    FALSE
-    UNKNOWN
-
-these SQL statements all return TRUE:
-
-::
-
-   SELECT ANY(column_1) FROM Table_1;
-
-   SELECT ANY(ALL column_1) FROM Table_1;
-
-   SELECT ANY(DISTINCT column_1) FROM Table_1;
-
-And these SQL statements all return FALSE:
-
-::
-
-   SELECT ANY(column_1) FROM Table_2;
-
-   SELECT ANY(ALL column_1) FROM Table_2;
-
-   SELECT ANY(DISTINCT column_1) FROM Table_2;
-
-The GROUPING function, new to SQL with SQL3, operates on an argument that must
-be a <Column reference>, where the Column referred to is a grouping Column for
-the query. You use it in conjunction with the various grouping sets options of
-the GROUP BY clause. It returns either an integer or the value of some Column
--- the Standard is unclear on this point.
-
-DISTINCT Set Functions:
-
-Since DISTINCT <set function> is usually a slow process, it's worthwhile to
-look for ways to avoid it. With MIN, MAX, EVERY, ANY and SOME, DISTINCT means
-nothing, so there's no problem omitting it there. If the Column happens to be
-a primary key or unique key, then DISTINCT will have no effect because the
-values are all distinct anyway, so again, no problem omitting it there.
-(Although a unique key Column might have a million NULLs in it, that won't
-matter because the set functions ignore NULLs anyway). The only things you
-must be sure of, if you remove the <keyword> DISTINCT because the Column is
-primary or unique, are (a) that the PRIMARY KEY/UNIQUE Constraint is NOT
-DEFERRABLE and (b) that there is no chance that the database definition will
-ever change.
-
-** TIP: If you use ODBC then you should check whether your DBMS supports the
-SQLRowCount function for results sets; if it does, then you won't have to use
-COUNT(*) to find out how many rows answer a query. This is particularly a
-time-saver if the query contains DISTINCT, since COUNT(DISTINCT ...) is a
-particularly slow function.
-
-Set Functions and the "ignore NULLs" policy:
-
-All the set functions ignore NULLs (the COUNT(*) function looks like an
-exception but if you think of it as a shorthand for COUNT(1) you will realize
-that no NULLs are ever involved there). In other words, when we calculate
-SUM(x) we are not calculating the sum of all values of x, but the sum of all
-known values of x. This policy is the result of practical experience: some
-early SQL DBMSs didn't ignore NULLs, but now they all do.
-
-Now, this is a little inconsistent, because in most arithmetic expressions
-that involve NULL, the result is NULL (e.g.: "5 + NULL yields NULL"). This
-leads to a ``**`` TRAP:
-
-SUM(a)+SUM(b) is not the same as SUM(a+b)! Consider these two rows:
-
-::
-
-           a  b
-    row#1  5  NULL
-    row#2  5  5
-
-Since the SUM of {5,5} is 10, and the SUM of {NULL,5} is 5, the result of
-SUM(a)+SUM(b) is 15. However, since (5+NULL) is NULL, and (5+5) is 10, and the
-SUM of {NULL,10} is 10, then SUM(a+b) is 10! So which answer is correct: 15 or
-10? The cautious person would perhaps reply: both answers are wrong -- the
-result should be NULL. However, we have already posited that in the context of
-set functions we want to ignore NULLs. In this context, the best answer is the
-one that ignores the most NULLs -- to wit: 15. Therefore the correct
-expression to use is SUM(a)+SUM(b), not SUM(a+b). A clinching argument is that
-SUM(a)+SUM(b) involves fewer "add" operations than SUM(a+b), and is therefore
-less subject to the cumulative effects of rounding. Similar considerations
-apply for all set functions with expressions that contain + or - or ||
-operators.
-
-Because of the "ignore NULLs" policy, it should be rare for a set function to
-return NULL. The only cases are: for MIN or MAX or SUM or AVG, if every one of
-the Column values is NULL, or if the SELECT returns no rows at all, the
-function returns NULL (so in fact these functions could return NULL even if
-the Column is defined as NOT NULL, yielding another case where you shouldn't
-be fooled by a NOT NULL Constraint definition.) The COUNT function can never
-return NULL -- if there are no rows returned, then the count is, naturally
-enough, zero.
-
-Set functions in Subqueries:
+The Column expression that follows a <general set function> can be a <Column 
+reference>, a <literal>, a scalar function or an arithmetic expression -- in 
+short, it can be any expression (other than a query or subquery or another set 
+function) which evaluates to a Column, as long as that Column doesn't have a 
+<data type> of ``BLOB``, ``CLOB`` or ``NCLOB``. Each <general set function> 
+operates on the entire collection of non-null values in its Column argument -- 
+grouping rules apply because grouping is implied -- and can optionally be 
+qualified with either ``DISTINCT`` or ``ALL``. If you specify ``DISTINCT``, 
+your DBMS will eliminate any duplicate values from the Column before applying 
+the set function. If you specify ``ALL``, your DBMS will apply the set function 
+to every non-null value in the Column. The default is ``ALL``. When a set 
+function eliminates ``NULL``\s, your DBMS will return the ``SQLSTATE warning 
+01003 "warning-null value eliminated in set function."`` 
+
+Here's an example Table; we'll use it for the explanations of the set functions 
+that follow: 
+
++--------------+
+| ``TABLE_1``  |
++==============+
+| ``COLUMN_1`` |
++--------------+
+| 10           |
++--------------+
+| 20           |
++--------------+
+| 10           |
++--------------+
+| 20           |
++--------------+
+| 30           |
++--------------+
+| ``NULL``     |
++--------------+
+
+The ``COUNT`` function has two forms: it can have an asterisk as an argument 
+or a Column expression as an argument. It returns an integer.
+
+* ``COUNT(*)`` returns the number of rows in the argument Table, rather than the 
+  number of values in any particular Column, so this SQL statement returns 
+  ``6``: 
+
+  ::
+
+      SELECT COUNT(*) FROM Table_1
+
+* ``COUNT(Column)`` and ``COUNT(ALL Column)`` are equivalent: both return the 
+  number of non-null values in "Column", so these SQL statements both return 
+  ``5``: 
+
+  ::
+
+      SELECT COUNT(column_1) FROM Table_1;
+      SELECT COUNT(ALL column_1) FROM Table_1;
+
+* ``COUNT(DISTINCT Column)`` returns the number of unique, non-null values in 
+  "Column", so this SQL statement returns ``3``: 
+
+  ::
+
+      SELECT COUNT(DISTINCT column_1) FROM Table_1;
+
+The ``MAX`` function returns the maximum value and can't be used with Columns 
+that have a <data type> of ``ROW``, ``REF``, ``BLOB``, ``CLOB`` or ``NCLOB``, 
+or with a UDT. The <data type> and size of the result will be the same as the 
+<data type> and size of the expression itself. 
+
+* ``MAX(Column)``, ``MAX(ALL Column)`` and ``MAX(DISTINCT Column)`` are 
+  equivalent: all three return the largest of the non-null values in "Column", 
+  so these SQL statements all return ``30``: 
+
+  ::
+
+      SELECT MAX(column_1) FROM Table_1;
+      SELECT MAX(ALL column_1) FROM Table_1;
+      SELECT MAX(DISTINCT column_1) FROM Table_1;
+
+It's rare to find explicit ``ALL`` or ``DISTINCT`` with ``MAX``.
+
+The ``MIN`` function returns the minimum value and can't be used with Columns 
+that have a <data type> of ``ROW``, ``REF``, ``BLOB``, ``CLOB`` or ``NCLOB``, 
+or with a UDT. The <data type> and size of the result will be the same as the 
+<data type> and size of the expression itself. 
+
+* ``MIN(Column)``, ``MIN(ALL Column)`` and ``MIN(DISTINCT Column)`` are 
+  equivalent: all three return the smallest of the non-null values in "Column", 
+  so these SQL statements all return ``10``: 
+
+  ::
+
+      SELECT MIN(column_1) FROM Table_1;
+      SELECT MIN(ALL column_1) FROM Table_1;
+      SELECT MIN(DISTINCT column_1) FROM Table_1;
+
+As with ``MAX``, it's rare to find explicit ``ALL`` or ``DISTINCT`` with 
+``MIN``.
+
+The ``SUM`` function returns a total and can't be used with Columns that have a 
+<data type> of ``ROW``, ``REF``, ``BLOB``, ``CLOB`` or ``NCLOB``, or with a 
+UDT. The <data type> of the expression must be numeric or ``INTERVAL``; in the 
+first case, the result <data type> will also be numeric, with the same scale as 
+the expression, but (possibly) a larger precision. That's necessary -- consider 
+what would happen if you had a ``DECIMAL(2)`` Column containing two values: 
+``51``, ``51``. The result of ``SUM`` would be ``102``, which is 
+``DECIMAL(3)``, so the DBMS has to be able to increase the precision for the 
+result. If you're not sure that your DBMS will give ``SUM`` a great enough 
+precision, increase the precision of the expression using a ``CAST`` function. 
+In the second case, the result <data type> will be ``INTERVAL`` with the same 
+precision as the expression. 
+
+* ``SUM(Column)`` and ``SUM(ALL Column)`` are equivalent: both return the total 
+  of the non-null values in "Column", so these SQL statements both return 
+  ``90``: 
+
+  ::
+
+      SELECT SUM(column_1) FROM Table_1;
+      SELECT SUM(ALL column_1) FROM Table_1;
+
+* ``SUM(DISTINCT Column)`` returns the total of the unique, non-null values
+  in "Column", so this SQL statement returns ``60``:
+
+  ::
+
+      SELECT SUM(DISTINCT column_1) FROM Table_1;
+
+The ``AVG`` function returns an average and can't be used with Columns that 
+have a <data type> of ``ROW``, ``REF``, ``BLOB``, ``CLOB`` or ``NCLOB``, or 
+with a UDT. The <data type> of the expression must be numeric or ``INTERVAL``; 
+in the first case, the result <data type> will also be numeric, with scale and 
+precision equal to or greater than the expression's scale and precision (most 
+DBMSs increase the scale but leave the precision alone). In the second case, 
+the result <data type> will be ``INTERVAL`` with the same precision as the 
+expression. 
+
+* ``AVG(Column)`` and ``AVG(ALL Column)`` are equivalent: both return the 
+  average of the non-null values in "Column", so these SQL statements both 
+  return ``18``: 
+
+  ::
+
+      SELECT AVG(column_1) FROM Table_1;
+      SELECT AVG(ALL column_1) FROM Table_1;
+
+* ``AVG(DISTINCT Column)`` returns the average of the unique, non-null 
+  values in "Column", so this SQL statement returns ``20``:
+
+  ::
+
+      SELECT AVG(DISTINCT column_1) FROM Table_1;
+
+The ``EVERY`` function, new to SQL with SQL3, returns a truth value and can 
+only be used with Columns that have a <data type> of ``BOOLEAN``.
+
+* ``EVERY(Column)``, ``EVERY(ALL Column)`` and ``EVERY(DISTINCT Column)`` are 
+  equivalent: all three return ``FALSE`` if any of the values in "Column" are 
+  ``FALSE`` and all three return ``TRUE`` if no value in "Column" is ``FALSE``. 
+  For these two Tables: 
+  
+  +--------------+----------------+
+  | ``TABLE_1``  | ``TABLE_2``    |
+  +==============+================+
+  | ``COLUMN_1`` | ``COLUMN_1``   |
+  +--------------+----------------+
+  | ``TRUE``     | ``TRUE``       |
+  +--------------+----------------+
+  | ``TRUE``     | ``TRUE``       |
+  +--------------+----------------+
+  | ``FALSE``    | ``UNKNOWN``    |
+  +--------------+----------------+
+  | ``FALSE``    |                |
+  +--------------+----------------+
+  | ``UNKNOWN``  |                |
+  +--------------+----------------+
+  
+  these SQL statements all return ``FALSE``:
+  
+  ::
+  
+      SELECT EVERY(column_1) FROM Table_1;
+      SELECT EVERY(ALL column_1) FROM Table_1;
+      SELECT EVERY(DISTINCT column_1) FROM Table_1;
+  
+  And these SQL statements all return ``TRUE``:
+  
+  ::
+  
+      SELECT EVERY(column_1) FROM Table_2;
+      SELECT EVERY(ALL column_1) FROM Table_2;
+      SELECT EVERY(DISTINCT column_1) FROM Table_2;
+
+The ``ANY`` function (and its, synonym, ``SOME``), new to SQL with SQL3, 
+returns a truth value and can only be used with Columns that have a <data type> 
+of ``BOOLEAN``. 
+
+* ``ANY(Column)``, ``ANY(ALL Column)`` and ``ANY(DISTINCT Column)`` are 
+  equivalent: all three return ``TRUE`` if any of the values in "Column" are 
+  ``TRUE`` and all three return ``FALSE`` if no value in "Column" is ``TRUE``. 
+  For these two Tables: 
+  
+  +--------------+----------------+
+  | ``TABLE_1``  | ``TABLE_2```   |
+  +==============+================+
+  | ``COLUMN_1`` | ``COLUMN_1``   |
+  +--------------+----------------+
+  | ``TRUE``     | ``FALSE``      |
+  +--------------+----------------+
+  | ``TRUE``     | ``FALSE``      |
+  +--------------+----------------+
+  | ``FALSE``    |                |
+  +--------------+----------------+
+  | ``FALSE``    | ``UNKNOWN``    |
+  +--------------+----------------+
+  | ``UNKNOWN``  |                |
+  +--------------+----------------+
+  
+  these SQL statements all return ``TRUE``:
+  
+  ::
+  
+      SELECT ANY(column_1) FROM Table_1;
+      SELECT ANY(ALL column_1) FROM Table_1;
+      SELECT ANY(DISTINCT column_1) FROM Table_1;
+  
+  And these SQL statements all return FALSE:
+  
+  ::
+  
+      SELECT ANY(column_1) FROM Table_2;
+      SELECT ANY(ALL column_1) FROM Table_2;
+      SELECT ANY(DISTINCT column_1) FROM Table_2;
+
+The ``GROUPING`` function, new to SQL with SQL3, operates on an argument that 
+must be a <Column reference>, where the Column referred to is a grouping Column 
+for the query. You use it in conjunction with the various grouping sets options 
+of the ``GROUP BY`` clause. It returns either an integer or the value of some 
+Column -- the Standard is unclear on this point. 
+
+*DISTINCT Set Functions*
+------------------------
+
+Since ``DISTINCT`` <set function> is usually a slow process, it's worthwhile to 
+look for ways to avoid it. With ``MIN``, ``MAX``, ``EVERY``, ``ANY`` and 
+``SOME``, ``DISTINCT`` means nothing, so there's no problem omitting it there. 
+If the Column happens to be a primary key or unique key, then ``DISTINCT`` will 
+have no effect because the values are all distinct anyway, so again, no problem 
+omitting it there. (Although a unique key Column might have a million 
+``NULL``\s in it, that won't matter because the set functions ignore ``NULL``\s 
+anyway). The only things you must be sure of, if you remove the <keyword> 
+``DISTINCT`` because the Column is primary or unique, are *(a)* that the 
+``PRIMARY KEY/UNIQUE`` Constraint is ``NOT DEFERRABLE`` and *(b)* that there is 
+no chance that the database definition will ever change. 
+
+.. TIP::
+
+  If you use ODBC then you should check whether your DBMS supports the 
+  ``SQLRowCount`` function for results sets; if it does, then you won't have to 
+  use ``COUNT(*)`` to find out how many rows answer a query. This is 
+  particularly a time-saver if the query contains ``DISTINCT``, since 
+  ``COUNT(DISTINCT ...)`` is a particularly slow function. 
+
+*Set Functions and the "Ignore NULLs" Policy*
+---------------------------------------------
+
+All the set functions ignore ``NULL``\s (the ``COUNT(*)`` function looks like 
+an exception but if you think of it as a shorthand for ``COUNT(1)`` you will 
+realize that no ``NULL``\s are ever involved there). In other words, when we 
+calculate ``SUM(x)`` we are not calculating the sum of all values of ``x``, but 
+the sum of all *known* values of ``x``. This policy is the result of practical 
+experience: some early SQL DBMSs didn't ignore ``NULL``\s, but now they all do. 
+
+Now, this is a little inconsistent, because in most arithmetic expressions that 
+involve ``NULL``, the result is ``NULL`` (e.g.: "5 + ``NULL`` yields 
+``NULL``"). This leads to a TRAP: ``SUM(a)+SUM(b)`` is not the same as 
+``SUM(a+b)``! Consider these two rows: 
+
++--------+-------+----------+
+|        | ``a`` | ``b``    |
++--------+-------+----------+
+| row#1  |   5   | ``NULL`` |
++--------+-------+----------+
+| row#2  |   5   | 5        |
++--------+-------+----------+
+
+Since the ``SUM`` of {``5,5``} is ``10``, and the ``SUM`` of {``NULL,5``} is 
+``5``, the result of ``SUM(a)+SUM(b)`` is ``15``. However, since ``(5+NULL)`` 
+is ``NULL``, and ``(5+5)`` is ``10``, and the ``SUM`` of {``NULL,10``} is 
+``10``, then ``SUM(a+b)`` is ``10``! So which answer is correct: ``15`` or 
+``10``? The cautious person would perhaps reply: both answers are wrong -- the 
+result should be ``NULL``. However, we have already posited that in the context 
+of set functions we want to ignore ``NULL``\s. In this context, the best answer 
+is the one that ignores the most ``NULL``\s -- to wit: ``15``. Therefore the 
+correct expression to use is ``SUM(a)+SUM(b)``, not ``SUM(a+b)``. A clinching 
+argument is that ``SUM(a)+SUM(b)`` involves fewer "add" operations than 
+``SUM(a+b)``, and is therefore less subject to the cumulative effects of 
+rounding. Similar considerations apply for all set functions with expressions 
+that contain ``+`` or ``-`` or ``||`` operators. 
+
+Because of the "ignore ``NULL``\s" policy, it should be rare for a set function 
+to return ``NULL``. The only cases are: for ``MIN`` or ``MAX`` or ``SUM`` or 
+``AVG``, if every one of the Column values is ``NULL``, or if the ``SELECT`` 
+returns no rows at all, the function returns ``NULL`` (so in fact these 
+functions could return ``NULL`` even if the Column is defined as ``NOT NULL``, 
+yielding another case where you shouldn't be fooled by a ``NOT NULL`` 
+Constraint definition.) The ``COUNT`` function can never return ``NULL`` -- if 
+there are no rows returned, then the count is, naturally enough, zero. 
+
+*Set Functions in Subqueries*
+-----------------------------
 
 Who makes more than the average salary? What is the cheapest book? That's the
 kind of question that requires a comparison with a subquery that contains a
@@ -865,25 +950,26 @@ We'll give just one example of a restriction (from SQL-92) -- if the set
 function's argument is an "outer reference" Column (i.e.: the name of a Column
 in the outer enclosing query), then that must be the only <Column reference>
 within that argument and the set function has to appear either in a select
-list or within a subquery that belongs to a HAVING clause. For example, this
-complex query uses illegal syntax:
+list or within a subquery that belongs to a ``HAVING`` clause. For example, 
+this complex query uses illegal syntax:
 
 ::
 
    SELECT * FROM Table_1 WHERE 0 = (
       SELECT SUM(Table_1.column_1+Table_2.column_1) FROM Table_2);
 
-It would be even more illegal if the set function appeared in the WHERE
+It would be even more illegal if the set function appeared in the ``WHERE``
 clause, or if there was a third level of subquery nesting. Nobody can remember
 such a complex rule, and there are more like it, so the cautious programmer
 simply avoids trying anything fancy when using set functions within
 subqueries.
 
-Retrieval with a set function:
+*Retrieval with a Set Function*
+-------------------------------
 
 Here's some examples of set functions, using the sample database we defined in
-our chapter on simple search conditions. To find the total number of employees
-with payroll records (retrieve the number of records in a Table):
+our chapter on "Simple Search Conditions". To find the total number of 
+employees with payroll records (retrieve the number of records in a Table):
 
 ::
 
@@ -892,12 +978,13 @@ with payroll records (retrieve the number of records in a Table):
 
 The result is:
 
-::
++---------------+
+| ``PAY_COUNT`` |
++---------------+
+| 10            |
++---------------+
 
-    PAY_COUNT
-    10
-
-COUNT(*) counts all rows of a Table, regardless of NULLs.
+``COUNT(*)`` counts all rows of a Table, regardless of ``NULL``\s.
 
 To find the number of employees with known pay rates (retrieve the number of
 non-null values in a Column):
@@ -909,12 +996,13 @@ non-null values in a Column):
 
 The result is:
 
-::
++---------------+
+| ``PAY_COUNT`` |
++---------------+
+| 9             |
++---------------+
 
-    PAY_COUNT
-    9
-
-COUNT(column) eliminates NULLs before counting a Column's values.
+``COUNT(column)`` eliminates ``NULL``\s before counting a Column's values.
 
 To find the number of pay rates (retrieve the number of unique values in a
 Column):
@@ -926,12 +1014,14 @@ Column):
 
 The result is:
 
-::
++---------------+
+| ``PAY_COUNT`` |
++---------------+
+| 5             |
++---------------+
 
-    PAY_COUNT
-    5
-
-The DISTINCT option eliminates duplicates before a set function is processed.
+The ``DISTINCT`` option eliminates duplicates before a set function is 
+processed.
 
 To find the sum of the pay rates by location (group a Table into like values
 combined with a set function):
@@ -945,13 +1035,17 @@ combined with a set function):
 
 The result is:
 
-::
-
-    LOCATION     SUM_RATE
-    10TH FLOOR   31.00
-    16TH FLOOR   37.00
-    BASEMENT      8.00
-    WAREHOUSE    14.00
++----------------+--------------+
+| ``LOCATION``   | ``SUM_RATE`` |
++----------------+--------------+
+| 10TH FLOOR     | 31.00        |
++----------------+--------------+
+| 16TH FLOOR     | 37.00        |
++----------------+--------------+
+| BASEMENT       | 8.00         |
++----------------+--------------+
+| WAREHOUSE      | 14.00        |
++----------------+--------------+
 
 To find the number of employees in each department:
 
@@ -965,84 +1059,91 @@ To find the number of employees in each department:
 
 The result is:
 
-::
-
-    EMP_COUNT   DEPT
-    2           A
-    4           B
-    1           C
++---------------+----------+
+| ``EMP_COUNT`` | ``DEPT`` |
++---------------+----------+
+| 2             | A        |
++---------------+----------+
+| 4             | B        |
++---------------+----------+
+| 1             | C        |
++---------------+----------+
 
 If you want to restrict your code to Core SQL, don't use the set functions
-EVERY, ANY, SOME or GROUPING, don't use a set function unless it operates only
+``EVERY``, ``ANY``, ``SOME`` or ``GROUPING``, don't use a set function unless it operates only
 on a <Column reference> that refers to a Column belonging to a Table named in
-the FROM clause, and when counting, always use COUNT(*): don't use
-COUNT(Column) or COUNT(ALL Column) at all.
+the ``FROM`` clause, and when counting, always use ``COUNT(*)``: don't use
+``COUNT(Column)`` or ``COUNT(ALL Column)`` at all.
 
-HAVING clause
+HAVING Clause
 =============
 
-What departments have four employees? In which branches is the smallest book's
-size less than 40mm? Those are two questions that require comparison of an
-absolute value with a set function, and thus represent the commonest
-situations where we'd find it useful to bring in a HAVING clause. The HAVING
-clause is an optional portion of the SELECT statement. It, too, defines a
-grouped Table. The required syntax for the HAVING clause is:
+What departments have four employees? In which branches is the smallest book's 
+size less than 40mm? Those are two questions that require comparison of an 
+absolute value with a set function, and thus represent the commonest situations 
+where we'd find it useful to bring in a ``HAVING`` clause. The ``HAVING`` 
+clause is an optional portion of the ``SELECT`` statement. It, too, defines a 
+grouped Table. The required syntax for the ``HAVING`` clause is: 
 
-HAVING <search condition>
+::
 
-The HAVING clause defines a grouped Table that contains only those groups for
-which its search condition is TRUE and usually follows a GROUP BY clause.
-HAVING operates on the interim result produced by the evaluation of the SELECT
-statement at that stage:
+    HAVING <search condition>
 
-## If the statement is "SELECT ... FROM ... HAVING ...", HAVING operates
-on the entire FROM Table, treating it as a single group. (GROUP BY is implied,
-but the result has no grouping Columns.)
+The ``HAVING`` clause defines a grouped Table that contains only those groups 
+for which its search condition is ``TRUE`` and usually follows a ``GROUP BY`` 
+clause. ``HAVING`` operates on the interim result produced by the evaluation of 
+the ``SELECT`` statement at that stage: 
 
-## If the statement is "SELECT ... FROM ... WHERE ... HAVING ...",
-HAVING operates on the rows of the FROM Table that are TRUE for the WHERE
-conditions, again, treating the interim result as a single group.
+* If the statement is "``SELECT ... FROM ... HAVING ...``", ``HAVING`` operates 
+  on the entire ``FROM`` Table, treating it as a single group. (``GROUP BY`` is 
+  implied, but the result has no grouping Columns.) 
 
-## If the statement is "SELECT ... FROM ... WHERE ... GROUP BY ...
-HAVING ...", HAVING operates on the interim groups returned by GROUP BY.
+* If the statement is "``SELECT ... FROM ... WHERE ... HAVING ...``", 
+  ``HAVING`` operates on the rows of the ``FROM`` Table that are ``TRUE`` for 
+  the ``WHERE`` conditions, again, treating the interim result as a single 
+  group. 
 
-The HAVING clause's search condition may include ANDs, ORs, relational
-operators, scalar and arithmetic expressions, and so on -- much like a WHERE
-clause's search condition. The difference between a WHERE condition and a
-HAVING condition is implied by the clause order. The DBMS evaluates WHERE
-before it does the grouping; it evaluates HAVING after it does the grouping --
-thus, WHERE filters rows and HAVING filters groups. It's usually more
-efficient to filter before grouping (because then there will be fewer rows to
-group), so it's best to put most simple conditions in the WHERE clause and use
-HAVING only for these situations:
+* If the statement is "``SELECT ... FROM ... WHERE ... GROUP BY ... HAVING 
+  ...``", ``HAVING`` operates on the interim groups returned by ``GROUP BY``. 
 
-## If one of the condition's operands is a set function. Since a set
-function is not evaluated until you group, it is impossible to use one in a
-WHERE clause.
+The ``HAVING`` clause's search condition may include ``AND``\s, ``OR``\s, 
+relational operators, scalar and arithmetic expressions, and so on -- much like 
+a ``WHERE`` clause's search condition. The difference between a ``WHERE`` 
+condition and a ``HAVING`` condition is implied by the clause order. The DBMS 
+evaluates ``WHERE`` *before* it does the grouping; it evaluates ``HAVING`` 
+*after* it does the grouping -- thus, ``WHERE`` filters rows and ``HAVING`` 
+filters groups. It's usually more efficient to filter before grouping (because 
+then there will be fewer rows to group), so it's best to put most simple 
+conditions in the ``WHERE`` clause and use ``HAVING`` only for these 
+situations: 
 
-## If there is a quirk in a particular DBMS's optimizer. For one DBMS,
-"GROUP BY a HAVING a = 7" works well because (since the grouping Column and
-the condition Column are the same) the two clauses can be evaluated
-simultaneously. For most DBMSs, putting a condition in the HAVING clause is a
-hint that you want to avoid using any indexes.
+* If one of the condition's operands is a set function. Since a set function is 
+  not evaluated until you group, it is impossible to use one in a ``WHERE`` 
+  clause. 
 
-Operands in the HAVING clause are subject to the same restrictions as in the
-select list:
+* If there is a quirk in a particular DBMS's optimizer. For one DBMS, ``GROUP 
+  BY a HAVING a = 7`` works well because (since the grouping Column and the 
+  condition Column are the same) the two clauses can be evaluated 
+  simultaneously. For most DBMSs, putting a condition in the ``HAVING`` clause 
+  is a hint that you want to avoid using any indexes. 
 
-## Column expressions in both must be single-valued per group.
+Operands in the ``HAVING`` clause are subject to the same restrictions as in 
+the select list:
 
-## Column references must be unambiguous.
+* Column expressions in both must be single-valued per group.
 
-## If a SELECT statement contains HAVING without a preceding GROUP BY
-clause, the select list can't include any references to Columns belonging to a
-Table named in the FROM clause unless those references are used with a set
-function.
+* Column references must be unambiguous.
 
-## If HAVING includes a subquery, it can't include outer Column
-references unless those references are to grouping Columns or are used with a
-set function.
+* If a ``SELECT`` statement contains ``HAVING`` without a preceding ``GROUP 
+  BY`` clause, the select list can't include any references to Columns 
+  belonging to a Table named in the ``FROM`` clause unless those references are 
+  used with a set function. 
 
-Let's look closely at an SQL statement which contains a HAVING clause:
+* If ``HAVING`` includes a subquery, it can't include outer Column references 
+  unless those references are to grouping Columns or are used with a set 
+  function. 
+
+Let's look closely at an SQL statement which contains a ``HAVING`` clause:
 
 ::
 
@@ -1052,36 +1153,48 @@ Let's look closely at an SQL statement which contains a HAVING clause:
    GROUP BY column_1
    HAVING   COUNT(column_1) >= 5;
 
-In this SQL statement, the expression "COUNT(column_2)" is okay because,
-although COLUMN_2 is not a grouping Column, it appears within a set function.
-Suppose that TABLE_1 looks like this:
+In this SQL statement, the expression ``COUNT(column_2)`` is okay because, 
+although ``COLUMN_2`` is not a grouping Column, it appears within a set 
+function. Suppose that ``TABLE_1`` looks like this: 
 
-::
++-----------------------------+
+| ``TABLE_1``                 |
++==============+==============+
+| ``COLUMN_1`` | ``COLUMN_2`` |
++--------------+--------------+
+| 1            | 0            |
++--------------+--------------+
+| 1            | 1            |
++--------------+--------------+
+| 1            | 2            |
++--------------+--------------+
+| 2            | 3            |
++--------------+--------------+
+| 2            | 4            |
++--------------+--------------+
+| 2            | 5            |
++--------------+--------------+
+| 2            | 6            |
++--------------+--------------+
+| 2            | 7            |
++--------------+--------------+
+| 2            | 8            |
++--------------+--------------+
+| 2            | 9            |
++--------------+--------------+
 
-    TABLE_1
-    COLUMN_1   COLUMN_2
-    1          0
-    1          1
-    1          2
-    2          3
-    2          4
-    2          5
-    2          6
-    2          7
-    2          8
-    2          9
+``TABLE_1`` has 3 rows where ``COLUMN_1`` is 1 and 7 rows where ``COLUMN_1`` is 
+2. The ``COLUMN_1 = 1`` group does not meet the ``HAVING`` clause's condition 
+-- the smallest acceptable count is 5. However, the ``COLUMN_1 = 2`` group does 
+meet ``HAVING``'s condition, and so the result of our SQL statement is: 
 
-TABLE_1 has 3 rows where COLUMN_1 is 1 and 7 rows where COLUMN_1 is 2. The
-"COLUMN_1 = 1" group does not meet the HAVING clause's condition -- the
-smallest acceptable count is 5. However, the "COLUMN_1 = 2" group does meet
-HAVING's condition, and so the result of our SQL statement is:
++--------------+--------------+
+| ``COLUMN_1`` | ``COLUMN_2`` |
++--------------+--------------+
+|2             | 7            |
++--------------+--------------+
 
-::
-
-    COLUMN_1   COLUMN_2
-    2          7
-
-Here is another way to get the same result, without using a HAVING clause:
+Here is another way to get the same result, without using a ``HAVING`` clause:
 
 ::
 
@@ -1093,29 +1206,31 @@ Here is another way to get the same result, without using a HAVING clause:
           GROUP BY column_1)
    WHERE  c_count >=5;
 
-It is always possible to eliminate a HAVING clause and use a query expression
-in the FROM clause instead. But most programmers prefer to stick with HAVING
-because it is the traditional and familiar tool for solving this sort of
-problem.
+It is always possible to eliminate a ``HAVING`` clause and use a query 
+expression in the ``FROM`` clause instead. But most programmers prefer to stick 
+with ``HAVING`` because it is the traditional and familiar tool for solving 
+this sort of problem. 
 
-HAVING without GROUP BY:
+*HAVING without GROUP BY*
+-------------------------
 
-This SQL statement means "if there are more than 3 a's in the whole Table,
-display how many a's there are":
+This SQL statement means "if there are more than 3 ``a``\'s in the whole Table,
+display how many ``a``\'s there are":
 
 ::
 
     SELECT COUNT(a) FROM Somethings
     HAVING COUNT(a) > 5;
 
-As is usual, because there is a set function in the SELECT statement, there is
-an implied "GROUP BY ()". Therefore grouping rules apply: the select list in
-such an SQL statement may contain only single-valued Columns.
+As is usual, because there is a set function in the ``SELECT`` statement, there 
+is an implied ``GROUP BY ()``. Therefore grouping rules apply: the select list 
+in such an SQL statement may contain only single-valued Columns. 
 
-Retrieval using grouping:
+*Retrieval Using Grouping*
+--------------------------
 
 Here's one more example of grouping, using the sample database we defined in
-our chapter on simple search conditions. To find the departments with less
+our chapter on "Simple Search Conditions". To find the departments with less
 than two employees (group a Table, then eliminate all groups which do not
 fulfill a condition):
 
@@ -1126,11 +1241,13 @@ fulfill a condition):
 
 The result is:
 
-::
-
-    DEPT
-    C
-    D
++----------+
+| ``DEPT`` |
++----------+
+| C        |
++----------+
+| D        |
++----------+
 
 Views of Groups
 ===============
@@ -1145,18 +1262,20 @@ operation -- the result is a grouped View. Here's an example:
       FROM     Employees
       GROUP BY department_id;
 
-Now, whoever uses the EMPLOYEE_GROUPS View will see an ordinary Table with two
-Columns: DEPARTMENT_ID and COUNT_EMPLOYEE_ID. But the user's view window won't
-be totally transparent.
+Now, whoever uses the ``EMPLOYEE_GROUPS`` View will see an ordinary Table with 
+two Columns: ``DEPARTMENT_ID`` and ``COUNT_EMPLOYEE_ID``. But the user's view 
+window won't be totally transparent. 
 
-Problem 1. Consider what happens for this SQL statement:
+**Problem 1**
+
+Consider what happens for this SQL statement:
 
 ::
 
    SELECT * FROM Employee_Groups
    WHERE  count_employee_id = 7 AND department_id = 'XX';
 
-Remember (from our chapter on Tables) that your DBMS may try to "transform"
+Remember (from our chapter on "Tables") that your DBMS may try to "transform"
 this query into a query on the underlying Base table. The best transform is:
 
 ::
@@ -1165,12 +1284,14 @@ this query into a query on the underlying Base table. The best transform is:
    WHERE    department_id = 'XX'
    GROUP BY department_id HAVING COUNT(employee_id) = 7;
 
-Observe that one, and only one, of the conditions of the original WHERE clause
-has been split out and put in a new HAVING clause. Based on timings, we
-believe that some DBMSs don't do this. We believe they put both conditions in
-the HAVING clause. That's much less efficient.
+Observe that one, and only one, of the conditions of the original ``WHERE`` 
+clause has been split out and put in a new ``HAVING`` clause. Based on timings, 
+we believe that some DBMSs don't do this. We believe they put both conditions 
+in the HAVING clause. That's much less efficient. 
 
-Problem 2. Consider what happens for this SQL statement:
+**Problem 2**
+
+Consider what happens for this SQL statement:
 
 ::
 
@@ -1183,37 +1304,39 @@ Your DBMS might attempt to transform this into:
    SELECT   department_id, MAX(COUNT(employee_id)) FROM Employees
    GROUP BY department_id;
 
-that is, into a sensible question along the lines of "which department has
-most employees". But "MAX(COUNT(employee_id))" is an illegal expression (you
-can't nest set functions) and the result will be some error message defined by
-your DBMS. This is legal: the SQL Standard doesn't demand that a DBMS should
-handle groups within groups, or set functions within set functions.
+that is, into a sensible question along the lines of "which department has most 
+employees". But ``MAX(COUNT(employee_id))`` is an illegal expression (you can't 
+nest set functions) and the result will be some error message defined by your 
+DBMS. This is legal: the SQL Standard doesn't demand that a DBMS should handle 
+groups within groups, or set functions within set functions. 
 
-** TIP: That's why we named this View and its Column EMPLOYEE_GROUPS and
-COUNT_EMPLOYEE_ID -- the names tip off the user that a COUNT in a grouped View
-is involved. That lessens the confusion if the DBMS doesn't generate a clear
-error message.
+.. TIP::
+
+  That's why we named this View and its Column ``EMPLOYEE_GROUPS`` and 
+  ``COUNT_EMPLOYEE_ID`` -- the names tip off the user that a ``COUNT`` in a 
+  grouped View is involved. That lessens the confusion if the DBMS doesn't 
+  generate a clear error message. 
 
 Dialects
 ========
 
 The older (pre-1992) DBMSs had these restrictions on grouping:
 
-## Any set functions in the HAVING clause had to appear in the select
-list.
+* Any set functions in the ``HAVING`` clause had to appear in the select
+  list.
 
-## HAVING was illegal if there was no GROUP BY clause.
+* ``HAVING`` was illegal if there was no ``GROUP BY`` clause.
 
-## Groups within Views and subqueries worked only under a full moon (or
-some undefined equivalent!).
+* Groups within Views and subqueries worked only under a full moon (or
+  some undefined equivalent!).
 
-Nowadays, SQL DBMSs support grouping, set functions and HAVING clauses, in a
-manner pretty much as we have described here, except for the new SQL3
-features.
+Nowadays, SQL DBMSs support grouping, set functions and ``HAVING`` clauses, in 
+a manner pretty much as we have described here, except for the new SQL3 
+features. 
 
-It's also fairly easy to find DBMSs which will accept non-standard syntax.
-Sybase ignores the Single-Value Rule so you can use any Column you like in the
-select list. Oracle includes basic statistical-analysis set functions: STDDEV
-(standard deviation) and VARIANCE. Several DBMSs allow "GROUP BY expression"
-or even "GROUP BY ordinal position, as if the GROUP BY clause is analogous to
-the ORDER BY clause.
+It's also fairly easy to find DBMSs which will accept non-standard syntax. 
+Sybase ignores the Single-Value Rule so you can use any Column you like in the 
+select list. Oracle includes basic statistical-analysis set functions: STDDEV 
+(standard deviation) and VARIANCE. Several DBMSs allow "``GROUP BY`` 
+expression" or even "``GROUP BY`` ordinal position, as if the ``GROUP BY`` 
+clause is analogous to the ``ORDER BY`` clause. 
