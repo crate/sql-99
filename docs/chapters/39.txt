@@ -7,7 +7,7 @@ Chapter 39 -- Embedded SQL Binding Style
 SQL DBMSs communicate with SQL applications through a common programming
 language interface that is invoked through one of the SQL Standard-defined
 binding styles, or interface options. The programming language used -- either
-Ada, C, COBOL, Fortran, MUMPS, Pascal or PL/I -- is called a host language. An
+Ada, C, COBOL, Fortran, MUMPS, Pascal or PL/I -- is called a *host language*. An
 SQL DBMS must support the use of at least one host language, either for
 embedded SQL programming or for invoking external routines and/or procedures.
 Depending on your DBMS then, you can use SQL to set up and maintain SQL-data
@@ -15,11 +15,19 @@ from an application program in one of two ways: by incorporating SQL
 statements or standard routines in a specifically designed programming module
 or by embedding SQL statements directly into your program.
 
+.. rubric:: Table of Contents
+
+.. contents::
+    :local:
+
 Binding Styles
+==============
 
-The SQL Standard defines these binding styles, at least one of which must be supported by an SQL DBMS:
+The SQL Standard defines these binding styles, at least one of which must
+be supported by an SQL DBMS:
 
-Module binding style:
+*Module Binding Style*
+----------------------
 
 The SQL-client Module binding style is defined in SQL/Foundation. In this
 binding style, SQL-client Modules are run, executing SQL operations. One
@@ -30,16 +38,17 @@ whose existence is usually not apparent to the user.) Direct SQL is defined in
 SQL/Bindings. Another special version of the Module binding style is known as
 the SQL/CLI binding style, where SQL-data operations are performed when SQL
 applications invoke one of a number of standard routines, passing appropriate
-arguments. (The routines are gathered together into a default SQL-server
-Module whose existence is usually not apparent to the user.) The SQL/CLI
-binding style is defined in SQL/CLI.
+arguments. (The routines are gathered together into a default SQL-server Module
+whose existence is usually not apparent to the user.) The SQL/CLI binding style
+is defined in SQL/CLI.
 
-Embedded SQL binding style:
+*Embedded SQL Binding Style*
+----------------------------
 
 The embedded SQL binding style is defined in SQL/Bindings. In this binding
 style, SQL statements are directly coded into a host language program and some
-method (usually a precompiler)is then used to (a) generate an
-externally-invoked procedure from each embedded SQL statement and (b) replace
+method (usually a precompiler)is then used to *(a)* generate an
+externally-invoked procedure from each embedded SQL statement and *(b)* replace
 each embedded SQL statement with an invocation of that generated procedure.
 (The generated procedures are collected together into a programming module
 which can then be used as an SQL-client Module by your DBMS, so this ia also a
@@ -47,24 +56,30 @@ special version of the Module binding style.)
 
 There are thus three main approaches to writing complete programs with SQL:
 
-## With embedded SQL, you can put SQL statements directly into "host
-programs" (programs written in Ada, C, COBOL, FORTRAN, MUMPS, Pascal or PL/I)
--- making them part of the host program's source code. Since the host
-language's compiler won't recognize SQL statements as valid statements of its
-language, some sort of preprocessor is required to make this work.
+1. With *embedded SQL*, you can put SQL statements directly into "host
+   programs" (programs written in Ada, C, COBOL, FORTRAN, MUMPS, Pascal or
+   PL/I) -- making them part of the host program's source code. Since the host
+   language's compiler won't recognize SQL statements as valid statements of
+   its language, some sort of preprocessor is required to make this work.
 
-## With SQL/CLI, you can call a SQL DBMS's library from a host program.
-The SQL statements you want to execute are parameters of the call. Because
-SQL's modus operandi won't quite match the host language's, helper functions
-are required for the interface definition.
+2. With *SQL/CLI*, you can call a SQL DBMS's library from a host program. The
+   SQL statements you want to execute are parameters of the call. Because SQL's
+   modus operandi won't quite match the host language's, helper functions are
+   required for the interface definition.
 
-## With the Module language, you can dispense with host programs and
-write entire Modules in SQL. You'll still have to call these Modules from one
-of the standard host languages though.
+3. With the *Module language*, you can dispense with host programs and write
+   entire Modules in SQL. You'll still have to call these Modules from one of
+   the standard host languages though.
 
-Reflecting what we believe is their relative importance, this book contains
-one chapter on embedded SQL, then several chapters on SQL/CLI, then one
-chapter on th Module binding style. This is the embedded SQL chapter.
+There is one other binding style — *Direct SQL* — which involves no host
+language. The entry of SQL statements on a keyboard, for example, is Direct
+SQL. Direct SQL is, under the covers, merely an implementation of a program
+written with one of the main three binding styles (Module, Embedded, or
+SQL/CLI).
+
+Reflecting what we believe is their relative importance, this book contains one
+chapter on embedded SQL, then several chapters on SQL/CLI, then one chapter on
+th Module binding style. This is the embedded SQL chapter.
 
 Because we believe that SQL/CLI will quickly become the SQL interface of
 choice, this chapter omits large amounts of detail, in favour of providing the
@@ -72,14 +87,10 @@ necessary detail in our chapters on SQL/CLI. Still, this chapter is a good
 opportunity to introduce the basic concepts in a simple way. Embedded SQL is
 easy to read, so we have a trouble-free first viewing of the problems that a
 program writer must solve. Watch in particular for solutions of the "impedance
-mismatch" problem (getting SQL objects to link with host-language analogs),
-the "Weltanschauung" problem (handling one-row-at-a-time rather than
-whole-set-at-a-time) and the "control" problem (adjusting host program flow based on SQL execution information).
-
-.. rubric:: Table of Contents
-
-.. contents::
-    :local:
+mismatch" problem (getting SQL objects to link with host-language analogs), the
+"Weltanschauung" problem (handling one-row-at-a-time rather than
+whole-set-at-a-time) and the "control" problem (adjusting host program flow
+based on SQL execution information).
 
 What is embedded SQL?
 =====================
@@ -95,28 +106,36 @@ aren't currently in vogue.
 SQL can be embedded into many host languages, but support varies depending on
 the vendor and depending on the language. The following are the standard host
 languages (that is, the ones mentioned in the SQL Standard). A DBMS that
-supports the embedded SQL binding style must support SQL embedded into at
-least one of these languages:
+supports the embedded SQL binding style must support SQL embedded into at least
+one of these languages:
 
-## Ada: Standard. Weakly supported.
+**Ada:** Standard. Weakly supported.
 
-## C: Standard. Well supported.
+**C:** Standard. Well supported.
 
-## COBOL: Standard. Packages are sometimes supplied by the COBOL vendor. For example, Micro Focus offers XDB SQL as an optional add-on, along with appropriate interfacing.
+**COBOL:** Standard. Packages are sometimes supplied by the COBOL vendor. For
+example, Micro Focus offers XDB SQL as an optional add-on, along with
+appropriate interfacing.
 
-## Fortran: Standard. Well supported, but interfacing is sometimes awkward.
+**Fortran:** Standard. Well supported, but interfacing is sometimes awkward.
 
-## MUMPS: Standard. Weakly supported.
+**MUMPS:** Standard. Weakly supported.
 
-## Pascal: Standard. Not everybody supports Borland Delphi's special characteristics such as Pchar null-terminated string references.
+**Pascal:** Standard. Not everybody supports Borland Delphi's special
+characteristics such as Pchar null-terminated string references.
 
-## PL/I: Standard. Weakly supported.
+**PL/I:** Standard. Weakly supported.
 
-Here are some other host languages that have some importance but are not (yet) standard:
+Here are some other host languages that have some importance but are not
+(yet) standard:
 
-## BASIC: Not supported by the SQL Standard. The vendor support which exists is usually restricted to a single dialect (such as Microsoft BASIC or PowerBASIC).
+**BASIC:** Not supported by the SQL Standard. The vendor support which
+exists is usually restricted to a single dialect (such as Microsoft BASIC
+or PowerBASIC).
 
-## Java: Not supported by the SQL Standard. Probably Java will achieve recognition as an "official" host language for SQL, but most current efforts are for a CLI standard called JDBC.
+**Java:** Not supported by the SQL Standard. Probably Java will achieve
+recognition as an "official" host language for SQL, but most current
+efforts are for a CLI standard called JDBC.
 
 For all of these languages, support is better via the SQL/CLI.
 
@@ -126,19 +145,23 @@ carried out, use embedded SQL statements (rather than routines written in the
 host language; an executable SQL statement can be put into a program anywhere
 that an executable host language statement can be) to carry them out -- the
 host code "calls" SQL statements. You can pass data between the host and SQL:
-SQL-data values go to variables in the host code, host program values go to
-SQL Columns or functions or some other appropriate database target. Before
-compiling your program, you'll need to go through a preprocessing step -- hence the name: Precompiler.
+SQL-data values go to variables in the host code, host program values go to SQL
+Columns or functions or some other appropriate database target. Before
+compiling your program, you'll need to go through a preprocessing step -- hence
+the name: Precompiler.
 
 To make it all possible, you have to follow rigid conventions:
 
-## Begin every SQL statement with the SQL prefix appropriate for the host language.
+* Begin every SQL statement with the SQL prefix appropriate for the host
+  language.
 
-## End every SQL statement with the SQL terminator appropriate for the host language.
+* End every SQL statement with the SQL terminator appropriate for the host
+  language.
 
-## Declare all host-language program variables which will be shared with SQL in a special DECLARE section.
+* Declare all host-language program variables which will be shared with SQL
+  in a special ``DECLARE`` section.
 
-## Declare additional program variables for error handling.
+* Declare additional program variables for error handling.
 
 Precompilers
 ============
@@ -155,40 +178,47 @@ sample Precompiler that comes with this book does for a C program:
 
 2. Read a token from the Input File. At end: exit.
 
-3. If the token is not "EXEC", or the next token is not "SQL": Write the token to the output file.
-   Goto 2.
+3. If the token is not ``EXEC``, or the next token is not SQL: Write the
+   token to the output file. Goto 2.
 
-4. If the next tokens are "BEGIN DECLARE SECTION":
+4. If the next tokens are ``BEGIN DECLARE SECTION``:
 
-   ``/* The following tokens must be variable definitions */``
+``/* The following tokens must be variable definitions */``
 
-   Read and write the following tokens. While doing so, keep track of and store: variable name, variable size, variable type. Since this is supposed to be a C program, certain keywords are expected, such as "char" or "short".
+Read and write the following tokens. While doing so, keep track of and
+store: variable name, variable size, variable type. Since this is supposed
+to be a C program, certain keywords are expected, such as ``char`` or
+``short``. Stop when the next tokens are ``END DECLARE SECTION``.
 
-   Stop when the next tokens are "END DECLARE SECTION".
+Goto 2.
 
-   Goto 2.
+5. If the next token is ``CREATE`` or ``INSERT`` or some other SQL <keyword>
+   indicating that this is the beginning of an executable SQL statement:
 
-5. If the next token is "CREATE" or "INSERT" or some other SQL <keyword> indicating that this is the beginning of an executable SQL statement:
+Write the words ``SQLExecDirect(-1,``.
 
-   Write the words "SQLExecDirect(-1,".
+Read and write until ";" is seen. (";" is the "terminator" of SQL in C.)
 
-   Read and write until ";" is seen. (";" is the "terminator" of SQL in C.)
+Write ``,-3)``.
 
-   Write ",-3)".
+Goto 2.
 
-   Goto 2.
-
-NB: While reading and writing, a "host variable" token may be encountered, of the form: <colon><host-variable-name>. The precompiler must convert this to whatever the appropriate form is for a pass-by-address parameter,
-and output a statement like "SQLBindCol(...,&hostvariable);".
+NB: While reading and writing, a "host variable" token may be encountered, of
+the form: <colon><host-variable-name>. The precompiler must convert this to
+whatever the appropriate form is for a pass-by-address parameter, and output a
+statement like ``SQLBindCol(...,&hostvariable);``.
 
 If the precompiler finishes without severe errors, there is an output program.
 The output from the precompiler is the input for the compiler. From that, the
 compiler produces an object file. Then the linker comes into play. The linker
-will encounter some external references, for example the SQLExecDirect call
+will encounter some external references, for example the ``SQLExecDirect`` call
 that the precompiler produced. To resolve these references, the linker will
-look in a library -- which is another essential part of the DBMS package for use with precompilers.
+look in a library -- which is another essential part of the DBMS package for
+use with precompilers.
 
-In theory, a precompiler could act differently provided it met the functional specification. We have described what we know best: this book's sample Precompiler.
+In theory, a precompiler could act differently provided it met the functional
+specification. We have described what we know best: this book's sample
+Precompiler.
 
 SQL Prefixes and Terminators
 ============================
@@ -197,29 +227,31 @@ The precompiler lacks the smarts to figure out the syntax of the host language
 program. After all, host language code can get pretty complex. All the
 precompiler can do is look for signals that say "embedded SQL starts here" or
 "embedded SQL ends here". Or, to use the formal terms, embedded SQL statements
-must have a prefix and a terminator. Usually the prefix is EXEC SQL and the
-terminator is a semicolon. There is a bit of variation among the standard host languages:
+must have a prefix and a terminator. Usually the prefix is ``EXEC SQL`` and the
+terminator is a semicolon. There is a bit of variation among the standard host
+languages:
 
-## For Ada, use: EXEC SQL ... ;
+* For Ada, use: ``EXEC SQL ... ;``
 
-## For C, use: EXEC SQL ... ;
+* For C, use: ``EXEC SQL ... ;``
 
-## For COBOL, use: EXEC SQL ... END-EXEC
+* For COBOL, use: ``EXEC SQL ... END-EXEC``
 
-## For Fortran, use: EXEC SQL ... <no end> (i.e.: no explicit terminator)
+* For Fortran, use: ``EXEC SQL ...`` <no end> (i.e.: no explicit terminator)
 
-## For MUMPS, use: &SQL( ... )
+* For MUMPS, use: ``&SQL( ... )``
 
-## For Pascal, use: EXEC SQL ... ;
+* For Pascal, use: ``EXEC SQL ... ;``
 
-## For PL/I, use: EXEC SQL ... ;
+* For PL/I, use: ``EXEC SQL ... ;``
 
 Our preferred languages for discussion are C and Pascal, so it's just as easy
-to say: "all SQL statements must be prefixed by 'EXEC SQL' and terminated by
-';'". The case of the <keyword>s EXEC SQL (or the other prefixes) doesn't
-matter, but it is compulsory that they be together (rather than on separate
-lines). Everything between EXEC SQL and ; must be legal SQL -- host language
-statements or comments have no place here. Aside from that, format is fairly free, as this example snippet shows:
+to say: "all SQL statements must be prefixed by ``'EXEC SQL'`` and terminated
+by ';'". The case of the <keyword>s ``EXEC SQL`` (or the other prefixes)
+doesn't matter, but it is compulsory that they be together (rather than on
+separate lines). Everything between ``EXEC SQL`` and ; must be legal SQL --
+host language statements or comments have no place here. Aside from that,
+format is fairly free, as this example snippet shows:
 
 ::
 
@@ -238,14 +270,15 @@ Host Variables
 ==============
 
 Embedded SQL statements can contain host language variables in the same places
-that any other scalar expression can be placed. The host variables allow you
-to pass data between the program and your SQL-data. In an SQL statement, a
-<host variable name> must be preceded by a colon, to distinguish it from an
-SQL Object name. Host variables may not be qualified or subscripted, and must
+that any other scalar expression can be placed. The host variables allow you to
+pass data between the program and your SQL-data. In an SQL statement, a <host
+variable name> must be preceded by a colon, to distinguish it from an SQL
+Object name. Host variables may not be qualified or subscripted, and must
 return only scalar values.
 
 An important and inevitable part of any embedded SQL program is the declare
-section -- the variable declarations that appear between "EXEC SQL BEGIN DECLARE SECTION;" and "EXEC SQL END DECLARE SECTION;", as in:
+section -- the variable declarations that appear between ``EXEC SQL BEGIN
+DECLARE SECTION;`` and ``EXEC SQL END DECLARE SECTION;``, as in:
 
 ::
 
@@ -254,239 +287,441 @@ section -- the variable declarations that appear between "EXEC SQL BEGIN DECLARE
       char  y[5];
    EXEC SQL END DECLARE SECTION;
 
-In this example, x and y are host variables. They are defined according to the
-rules of the host language (in this case, C). But the definitions must be
-comprehensible to the precompiler too, because the precompiler must know the
+In this example, ``x`` and ``y`` are host variables. They are defined according
+to the rules of the host language (in this case, C). But the definitions must
+be comprehensible to the precompiler too, because the precompiler must know the
 data type, size and name of each host variable. The trick, for making a
 variable that both the host and SQL can understand, is to keep the definition
 simple. Only a few data types are legal, and tricks usually aren't -- even
-simple tricks like enumerations or constants or macros will confuse the precompiler.
+simple tricks like enumerations or constants or macros will confuse the
+precompiler.
 
-SQL <data type> and Host variable correspondence:
+*SQL <data type> and Host Variable Correspondence*
+--------------------------------------------------
+
 Host variable data types must be compatible with the <data type> of the SQL-
 data values they'll be receiving or sending. The appropriate data type analogs
-for each host language, as defined by the SQL Standard, are as follows (L
-stands for length, P for precision, S for scale, T for time fractional seconds
-precision, Q for <interval qualifier> and N for the implementation-defined
-size of a structured type reference; assume an 8-bit character set is in use):
+for each host language, as defined by the SQL Standard, are as follows (``L``
+stands for length, ``P`` for precision, ``S`` for scale, ``T`` for time
+fractional seconds precision, ``Q`` for <interval qualifier> and ``N`` for the
+implementation-defined size of a structured type reference; assume an 8-bit
+character set is in use):
 
-::
+**For Ada:**
 
-    ## For Ada --
-    SQL <data type>      Ada data type
-    SQLSTATE             SQL_STANDARD.SQLSTATE_TYPE
-    CHAR(L)              SQL_STANDARD.CHAR, with P'LENGTH of L
-    VARCHAR(L)           None
-    CLOB(L)              None
-    BIT(L)               SQL_STANDARD.BIT, with P'LENGTH of L
-    BIT VARYING(L)       None
-    BLOB(L)              None
-    BOOLEAN              SQL_STANDARD.BOOLEAN
-    SMALLINT             SQL_STANDARD.SMALLINT
-    INTEGER              SQL_STANDARD.INT
-    DECIMAL(P,S)         None
-    NUMERIC(P,S)         None
-    REAL                 SQL_STANDARD.REAL
-    DOUBLE PRECISION     SQL_STANDARD.DOUBLE_PRECISION
-    FLOAT(P)             None
-    DATE                 None
-    TIME(T)              None
-    TIMESTAMP(T)         None
-    INTERVAL(Q)          None
-    UDT                  None
-    REF                  SQL_STANDARD.CHAR, with P'LENGTH of N
++----------------------+----------------------------------------------+
+| ``SQL <data type>``  | Ada data type                                |
++======================+==============================================+
+| ``SQLSTATE``         | ``SQL_STANDARD.SQLSTATE_TYPE``               |
++----------------------+----------------------------------------------+
+| ``CHAR(L)``          | ``SQL_STANDARD.CHAR, with P'LENGTH of L``    |
++----------------------+----------------------------------------------+
+| ``VARCHAR(L)``       | None                                         |
++----------------------+----------------------------------------------+
+| ``CLOB(L)``          | None                                         |
++----------------------+----------------------------------------------+
+| ``BIT(L)``           | ``SQL_STANDARD.BIT, with P'LENGTH of L``     |
++----------------------+----------------------------------------------+
+| ``BIT VARYING(L)``   | None                                         |
++----------------------+----------------------------------------------+
+| ``BLOB(L)``          | None                                         |
++----------------------+----------------------------------------------+
+| ``BOOLEAN``          | ``SQL_STANDARD.BOOLEAN``                     |
++----------------------+----------------------------------------------+
+| ``SMALLINT``         | ``SQL_STANDARD.SMALLINT``                    |
++----------------------+----------------------------------------------+
+| ``INTEGER``          | ``SQL_STANDARD.INT``                         |
++----------------------+----------------------------------------------+
+| ``DECIMAL(P,S)``     | None                                         |
++----------------------+----------------------------------------------+
+| ``NUMERIC(P,S)``     | None                                         |
++----------------------+----------------------------------------------+
+| ``REAL``             | ``SQL_STANDARD.REAL``                        |
++----------------------+----------------------------------------------+
+| ``DOUBLE PRECISION`` | ``SQL_STANDARD.DOUBLE_PRECISION``            |
++----------------------+----------------------------------------------+
+| ``FLOAT(P)``         | None                                         |
++----------------------+----------------------------------------------+
+| ``DATE``             | None                                         |
++----------------------+----------------------------------------------+
+| ``TIME(T)``          | None                                         |
++----------------------+----------------------------------------------+
+| ``TIMESTAMP(T)``     | None                                         |
++----------------------+----------------------------------------------+
+| ``INTERVAL(Q)``      | None                                         |
++----------------------+----------------------------------------------+
+| ``UDT``              | None                                         |
++----------------------+----------------------------------------------+
+| ``REF``              | ``SQL_STANDARD.CHAR, with P'LENGTH of N``    |
++----------------------+----------------------------------------------+
 
-    ## For C --
-    SQL <data type>      C Data Type
-    SQLSTATE             char, with length 6
-    CHAR(L)              char, with length (L+1)
-    VARCHAR(L)           char, with length (L+1)
-    CLOB(L)              struct {
-                           long x_reserved
-                           unsigned long x_length
-                           char x_data[L];
-                                }
-    BIT(L)               char, with length L/8
-    BIT VARYING(L)       None
-    BLOB(L)              struct {
-                           long x_reserved
-                           unsigned long x_length
-                           char x_data[L];
-                                }
-    BOOLEAN              pointer to long
-    SMALLINT             pointer to short
-    INTEGER              pointer to long
-    DECIMAL(P,S)         None
-    NUMERIC(P,S)         None
-    REAL                 pointer to float
-    DOUBLE PRECISION     pointer to double
-    FLOAT(P)             None
-    DATE                 None
-    TIME(T)              None
-    TIMESTAMP(T)         None
-    INTERVAL(Q)          None
-    UDT                  None
-    REF                  char, with length N
+**For C:**
 
-    ## For COBOL --
-    SQL <data type>      COBOL Data Type
-    SQLSTATE             PICTURE X(5)
-    CHAR(L)              alphanumeric, with length L
-    VARCHAR(L)           None
-    CLOB(L)              01 XXXX.
-                          49 XXXX-RESERVED PIC S9(9) USAGE IS BINARY.
-                          49 XXXX-LENGTH PIC S9(9) USAGE IS BINARY.
-                          49 XXXX-DATA PIC X(L).
-    BIT(L)               alphanumeric, with length L/8+1
-    BIT VARYING(L)       None
-    BLOB(L)              01 XXXX.
-                          49 XXXX-RESERVED PIC S9(9) USAGE IS BINARY.
-                          49 XXXX-LENGTH PIC S9(9) USAGE IS BINARY.
-                          49 XXXX-DATA PIC X(L).
-    BOOLEAN              PICTURE X
-    SMALLINT             PICTURE S9(SPI) USAGE BINARY, where SPI is
-                         implementation-defined
-    INTEGER              PICTURE S9(PI) USAGE BINARY, where PI is
-                         implementation-defined
-    DECIMAL(P,S)         None
-    NUMERIC(P,S)         USAGE DISPLAY SIGN LEADING SEPARATE,
-                         with PICTURE as specified[2]
-    REAL                 None
-    DOUBLE PRECISION     None
-    FLOAT(P)             None
-    DATE                 None
-    TIME(T)              None
-    TIMESTAMP(T)         None
-    INTERVAL(Q)          None
-    UDT                  None
-    REF                  alphanumeric with length N
-    Notes: 1. If S=P, then a PICTURE with an 'S' followed by a 'V' followed by P
-    '9's. If P>S>0, then a PICTURE with an 'S' followed by P-S '9's followed by a
-    'V' followed by S '9's. If S=0, then a PICTURE with an 'S' followed by P '9's
-    optionally followed by a 'V'.
++----------------------+-------------------------------------+
+| SQL <data type>      | C Data Type                         |
++======================+=====================================+
+| ``SQLSTATE``         | ``char``, with length ``6``         |
++----------------------+-------------------------------------+
+| ``CHAR(L)``          | ``char``, with length ``(L+1)``     |
++----------------------+-------------------------------------+
+| ``VARCHAR(L)``       | ``char``, with length ``(L+1)``     |
++----------------------+-------------------------------------+
+| ``CLOB(L)``          | | ``struct {``                      |
+|                      | |   ``long x_reserved``             |
+|                      | |   ``unsigned long x_length``      |
+|                      | |   ``char x_data[L];``             |
+|                      | |            ``}``                  |
++----------------------+-------------------------------------+
+| ``BIT(L)``           | ``char``, with length ``L/8``       |
++----------------------+-------------------------------------+
+| BIT VARYING(L)``     | None                                |
++----------------------+-------------------------------------+
+| BLOB(L)``            | | ``struct {``                      |
+|                      | |   ``long x_reserved``             |
+|                      | |   ``unsigned long x_length``      |
+|                      | |   ``char x_data[L];``             |
+|                      | |            ``}``                  |
++----------------------+-------------------------------------+
+| ``BOOLEAN``          | pointer to ``long``                 |
++----------------------+-------------------------------------+
+| ``SMALLINT``         | pointer to ``short``                |
++----------------------+-------------------------------------+
+| ``INTEGER``          | pointer to ``long``                 |
++----------------------+-------------------------------------+
+| ``DECIMAL(P,S)``     | None                                |
++----------------------+-------------------------------------+
+| ``NUMERIC(P,S)``     | None                                |
++----------------------+-------------------------------------+
+| ``REAL``             | pointer to ``float``                |
++----------------------+-------------------------------------+
+| ``DOUBLE PRECISION`` | pointer to ``double``               |
++----------------------+-------------------------------------+
+| ``FLOAT(P)``         | None                                |
++----------------------+-------------------------------------+
+| ``DATE``             | None                                |
++----------------------+-------------------------------------+
+| ``TIME(T)``          | None                                |
++----------------------+-------------------------------------+
+| ``TIMESTAMP(T)``     | None                                |
++----------------------+-------------------------------------+
+| ``INTERVAL(Q)``      | None                                |
++----------------------+-------------------------------------+
+| ``UDT``              | None                                |
++----------------------+-------------------------------------+
+| ``REF``              | ``char``, with length ``N``         |
++----------------------+-------------------------------------+
+| ``ARRAY``            | None                                |
++----------------------+-------------------------------------+
+| ``ROW``              | None                                |
++----------------------+-------------------------------------+
 
-    ## For Fortran --
-    SQL <data type>      Fortran Data Type
-    SQLSTATE             CHARACTER, with length 5
-    CHAR(L)              CHARACTER, with length L
-    VARCHAR(L)           None
-    CLOB(L)              CHARACTER XXXX(L+8)
-                           INTEGER*4 XXXX_RESERVED
-                           INTEGER*4 XXXX_LENGTH
-                           CHARACTER XXXX_DATA
-                           EQUIVALENCE(XXXX(5), XXXX_LENGTH)
-                           EQUIVALENCE(XXXX(9), XXXX_DATA)
-    BIT(L)               CHARACTER, with length L/8+1
-    BIT VARYING(L)       None
-    BLOB(L)              CHARACTER XXXX(L+8)
-                           INTEGER*4 XXXX_RESERVED
-                           INTEGER*4 XXXX_LENGTH
-                           CHARACTER XXXX_DATA
-                           EQUIVALENCE(XXXX(5), XXXX_LENGTH)
-                           EQUIVALENCE(XXXX(9), XXXX_DATA)
-    BOOLEAN              LOGICAL
-    SMALLINT             None
-    INTEGER              INTEGER
-    DECIMAL(P,S)         None
-    NUMERIC(P,S)         None
-    REAL                 REAL
-    DOUBLE PRECISION     DOUBLE PRECISION
-    FLOAT(P)             None
-    DATE                 None
-    TIME(T)              None
-    TIMESTAMP(T)         None
-    INTERVAL(Q)          None
-    UDT                  None
-    REF                  CHARACTER with length N
 
-    ## For MUMPS --
-    SQL <data type>      MUMPS Data Type
-    SQLSTATE             character, with maximum length at least 5
-    CHAR(L)              None
-    VARCHAR(L)           character with maximum length L
-    CLOB(L)              None
-    BIT(L)               None
-    BIT VARYING(L)       None
-    BLOB(L)              None
-    BOOLEAN              None
-    SMALLINT             None
-    INTEGER              character
-    DECIMAL(P,S)         character
-    NUMERIC(P,S)         character
-    REAL                 character
-    DOUBLE PRECISION     None
-    FLOAT(P)             None
-    DATE                 None
-    TIME(T)              None
-    TIMESTAMP(T)         None
-    INTERVAL(Q)          None
-    UDT                  None
-    REF                  character
+**For COBOL:**
 
-    ## For Pascal --
-    SQL <data type>      Pascal Data Type
-    SQLSTATE             PACKED ARRAY [1..5] OF CHAR
-    CHARACTER(1)         CHAR
-    CHAR(L), L>1         PACKED ARRAY [1..L] OF CHAR
-    VARCHAR(L)           None
-    CLOB(L)              None
-    BIT(L)               PACKED ARRAY [L/8] OF CHAR
-    BIT VARYING(L)       None
-    BLOB(L)              None
-    BOOLEAN              BOOLEAN
-    SMALLINT             None
-    INTEGER              INTEGER
-    DECIMAL(P,S)         None
-    NUMERIC(P,S)         None
-    REAL                 REAL
-    DOUBLE PRECISION     None
-    FLOAT(P)             None
-    DATE                 None
-    TIME(T)              None
-    TIMESTAMP(T)         None
-    INTERVAL(Q)          None
-    UDT                  None
-    REF                  PACKED ARRAY[1..N] OF CHAR
++------------------------+-----------------------------------------------------+
+| SQL <data type>``      | COBOL Data Type                                     |
++========================+=====================================================+
+| ``SQLSTATE``           | ``PICTURE X(5)``                                    |
++------------------------+-----------------------------------------------------+
+| ``CHAR(L)``            | alphanumeric, with length ``L``                     |
++------------------------+-----------------------------------------------------+
+| ``VARCHAR(L)``         | None                                                |
++------------------------+-----------------------------------------------------+
+| ``CLOB(L)``            | | ``01 XXXX.``                                      |
+|                        | |   ``49 XXXX-RESERVED PIC S9(9) USAGE IS BINARY.`` |
+|                        | |   ``49 XXXX-LENGTH PIC S9(9) USAGE IS BINARY.``   |
+|                        | |   ``49 XXXX-DATA PIC X(L).``                      |
++------------------------+-----------------------------------------------------+
+| ``BIT(L)``             | alphanumeric, with length ``L/8+1``                 |
++------------------------+-----------------------------------------------------+
+| ``BIT VARYING(L)``     | None                                                |
++------------------------+-----------------------------------------------------+
+| ``BLOB(L)``            | | ``01 XXXX.``                                      |
+|                        | |   ``49 XXXX-RESERVED PIC S9(9) USAGE IS BINARY.`` |
+|                        | |   ``49 XXXX-LENGTH PIC S9(9) USAGE IS BINARY.``   |
+|                        | |   ``49 XXXX-DATA PIC X(L).``                      |
++------------------------+-----------------------------------------------------+
+| ``BOOLEAN``            | ``PICTURE X``                                       |
++------------------------+-----------------------------------------------------+
+| ``SMALLINT``           | ``PICTURE S9(SPI) USAGE BINARY``, where ``SPI`` is  |
+|                        | implementation-defined                              |
++------------------------+-----------------------------------------------------+
+| ``INTEGER``            | ``PICTURE S9(PI) USAGE BINARY``, where ``PI`` is    |
+|                        | implementation-defined                              |
++------------------------+-----------------------------------------------------+
+| ``DECIMAL(P,S)``       | None                                                |
++------------------------+-----------------------------------------------------+
+| ``NUMERIC(P,S)``       | ``USAGE DISPLAY SIGN LEADING SEPARATE``,            |
+|                        | with ``PICTURE`` as specified [note]                |
++------------------------+-----------------------------------------------------+
+| ``REAL``               | None                                                |
++------------------------+-----------------------------------------------------+
+| ``DOUBLE PRECISION``   | None                                                |
++------------------------+-----------------------------------------------------+
+| ``FLOAT(P)``           | None                                                |
++------------------------+-----------------------------------------------------+
+| ``DATE``               | None                                                |
++------------------------+-----------------------------------------------------+
+| ``TIME(T)``            | None                                                |
++------------------------+-----------------------------------------------------+
+| ``TIMESTAMP(T)``       | None                                                |
++------------------------+-----------------------------------------------------+
+| ``INTERVAL(Q)``        | None                                                |
++------------------------+-----------------------------------------------------+
+| ``UDT``                | None                                                |
++------------------------+-----------------------------------------------------+
+| ``REF``                | alphanumeric with length ``N``                      |
++------------------------+-----------------------------------------------------+
+| ``ARRAY``              | None                                                |
++------------------------+-----------------------------------------------------+
+| ``ROW``                | None                                                |
++------------------------+-----------------------------------------------------+
 
-    ## For PL/I --
-    SQL <data type>      PL/I Data Type
-    SQLSTATE             CHARACTER(5)
-    CHAR(L)              CHARACTER(L)
-    VARCHAR(L)           CHARACTER VARYING(L)
-    CLOB(L)              DCL level. lvchar
-                           49 len1 FIXED BINARY (31)
-                           49 len2 FIXED BINARY (31)
-                           49 data CHAR (n)
-    BIT(L)               BIT(L)
-    BIT VARYING(L)       BIT VARYING(L)
-    BLOB(L)              DCL level. lvchar
-                           49 len1 FIXED BINARY (31)
-                           49 len2 FIXED BINARY (31)
-                           49 data CHAR (n)
-    BOOLEAN              BIT(1)
-    SMALLINT             FIXED BINARY(SPI), where SPI is
-                         implementation-defined
-    INTEGER              FIXED BINARY(PI), where PI is
-                         implementation-defined
-    DECIMAL(P,S)         FIXED DECIMAL(P,S)
-    NUMERIC(P,S)         None
-    REAL                 None
-    DOUBLE PRECISION     None
-    FLOAT(P)             FLOAT BINARY (P)
-    DATE                 None
-    TIME(T)              None
-    TIMESTAMP(T)         None
-    INTERVAL(Q)          None
-    UDT                  None
-    REF                  CHARACTER VARYING(N)
+.. NOTE::
 
-Input and output variables:
+   If ``S=P``, then a ``PICTURE`` with an ``'S'`` followed by a ``'V'``
+   followed by ``P '9'``\s. If ``P>S>0``, then a ``PICTURE`` with an ``'S'``
+   followed by ``P-S '9'``\s followed by a ``'V'`` followed by ``S '9'``\s. If
+   ``S=0``, then a ``PICTURE`` with an ``'S'`` followed by ``P '9'``\s
+   optionally followed by a ``'V'``.
+
+**For Fortran:**
+
++------------------------+-----------------------------------------------+
+| SQL <data type>        | Fortran Data Type                             |
++========================+===============================================+
+| ``SQLSTATE``           | ``CHARACTER``, with length ``5``              |
++------------------------+-----------------------------------------------+
+| ``CHAR(L)``            | ``CHARACTER``, with length ``L``              |
++------------------------+-----------------------------------------------+
+| ``VARCHAR(L)``         | None                                          |
++------------------------+-----------------------------------------------+
+| ``CLOB(L)``            | | ``CHARACTER XXXX(L+8)``                     |
+|                        | |     ``INTEGER*4 XXXX_RESERVED``             |
+|                        | |     ``INTEGER*4 XXXX_LENGTH``               |
+|                        | |     ``CHARACTER XXXX_DATA``                 |
+|                        | |     ``EQUIVALENCE(XXXX(5), XXXX_LENGTH)``   |
+|                        | |     ``EQUIVALENCE(XXXX(9), XXXX_DATA)``     |
++------------------------+-----------------------------------------------+
+| ``BIT(L)``             | ``CHARACTER``, with length ``L/8+1``          |
++------------------------+-----------------------------------------------+
+| ``BIT VARYING(L)``     | None                                          |
++------------------------+-----------------------------------------------+
+| ``BLOB(L)``            | | ``CHARACTER XXXX(L+8)``                     |
+|                        | |      ``INTEGER*4 XXXX_RESERVED``            |
+|                        | |      ``INTEGER*4 XXXX_LENGTH``              |
+|                        | |      ``CHARACTER XXXX_DATA``                |
+|                        | |      ``EQUIVALENCE(XXXX(5), XXXX_LENGTH)``  |
+|                        | |      ``EQUIVALENCE(XXXX(9), XXXX_DATA)``    |
++------------------------+-----------------------------------------------+
+| ``BOOLEAN``            | ``LOGICAL``                                   |
++------------------------+-----------------------------------------------+
+| ``SMALLINT``           | None                                          |
++------------------------+-----------------------------------------------+
+| ``INTEGER``            | ``INTEGER``                                   |
++------------------------+-----------------------------------------------+
+| ``DECIMAL(P,S)``       | None                                          |
++------------------------+-----------------------------------------------+
+| ``NUMERIC(P,S)``       | None                                          |
++------------------------+-----------------------------------------------+
+| ``REAL``               | ``REAL``                                      |
++------------------------+-----------------------------------------------+
+| ``DOUBLE PRECISION``   | ``DOUBLE PRECISION``                          |
++------------------------+-----------------------------------------------+
+| ``FLOAT(P)``           | None                                          |
++------------------------+-----------------------------------------------+
+| ``DATE``               | None                                          |
++------------------------+-----------------------------------------------+
+| ``TIME(T)``            | None                                          |
++------------------------+-----------------------------------------------+
+| ``TIMESTAMP(T)``       | None                                          |
++------------------------+-----------------------------------------------+
+| ``INTERVAL(Q)``        | None                                          |
++------------------------+-----------------------------------------------+
+| ``UDT``                | None                                          |
++------------------------+-----------------------------------------------+
+| ``REF``                | ``CHARACTER`` with length ``N``               |
++------------------------+-----------------------------------------------+
+| ``ARRAY``              | None                                          |
++------------------------+-----------------------------------------------+
+| ``ROW``                | None                                          |
++------------------------+-----------------------------------------------+
+
+**For MUMPS:**
+
++----------------------+---------------------------------------------------+
+| SQL <data type>      | MUMPS Data Type                                   |
++======================+===================================================+
+| ``SQLSTATE``         | ``character``, with maximum length at least ``5`` |
++----------------------+---------------------------------------------------+
+| ``CHAR(L)``          | None                                              |
++----------------------+---------------------------------------------------+
+| ``VARCHAR(L)``       | ``character`` with maximum length ``L``           |
++----------------------+---------------------------------------------------+
+| ``CLOB(L)``          | None                                              |
++----------------------+---------------------------------------------------+
+| ``BIT(L)``           | None                                              |
++----------------------+---------------------------------------------------+
+| ``BIT VARYING(L)``   | None                                              |
++----------------------+---------------------------------------------------+
+| ``BLOB(L)``          | None                                              |
++----------------------+---------------------------------------------------+
+| ``BOOLEAN``          | None                                              |
++----------------------+---------------------------------------------------+
+| ``SMALLINT``         | None                                              |
++----------------------+---------------------------------------------------+
+| ``INTEGER``          | ``character``                                     |
++----------------------+---------------------------------------------------+
+| ``DECIMAL(P,S)``     | ``character``                                     |
++----------------------+---------------------------------------------------+
+| ``NUMERIC(P,S)``     | ``character``                                     |
++----------------------+---------------------------------------------------+
+| ``REAL``             | ``character``                                     |
++----------------------+---------------------------------------------------+
+| ``DOUBLE PRECISION`` | None                                              |
++----------------------+---------------------------------------------------+
+| ``FLOAT(P)``         | None                                              |
++----------------------+---------------------------------------------------+
+| ``DATE``             | None                                              |
++----------------------+---------------------------------------------------+
+| ``TIME(T)``          | None                                              |
++----------------------+---------------------------------------------------+
+| ``TIMESTAMP(T)``     | None                                              |
++----------------------+---------------------------------------------------+
+| ``INTERVAL(Q)``      | None                                              |
++----------------------+---------------------------------------------------+
+| ``UDT``              | None                                              |
++----------------------+---------------------------------------------------+
+| ``REF``              | ``character``                                     |
++----------------------+---------------------------------------------------+
+| ``ARRAY``            | None                                              |
++----------------------+---------------------------------------------------+
+| ``ROW``              | None                                              |
++----------------------+---------------------------------------------------+
+
+**For Pascal:**
+
++-----------------------+---------------------------------+
+| SQL <data type>       | Pascal Data Type                |
++=======================+=================================+
+| ``SQLSTATE``          | ``PACKED ARRAY [1..5] OF CHAR`` |
++-----------------------+---------------------------------+
+| ``CHARACTER(1)``      | ``CHAR``                        |
++-----------------------+---------------------------------+
+| ``CHAR(L), L>1``      | ``PACKED ARRAY [1..L] OF CHAR`` |
++-----------------------+---------------------------------+
+| ``VARCHAR(L)``        | None                            |
++-----------------------+---------------------------------+
+| ``CLOB(L)``           | None                            |
++-----------------------+---------------------------------+
+| ``BIT(L)``            | ``PACKED ARRAY [L/8] OF CHAR``  |
++-----------------------+---------------------------------+
+| ``BIT VARYING(L)``    | None                            |
++-----------------------+---------------------------------+
+| ``BLOB(L)``           | None                            |
++-----------------------+---------------------------------+
+| ``BOOLEAN``           | ``BOOLEAN``                     |
++-----------------------+---------------------------------+
+| ``SMALLINT``          | None                            |
++-----------------------+---------------------------------+
+| ``INTEGER``           | ``INTEGER``                     |
++-----------------------+---------------------------------+
+| ``DECIMAL(P,S)``      | None                            |
++-----------------------+---------------------------------+
+| ``NUMERIC(P,S)``      | None                            |
++-----------------------+---------------------------------+
+| ``REAL``              | ``REAL``                        |
++-----------------------+---------------------------------+
+| ``DOUBLE PRECISION``  | None                            |
++-----------------------+---------------------------------+
+| ``FLOAT(P)``          | None                            |
++-----------------------+---------------------------------+
+| ``DATE``              | None                            |
++-----------------------+---------------------------------+
+| ``TIME(T)``           | None                            |
++-----------------------+---------------------------------+
+| ``TIMESTAMP(T)``      | None                            |
++-----------------------+---------------------------------+
+| ``INTERVAL(Q)``       | None                            |
++-----------------------+---------------------------------+
+| ``UDT``               | None                            |
++-----------------------+---------------------------------+
+| ``REF``               | ``PACKED ARRAY[1..N] OF CHAR``  |
++-----------------------+---------------------------------+
+| ``ARRAY``             | None                            |
++-----------------------+---------------------------------+
+| ``ROW``               | None                            |
++-----------------------+---------------------------------+
+
+**For PL/I:**
+
++-----------------------+-------------------------------------------+
+| SQL <data type>       | PL/I Data Type                            |
++=======================+===========================================+
+| ``SQLSTATE``          | ``CHARACTER(5)``                          |
++-----------------------+-------------------------------------------+
+| ``CHAR(L)``           | ``CHARACTER(L)``                          |
++-----------------------+-------------------------------------------+
+| ``VARCHAR(L)``        | ``CHARACTER VARYING(L)``                  |
++-----------------------+-------------------------------------------+
+| ``CLOB(L)``           | | ``DCL level. lvchar``                   |
+|                       | |    ``49 len1 FIXED BINARY (31)``        |
+|                       | |    ``49 len2 FIXED BINARY (31)``        |
+|                       | |    ``49 data CHAR (n)``                 |
++-----------------------+-------------------------------------------+
+| ``BIT(L)``            | ``BIT(L)``                                |
++-----------------------+-------------------------------------------+
+| ``BIT VARYING(L)``    | ``BIT VARYING(L)``                        |
++-----------------------+-------------------------------------------+
+| ``BLOB(L)``           | | ``DCL level. lvchar``                   |
+|                       | |   ``49 len1 FIXED BINARY (31)``         |
+|                       | |   ``49 len2 FIXED BINARY (31)``         |
+|                       | |   ``49 data CHAR (n)``                  |
++-----------------------+-------------------------------------------+
+| ``BOOLEAN``           | ``BIT(1)``                                |
++-----------------------+-------------------------------------------+
+| ``SMALLINT``          | | ``FIXED BINARY(SPI)``, where ``SPI`` is |
+|                       | | implementation-defined                  |
++-----------------------+-------------------------------------------+
+| ``INTEGER``           | | ``FIXED BINARY(PI)``, where ``PI`` is   |
+|                       | | implementation-defined                  |
++-----------------------+-------------------------------------------+
+| ``DECIMAL(P,S)``      | ``FIXED DECIMAL(P,S)``                    |
++-----------------------+-------------------------------------------+
+| ``NUMERIC(P,S)``      | None                                      |
++-----------------------+-------------------------------------------+
+| ``REAL``              | None                                      |
++-----------------------+-------------------------------------------+
+| ``DOUBLE PRECISION``  | None                                      |
++-----------------------+-------------------------------------------+
+| ``FLOAT(P)``          | ``FLOAT BINARY (P)``                      |
++-----------------------+-------------------------------------------+
+| ``DATE``              | None                                      |
++-----------------------+-------------------------------------------+
+| ``TIME(T)``           | None                                      |
++-----------------------+-------------------------------------------+
+| ``TIMESTAMP(T)``      | None                                      |
++-----------------------+-------------------------------------------+
+| ``INTERVAL(Q)``       | None                                      |
++-----------------------+-------------------------------------------+
+| ``UDT``               | None                                      |
++-----------------------+-------------------------------------------+
+| ``REF``               | ``CHARACTER VARYING(N)``                  |
++-----------------------+-------------------------------------------+
+| ``ARRAY``             | None                                      |
++-----------------------+-------------------------------------------+
+| ``ROW``               | None                                      |
++-----------------------+-------------------------------------------+
+
+*Input and Output Variables*
+----------------------------
 
 A host variable can be either an input host variable or an output host
 variable. (We always speak from the perspective of the DBMS, so "input" means
 "input to the DBMS" and "output" means "output from the DBMS".)
 
-Here is a set of embedded SQL and C statements; x and y appear as input host variables:
+Here is a set of embedded SQL and C statements; ``x`` and ``y`` appear as input
+host variables:
 
 ::
 
@@ -505,24 +740,29 @@ Here is a set of embedded SQL and C statements; x and y appear as input host var
                column_2 = :x;           /* ERROR! */
 
 In each case, it's easy to see the host variables -- they're the names with
-colons in front. In the last SQL statement in the example, the use of :x is an
-error, because x is an "int" and COLUMN_2 has a CHAR <data type>. Usually the
-precompiler will catch that type of error -- if it doesn't, there will be an
-error message at runtime. The subject of data type compatibility is a tortuous
-one, but if you paid attention while reading our chapters on the various SQL
-predefined <data type>s, it should hold no terrors for you. Nevertheless, it
-is difficult to write language-independent embedded SQL code -- inevitably,
-one has the host language's data type in mind when putting together the SQL code.
+colons in front. In the last SQL statement in the example, the use of ``:x`` is
+an error, because ``x`` is an "``int``" and ``COLUMN_2`` has a ``CHAR`` <data
+type>. Usually the precompiler will catch that type of error -- if it doesn't,
+there will be an error message at runtime. The subject of data type
+compatibility is a tortuous one, but if you paid attention while reading our
+chapters on the various SQL predefined <data type>s, it should hold no terrors
+for you. Nevertheless, it is difficult to write language-independent embedded
+SQL code -- inevitably, one has the host language's data type in mind when
+putting together the SQL code.
 
-Indicator Variables:
+*Indicator Variables*
+---------------------
 
-No host language can handle NULLs. So how can a host program receive an SQL
-output host variable with a NULL value? And how can a host program pass an
-input host variable with a NULL value? In both cases, the answer is that you
-have to pass two parameters by address: one to the data itself and one to a
-numeric variable containing a flag for "is NULL" or "is not NULL". This numeric variable is called an indicator variable.
+No host language can handle ``NULL``\s. So how can a host program receive an
+SQL output host variable with a ``NULL`` value? And how can a host program pass
+an input host variable with a ``NULL`` value? In both cases, the answer is that
+you have to pass two parameters by address: one to the data itself and one to a
+numeric variable containing a flag for "``is NULL``" or "``is not NULL``". This
+numeric variable is called an *indicator variable*.
 
-Indicator variables are "signed numeric with scale zero". In practice, they are almost always 32-bit integers. They too should appear within a declare section. For example:
+Indicator variables are "signed numeric with scale zero". In practice, they are
+almost always 32-bit integers. They too should appear within a declare section.
+For example:
 
 ::
 
@@ -531,7 +771,8 @@ Indicator variables are "signed numeric with scale zero". In practice, they are 
       var host_indicator : Longint; {Variable, intended for use as indicator}
    EXEC SQL END DECLARE SECTION;
 
-In an embedded SQL statement, indicators follow host variables. The required syntax is:
+In an embedded SQL statement, indicators follow host variables. The
+required syntax is:
 
 ::
 
@@ -548,56 +789,61 @@ Here are two equivalent examples:
             VALUES (:host :host_indicator);
 
 For input host variables: any indicator value less than zero means the value
-passed was NULL and any indicator value greater than or equal to zero means
-the value passed was a non-null value. For output host variables, the DBMS
-uses the specific indicator value -1 to mean the value passed was NULL and the
+passed was ``NULL`` and any indicator value greater than or equal to zero means
+the value passed was a non-null value. For output host variables, the DBMS uses
+the specific indicator value -1 to mean the value passed was ``NULL`` and the
 specific value zero to mean the value passed was a non-null value. If the
-indicator variable value means NULL, then the host variable's contents are irrelevant.
+indicator variable value means ``NULL``, then the host variable's contents are
+irrelevant.
 
 Use of indicators is optional. There is no need for them if there is no chance
-that NULL values will occur. However, since "nullability" is a transient
-characteristic, many programmers use indicators as a matter of course after every host variable.
+that ``NULL`` values will occur. However, since "nullability" is a transient
+characteristic, many programmers use indicators as a matter of course after
+every host variable.
 
-Here is an embedded SQL statement in which x appears as an output host variable:
+Here is an embedded SQL statement in which ``x`` appears as an output host
+variable:
 
 ::
 
    EXEC SQL SELECT column_1 INTO :x FROM Table_1;
 
 but it's not a particularly good example, because it only works if you know in
-advance that there's a maximum of one row in TABLE_1. (Think: if there were
-two rows, there would be two values for COLUMN_1, but there's only one host
-variable for the output: x.) Because of this assumption that there will never
-be more than one row retrieved, this form of SELECT is referred to as a
-"singleton SELECT". A more flexible approach exists for getting output SELECT
-results, as output host variables, from SQL to the host language: the SQL Cursor.
+advance that there's a maximum of one row in ``TABLE_1``. (Think: if there were
+two rows, there would be two values for ``COLUMN_1``, but there's only one host
+variable for the output: ``x``.) Because of this assumption that there will
+never be more than one row retrieved, this form of ``SELECT`` is referred to as
+a "singleton ``SELECT``". A more flexible approach exists for getting output
+``SELECT`` results, as output host variables, from SQL to the host language:
+the SQL Cursor.
 
 Cursors
 =======
 
 The most famous of the impedance-mismatch problems is that SQL operates on
-sets, while host languages operate on set members. Therefore an SQL query --
-by which we almost always mean a SELECT statement -- is returning more data
+sets, while host languages operate on set members. Therefore an SQL query -- by
+which we almost always mean a ``SELECT`` statement -- is returning more data
 than a host variable can store. It's not enough to reply "use an array then".
-Although sometimes arrays are indeed helpful, we have to keep in mind that (a)
-the set might be gigantic and (b) there might be a two-way requirement (that
-is, rows which go out might also come back in). Either of these considerations
-make array definitions inappropriate for a general solution. The true and
-standard solution is the Cursor. With a Cursor, you can get only one row at a
-time -- namely the row that the Cursor is "positioned on".
+Although sometimes arrays are indeed helpful, we have to keep in mind that
+*(a)* the set might be gigantic and *(b)* there might be a two-way requirement
+(that is, rows which go out might also come back in). Either of these
+considerations make array definitions inappropriate for a general solution. The
+true and standard solution is the Cursor. With a Cursor, you can get only one
+row at a time -- namely the row that the Cursor is "positioned on".
 
 To understand the role of a Cursor, remember that your DBMS builds a result
 Table that contains all of the rows retrieved by an SQL query executed in an
 application program. Your DBMS uses a Cursor to make the rows of the result
 Table available to the program: the Cursor identifies, or points to, the
-current row of the result Table. When a Cursor is pointing to a row, it is
-said to be positioned on that row -- and you can UPDATE or DELETE that row
-using the "positioned" forms of the UPDATE and DELETE statements.
+current row of the result Table. When a Cursor is pointing to a row, it is said
+to be positioned on that row -- and you can ``UPDATE`` or ``DELETE`` that row
+using the "positioned" forms of the ``UPDATE`` and ``DELETE`` statements.
 
-To get it all working, you need to do four things: DECLARE a Cursor, OPEN the
-Cursor, FETCH (repeatedly) from the Cursor (manipulating the rows one by one)
-and CLOSE the Cursor. This Pascal program does all four things, in the form of
-a classic FETCH loop which is familiar to all SQL programmers.
+To get it all working, you need to do four things: ``DECLARE`` a Cursor,
+``OPEN`` the Cursor, ``FETCH`` (repeatedly) from the Cursor (manipulating the
+rows one by one) and ``CLOSE`` the Cursor. This Pascal program does all four
+things, in the form of a classic ``FETCH`` loop which is familiar to all SQL
+programmers.
 
 ::
 
@@ -620,30 +866,33 @@ a classic FETCH loop which is familiar to all SQL programmers.
      EXEC SQL DISCONNECT DEFAULT;
    end.
 
-The DECLARE CURSOR statement defines the query (usually a SELECT statement)
-that will get the SQL-data you want. It is not an executable statement, it is
-only (as the name implies) declarative. The action begins with the OPEN
-statement. When OPEN happens, the SELECT actually takes place, so now the DBMS
-has a set of rows waiting to be fetched -- these rows are called the current
-active set, or the result Table. The FETCH statement is the host program's way
-of asking the DBMS "may I have the next record please". In this example we
-have assumed that the DBMS will always answer YES and put values into the host
-variables SAMPLE_INTEGER and SAMPLE_BOOLEAN -- realistically, of course, we
-should also check whether the FETCH in fact succeeds. This is a check which
-we'll perform in a later example. Anyway, once the loop is done, the CLOSE
-statement will throw out the set of rows that the OPEN statement produced, thus closing the Cursor.
+The ``DECLARE CURSOR`` statement defines the query (usually a ``SELECT``
+statement) that will get the SQL-data you want. It is not an executable
+statement, it is only (as the name implies) declarative. The action begins with
+the ``OPEN`` statement. When ``OPEN`` happens, the ``SELECT`` actually takes
+place, so now the DBMS has a set of rows waiting to be fetched -- these rows
+are called the current active set, or the result Table. The ``FETCH`` statement
+is the host program's way of asking the DBMS "may I have the next record
+please". In this example we have assumed that the DBMS will always answer
+``YES`` and put values into the host variables ``SAMPLE_INTEGER`` and
+``SAMPLE_BOOLEAN`` -- realistically, of course, we should also check whether
+the ``FETCH`` in fact succeeds. This is a check which we'll perform in a later
+example. Anyway, once the loop is done, the ``CLOSE`` statement will throw out
+the set of rows that the ``OPEN`` statement produced, thus closing the Cursor.
 
-Some of the things you can do with Cursors, besides merely FETCH from them, include:
+Some of the things you can do with Cursors, besides merely ``FETCH`` from them,
+include:
 
-## DELETE and UPDATE rows at the current Cursor position.
+* ``DELETE`` and ``UPDATE`` rows at the current Cursor position.
 
-## FETCH something other than the "next" row (this option is called the SCROLL Cursor option).
+* ``FETCH`` something other than the "next" row (this option is called the
+  ``SCROLL`` Cursor option).
 
-::
+*DECLARE CURSOR Statement*
+--------------------------
 
-    DECLARE CURSOR statement
-
-The DECLARE CURSOR statement defines a Cursor. The required syntax for the DECLARE CURSOR statement is:
+The ``DECLARE CURSOR`` statement defines a Cursor. The required syntax for the
+``DECLARE CURSOR`` statement is:
 
 ::
 
@@ -661,44 +910,49 @@ The DECLARE CURSOR statement defines a Cursor. The required syntax for the DECLA
        [ FOR {READ ONLY | UPDATE [ OF <Column name> list ]} ]
 
 Each Cursor you define must have a unique name in the Module it's defined in.
-Its <cursor specification> results in a Table when evaluated. An INSENSITIVE
-Cursor is a Cursor that effectively causes a separate copy of its result Table
-to be created; the Cursor accesses that copy, rather than the original result,
-so any changes made to the original result by other methods won't be visible
-to this Cursor. A SENSITIVE Cursor is a Cursor that works directly on its
-result Table: it makes no copy, so other changes made to the result Table will
-be visible to this Cursor. An ASENSITIVE Cursor may or may not make a copy of
-its result Table; whether other changes to its result Table will be visible is
-implementation-defined. The default is an ASENSITIVE Cursor.
+Its <cursor specification> results in a Table when evaluated. An
+``INSENSITIVE`` Cursor is a Cursor that effectively causes a separate copy of
+its result Table to be created; the Cursor accesses that copy, rather than the
+original result, so any changes made to the original result by other methods
+won't be visible to this Cursor. A ``SENSITIVE`` Cursor is a Cursor that works
+directly on its result Table: it makes no copy, so other changes made to the
+result Table will be visible to this Cursor. An ``ASENSITIVE`` Cursor may or
+may not make a copy of its result Table; whether other changes to its result
+Table will be visible is implementation-defined. The default is an
+``ASENSITIVE`` Cursor.
 
 Normally, you can access the Cursor's result Table, one row at a time, only in
-the order that your DBMS gets the rows. A SCROLL Cursor is a Cursor that can
-hop around in its result set. In the first case, then, only FETCH NEXT is
-allowed, while for a SCROLL Cursor, all forms of FETCH are allowed.
+the order that your DBMS gets the rows. A ``SCROLL`` Cursor is a Cursor that
+can hop around in its result set. In the first case, then, only ``FETCH NEXT``
+is allowed, while for a ``SCROLL`` Cursor, all forms of ``FETCH`` are allowed.
 
-The optional updatability clause defaults to FOR READ ONLY if the Cursor's
-definition includes either INSENSITIVE, SCROLL or an ORDER BY clause, or if
-the Cursor's result Table is not an updatable Table. If none of these are
-true, you can either specify FOR UPDATE OF, followed by a list of the result
-Columns you want to update, or the Cursor definition will default to that state.
+The optional updatability clause defaults to ``FOR READ ONLY`` if the Cursor's
+definition includes either ``INSENSITIVE``, ``SCROLL`` or an ``ORDER BY``
+clause, or if the Cursor's result Table is not an updatable Table. If none of
+these are true, you can either specify ``FOR UPDATE OF``, followed by a list of
+the result Columns you want to update, or the Cursor definition will default to
+that state.
 
-FOR READ ONLY means the Cursor is not updatable -- that is, UPDATE and DELETE
-operations won't be allowed on this Cursor. FOR UPDATE OF, permitted only on
-an updatable Cursor, means that the Columns specified may be the target of an
-UPDATE operation. If you include a Column list, only those Columns can be
-updated by the Cursor. If you omit the Column list, the effect is the same as
-if you included a list that names every Column of the result Table.
+``FOR READ ONLY`` means the Cursor is not updatable -- that is, ``UPDATE`` and
+``DELETE`` operations won't be allowed on this Cursor. ``FOR UPDATE OF``,
+permitted only on an updatable Cursor, means that the Columns specified may be
+the target of an ``UPDATE`` operation. If you include a Column list, only those
+Columns can be updated by the Cursor. If you omit the Column list, the effect
+is the same as if you included a list that names every Column of the result
+Table.
 
-If DECLARE CURSOR includes the optional WITH HOLD clause, the Cursor is a
-holdable Cursor. This means that if the Cursor is open when a transaction is
-terminated with a COMMIT statement, it won't be closed -- it will stay open
-into the next transaction. A holdable Cursor is always closed by ROLLBACK.
+If ``DECLARE CURSOR`` includes the optional ``WITH HOLD`` clause, the Cursor is
+a holdable Cursor. This means that if the Cursor is open when a transaction is
+terminated with a ``COMMIT`` statement, it won't be closed -- it will stay open
+into the next transaction. A holdable Cursor is always closed by ``ROLLBACK``.
 
-If your Cursor definition includes the optional WITH RETURN clause, the Cursor
-is called a result set Cursor. A result set Cursor that is declared in an
-SQL-invoked procedure returns a result set if it is open when the procedure ends.
+If your Cursor definition includes the optional ``WITH RETURN`` clause, the
+Cursor is called a *result set Cursor*. A result set Cursor that is declared in
+an SQL-invoked procedure returns a result set if it is open when the procedure
+ends.
 
-Here's an example of DECLARE CURSOR, based on the sample Tables we defined in our chapter on simple search conditions:
+Here's an example of ``DECLARE CURSOR``, based on the sample Tables we defined
+in our chapter on simple search conditions:
 
 ::
 
@@ -708,31 +962,40 @@ Here's an example of DECLARE CURSOR, based on the sample Tables we defined in ou
           ORDER BY dept,empnum
        FOR UPDATE OF surname,address;
 
-This Cursor definition will allow you to get all the rows of the EMPLOYEE
-Table where the DEPT value is A, B or C. It will also allow you to UPDATE the
-values of the DEPT, SURNAME and ADDRESS Columns of the retrieved rows.
+This Cursor definition will allow you to get all the rows of the ``EMPLOYEE``
+Table where the ``DEPT`` value is A, B or C. It will also allow you to
+``UPDATE`` the values of the ``DEPT``, ``SURNAME`` and ``ADDRESS`` Columns of
+the retrieved rows.
 
 If you want to restrict your code to Core SQL, don't declare a Cursor with
-either SENSITIVE, INSENSITIVE or ASENSITIVE, don't declare a Cursor with
-SCROLL, don't declare a Cursor with WITH RETURN and don't declare a Cursor
-with ORDER BY if you've declared it with FOR UPDATE with, or without, a Column list.
+either ``SENSITIVE``, ``INSENSITIVE`` or ``ASENSITIVE``, don't declare a Cursor
+with ``SCROLL``, don't declare a Cursor with ``WITH RETURN`` and don't declare
+a Cursor with ``ORDER BY`` if you've declared it with ``FOR UPDATE`` with, or
+without, a Column list.
 
-OPEN statement
+*OPEN Statement*
+----------------
 
-The OPEN statement opens a Cursor. The required syntax for the OPEN statement is:
+The ``OPEN`` statement opens a Cursor. The required syntax for the ``OPEN``
+statement is:
 
 ::
 
     OPEN <Cursor name>
 
-The OPEN statement processes the Cursor's query (it's an error if the Cursor is already open). In order to OPEN a Cursor, then, your current <AuthorizationID> has to have all the Privileges required to process that query.
+The ``OPEN`` statement processes the Cursor's query (it's an error if the
+Cursor is already open). In order to ``OPEN`` a Cursor, then, your current
+<AuthorizationID> has to have all the Privileges required to process that
+query.
 
 While it is open, a Cursor identifies a result Table, as well as a certain
 position within the rows of that Table: it can be one some row of the Table,
 before some row of the Table or after the last row of the Table. Immediately
-after you execute OPEN, the Cursor is positioned before the first row of its result Table.
+after you execute ``OPEN``, the Cursor is positioned before the first row of
+its result Table.
 
-Here's an example of OPEN, based on the sample Cursor we defined in the last section:
+Here's an example of ``OPEN``, based on the sample Cursor we defined in the
+last section:
 
 ::
 
@@ -749,10 +1012,12 @@ This SQL statement will evaluate the Cursor query:
 
 and position the Cursor before the first row of the result Table.
 
-FETCH statement
+*FETCH Statement*
+-----------------
 
-The FETCH statement positions a Cursor on a specific row of its result Table,
-and retrieves that row's values into host variables. The required syntax for the FETCH statement is:
+The ``FETCH`` statement positions a Cursor on a specific row of its result
+Table, and retrieves that row's values into host variables. The required syntax
+for the ``FETCH`` statement is:
 
 ::
 
@@ -769,34 +1034,37 @@ and retrieves that row's values into host variables. The required syntax for the
        <fetch target list> ::=
        <target specification> [ {,<target specification>}... ]
 
-The FETCH orientation specification is one of the <keyword>s listed before the
-<Cursor name>: it defines which row of the Cursor's result Table FETCH will
-get next. FETCH NEXT (row), FETCH PRIOR (row), FETCH FIRST (row) and FETCH
-LAST (row) are self-explanatory. FETCH NEXT is the default, and is the only
-legal option if the Cursor is not a SCROLL Cursor. For FETCH ABSOLUTE and
-FETCH RELATIVE, let "n" be the <simple value specification> (it must be a
-<literal>, SQL parameter or host variable that represents an integer): FETCH
-ABSOLUTE "n" moves the Cursor to the nth row of its result Table (counting
-backward from the end if "n" is negative) and FETCH RELATIVE "n" moves the
-Cursor to the nth row from the current position (again, counting backward if
-"n" is negative). Assuming that the fetch orientation does identify a row of
-the result Table (e.g.: that there is a NEXT row), then the Cursor is
-positioned on that row and the SQL-data values are retrieved from that row. If
-the fetch orientation has gone beyond the result Table -- that is, if there is
-no NEXT row because FETCH already retrieved the final row -- then the Cursor
-is positioned either after the last row or before the first row of the result
-Table (depending on which way the fetch orientation was moving) and no SQL-data is retrieved.
+The ``FETCH`` orientation specification is one of the <keyword>s listed before
+the <Cursor name>: it defines which row of the Cursor's result Table ``FETCH``
+will get next. ``FETCH NEXT`` (row), ``FETCH PRIOR`` (row), ``FETCH FIRST``
+(row) and ``FETCH LAST`` (row) are self-explanatory. ``FETCH NEXT`` is the
+default, and is the only legal option if the Cursor is not a ``SCROLL`` Cursor.
+For ``FETCH ABSOLUTE`` and ``FETCH RELATIVE``, let *n* be the <simple value
+specification> (it must be a <literal>, SQL parameter or host variable that
+represents an integer): ``FETCH ABSOLUTE`` *n* moves the Cursor to the *n*\ th
+row of its result Table (counting backward from the end if *n* is negative) and
+``FETCH RELATIVE`` *n* moves the Cursor to the *n*\ th row from the current
+position (again, counting backward if *n* is negative). Assuming that the fetch
+orientation does identify a row of the result Table (e.g.: that there is a
+``NEXT`` row), then the Cursor is positioned on that row and the SQL-data
+values are retrieved from that row. If the fetch orientation has gone beyond
+the result Table -- that is, if there is no ``NEXT`` row because ``FETCH``
+already retrieved the final row -- then the Cursor is positioned either after
+the last row or before the first row of the result Table (depending on which
+way the fetch orientation was moving) and no SQL-data is retrieved.
 
-<Cursor name> is the name of the OPEN Cursor whose result Table you want to
-FETCH. The values retrieved from each row are placed into a list of host
-variables by FETCH. You provide your DBMS with the comma-delimited list of
-output host variables (and their optional indicators) in FETCH's INTO clause.
-The first value in the row that the Cursor is positioned on is assigned to the
-first host variable in the list, the second value is assigned to the second
-host variable, and so on (the number of Columns in the result Table and the
-number of host variables must, of course, match -- as must their <data type>s).
+<Cursor name> is the name of the ``OPEN`` Cursor whose result Table you want to
+``FETCH``. The values retrieved from each row are placed into a list of host
+variables by ``FETCH``. You provide your DBMS with the comma-delimited list of
+output host variables (and their optional indicators) in ``FETCH``\'s ``INTO``
+clause. The first value in the row that the Cursor is positioned on is assigned
+to the first host variable in the list, the second value is assigned to the
+second host variable, and so on (the number of Columns in the result Table and
+the number of host variables must, of course, match -- as must their <data
+type>s).
 
-Here's some examples of FETCH, based on the sample Cursor we opened in the last section:
+Here's some examples of ``FETCH``, based on the sample Cursor we opened in the
+last section:
 
 ::
 
@@ -807,9 +1075,11 @@ Here's some examples of FETCH, based on the sample Cursor we opened in the last 
           :gname :gname_indicator,
           :address :address_indicator;
 
-This SQL statement will position the Cursor on the next row of the result
-Table (which happens to be the first row in this example), and assign the SQL-data values from each Column in that row to the corresponding host variables.
-Since we declared the Cursor as a SCROLL Cursor, we could use this FETCH statement instead:
+This SQL statement will position the Cursor on the next row of the result Table
+(which happens to be the first row in this example), and assign the SQL-data
+values from each Column in that row to the corresponding host variables. Since
+we declared the Cursor as a ``SCROLL`` Cursor, we could use this ``FETCH``
+statement instead:
 
 ::
 
@@ -821,17 +1091,20 @@ Since we declared the Cursor as a SCROLL Cursor, we could use this FETCH stateme
           :address :address_indicator;
 
 This SQL statement will position the Cursor on the fourth row of the result
-Table, and assign the SQL-data values from each Column in that row to the corresponding host variables.
+Table, and assign the SQL-data values from each Column in that row to the
+corresponding host variables.
 
-If you want to restrict your code to Core SQL, don't use FETCH with a <fetch orientation>: always let it default to FETCH NEXT.
+If you want to restrict your code to Core SQL, don't use ``FETCH`` with a
+<fetch orientation>: always let it default to ``FETCH NEXT``.
 
-Singleton SELECT statement
+*Singleton SELECT Statement*
+----------------------------
 
 If you know that a result Table will contain only one row of SQL-data, you
 don't need to declare a Cursor to get that result into your application
-program. Instead, you can use the form of the SELECT statement called the
-singleton SELECT: it puts the values found in a single row into a set of host
-variables. The required syntax for a singleton SELECT is:
+program. Instead, you can use the form of the ``SELECT`` statement called the
+singleton ``SELECT``: it puts the values found in a single row into a set of
+host variables. The required syntax for a singleton ``SELECT`` is:
 
 ::
 
@@ -839,21 +1112,24 @@ variables. The required syntax for a singleton SELECT is:
     INTO <target specification> [ {,<target specification>}... ]
     <table expression>
 
-The singleton SELECT statement can only be embedded in an application program.
-It can only retrieve one row of SQL-data. It is an error if more than one row
-might satisfy the query -- you must use a Cursor to manipulate the data instead.
+The singleton ``SELECT`` statement can only be embedded in an application
+program. It can only retrieve one row of SQL-data. It is an error if more than
+one row might satisfy the query -- you must use a Cursor to manipulate the data
+instead.
 
-The singleton SELECT looks exactly like a regular SELECT statement except for
-the INTO clause that comes between the select list and the <table expression>
-(i.e.: FROM ... WHERE ... etc.). The INTO clause works like the INTO clause in
-the FETCH statement: you provide your DBMS with a comma-delimited list of
-output host variables (and their optional indicators) therein and your DBMS
-places the first value in the result row into the first host variable in the
-list, the second value in the result row into the second host variable, and so
-on (the number of Columns in the result row and the number of host variables
-must, of course, match -- as must their <data type>s).
+The singleton ``SELECT`` looks exactly like a regular ``SELECT`` statement
+except for the ``INTO`` clause that comes between the select list and the
+<table expression> (i.e.: ``FROM`` ... ``WHERE`` ... etc.). The ``INTO`` clause
+works like the ``INTO`` clause in the ``FETCH`` statement: you provide your
+DBMS with a comma-delimited list of output host variables (and their optional
+indicators) therein and your DBMS places the first value in the result row into
+the first host variable in the list, the second value in the result row into
+the second host variable, and so on (the number of Columns in the result row
+and the number of host variables must, of course, match -- as must their <data
+type>s).
 
-Here's an example of a singleton SELECT, based on the sample Tables we defined in our chapter on simple search conditions:
+Here's an example of a singleton ``SELECT``, based on the sample Tables we
+defined in our chapter on simple search conditions:
 
 ::
 
@@ -874,21 +1150,25 @@ This SQL statement will evaluate the query:
    FROM   Employee
    WHERE  empnum=10
 
-and assign the SQL-data values from each Column in that row to the corresponding host variables.
+and assign the SQL-data values from each Column in that row to the
+corresponding host variables.
 
-INSERT statement
+*INSERT Statement*
+------------------
 
-A special form of the INSERT statement exists for use with a Cursor. The required syntax is:
+A special form of the ``INSERT`` statement exists for use with a Cursor. The
+required syntax is:
 
 ::
 
     INSERT INTO <Cursor name> [ (<Column name> [ , ... ]) ]
     {<query expression> | DEFAULT VALUES}
 
-This form of the INSERT statement works exactly the same as the INSERT we
-described in our chapter on the SQL-data change statements, except that you
-put a <Cursor name> instead of a <Table reference> in the INTO clause. That
-is, the target of the INSERT operation is the Cursor's result Table. Here's an example:
+This form of the ``INSERT`` statement works exactly the same as the ``INSERT``
+we described in our chapter on the SQL-data change statements, except that you
+put a <Cursor name> instead of a <Table reference> in the ``INTO`` clause. That
+is, the target of the ``INSERT`` operation is the Cursor's result Table. Here's
+an example:
 
 ::
 
@@ -899,11 +1179,14 @@ is, the target of the INSERT operation is the Cursor's result Table. Here's an e
            :gname :gname_indicator,
            :address :address_indicator);
 
-If you want to restrict your code to Core SQL, don't use this form of the INSERT statement.
+If you want to restrict your code to Core SQL, don't use this form of the
+``INSERT`` statement.
 
-Positioned UPDATE statement
+*Positioned UPDATE Statement*
+-----------------------------
 
-The positioned UPDATE statement lets you UPDATE the Cursor's current row. The required syntax for the positioned UPDATE statement is:
+The positioned ``UPDATE`` statement lets you ``UPDATE`` the Cursor's
+current row. The required syntax for the positioned ``UPDATE`` statement is:
 
 ::
 
@@ -911,19 +1194,21 @@ The positioned UPDATE statement lets you UPDATE the Cursor's current row. The re
     {<Column name>=scalar_expression [ {, ... ] | ROW=row_expression}
     WHERE CURRENT OF <Cursor name>
 
-This form of the UPDATE statement works exactly the same as the UPDATE we
-described in our chapter on the SQL-data change statements, except that you
-put "WHERE CURRENT OF <Cursor name>" after the SET assignments instead of the
-(optional) "WHERE condition" clause and that you can omit the <Table
-reference> after UPDATE, since the <Cursor name> in the WHERE clause identifies the UPDATE target Table anyway.
+This form of the ``UPDATE`` statement works exactly the same as the ``UPDATE``
+we described in our chapter on the SQL-data change statements, except that you
+put "``WHERE CURRENT OF`` <Cursor name>" after the ``SET`` assignments instead
+of the (optional) "``WHERE`` condition" clause and that you can omit the <Table
+reference> after ``UPDATE``, since the <Cursor name> in the ``WHERE`` clause
+identifies the ``UPDATE`` target Table anyway.
 
 The Cursor must be open, must be an updatable Cursor and must be positioned on
 a row of its result Table. That row (the current row) is the row that will be
-updated. Each Column that is a target of the SET clause must have been
-mentioned in the FOR UPDATE OF clause of the Cursor's definition. Any updated
-Column may not be named in the Cursor's ORDER BY clause.
+updated. Each Column that is a target of the ``SET`` clause must have been
+mentioned in the ``FOR UPDATE OF`` clause of the Cursor's definition. Any
+updated Column may not be named in the Cursor's ``ORDER BY`` clause.
 
-Here's an example of a positioned UPDATE, based on the sample Cursor we fetched with earlier:
+Here's an example of a positioned ``UPDATE``, based on the sample Cursor we
+fetched with earlier:
 
 ::
 
@@ -932,67 +1217,79 @@ Here's an example of a positioned UPDATE, based on the sample Cursor we fetched 
      address = :new_address :new_address_indicator
    WHERE CURRENT OF emps_cursor;
 
-This SQL statement changes the values of the SURNAME and ADDRESS Columns in
-the current row of the Cursor's result Table. After the UPDATE, the Cursor
-remains on its current row. It won't move until another FETCH statement is executed.
+This SQL statement changes the values of the ``SURNAME`` and ``ADDRESS``
+Columns in the current row of the Cursor's result Table. After the ``UPDATE``,
+the Cursor remains on its current row. It won't move until another ``FETCH``
+statement is executed.
 
-If you want to restrict your code to Core SQL, don't omit the <Table
-reference> from a positioned UPDATE statement, don't add an ORDER BY clause to
-your Cursor definition, and don't have an UPDATE target that is a <literal>, host variable or SQL parameter.
+If you want to restrict your code to Core SQL, don't omit the <Table reference>
+from a positioned ``UPDATE`` statement, don't add an ``ORDER BY`` clause to
+your Cursor definition, and don't have an ``UPDATE`` target that is a
+<literal>, host variable or SQL parameter.
 
-Positioned DELETE statement
+*Positioned DELETE Statement*
+-----------------------------
 
-The positioned delete statement lets you DELETE the Cursor's current row. The required syntax for the positioned DELETE statement is:
+The positioned delete statement lets you ``DELETE`` the Cursor's current row.
+The required syntax for the positioned ``DELETE`` statement is:
 
 ::
 
     DELETE [ FROM <Table reference> ] WHERE CURRENT OF <Cursor name>
 
-This form of the DELETE statement works exactly the same as the DELETE we
-described in our chapter on the SQL-data change statements, except that you
-use "WHERE CURRENT OF <Cursor name>" instead of the (optional) "WHERE
-condition" clause and that you can omit the FROM <Table reference> clause
-after DELETE, since the <Cursor name> in the WHERE clause identifies the DELETE target Table anyway.
+This form of the ``DELETE`` statement works exactly the same as the ``DELETE``
+we described in our chapter on the SQL-data change statements, except that you
+use "``WHERE CURRENT OF`` <Cursor name>" instead of the (optional) "``WHERE``
+condition" clause and that you can omit the ``FROM`` <Table reference> clause
+after ``DELETE``, since the <Cursor name> in the ``WHERE`` clause identifies
+the ``DELETE`` target Table anyway.
 
 The Cursor must be open, must be an updatable Cursor and must be positioned on
 a row of its result Table. That row (the current row) is the row that will be
-deleted. Here's an example of a positioned DELETE, based on the sample Cursor we fetched with earlier:
+deleted. Here's an example of a positioned ``DELETE``, based on the sample
+Cursor we fetched with earlier:
 
 ::
 
    DELETE FROM Employee WHERE CURRENT OF emps_cursor;
 
 This SQL statement deletes the current row of the Cursor's result Table. After
-the DELETE, the Cursor is positioned before the row that follows the deleted
-row (or after the last row, if the deleted row was the last row). It won't be
-positioned on another row until another FETCH statement is executed.
+the ``DELETE``, the Cursor is positioned before the row that follows the
+deleted row (or after the last row, if the deleted row was the last row). It
+won't be positioned on another row until another ``FETCH`` statement is
+executed.
 
-CLOSE statement
+*CLOSE Statement*
+-----------------
 
-The CLOSE statement closes a Cursor. The required syntax for the CLOSE statement is:
+The ``CLOSE`` statement closes a Cursor. The required syntax for the
+``CLOSE`` statement is:
 
 ::
 
     CLOSE <Cursor name>
 
-The CLOSE statement destroys the Cursor's result Table (it's an error if the
-Cursor isn't open). Closing a Cursor causes your DBMS to immediately check all
-Constraints that were affected by Cursor operations for violation and to
-execute any triggered actions that were deferred during the Cursor operations. Here's an example:
+The ``CLOSE`` statement destroys the Cursor's result Table (it's an error if
+the Cursor isn't open). Closing a Cursor causes your DBMS to immediately check
+all Constraints that were affected by Cursor operations for violation and to
+execute any triggered actions that were deferred during the Cursor operations.
+Here's an example:
 
 ::
 
    CLOSE emps_cursor;
 
-A Cursor is also closed by ROLLBACK and (unless it's a holdable Cursor) by COMMIT.
+A Cursor is also closed by ``ROLLBACK`` and (unless it's a holdable Cursor)
+by ``COMMIT``.
 
 Embedded SQL Examples
 =====================
 
-Here is an example program which selects and fetches ten rows in Table T, and
-displays the contents. This program watches for NULL values, which it
+Here is an example program which selects and fetches ten rows in Table ``T``,
+and displays the contents. This program watches for ``NULL`` values, which it
 indicates by displaying a question mark rather than a number. (The use of "?"
-to mean "NULL" is conventional in displays and printouts, but sometimes blanks are used instead.)
+to mean "``NULL``" is conventional in displays and printouts, but sometimes
+blanks are used instead.)
 
 ::
 
@@ -1017,22 +1314,23 @@ to mean "NULL" is conventional in displays and printouts, but sometimes blanks a
 Diagnostics
 ===========
 
-    "I beseech you in the bowels of Christ, consider that you may be wrong."
-
-    -- Cromwell
+*"I beseech you in the bowels of Christ, consider that you may be wrong."*
+*-- Cromwell*
 
 After any embedded SQL statement, you can add code to ask the DBMS: "has
 anything gone wrong?", and if so "what has gone wrong?". The DBMS's answers --
-diagnostics -- are categorized and coded in a standard way, so you have some
-advance knowledge about what the possible scenarios are. The basic piece of diagnostic information is SQLSTATE.
+*diagnostics* -- are categorized and coded in a standard way, so you have some
+advance knowledge about what the possible scenarios are. The basic piece of
+diagnostic information is ``SQLSTATE``.
 
 Originally, the basic item of diagnostic information was an integer variable
-called sqlcode (or, in Fortran: SQLCOD). After every SQL statement, the DBMS
-would put a value in sqlcode. If the value was less than zero, that meant
-"error". If the value was zero, that meant "success". If the value was greater
-than zero, that meant "success with additional information", that is, a
+called ``sqlcode`` (or, in Fortran: ``SQLCOD``). After every SQL statement, the
+DBMS would put a value in ``sqlcode``. If the value was less than zero, that
+meant "error". If the value was zero, that meant "success". If the value was
+greater than zero, that meant "success with additional information", that is, a
 warning. The most common warning was +100, which meant "no data". This was an
-easy system to follow, and it was common practice to add lines like these after every SQL statement:
+easy system to follow, and it was common practice to add lines like these after
+every SQL statement:
 
 ::
 
@@ -1040,31 +1338,40 @@ easy system to follow, and it was common practice to add lines like these after 
     printf("Error!\n"); /*or some more sophisticated error-handling action*/
     exit(1); }
 
-It is still common today to see sqlcode checking, especially since all DBMS
+It is still common today to see ``sqlcode`` checking, especially since all DBMS
 vendors still allow for it. However, the SQL-92 Standard "deprecated" use of
-sqlcode and the SQL3 Standard doesn't recognize it at all. SQLSTATE is the modern basic item of diagnostic information.
+``sqlcode`` and the SQL3 Standard doesn't recognize it at all. ``SQLSTATE`` is
+the modern basic item of diagnostic information.
 
-A big advantage of SQLSTATE is that the possible values are standardized for
-each error category, a level of agreement that was never achieved with the
-sqlcode values. SQLSTATE is a 5-character variable which you should define in
-the declare section. After every SQL statement, the DBMS will put a value (the
-status code) into SQLSTATE. The status code consists of digits or upper case
-letters between A and Z. The first two letters or digits are the "class" (the
-general category), the next three letters or digits are the "subclass" (the
-specific category, if any). You can see a complete list of status codes, and
-descriptions thereof, in our chapter on SQL/CLI diagnostics. For now, content
-yourself with the knowledge of the most important classes:
+A big advantage of ``SQLSTATE`` is that the possible values are standardized
+for each error category, a level of agreement that was never achieved with the
+``sqlcode`` values. ``SQLSTATE`` is a 5-character variable which you should
+define in the declare section. After every SQL statement, the DBMS will put a
+value (the status code) into ``SQLSTATE``. The status code consists of digits
+or upper case letters between A and Z. The first two letters or digits are the
+"class" (the general category), the next three letters or digits are the
+"subclass" (the specific category, if any). You can see a complete list of
+status codes, and descriptions thereof, in our chapter on SQL/CLI diagnostics.
+For now, content yourself with the knowledge of the most important classes:
 
-## Class '00' is 'SUCCESS'. When you see this, everything's going fine.
+* Class '``00``' is '``SUCCESS``'. When you see this, everything's going fine.
 
-## Class '01' is 'SUCCESS WITH INFO', or 'WARNING'. For example, perhaps some precision was lost during an arithmetic calculation. There is usually no cause to change the course of your program's flow,
-but displaying a message is often an appropriate action for your program to take.
+* Class '``01``' is '``SUCCESS WITH INFO``', or '``WARNING``'. For example,
+  perhaps some precision was lost during an arithmetic calculation. There is
+  usually no cause to change the course of your program's flow, but displaying
+  a message is often an appropriate action for your program to take.
 
-## Class '02' is 'NO DATA'. Every FETCH loop should watch for this one, since FETCH will cause 'NO DATA' if there is nothing more to fetch.
+* Class '``02``' is '``NO DATA``'. Every ``FETCH`` loop should watch for this
+  one, since ``FETCH`` will cause '``NO DATA``' if there is nothing more to
+  fetch.
 
-## All other classes are 'ERROR'. The SQL statement has failed. Check paranoidly. If SQLSTATE contains anything other than '00' or '01' or '02', you might have to take some corrective action or even abort the job.
+* All other classes are '``ERROR``'. The SQL statement has failed. Check
+  paranoidly. If ``SQLSTATE`` contains anything other than '``00``' or '``01``'
+  or '``02``', you might have to take some corrective action or even abort the
+  job.
 
-Let us now rewrite our FETCH loop program. This time we'll check SQLSTATE.
+Let us now rewrite our ``FETCH`` loop program. This time we'll check
+``SQLSTATE``.
 
 ::
 
@@ -1105,11 +1412,13 @@ Let us now rewrite our FETCH loop program. This time we'll check SQLSTATE.
       /* We're ending the program, but let's check anyway. */
       if (... <> "00") printf("After disconnect, sqlstate=%s.\n",sqlstate); }
 
-If you find it tedious to check SQLSTATE after every single error, there is an SQL directive to automate the procedure: the WHENEVER statement.
+If you find it tedious to check ``SQLSTATE`` after every single error, there is
+an SQL directive to automate the procedure: the ``WHENEVER`` statement.
 
-WHENEVER statement
+*WHENEVER Statement*
+--------------------
 
-The required syntax for the WHENEVER statement (omitting some details) is:
+The required syntax for the ``WHENEVER`` statement (omitting some details) is:
 
 ::
 
@@ -1121,38 +1430,46 @@ or
 
    WHENEVER <condition> CONTINUE
 
-The WHENEVER <condition> is one of:
+The ``WHENEVER`` <condition> is one of:
 
-## SQLWARNING ... true if SQLSTATE contains the '01' status code class.
+* ``SQLWARNING`` ... true if ``SQLSTATE`` contains the '``01``' status code
+  class.
 
-## NOT FOUND ... true for the SQLSTATE '02' class.
+* ``NOT FOUND`` ... true for the ``SQLSTATE`` '``02``' class.
 
-## SQLEXCEPTION ... true for any other SQLSTATE class. (The old SQL-92 name for this is SQLERROR.)
+* ``SQLEXCEPTION`` ... true for any other ``SQLSTATE`` class. (The old
+  SQL-92 name for this is ``SQLERROR``.)
 
-## SQLSTATE (list) ... an SQL3 innovation, rarely supported.
+* ``SQLSTATE`` (list) ... an SQL3 innovation, rarely supported.
 
-## CONSTRAINT (name) ... an SQL3 innovation, rarely supported.
+* ``CONSTRAINT`` (name) ... an SQL3 innovation, rarely supported.
 
-The WHENEVER target is a label or address which would be legal as the argument
-of a GOTO statement in the host language. The WHENEVER directive is not an
-executable statement; it's a signal to the precompiler. The precompiler
-responds to it by generating appropriate "if ... goto ..." statements after every SQL statement.
+The ``WHENEVER`` target is a label or address which would be legal as the
+argument of a ``GOTO`` statement in the host language. The ``WHENEVER``
+directive is not an executable statement; it's a signal to the precompiler. The
+precompiler responds to it by generating appropriate "if ... goto ..."
+statements after every SQL statement.
 
-** TIP: When you write a program for the first time, put "EXEC SQL WHENEVER
-SQLEXCEPTION GOTO error_abort;" at the start. After you've got the program
-working, edit it and put in error testing that's more specific.
+.. TIP::
 
-Serious programs contain considerably more than basic SQLSTATE checks. To
+   When you write a program for the first time, put ``EXEC SQL WHENEVER
+   SQLEXCEPTION GOTO error_abort;`` at the start. After you've got the program
+   working, edit it and put in error testing that's more specific.
+
+Serious programs contain considerably more than basic ``SQLSTATE`` checks. To
 begin with, they have different reactions depending on the specific class and
-subclass in the status code. They also make use of SQL's GET DIAGNOSTICS
-statement. With GET DIAGNOSTICS, one can ask more about the context, get an
+subclass in the status code. They also make use of SQL's ``GET DIAGNOSTICS``
+statement. With ``GET DIAGNOSTICS``, one can ask more about the context, get an
 implementation-defined error message, and perhaps retrieve several different
 diagnostics (it's possible, for instance, that the DBMS generated several
 warnings before it ultimately gave up and generated an error).
 
-GET DIAGNOSTICS statement
+*GET DIAGNOSTICS Statement*
+---------------------------
 
-The GET DIAGNOSTICS statement gets exception or completion condition information from the diagnostics area. The required syntax for the GET DIAGNOSTICS statement is:
+The ``GET DIAGNOSTICS`` statement gets exception or completion condition
+information from the diagnostics area. The required syntax for the ``GET
+DIAGNOSTICS`` statement is:
 
 ::
 
@@ -1210,10 +1527,10 @@ The GET DIAGNOSTICS statement gets exception or completion condition information
 
           <condition number> ::= <simple value specification>
 
-There are two forms of the GET DIAGNOSTICS statement. The first gets
+There are two forms of the ``GET DIAGNOSTICS`` statement. The first gets
 information about the overall execution of the immediately preceding SQL
 statement, while the second form gets more specific information about one or
-more specific errors. Here are some examples of GET DIAGNOSTICS:
+more specific errors. Here are some examples of ``GET DIAGNOSTICS``:
 
 ::
 
@@ -1225,24 +1542,25 @@ more specific errors. Here are some examples of GET DIAGNOSTICS:
 
 Not wanting to bore you twice, we'll defer the detailed discussion of the
 diagnostics area's fields till a later time -- when we talk about the
-SQL/CLI's SQLGetDiagRec and SQLGetDiagField functions.
+SQL/CLI's ``SQLGetDiagRec`` and ``SQLGetDiagField`` functions.
 
 Dynamic SQL
 ===========
 
-In the examples so far, we've assumed that we know some things in advance
-about the database and the SQL statements we're going to execute. For example,
-in our FETCH loop examples, we make the assumptions that the <Table name> is
-T, that T a Column called COL_1, that COL_1 has a numeric <data type>, and so
-on. A program which contains such assumptions is called a static SQL program,
-because its SQL statements are changeless. Let us now suppose that we lack
-advance knowledge about the program. The classic supposition is: what if the
-user types in a SELECT command on the keyboard? We need to use a more flexible
-(and somewhat less efficient) tool set: the components of dynamic SQL.
+In the examples so far, we've assumed that we know some things in advance about
+the database and the SQL statements we're going to execute. For example, in our
+``FETCH`` loop examples, we make the assumptions that the <Table name> is
+``T``, that ``T`` a Column called ``COL_1``, that ``COL_1`` has a numeric <data
+type>, and so on. A program which contains such assumptions is called a static
+SQL program, because its SQL statements are changeless. Let us now suppose that
+we lack advance knowledge about the program. The classic supposition is: what
+if the user types in a ``SELECT`` command on the keyboard? We need to use a
+more flexible (and somewhat less efficient) tool set: the components of dynamic
+SQL.
 
 Start with the basic supposition: that the user types in an SQL statement on
 the keyboard. There is a simple embedded SQL statement which parses and
-executes strings at runtime: EXECUTE IMMEDIATE. Here is an example:
+executes strings at runtime: ``EXECUTE IMMEDIATE``. Here is an example:
 
 ::
 
@@ -1252,8 +1570,9 @@ executes strings at runtime: EXECUTE IMMEDIATE. Here is an example:
         EXEC SQL EXECUTE IMMEDIATE :a_string; }
       ...
 
-In this example, a_string is a character string host variable. If it contains
-the string "INSERT INTO T VALUES (5)", then the above statement is equivalent to:
+In this example, ``a_string`` is a character string host variable. If it
+contains the string ``INSERT INTO T VALUES (5)``, then the above statement is
+equivalent to:
 
 ::
 
@@ -1264,11 +1583,12 @@ The good news about dynamic SQL is that you have an SQL interpreter available.
 That's remarkable when you compare SQL with a host language. You can't write
 equivalent code which will parse and execute a C statement from C, or a Pascal
 statement from Pascal! The result is that your SQL code is more capable than
-your host language code. The bad news is that interpreters are slow. Faced
-with repetitive operations like the ones in our example above, we would rather
+your host language code. The bad news is that interpreters are slow. Faced with
+repetitive operations like the ones in our example above, we would rather
 replace "parse and execute many times" with "parse once, execute many times".
-Luckily, there are embedded SQL statements for that -- PREPARE and EXECUTE.
-Here is a replacement example, which does the same thing but is maybe more efficient:
+Luckily, there are embedded SQL statements for that -- ``PREPARE`` and
+``EXECUTE``. Here is a replacement example, which does the same thing but is
+maybe more efficient:
 
 ::
 
@@ -1278,18 +1598,20 @@ Here is a replacement example, which does the same thing but is maybe more effic
       for (i=0; i<1000; ++i)
         EXEC SQL EXECUTE :a_string; }
 
-(Note: Some smart DBMSs can detect simple situations like the one in this
-example and optimize accordingly. For example, if you program with Oracle you
-will gain nothing by replacing Example A with Example B.)
+.. NOTE::
+
+   Some smart DBMSs can detect simple situations like the one in this example
+   and optimize accordingly. For example, if you program with Oracle you will
+   gain nothing by replacing Example A with Example B.)
 
 The ultimate in embedded-SQL complexity is a dynamically executed query, such
-as a SELECT statement. We can't define host variables and indicators in
+as a ``SELECT`` statement. We can't define host variables and indicators in
 advance, because we don't know what the <data type>s of the result Columns are
 -- or even how many Columns the query will return. The first time you see
 dynamic SQL query code, you may have trouble understanding it. But the second
-time, you'll have less trouble -- because it will be the same. Most
-programmers use a boilerplate, so the program structure turns out to be
-similar in every program. In pseudocode that structure looks like this:
+time, you'll have less trouble -- because it will be the same. Most programmers
+use a boilerplate, so the program structure turns out to be similar in every
+program. In pseudocode that structure looks like this:
 
 ::
 
@@ -1307,7 +1629,8 @@ similar in every program. In pseudocode that structure looks like this:
       FETCH. The fetch targets are the allocated areas in the host program.
       if (no-data) exit loop.
 
-At this point, code varies depending on what we want to do with the dynamically retrieved data. For instance we could display it:
+At this point, code varies depending on what we want to do with the
+dynamically retrieved data. For instance we could display it:
 
 ::
 
@@ -1316,79 +1639,92 @@ At this point, code varies depending on what we want to do with the dynamically 
     CLOSE Cursor.
     end.
 
-Principally, you're asking the DBMS to DESCRIBE what it finds. The key statements for the purpose are:
+Principally, you're asking the DBMS to ``DESCRIBE`` what it finds. The key
+statements for the purpose are:
 
-## ALLOCATE DESCRIPTOR ... which tells the DBMS to allocate an area internally (i.e. within the DBMS) for storing the description.
+* ``ALLOCATE DESCRIPTOR ...`` which tells the DBMS to allocate an area
+  internally (i.e. within the DBMS) for storing the description.
 
-## DESCRIBE <SQL statement name> <using descriptor> ... which fills the descriptor with information about the SQL statement.
+* ``DESCRIBE`` <SQL statement name> <using descriptor> ... which fills the
+  descriptor with information about the SQL statement.
 
-## GET DESCRIPTOR ... which takes descriptor fields's values and puts them into host program variables.
+* ``GET DESCRIPTOR ...`` which takes descriptor fields's values and puts
+  them into host program variables.
 
-## DEALLOCATE DESCRIPTOR ... which gets rid of what ALLOCATE DESCRIPTOR made.
+* ``DEALLOCATE DESCRIPTOR ...`` which gets rid of what ``ALLOCATE
+  DESCRIPTOR`` made.
 
-As with GET DIAGNOSTICS, we'll defer the detailed discussion of the descriptor area's fields till a later time -- when we talk about the SQL/CLI's desc functions.
+As with ``GET DIAGNOSTICS``, we'll defer the detailed discussion of the
+descriptor area's fields till a later time -- when we talk about the
+SQL/CLI's ``desc`` functions.
 
 Summary
 =======
 
-An embedded SQL host language program is an application program that contains
+An *embedded SQL host language program* is an application program that contains
 both host language programming statements and SQL statements. Embedded SQL
 programs may be written in any of the high-level languages -- ADA, C, COBOL,
-FORTRAN, MUMPS, PASCAL and PL/I -- supported by the SQL Standard. Such
-programs use SQL, instead of routines written in the host language, to carry
-out database operations.
+FORTRAN, MUMPS, PASCAL and PL/I -- supported by the SQL Standard. Such programs
+use SQL, instead of routines written in the host language, to carry out
+database operations.
 
 Embedded SQL statements are either static SQL statements or dynamic SQL
-statements. Static SQL is static in the sense that the embedded SQL statement
+statements. *Static SQL* is static in the sense that the embedded SQL statement
 is fully known, and coded, when your program is written. Executing the program
-does not change the SQL statement in any way. Dynamic SQL is so-called because
-the embedded SQL statement is not fully known when your program is written.
-Some part of it will be generated during the execution of the program.
+does not change the SQL statement in any way. *Dynamic SQL* is so-called
+because the embedded SQL statement is not fully known when your program is
+written. Some part of it will be generated during the execution of the program.
 
-SQL statements embedded in an application program must reference host
-variables to pass values between the program and SQL-data. Host variables are
-host language variables referenced in an embedded SQL statement. They must be
-declared within a "declare section" that is delimited by the BEGIN DECLARE
-SECTION and END DECLARE SECTION statements. The declare section must precede
-any use of the host variables. Since host variables must map to host language
-variables, they are not nullable unless they are coupled with an indicator
-variable.
+SQL statements embedded in an application program must reference host variables
+to pass values between the program and SQL-data. *Host variables* are host
+language variables referenced in an embedded SQL statement. They must be
+declared within a "declare section" that is delimited by the ``BEGIN DECLARE
+SECTION`` and ``END DECLARE SECTION`` statements. The declare section must
+precede any use of the host variables. Since host variables must map to host
+language variables, they are not nullable unless they are coupled with an
+indicator variable.
 
-An indicator variable is a host language variable that acts as an indicator
-for another host variable. The purpose of an indicator variable is to
-highlight null values and overflow conditions for the host variable it's
-coupled with. Embedded SQL application programs must prepare for passing null
-values by pairing an indicator with any host variable that might be assigned a null value.
+An *indicator variable* is a host language variable that acts as an indicator
+for another host variable. The purpose of an indicator variable is to highlight
+null values and overflow conditions for the host variable it's coupled with.
+Embedded SQL application programs must prepare for passing null values by
+pairing an indicator with any host variable that might be assigned a null
+value.
 
-SQL provides a status host variable -- SQLSTATE -- whose values indicate
+SQL provides a *status host variable* -- ``SQLSTATE`` -- whose values indicate
 whether or not an SQL statement was successfully executed. All embedded SQL
 programs must contain at least one status host variable declaration.
 
 The major problem in combining SQL with any host language is the inability of
 most other languages to handle multiple records at one time; one of the major
 SQL features. The SQL Object "Cursor" is provided by the SQL Standard to give
-the host languages a facility for dealing with a set of retrieved SQL-data records, one at a time.
+the host languages a facility for dealing with a set of retrieved SQL-data
+records, one at a time.
 
-An excellent summary of the embedded SQL specification appears in the SQL Standard. Part five says:
+An excellent summary of the embedded SQL specification appears in the SQL
+Standard. Part five says:
 
-## Embedded SQL is "syntax for embedding SQL-statements in a compilation unit that otherwise conforms to the standard for a particular programming language (host language)."
+* Embedded SQL is "syntax for embedding SQL-statements in a compilation
+  unit that otherwise conforms to the standard for a particular programming
+  language (host language)."
 
-## Embedded SQL specifies "how an equivalent compilation unit may be
-derived that conforms to the particular programming language standard. In that
-equivalent compilation unit, each embedded SQL-statement has been replaced by
-one or more statements in the host language, some of which invoke an SQL
-externally-invoked procedure that, when executed, has an effect equivalent [to] executing the SQL-statement."
+* Embedded SQL specifies "how an equivalent compilation unit may be derived
+  that conforms to the particular programming language standard. In that
+  equivalent compilation unit, each embedded SQL-statement has been replaced by
+  one or more statements in the host language, some of which invoke an SQL
+  externally-invoked procedure that, when executed, has an effect equivalent
+  [to] executing the SQL-statement."
 
 Dialects
 ========
 
-Embedded SQL is well specified by part five of the SQL Standard: ISO/IEC
-9075-2 Part 5: SQL/Bindings. The differences between SQL-92 and SQL3 in this
-area are minor, but you may find that older programs handle dynamic-SQL
-"descriptors" in a different way. Instead of declaring that descriptors are
-internal to the DBMS, old programs may allocate an area within the host
-program itself. This area, usually called SQLDA (SQL Dynamic Area) or
-something similar, is a structure like this:
+Embedded SQL is well specified by part five of the SQL Standard: ISO/IEC 9075-2
+Part 5: SQL/Bindings. The differences between SQL-92 and SQL3 in this area are
+minor, but you may find that older programs handle dynamic-SQL "descriptors" in
+a different way. Instead of declaring that descriptors are internal to the
+DBMS, old programs may allocate an area within the host program itself. This
+area, usually called ``SQLDA`` (SQL Dynamic Area) or something similar, is a
+structure like this:
 
 ::
 
@@ -1408,15 +1744,18 @@ something similar, is a structure like this:
         char data[30]; } sqlname; } sqlvar[MV]; };
    struct sqlda sqlda={"SQLDA",0,64,0};
 
-The job of the DESCRIBE statement is to fill in the entire SQLDA. Then the host program can access the fields by simply referring to the structure's components.
+The job of the ``DESCRIBE`` statement is to fill in the entire ``SQLDA``. Then
+the host program can access the fields by simply referring to the structure's
+components.
 
-As we mentioned, it is possible to integrate the precompiler with the
-compiler. Thus the process of precompiling and compiling appears to be a
-single step. IBM's DB2 is particularly noteworthy for this convenient feature.
+As we mentioned, it is possible to integrate the precompiler with the compiler.
+Thus the process of precompiling and compiling appears to be a single step.
+IBM's DB2 is particularly noteworthy for this convenient feature.
 
 Another convenience is the allowance of "SQL" keywords for data type
 descriptions within the declare section. This usually goes hand in hand with
-macros or typedefs within a header file supplied by the vendor. Thus, one could have:
+macros or typedefs within a header file supplied by the vendor. Thus, one could
+have:
 
 ::
 
@@ -1427,4 +1766,5 @@ macros or typedefs within a header file supplied by the vendor. Thus, one could 
 
 This enables programmers to use similar declarations for a variety of host
 languages. Since the same header file can be used in the SQL/CLI, it's easy to
-put together packages which use some embedded SQL modules and some SQL/CLI modules.
+put together packages which use some embedded SQL modules and some SQL/CLI
+modules.
