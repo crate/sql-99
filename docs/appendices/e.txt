@@ -26,57 +26,57 @@ favourite places, and click links from there.
 Here's the list:
 
 * | **Beagle SQL**
-  | http://www.beaglesql.com
+  | http\://www.beaglesql.com/ (dead)
   | Strictly a work in progress. Linux oriented.
 
 * | **Gnu SQL**
-  | http://www.ispras.ru/~kml/gss
+  | http\://www.ispras.ru/~kml/gss (dead)
   | Alpha. The usual gnu software license.
 
 * | **Intelligent Enterprise Journal**
-  | http://www.intelligententerprise.com
+  | http\://www.intelligententerprise.com/ (dead)
   | An online regular database magazine.
 
 * | **ISO**
-  | ftp://jerry.ece.umassd.edu
+  | ftp\://jerry.ece.umassd.edu/ (dead)
   | This is the archive site for ISO standards committee minutes and memoranda.
 
 * | **Microsoft**
-  | http://www.microsoft.com/msdn
-  | <You can get the ODBC manual from here, as a .hlp file.
+  | https://msdn.microsoft.com/en-us/dn308572.aspx
+  | You can get the ODBC manual from here, as a .hlp file.
 
 * | **miniSQL**
-  | http://www.hughes.com.au
+  | http://www.hughes.com.au/
   | A Unix-oriented SQL-89 implementation.
 
 * | **NIST**
-  | http://speckle.ncsl.nist.gov/~ftp/sql-testing
+  | http\://speckle.ncsl.nist.gov/~ftp/sql-testing (dead)
   | A large group of SQL conformance tests (C source code). Somewhat dated.
 
-* | **mySQL**
-  | http://www.tcx.se
+* | **MySQL**
+  | https://www.mysql.com/
   | Another Unix-oriented SQL-89 implementation.
 
 * | **Ocelot**
-  | http://ourworld.compuserve.com/homepages/OCELOTSQL
+  | http\://ourworld.compuserve.com/homepages/OCELOTSQL (dead)
   | Any errata for this book, plus updated copy of this list, plus downloads.
 
 * | **Oracle**
-  | http://www.oracle.com
+  | http://www.oracle.com/
   | Apparently you can download 30-day free trials (we didn't try).
 
-* | **Postresql**
-  | http://www.postgresql.org/index.htm
+* | **PostreSQL**
+  | http://www.postgresql.org/
   | One of the few "free" SQL implementations that supports UDTs.
 
 * | **Sun**
-  | http://www.sun.com/products/jdbc
+  | https://www.oracle.com/technetwork/java/javase/tech/index-jsp-136101.html
   | Get a copy of the test suite for the JDBC here.
 
 * | **Unicode**
-  | http://www.unicode.org
+  | http://www.unicode.org/
   | Look for "code charts".
 
 * | **Yard**
-  | http://www.yard.de
+  | http\://www.yard.de/ (dead)
   | "Yard SQL" is free for educational institutions.
