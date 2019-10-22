@@ -1,4 +1,5 @@
+.build
 .DS_Store
-.venv
-get-pip.py
-out/
+.env
+.style
+*.lint
