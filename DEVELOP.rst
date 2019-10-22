@@ -2,38 +2,73 @@
 Developer Guide
 ===============
 
-Prerequisites
-=============
+The project is written using `Sphinx`_ and `ReStructuredText`_.
 
-Python 3 is required.
 
-Setup
-=====
+Working on the project
+======================
 
-To install the project dependencies, run::
+Python 3.7 is required.
 
-    $ ./bootstrap.sh
+Change into the ``docs`` directory:
 
-Writing Documentation
-=====================
+.. code-block:: console
 
-The docs live under the ``docs`` directory.
+    $ cd docs
 
-The docs are written written with ReStructuredText_ and processed with Sphinx_.
+For help, run:
 
-Build the docs by running::
+.. code-block:: console
 
-    $ bin/sphinx
+    $ make
 
-The output can then be found in the ``out/html`` directory.
+    Crate Docs Utils
 
-If you would like to live-reload the docs as you edit them, you can run::
+    Run `make <TARGET>`, where <TARGET> is one of:
 
-    $ bin/sphinx dev
+      dev     Run a Sphinx development server that builds and lints the
+              documentation as you edit the source files
 
-The docs are automatically built from Git by `Read the Docs`_ and there is
-nothing special you need to do to get the live docs to update.
+      html    Build the static HTML output
 
+      check   Build, test, and lint the documentation
+
+      delint  Remove any `*.lint` files
+
+      reset   Reset the build cache
+
+You must install `fswatch`_ to use the ``dev`` target.
+
+
+Continuous integration and deployment
+=====================================
+
+|utils| |travis| |rtd|
+
+Travis CI is `configured`_ to run ``make check`` from the ``docs`` directory.
+Please do not merge pull requests until the tests pass.
+
+`Read the Docs`_ automatically deploys the documentation whenever a configured
+branch is updated.
+
+
+.. _configured: https://github.com/crate/sql-99/blob/master/.travis.yml
+.. _fswatch: https://github.com/emcrisostomo/fswatch
 .. _Read the Docs: http://readthedocs.org
 .. _ReStructuredText: http://docutils.sourceforge.net/rst.html
 .. _Sphinx: http://sphinx-doc.org/
+
+
+.. |utils| image:: https://img.shields.io/endpoint.svg?color=blue&url=https%3A%2F%2Fraw.githubusercontent.com%2Fcrate%2Fsql-99%2Fmaster%2Fdocs%2Futils.json
+    :alt: Utils version
+    :target: https://github.com/crate/sql-99/blob/master/docs/utils.json
+
+.. |travis| image:: https://img.shields.io/travis/crate/sql-99.svg?style=flat
+    :alt: Travis CI status
+    :scale: 100%
+    :target: https://travis-ci.org/crate/sql-99
+
+.. |rtd| image:: https://readthedocs.org/projects/sql-99/badge/?version=latest
+    :alt: Read The Docs status
+    :scale: 100%
+    :target: https://sql-99.readthedocs.io/en/latest/?badge=latest
