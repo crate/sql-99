@@ -51,7 +51,11 @@ Please do not merge pull requests until the tests pass.
 `Read the Docs`_ automatically deploys the documentation whenever a configured
 branch is updated.
 
+To make changes to the RTD configuration (e.g., to activate or deactivate a
+release version), please contact the `@crate/docs`_ team.
 
+
+.. _@crate/docs: https://github.com/orgs/crate/teams/docs
 .. _configured: https://github.com/crate/sql-99/blob/master/.travis.yml
 .. _fswatch: https://github.com/emcrisostomo/fswatch
 .. _Read the Docs: http://readthedocs.org
