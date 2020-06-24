@@ -59,7 +59,7 @@ $(SRC_DIR): $(CLONE_DIR)
 	cp -R $(SELF_SRC) $@
 else
 # All other projects install a versioned copy of the core build rules
-$(CLONE_DIR):
+$(SRC_DIR):
 	git clone --depth=1 -c advice.detachedHead=false \
 	    --branch=$(BUILD_VERSION) $(BUILD_REPO) $(CLONE_DIR)
 endif
