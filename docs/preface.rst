@@ -6,7 +6,7 @@ Preface
 
 If you've ever used a relational database product, chances are that you're
 already familiar with SQL -- the internationally-accepted, standard programming
-language for databases whic is supported by the vast majority of relational
+language for databases which is supported by the vast majority of relational
 database management system (DBMS) products available today. You may also have
 noticed that, despite the large number of "reference" works that claim to
 describe standard SQL, not a single one provides a complete, accurate and
