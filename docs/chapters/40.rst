@@ -4,31 +4,33 @@
 Chapter 40 -- SQL/CLI Binding Style
 ===================================
 
+.. include:: ../_include/note.rst
+
 SQL DBMSs communicate with SQL applications through a common programming
 language interface that is invoked through one of the SQL Standard-defined
 binding styles, or interface options. There are three main approaches to
 writing complete programs with SQL:
 
-1. With embedded SQL, you can put SQL statements directly into host 
+1. With embedded SQL, you can put SQL statements directly into host
    programs. We described this binding style in the last chapter.
 
 2. With the Module binding style, you can dispense with host programs
-   and write entire Modules in SQL. You'll still have to call these Modules 
-   from one of the standard host languages though. We'll describe this 
+   and write entire Modules in SQL. You'll still have to call these Modules
+   from one of the standard host languages though. We'll describe this
    binding style last.
 
-3. With SQL/CLI, you can call a SQL DBMS's library from a host program. The SQL 
-   statements you want to execute are parameters of the call. Because SQL's 
-   *modus operandi* won't quite match the host language's, helper functions are 
-   required for the interface definition. This binding style is the subject of 
-   the next several chapters. 
+3. With SQL/CLI, you can call a SQL DBMS's library from a host program. The SQL
+   statements you want to execute are parameters of the call. Because SQL's
+   *modus operandi* won't quite match the host language's, helper functions are
+   required for the interface definition. This binding style is the subject of
+   the next several chapters.
 
 The SQL/CLI, or Call-level Interface binding style, is defined in part three
-of the SQL Standard. In this chapter, we'll give you an introduction to 
+of the SQL Standard. In this chapter, we'll give you an introduction to
 this SQL binding style.
 
 Embedded SQL used to be the most important way of putting SQL statements into
-application programs. Nowadays, the CLI is the most important. Not because 
+application programs. Nowadays, the CLI is the most important. Not because
 it's simpler -- far from it! The CLI's real advantages are:
 
 * There's no precompiler (this makes debugging easier).
@@ -41,7 +43,7 @@ Onward, then, to the CLI essentials. CLI stands for *Call Level Interface*. You
 have probably heard of an API (Application Programming Interface), which is a
 non-SQL name for the same sort of thing. The CLI defines a set of public
 functions which can be called from a host language. Each function has a name,
-a parameter list and a required algorithm (what the DBMS must do when you 
+a parameter list and a required algorithm (what the DBMS must do when you
 call it using this function).
 
 .. rubric:: Table of Contents
@@ -73,23 +75,23 @@ examples that follow throughout our description of the CLI are all in C):
       SQLFreeHandle(SQL_HANDLE_DBC,hdbc);
       SQLFreeHandle(SQL_HANDLE_ENV,henv); }
 
-This sample program has all the necessary CLI ingredients. It will take several 
-pages to say how they all work, but the main points are noted in the code as 
-follows: 
+This sample program has all the necessary CLI ingredients. It will take several
+pages to say how they all work, but the main points are noted in the code as
+follows:
 
-``[Note 1]`` Include the SQL/CLI header file. The standard name is 
-``"sqlcli.h"`` but you might see this statement -- ``#include "sql.h"`` -- 
-instead. The header file has the prototypes of all the CLI functions and 
-``#defines`` for all the constants. The function names begin with ``SQL`` and 
-the constant names begin with ``SQL_`` -- that's the convention in C programs. 
-You can program standard SQL without following this convention, but it seems 
-reasonable to follow it. 
+``[Note 1]`` Include the SQL/CLI header file. The standard name is
+``"sqlcli.h"`` but you might see this statement -- ``#include "sql.h"`` --
+instead. The header file has the prototypes of all the CLI functions and
+``#defines`` for all the constants. The function names begin with ``SQL`` and
+the constant names begin with ``SQL_`` -- that's the convention in C programs.
+You can program standard SQL without following this convention, but it seems
+reasonable to follow it.
 
-``[Note 2]`` Variable declarations. The convention this time is: ``h`` stands 
-for handle -- so a ``henv`` is a handle of an ``env``, a ``hdbc`` is a handle 
-of a ``dbc`` and a ``hstmt`` is a handle of a ``stmt``. And now, since those 
-abbreviated words will appear many times in the next 200 pages, we'd advise you 
-to memorize them: 
+``[Note 2]`` Variable declarations. The convention this time is: ``h`` stands
+for handle -- so a ``henv`` is a handle of an ``env``, a ``hdbc`` is a handle
+of a ``dbc`` and a ``hstmt`` is a handle of a ``stmt``. And now, since those
+abbreviated words will appear many times in the next 200 pages, we'd advise you
+to memorize them:
 
 * ``env`` is an "allocated thing [resource] used for an environment".
 
@@ -97,39 +99,39 @@ to memorize them:
 
 * ``stmt`` is an "allocated thing [resource] used for a statement".
 
-For the record, the Standard's usual names for ``env``, ``dbc`` and ``stmt`` 
-are "allocated SQL-environment", "allocated SQL-connection" and "allocated 
-SQL-statement", respectively. We will always use the abbreviations because they 
-are what appear in ``sqlcli.h``, and in all programs. Besides, we believe it's 
-crazy to call a ``stmt`` a statement -- a ``stmt`` is a ``RESOURCE``; a 
-statement is a ``STRING``. Let's not confuse the peanut with the shell. As it 
-happens, the ``sqlcli.h`` header file has "``typedef``"s for ``SQLHENV`` and 
-the other handles: they're all 32-bit integers. Other important typedefs are 
-``SQLINTEGER`` ("long int"), ``SQLSMALLINT`` ("short int"), ``SQLCHAR`` 
-("char") and ``SQLRETURN`` ("short int", used for return codes only). Using, 
-say, "``SQLINTEGER x``" in a program rather than "long int x" helps make it 
-clear that "x" will see use in an SQL function. 
+For the record, the Standard's usual names for ``env``, ``dbc`` and ``stmt``
+are "allocated SQL-environment", "allocated SQL-connection" and "allocated
+SQL-statement", respectively. We will always use the abbreviations because they
+are what appear in ``sqlcli.h``, and in all programs. Besides, we believe it's
+crazy to call a ``stmt`` a statement -- a ``stmt`` is a ``RESOURCE``; a
+statement is a ``STRING``. Let's not confuse the peanut with the shell. As it
+happens, the ``sqlcli.h`` header file has "``typedef``"s for ``SQLHENV`` and
+the other handles: they're all 32-bit integers. Other important typedefs are
+``SQLINTEGER`` ("long int"), ``SQLSMALLINT`` ("short int"), ``SQLCHAR``
+("char") and ``SQLRETURN`` ("short int", used for return codes only). Using,
+say, "``SQLINTEGER x``" in a program rather than "long int x" helps make it
+clear that "x" will see use in an SQL function.
 
-``[Note 3]`` Setup functions. The bare minimum procedure involves making an 
-``env``, making a ``dbc``, connecting using the ``dbc`` and making a ``stmt``. 
-Notice the &s in the program code: these are "output" parameters ("output" from 
-the DBMS point of view). They're passed by address because the DBMS fills in 
-the values for them. 
+``[Note 3]`` Setup functions. The bare minimum procedure involves making an
+``env``, making a ``dbc``, connecting using the ``dbc`` and making a ``stmt``.
+Notice the &s in the program code: these are "output" parameters ("output" from
+the DBMS point of view). They're passed by address because the DBMS fills in
+the values for them.
 
-``[Note 4]`` Meat. The only actual SQL-language statement in our program is a 
-string argument for a CLI function call. This is the actual database work. 
+``[Note 4]`` Meat. The only actual SQL-language statement in our program is a
+string argument for a CLI function call. This is the actual database work.
 
-``[Note 5]`` Tear-down functions. In a reverse of the setup procedure, we call 
-functions for destroying a ``stmt``, disconnecting using the ``dbc``, 
-destroying the ``dbc`` and destroying the ``env``. Notice that every function 
-call used a handle -- that's normal. Doubtless the DBMS is merely malloc'ing a 
-bit of memory for each of our "allocated things", but we can't access the 
-fields directly. Instead, we use a ``henv`` or a ``hdbc`` or a ``hstmt``. 
+``[Note 5]`` Tear-down functions. In a reverse of the setup procedure, we call
+functions for destroying a ``stmt``, disconnecting using the ``dbc``,
+destroying the ``dbc`` and destroying the ``env``. Notice that every function
+call used a handle -- that's normal. Doubtless the DBMS is merely malloc'ing a
+bit of memory for each of our "allocated things", but we can't access the
+fields directly. Instead, we use a ``henv`` or a ``hdbc`` or a ``hstmt``.
 
 SQLCHAR, SQLINTEGER and Other Typedefs
 ======================================
 
-Here are the type definitions in the ``sqlcli.h`` header file. We use these 
+Here are the type definitions in the ``sqlcli.h`` header file. We use these
 names for declarations of C variables in all our examples.
 
 ::
@@ -147,15 +149,15 @@ names for declarations of C variables in all our examples.
 
 .. NOTE::
 
-   In the ODBC 3.0 header file, ``SQLHENV`` and ``SQLHDBC`` and ``SQLHSTMT`` 
-   and ``SQLHDESC`` are all ``typedef void*`` instead of ``typedef long int``. 
-   In older versions of the ODBC header file, the names were ``HENV``, 
-   ``HDBC``, ``HSTMT``, etc. 
+   In the ODBC 3.0 header file, ``SQLHENV`` and ``SQLHDBC`` and ``SQLHSTMT``
+   and ``SQLHDESC`` are all ``typedef void*`` instead of ``typedef long int``.
+   In older versions of the ODBC header file, the names were ``HENV``,
+   ``HDBC``, ``HSTMT``, etc.
 
 SQLRETURN
 =========
 
-All CLI functions return a 16-bit value. We refer to this value as the 
+All CLI functions return a 16-bit value. We refer to this value as the
 ``SQLRETURN`` value because ``sqlcli.h`` contains this line:
 
 ::
@@ -178,17 +180,17 @@ In standard SQL there are only six possible ``SQLRETURN`` values:
 | ``100`` | "no data".                 |
 +---------+----------------------------+
 
-Programs should check these values, but for space reasons we leave 
-``SQLRETURN`` out of many of our examples. 
+Programs should check these values, but for space reasons we leave
+``SQLRETURN`` out of many of our examples.
 
 Handle Relationships
 ====================
 
-A handle is a 32-bit integer which can be used as a unique identifier of a 
-"resource". The following chart shows all the resources which have handles. The 
-relationships between resources are either optional ("zero-to-many" -- shown 
-with double arrows) or mandatory (either "one-to-one" or "zero-to-one" -- shown 
-with single arrows). 
+A handle is a 32-bit integer which can be used as a unique identifier of a
+"resource". The following chart shows all the resources which have handles. The
+relationships between resources are either optional ("zero-to-many" -- shown
+with double arrows) or mandatory (either "one-to-one" or "zero-to-one" -- shown
+with single arrows).
 
 ::
 
@@ -212,15 +214,15 @@ How to Run Example Programs
 This book contains several example programs that we use to illustrate the
 SQL/CLI. Each example program is also included on the CD that came with this
 book, numbered in order of appearance (for example the "example C program"
-shown earlier is ``example1.c``). To try out any of the example programs, 
+shown earlier is ``example1.c``). To try out any of the example programs,
 follow these steps.
 
 If you use Microsoft Windows 3.x:
 
-* Copy these files from the CD to your working directory: ``OCELOT16.DLL``, 
+* Copy these files from the CD to your working directory: ``OCELOT16.DLL``,
   ``OCELOT16.LIB``, ``SQLCLI.H`` and the C program file.
 
-* Using a standard-C package, compile and link. For eample, this is a 
+* Using a standard-C package, compile and link. For eample, this is a
   sequence for Borland C++ version 3.1 (with the MS-DOS command line):
 
 ::
@@ -232,10 +234,10 @@ If you use Microsoft Windows 3.x:
 
 If you use Microsoft Windows 95:
 
-* Copy these files from the diskette to your working directory: 
+* Copy these files from the diskette to your working directory:
   ``OCELOT32.DLL``, ``OCELOT32.LIB``, ``SQLCLI.H`` and the C program file.
 
-* Using a standard-C package, compile and link. For example, this is a 
+* Using a standard-C package, compile and link. For example, this is a
   sequence for Symantec C++ version 7.0 (with the MS-DOS command line):
 
 ::
@@ -250,28 +252,28 @@ If you use Microsoft Windows 95:
    Add your own screen-display statements so you'll see the
    values of program variables when you run the program. If there's a CLI
    function that you want to get experience with, put it into your own program,
-   link with the library supplied with this book, and run. As well as being 
-   good practice, this will help you learn what is NOT standard SQL, since 
-   we deliberately kept out "implementation-defined" features when we wrote 
+   link with the library supplied with this book, and run. As well as being
+   good practice, this will help you learn what is NOT standard SQL, since
+   we deliberately kept out "implementation-defined" features when we wrote
    this DBMS.
 
 "Standard SQL CLI" Equals "Core ODBC API"
 =========================================
 
-History: Microsoft published the ODBC 1.0 specification in 1992. It became 
-popular. Soon there were supporting interfaces for all the major DBMSs that 
-worked under Microsoft Windows. ODBC became a *de facto* standard specification 
-for calling SQL from host programs without a precompiler. The ISO Standard CLI 
-came out in 1995. The influence of ODBC on the standard CLI is apparent in 
-almost every routine. Indeed, it sometimes is hard to understand the official 
-Standard document without studying Microsoft's ODBC manual too. On its part, 
-Microsoft made major changes in ODBC 3.0 (1998). They added several new 
-functions and deprecated several old ones, in order to get closer to the SQL 
-Standard. Microsoft's ODBC 3.0 manual makes these claims: 
+History: Microsoft published the ODBC 1.0 specification in 1992. It became
+popular. Soon there were supporting interfaces for all the major DBMSs that
+worked under Microsoft Windows. ODBC became a *de facto* standard specification
+for calling SQL from host programs without a precompiler. The ISO Standard CLI
+came out in 1995. The influence of ODBC on the standard CLI is apparent in
+almost every routine. Indeed, it sometimes is hard to understand the official
+Standard document without studying Microsoft's ODBC manual too. On its part,
+Microsoft made major changes in ODBC 3.0 (1998). They added several new
+functions and deprecated several old ones, in order to get closer to the SQL
+Standard. Microsoft's ODBC 3.0 manual makes these claims:
 
-"ODBC aligns with the following specifications and standards that deal with the 
-Call-Level Interface (CLI). (ODBC's features are a superset of each of these 
-standards.) 
+"ODBC aligns with the following specifications and standards that deal with the
+Call-Level Interface (CLI). (ODBC's features are a superset of each of these
+standards.)
 
 * The X/Open CAE Specification "Data Management: SQL Call-Level Interface (CLI)
 
@@ -279,85 +281,85 @@ standards.)
 
 As a result of this alignment, the following are true:
 
-* An application written to the X/Open and ISO CLI specifications will work 
-  with an ODBC 3.0 driver or a standards-compliant driver when it is compiled 
-  with the ODBC 3.0 header files and linked with ODBC 3.0 libraries, and when 
-  it gains access to the driver through the ODBC 3.0 Driver Manager. 
+* An application written to the X/Open and ISO CLI specifications will work
+  with an ODBC 3.0 driver or a standards-compliant driver when it is compiled
+  with the ODBC 3.0 header files and linked with ODBC 3.0 libraries, and when
+  it gains access to the driver through the ODBC 3.0 Driver Manager.
 
-* A driver written to the X/Open and ISO CLI specifications will work with an 
-  ODBC 3.0 application or a standards-compliant application when it is compiled 
-  with the ODBC 3.0 header files and linked with ODBC 3.0 libraries, and when 
-  the application gains access to the driver through the ODBC 3.0 Driver 
-  Manager. 
+* A driver written to the X/Open and ISO CLI specifications will work with an
+  ODBC 3.0 application or a standards-compliant application when it is compiled
+  with the ODBC 3.0 header files and linked with ODBC 3.0 libraries, and when
+  the application gains access to the driver through the ODBC 3.0 Driver
+  Manager.
 
-The Core interface conformance level encompasses all the features in the ISO 
-CLI and all the non-optional features in the X/Open CLI. Optional features of 
-the X/Open CLI appear in higher interface conformance levels. Because all ODBC 
-3.0 drivers are required to support the features in the Core interface 
-conformance level, the following are true: 
+The Core interface conformance level encompasses all the features in the ISO
+CLI and all the non-optional features in the X/Open CLI. Optional features of
+the X/Open CLI appear in higher interface conformance levels. Because all ODBC
+3.0 drivers are required to support the features in the Core interface
+conformance level, the following are true:
 
-* An ODBC 3.0 driver will support all the features used by a 
+* An ODBC 3.0 driver will support all the features used by a
   standards-compliant application.
 
-* An ODBC 3.0 application using only the features in ISO CLI and the 
-  non-optional features of the X/Open CLI will work with any 
+* An ODBC 3.0 application using only the features in ISO CLI and the
+  non-optional features of the X/Open CLI will work with any
   standards-compliant driver."
 
-Whoa! The SQL Standard CLI isn't quite as close to Core ODBC as Microsoft is 
-suggesting. There are a few incompatibilities in names, there are two 
-differences in prototype definitions (of ``SQLColumnAttr`` and ``SQLGetInfo``) 
-and ODBC's default behaviour for "commits" is *sui generis*. But we'll note 
-those bugs as we step on them. Once you know what they are, you'll be able to 
-adjust. 
+Whoa! The SQL Standard CLI isn't quite as close to Core ODBC as Microsoft is
+suggesting. There are a few incompatibilities in names, there are two
+differences in prototype definitions (of ``SQLColumnAttr`` and ``SQLGetInfo``)
+and ODBC's default behaviour for "commits" is *sui generis*. But we'll note
+those bugs as we step on them. Once you know what they are, you'll be able to
+adjust.
 
-Since this is a book on the SQL Standard, our chapters on the CLI won't show 
-you the various extra features that appear in ODBC but not in the standard CLI. 
-And we note only once -- now -- that any feature which is marked "SQL3" is a 
-feature of the standard CLI but not necessarily of ODBC. 
+Since this is a book on the SQL Standard, our chapters on the CLI won't show
+you the various extra features that appear in ODBC but not in the standard CLI.
+And we note only once -- now -- that any feature which is marked "SQL3" is a
+feature of the standard CLI but not necessarily of ODBC.
 
 How Each CLI Function Will Be Described
 =======================================
 
-In these chapters, we will describe each CLI function separately. We've put 
-them in order according to this rule: if we can't describe A without knowing 
-about B, then B should come before A. This means that some tedious minor 
-functions precede some important ones, but the advantage is that you can read 
-from front to back. Better to slog, rather than jump around. 
+In these chapters, we will describe each CLI function separately. We've put
+them in order according to this rule: if we can't describe A without knowing
+about B, then B should come before A. This means that some tedious minor
+functions precede some important ones, but the advantage is that you can read
+from front to back. Better to slog, rather than jump around.
 
-The structure of each CLI-function description is semi-rigid. You can expect to 
-find these things, in this order: 
+The structure of each CLI-function description is semi-rigid. You can expect to
+find these things, in this order:
 
-1. Function prototype. This is the prototype as it appears in the header file, 
-   ``sqlcli.h``. It gives a quick idea of what the function's name is and what 
-   <data type>s the parameters have. There is a comment beside each parameter 
-   indicating whether it's an "input" parameter (its value goes from the 
-   application to the DBMS) or an "output" parameter (its value goes from the 
-   DBMS to the application). 
+1. Function prototype. This is the prototype as it appears in the header file,
+   ``sqlcli.h``. It gives a quick idea of what the function's name is and what
+   <data type>s the parameters have. There is a comment beside each parameter
+   indicating whether it's an "input" parameter (its value goes from the
+   application to the DBMS) or an "output" parameter (its value goes from the
+   DBMS to the application).
 
-2. Job. A one-sentence description of what the function is for. This may be 
-   followed by an indication of whether the function is essential or not. 
-   Several functions are obsolete or redundant, so you can skip the details on 
-   your first pass through these chapters. 
+2. Job. A one-sentence description of what the function is for. This may be
+   followed by an indication of whether the function is essential or not.
+   Several functions are obsolete or redundant, so you can skip the details on
+   your first pass through these chapters.
 
-3. Algorithm. Exactly what does the DBMS do with this function? This section is 
-   in a sort of pseudocode. We're trying to make the instructions readable, but 
-   we won't spare you from mind-numbing (but necessary) details. 
+3. Algorithm. Exactly what does the DBMS do with this function? This section is
+   in a sort of pseudocode. We're trying to make the instructions readable, but
+   we won't spare you from mind-numbing (but necessary) details.
 
-4. Notes. Whatever strikes us as worthy of remark about a function. 
+4. Notes. Whatever strikes us as worthy of remark about a function.
 
-5. Example. A code snippet written in C. Usually the example will be an 
-   incomplete program, with ... to indicate that we haven't repeated stuff 
-   which doesn't advance the story. Most commonly, we leave out the "setup" and 
-   "tear- down" phases illustrated in the example program shown at the 
-   beginning of this chapter. 
+5. Example. A code snippet written in C. Usually the example will be an
+   incomplete program, with ... to indicate that we haven't repeated stuff
+   which doesn't advance the story. Most commonly, we leave out the "setup" and
+   "tear- down" phases illustrated in the example program shown at the
+   beginning of this chapter.
 
-6. ODBC. Anything that relates specifically to ODBC, but not to the standard 
-   CLI. If a standard CLI procedure doesn't exactly match the ODBC spec, it 
-   gets noted here. If ODBC has a truly significant feature that is not in the 
-   standard CLI, we mention it curtly. 
+6. ODBC. Anything that relates specifically to ODBC, but not to the standard
+   CLI. If a standard CLI procedure doesn't exactly match the ODBC spec, it
+   gets noted here. If ODBC has a truly significant feature that is not in the
+   standard CLI, we mention it curtly.
 
-Having said that, let's get on with the descriptions. Here's a quick list of 
-the 62 standard CLI functions: 
+Having said that, let's get on with the descriptions. Here's a quick list of
+the 62 standard CLI functions:
 
 ::
 
@@ -427,7 +429,7 @@ the 62 standard CLI functions:
 
 And that concludes our brief introduction to the CLI. Before we begin
 describing each of the functions in this list in detail, though, we'll show
-you a sample function description, using a common CLI function subroutine 
+you a sample function description, using a common CLI function subroutine
 -- ``CharacterStringRetrieval``.
 
 CharacterStringRetrieval
@@ -444,10 +446,10 @@ CharacterStringRetrieval
       SQLINTEGER *SourceOctetLength     /* 32-bit output */
       );
 
-**Job:** The common subroutine for Character String Retrieval appears in 24 CLI 
-functions. You don't directly call it, but you see the effects. We thought this 
-would be a good way to introduce the format we use for CLI function 
-descriptions. 
+**Job:** The common subroutine for Character String Retrieval appears in 24 CLI
+functions. You don't directly call it, but you see the effects. We thought this
+would be a good way to introduce the format we use for CLI function
+descriptions.
 
 **Algorithm:**
 
@@ -481,22 +483,22 @@ descriptions.
 
 **Notes:**
 
-* The idea is simply to copy the ``*Source`` string to the ``*Target`` string, 
-  but there's a safeguard against overflowing ``*Target`` (that's why we pass 
-  ``MaxTargetOctetLength``) and there's a place to store the original size 
-  (that's why we pass ``*ReturnedOctetLength``). 
+* The idea is simply to copy the ``*Source`` string to the ``*Target`` string,
+  but there's a safeguard against overflowing ``*Target`` (that's why we pass
+  ``MaxTargetOctetLength``) and there's a place to store the original size
+  (that's why we pass ``*ReturnedOctetLength``).
 
-* The ``*Target`` string will always be null-terminated, unless 
-  ``TargetOctetLength=0``. 
+* The ``*Target`` string will always be null-terminated, unless
+  ``TargetOctetLength=0``.
 
-* There are variations of this routine where ``...OctetLength`` is 16-bit. 
+* There are variations of this routine where ``...OctetLength`` is 16-bit.
 
-* There is a slight variation of this routine for ``BLOB`` retrieval: it works 
-  the same way, but ignores anything to do with null terminators. 
+* There is a slight variation of this routine for ``BLOB`` retrieval: it works
+  the same way, but ignores anything to do with null terminators.
 
-* ``CharacterStringRetrieval(target,source,max,&sourcelength)`` is expressible 
-  using the standard-C <string.h> function ``strxfrm: sourcelength = 
-  strxfrm(target,source,max);`` 
+* ``CharacterStringRetrieval(target,source,max,&sourcelength)`` is expressible
+  using the standard-C <string.h> function ``strxfrm: sourcelength =
+  strxfrm(target,source,max);``
 
 **Example:**
 
@@ -514,5 +516,5 @@ descriptions.
       /* Now target has: AB\0 and returnsize = 2. */
 
 **ODBC:** In ODBC 1.0's documentation there was some contradictory information
-about the workings of Character String Retrieval, but everything is settled 
+about the workings of Character String Retrieval, but everything is settled
 now.

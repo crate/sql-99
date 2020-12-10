@@ -4,6 +4,8 @@
 Chapter 29 -- Simple Search Conditions
 ======================================
 
+.. include:: ../_include/note.rst
+
 We've come at last to the point where we can begin showing you the most
 important aspect of SQL -- how to query your "database". In this chapter,
 we'll begin by describing simple search conditions.

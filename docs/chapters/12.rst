@@ -4,6 +4,8 @@
 Chapter 12 -- Reference types
 =============================
 
+.. include:: ../_include/note.rst
+
 [Obscure Rule] applies for this entire chapter.
 
 In SQL, a <reference type> is a pointer; a scalar constructed SQL <data type>.

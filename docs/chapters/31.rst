@@ -4,29 +4,31 @@
 Chapter 31 -- Searching with Subqueries
 =======================================
 
-A subquery is a parenthesized query enclosed within some outer SQL 
-statement. Most queries are ``SELECT``\s, so this means that a subquery usually 
-takes the form (``SELECT ...``), nested somewhere inside an expression. 
-Queries return result sets, or Tables, and the values in such Tables can be 
-used when the syntax of the outer expression calls for a value of the 
+.. include:: ../_include/note.rst
+
+A subquery is a parenthesized query enclosed within some outer SQL
+statement. Most queries are ``SELECT``\s, so this means that a subquery usually
+takes the form (``SELECT ...``), nested somewhere inside an expression.
+Queries return result sets, or Tables, and the values in such Tables can be
+used when the syntax of the outer expression calls for a value of the
 appropriate <data type>.
 
-Subqueries make an SQL statement look structured, and indeed it was the 
-presence of subqueries that gave the original SQL its distinctive look (the 
-letters SQL used to stand for "Structured Query Language"). Nowadays subqueries 
-are less essential because there other ways (particularly joins and 
-``UNION/EXCEPT/INTERSECT`` operators) to reach the same ends. Nevertheless, 
-they are important because they provide these benefits: 
+Subqueries make an SQL statement look structured, and indeed it was the
+presence of subqueries that gave the original SQL its distinctive look (the
+letters SQL used to stand for "Structured Query Language"). Nowadays subqueries
+are less essential because there other ways (particularly joins and
+``UNION/EXCEPT/INTERSECT`` operators) to reach the same ends. Nevertheless,
+they are important because they provide these benefits:
 
-* SQL statements with subqueries are readable. Most people, especially if they 
-  are familiar with the role of subordinate clauses in English, can figure that 
-  a subquery-containing SQL statement can be read "from the inside out" -- that 
-  is, they can focus on the subquery's workings first, and then on the separate 
-  analysis of the outer statement. Statements with joins, by contrast, must be 
-  read all at once. 
+* SQL statements with subqueries are readable. Most people, especially if they
+  are familiar with the role of subordinate clauses in English, can figure that
+  a subquery-containing SQL statement can be read "from the inside out" -- that
+  is, they can focus on the subquery's workings first, and then on the separate
+  analysis of the outer statement. Statements with joins, by contrast, must be
+  read all at once.
 
-* Certain types of problems can be stated more concisely, and more efficiently, 
-  with subqueries. 
+* Certain types of problems can be stated more concisely, and more efficiently,
+  with subqueries.
 
 .. rubric:: Table of Contents
 
@@ -36,18 +38,18 @@ they are important because they provide these benefits:
 Subquery Syntax
 ===============
 
-A subquery is used to specify either a value (the scalar subquery, which 
-returns one value), a row (the row subquery, which returns one row), or a Table 
-(the Table subquery, which returns a result Table). The required syntax for a 
-subquery is: 
+A subquery is used to specify either a value (the scalar subquery, which
+returns one value), a row (the row subquery, which returns one row), or a Table
+(the Table subquery, which returns a result Table). The required syntax for a
+subquery is:
 
 ::
 
     <subquery> ::=
 	( <query experession> )
 
-That is, a subquery is a parenthesized <query experession> -- and the <query 
-expression> is usually a ``SELECT`` statement. Here's an example: 
+That is, a subquery is a parenthesized <query experession> -- and the <query
+expression> is usually a ``SELECT`` statement. Here's an example:
 
 ::
 
@@ -59,81 +61,81 @@ expression> is usually a ``SELECT`` statement. Here's an example:
 	 FROM Table_2
 	 WHERE Table_2.column_1 = 5);
 
-There are some restrictions regarding where subqueries can be used and what 
-they may contain. In early SQL days, the restrictions were quite strict. For 
-instance, the subquery had to be on the right side of a comparison operator 
-within a ``WHERE`` clause, as in the above example. Nowadays, the restrictions 
-for an SQL subquery, in a fully-conformant DBMS environment, are mild: 
+There are some restrictions regarding where subqueries can be used and what
+they may contain. In early SQL days, the restrictions were quite strict. For
+instance, the subquery had to be on the right side of a comparison operator
+within a ``WHERE`` clause, as in the above example. Nowadays, the restrictions
+for an SQL subquery, in a fully-conformant DBMS environment, are mild:
 
 * There can be no ``ORDER BY`` clause inside the subquery.
 
-* The subquery's select list may not include any reference to a value that 
+* The subquery's select list may not include any reference to a value that
   evaluates to a ``BLOB``, ``CLOB``, ``NCLOB`` or ``ARRAY``.
 
-* A subquery may not be immediately enclosed within a set function, for 
+* A subquery may not be immediately enclosed within a set function, for
   example:
-  
+
   ::
-  
-      ... AVG((SELECT column_1 FROM Table_1)) ... 
-  
+
+      ... AVG((SELECT column_1 FROM Table_1)) ...
+
   is not legal syntax.
 
-It is legal to nest subqueries within subqueries. The maximum level of nesting 
-depends on your implementation, since the Standard doesn't specify the number 
-of levels of nesting that must be supported. 
+It is legal to nest subqueries within subqueries. The maximum level of nesting
+depends on your implementation, since the Standard doesn't specify the number
+of levels of nesting that must be supported.
 
-We said earlier that there are three types of subquery. They are distinguished 
-from each other, not by their form -- the general form of a subquery is always 
-just "(<query expression>)" -- but by the shape of their result: how many 
-Columns and rows do they return? 
+We said earlier that there are three types of subquery. They are distinguished
+from each other, not by their form -- the general form of a subquery is always
+just "(<query expression>)" -- but by the shape of their result: how many
+Columns and rows do they return?
 
-* If a subquery can return exactly one Column and one row, it is a *scalar 
+* If a subquery can return exactly one Column and one row, it is a *scalar
   subquery*. The subquery:
 
   ::
 
       ... (SELECT MAX(Table_1.column_1) FROM Table_1) ...
 
-  would fit the bill, but usually it's not so easy to simply glance at a 
+  would fit the bill, but usually it's not so easy to simply glance at a
   query and realize that it will return only one Column and one row.
 
-* If a subquery can return more than one Column, but still exactly one row, it 
-  is a row subquery. A *row subquery* is just a generalized derivation of a 
-  scalar subquery, used in some comparisons. Row subqueries are the 
-  least-frequently-seen type of subquery. 
+* If a subquery can return more than one Column, but still exactly one row, it
+  is a row subquery. A *row subquery* is just a generalized derivation of a
+  scalar subquery, used in some comparisons. Row subqueries are the
+  least-frequently-seen type of subquery.
 
-* If a subquery can return more than one Column and more than one row, it is a 
-  Table subquery. A *Table subquery* is another type of <Table reference> and 
-  can be used in an SQL statement wherever a <Table name> can be used -- which 
-  isn't very often! However, there are some special search operators which are 
-  specifically designed to work with Table subqueries. Discussion of those 
-  search operators is an important part of this chapter. 
+* If a subquery can return more than one Column and more than one row, it is a
+  Table subquery. A *Table subquery* is another type of <Table reference> and
+  can be used in an SQL statement wherever a <Table name> can be used -- which
+  isn't very often! However, there are some special search operators which are
+  specifically designed to work with Table subqueries. Discussion of those
+  search operators is an important part of this chapter.
 
-Thus, the distinction between subquery types depends on the size of the select 
-list, and the number of rows returned. The three types of subquery are not 
-utterly separate: a scalar subquery's definition is subsumed by a row 
-subquery's definition, which is subsumed by a Table subquery's definition. (In 
-fact, a one-Column Table subquery is such a common thing that some people 
-regard it as a separate type, which they call a "Column subquery".) 
-Nevertheless, the potential distinction should be kept in mind. It's easy to 
-get confused by assuming that everything which applies for one type, applies 
-for the others as well. We will discuss scalar subqueries, row subqueries and 
-Table subqueries separately. 
+Thus, the distinction between subquery types depends on the size of the select
+list, and the number of rows returned. The three types of subquery are not
+utterly separate: a scalar subquery's definition is subsumed by a row
+subquery's definition, which is subsumed by a Table subquery's definition. (In
+fact, a one-Column Table subquery is such a common thing that some people
+regard it as a separate type, which they call a "Column subquery".)
+Nevertheless, the potential distinction should be kept in mind. It's easy to
+get confused by assuming that everything which applies for one type, applies
+for the others as well. We will discuss scalar subqueries, row subqueries and
+Table subqueries separately.
 
 Scalar Subqueries
 =================
 
-In general terms, a scalar subquery resembles a scalar function. Remember that 
-a scalar function returns a single value, given an argument which is some sort 
-of expression -- well, a scalar subquery returns a single value, given an 
-argument which is a <query expression>. Since that value must be a scalar 
-value, a few aspects of scalar subqueries are simply logical consequences of 
-their definitions: 
+In general terms, a scalar subquery resembles a scalar function. Remember that
+a scalar function returns a single value, given an argument which is some sort
+of expression -- well, a scalar subquery returns a single value, given an
+argument which is a <query expression>. Since that value must be a scalar
+value, a few aspects of scalar subqueries are simply logical consequences of
+their definitions:
 
-* The <data type>, Collation, length and all other significant attributes of 
-  the value are inherited from the attributes of the selected Column. For 
-  example, the result of the subquery: 
+* The <data type>, Collation, length and all other significant attributes of
+  the value are inherited from the attributes of the selected Column. For
+  example, the result of the subquery:
 
   ::
 
@@ -141,29 +143,29 @@ their definitions:
 
   has a <data type> of ``CHAR(3)``.
 
-* It is an error if, at runtime, the DBMS discovers that a scalar subquery 
-  returns more than one row. If this is the case, the entire SQL statement will 
-  fail: your DBMS will return the ``SQLSTATE error 21000 "cardinality 
-  violation"``. 
+* It is an error if, at runtime, the DBMS discovers that a scalar subquery
+  returns more than one row. If this is the case, the entire SQL statement will
+  fail: your DBMS will return the ``SQLSTATE error 21000 "cardinality
+  violation"``.
 
-One thing that does *not* follow from the definition, and in fact surprises 
-some analysts, is the value returned when a scalar subquery returns zero rows. 
-In this case, the result is ``NULL``. For example, consider this SQL statement: 
+One thing that does *not* follow from the definition, and in fact surprises
+some analysts, is the value returned when a scalar subquery returns zero rows.
+In this case, the result is ``NULL``. For example, consider this SQL statement:
 
 ::
 
     UPDATE Table_1 SET
 	   column_1 = (SELECT column_1 FROM Table_2 WHERE 1 = 2);
 
-Since 1 is never equal to 2, the search condition in this subquery example will 
-always be ``FALSE`` -- so the subquery result is an empty set. In this case, 
-the ``UPDATE`` operation assigns a null value to ``COLUMN_1`` in ``TABLE_1``. 
-This is a case where ``NULL`` obviously does not mean "unknown" or "not 
-applicable" -- it means "not there" -- but no great harm results. 
+Since 1 is never equal to 2, the search condition in this subquery example will
+always be ``FALSE`` -- so the subquery result is an empty set. In this case,
+the ``UPDATE`` operation assigns a null value to ``COLUMN_1`` in ``TABLE_1``.
+This is a case where ``NULL`` obviously does not mean "unknown" or "not
+applicable" -- it means "not there" -- but no great harm results.
 
-Here are some examples of scalar subqueries. You can tell that these must be 
-scalar subqueries -- not row subqueries or Table subqueries -- because they are 
-being used in places where only scalar values are legal. 
+Here are some examples of scalar subqueries. You can tell that these must be
+scalar subqueries -- not row subqueries or Table subqueries -- because they are
+being used in places where only scalar values are legal.
 
 ::
 
@@ -186,38 +188,38 @@ being used in places where only scalar values are legal.
     INSERT INTO Table_1
     VALUES (1 + (SELECT column_1 FROM Table_2));
 
-Our third example of a scalar subquery shows its use in a ``WHERE`` clause. 
-This is a traditional and common usage, as it used to be the only place a 
-subquery could appear. These general observations apply if you're including a 
-scalar subquery in a comparison: 
+Our third example of a scalar subquery shows its use in a ``WHERE`` clause.
+This is a traditional and common usage, as it used to be the only place a
+subquery could appear. These general observations apply if you're including a
+scalar subquery in a comparison:
 
-* The "comparison" operator is not limited to the traditional operators: it can 
-  be pretty well any predicate, including ``LIKE`` or ``BETWEEN``. 
+* The "comparison" operator is not limited to the traditional operators: it can
+  be pretty well any predicate, including ``LIKE`` or ``BETWEEN``.
 
-* The subquery can be on either side of the comparison operator. There can even 
-  be subqueries on both sides of the comparison operator. 
+* The subquery can be on either side of the comparison operator. There can even
+  be subqueries on both sides of the comparison operator.
 
-* The subquery can be in an expression, along with arithmetic or scalar 
-  function operators. 
+* The subquery can be in an expression, along with arithmetic or scalar
+  function operators.
 
-* The subquery result will depend on the number of rows returned: one row is 
-  normal and gives a known result, two or more rows results in a "cardinality 
-  violation" error and zero rows results in the comparison predicate returning 
-  ``UNKNOWN``, because the subquery result value is ``NULL``. We've repeated 
-  these general observations here because we want to emphasize that such 
-  observations apply only to scalar subqueries. None of them will apply when we 
-  discuss comparisons that involve Table subqueries. 
+* The subquery result will depend on the number of rows returned: one row is
+  normal and gives a known result, two or more rows results in a "cardinality
+  violation" error and zero rows results in the comparison predicate returning
+  ``UNKNOWN``, because the subquery result value is ``NULL``. We've repeated
+  these general observations here because we want to emphasize that such
+  observations apply only to scalar subqueries. None of them will apply when we
+  discuss comparisons that involve Table subqueries.
 
 Row Subqueries
 ==============
 
-Row subqueries are similar to scalar subqueries in the one fundamental respect: 
-they may not return more than one row. If a row subquery returns two or more 
-rows, the entire SQL statement will fail: your DBMS will return the ``SQLSTATE 
-error 21000 "cardinality violation"``. 
+Row subqueries are similar to scalar subqueries in the one fundamental respect:
+they may not return more than one row. If a row subquery returns two or more
+rows, the entire SQL statement will fail: your DBMS will return the ``SQLSTATE
+error 21000 "cardinality violation"``.
 
-Row subqueries offer a slight convenience for comparison operations. For 
-example, we can say: 
+Row subqueries offer a slight convenience for comparison operations. For
+example, we can say:
 
 ::
 
@@ -225,44 +227,44 @@ example, we can say:
     FROM Table_1
     WHERE (column_1,'X') = (SELECT column_1,column_2 FROM Table_2);
 
-That is, we can compare two Column values using a single equals operator. This 
-is more concise, and probably more efficient, than comparing twice with scalar 
-subqueries, as in this equivalent example: 
+That is, we can compare two Column values using a single equals operator. This
+is more concise, and probably more efficient, than comparing twice with scalar
+subqueries, as in this equivalent example:
 
 ::
 
     SELECT *
     FROM Table_1
-    WHERE Table_1.column_1 = (SELECT Table_2.column_1 FROM Table_2) AND 
+    WHERE Table_1.column_1 = (SELECT Table_2.column_1 FROM Table_2) AND
           'X' = (SELECT Table_2.column_2 FROM Table_2);
 
-A row subquery, then, is a form of row value expression -- an expression that 
-evaluates to one row. This construct can be used with every SQL predicate, not 
-just basic comparison. 
+A row subquery, then, is a form of row value expression -- an expression that
+evaluates to one row. This construct can be used with every SQL predicate, not
+just basic comparison.
 
 Table Subqueries
 ================
 
-We now switch from talking about "one-row" subqueries, to talking about 
-"multi-row" subqueries, or Table subqueries. This means, almost exclusively, 
+We now switch from talking about "one-row" subqueries, to talking about
+"multi-row" subqueries, or Table subqueries. This means, almost exclusively,
 subqueries that are used in comparison operations.
 
-Quite often, a Table subquery looks like a scalar subquery, because -- almost 
-always -- a single Column makes up the subquery's select list. You can 
-distinguish a Table subquery from context, though: it will always be preceded 
-by a special for-Table-subqueries-only operator, either 
-<comparison_operator>\ ``ALL``, <comparison_operator>\ ``ANY`` (or its synonym, 
-<comparison_operator>\ ``SOME``), ``IN``, ``EXISTS``, or ``UNIQUE``. 
+Quite often, a Table subquery looks like a scalar subquery, because -- almost
+always -- a single Column makes up the subquery's select list. You can
+distinguish a Table subquery from context, though: it will always be preceded
+by a special for-Table-subqueries-only operator, either
+<comparison_operator>\ ``ALL``, <comparison_operator>\ ``ANY`` (or its synonym,
+<comparison_operator>\ ``SOME``), ``IN``, ``EXISTS``, or ``UNIQUE``.
 
 *Correlated Subqueries*
 -----------------------
 
-A correlated subquery is a subquery that contains references to the values in 
-Tables that are referred to in the outer statement (that is, the SQL statement 
-that the subquery is nested in). These references are, in standard terminology, 
-"outer references". One tends to find outer references in Table subqueries, 
-although in theory there is nothing to restrict them to that role. Here's an 
-example (for now, concentrate only on the syntax we're showing): 
+A correlated subquery is a subquery that contains references to the values in
+Tables that are referred to in the outer statement (that is, the SQL statement
+that the subquery is nested in). These references are, in standard terminology,
+"outer references". One tends to find outer references in Table subqueries,
+although in theory there is nothing to restrict them to that role. Here's an
+example (for now, concentrate only on the syntax we're showing):
 
 ::
 
@@ -275,23 +277,23 @@ example (for now, concentrate only on the syntax we're showing):
 
 There are two things to note in this example:
 
-**First:** The subquery's ``WHERE`` clause refers to ``Table_1.column_2``, but 
-``TABLE_1`` is not mentioned in the subquery's ``FROM`` clause. Instead, 
-``TABLE_1`` is named in the outer query's ``FROM`` clause -- this is the outer 
-reference. 
+**First:** The subquery's ``WHERE`` clause refers to ``Table_1.column_2``, but
+``TABLE_1`` is not mentioned in the subquery's ``FROM`` clause. Instead,
+``TABLE_1`` is named in the outer query's ``FROM`` clause -- this is the outer
+reference.
 
-**Second:** Besides ``Table_1.column_2``, the subquery's ``WHERE`` clause has 
-another Column named ``COLUMN_2``. This reference is to the ``COLUMN_2`` that 
-belongs to ``TABLE_2``. We could have used the <Column reference>\ 
-``TABLE_2.COLUMN_2`` for clarity, but this isn't necessary. By default, a 
-<Column name> applies to the Table(s) in the nearest ``FROM`` clause -- there 
-is a scoping rule that says: look in the local subquery first for resolution of 
-<Column reference>s, then look outward, progressing if necessary through 
-several levels of nesting, till the outermost query is reached. 
+**Second:** Besides ``Table_1.column_2``, the subquery's ``WHERE`` clause has
+another Column named ``COLUMN_2``. This reference is to the ``COLUMN_2`` that
+belongs to ``TABLE_2``. We could have used the <Column reference>\
+``TABLE_2.COLUMN_2`` for clarity, but this isn't necessary. By default, a
+<Column name> applies to the Table(s) in the nearest ``FROM`` clause -- there
+is a scoping rule that says: look in the local subquery first for resolution of
+<Column reference>s, then look outward, progressing if necessary through
+several levels of nesting, till the outermost query is reached.
 
-Occasionally, the <Table names>s are the same in the subquery and in the outer 
-statement. When this happens, it's the subquery analog of the self-join and so 
-you'll need to define <Correlation name>s for the Tables. Here's an example: 
+Occasionally, the <Table names>s are the same in the subquery and in the outer
+statement. When this happens, it's the subquery analog of the self-join and so
+you'll need to define <Correlation name>s for the Tables. Here's an example:
 
 ::
 
@@ -302,19 +304,19 @@ you'll need to define <Correlation name>s for the Tables. Here's an example:
            FROM Table_1 AS T_one_b
            WHERE T_one_b.column_2 = T_one_a.column_2);
 
-Whenever a subquery contains an outer reference, it is correlated with the 
-outer statement. That means your DBMS can't evaluate the subquery without 
-feeding it values from outside the subquery. Correlation can be messy, and 
+Whenever a subquery contains an outer reference, it is correlated with the
+outer statement. That means your DBMS can't evaluate the subquery without
+feeding it values from outside the subquery. Correlation can be messy, and
 some DBMSs handle it poorly. But sometimes there's no alternative.
 
 Quantified Comparisons
 ======================
 
-In our chapters on the various <data type>s, we showed you which of them could 
-be used in an expression that compared a value of that <data type> with the 
-collection of values returned by a Table subquery. Here's a more detailed 
-explanation of quantified comparisons using the quantifiers ``ALL``, ``SOME``, 
-``ANY``. 
+In our chapters on the various <data type>s, we showed you which of them could
+be used in an expression that compared a value of that <data type> with the
+collection of values returned by a Table subquery. Here's a more detailed
+explanation of quantified comparisons using the quantifiers ``ALL``, ``SOME``,
+``ANY``.
 
 *ALL*
 -----
@@ -325,14 +327,14 @@ The required syntax for an ``ALL`` quantified comparison is:
 
     scalar_expression comparison_operator ALL
 
-Here, ``scalar_expression`` may be any expression that evaluates to a single 
-value and ``comparison_operator`` may be any one of: = or > or < or >= or <= or 
-<>. ``ALL`` returns ``TRUE`` if the Table subquery returns zero rows or if the 
-comparison operator returns ``TRUE`` for every row returned by the Table 
-subquery. ``ALL`` returns ``FALSE`` if the comparison operator returns 
-``FALSE`` for at least one row returned by the Table subquery. Suppose that 
-``TABLE_1`` has one Column, defined as ``DECIMAL(6,2)``. Here's what will 
-happen, for different values in the rows of ``TABLE_1``, for this expression: 
+Here, ``scalar_expression`` may be any expression that evaluates to a single
+value and ``comparison_operator`` may be any one of: = or > or < or >= or <= or
+<>. ``ALL`` returns ``TRUE`` if the Table subquery returns zero rows or if the
+comparison operator returns ``TRUE`` for every row returned by the Table
+subquery. ``ALL`` returns ``FALSE`` if the comparison operator returns
+``FALSE`` for at least one row returned by the Table subquery. Suppose that
+``TABLE_1`` has one Column, defined as ``DECIMAL(6,2)``. Here's what will
+happen, for different values in the rows of ``TABLE_1``, for this expression:
 
 ::
 
@@ -340,22 +342,22 @@ happen, for different values in the rows of ``TABLE_1``, for this expression:
           (SELECT column_1 FROM Table_1) ...
 
 * If ``TABLE_1`` contains the values {``100.00, 200.00, 300.00``}, the
-  expression is ``TRUE``: all of ``TABLE_1``\'s values are less than 
+  expression is ``TRUE``: all of ``TABLE_1``\'s values are less than
   ``1000.00``.
 
-* If ``TABLE_1`` contains the values {``100.00, 2000.00, 300.00``}, the 
-  expression is ``FALSE``: one of ``TABLE_1``\'s values is greater than 
-  ``1000.00``. 
+* If ``TABLE_1`` contains the values {``100.00, 2000.00, 300.00``}, the
+  expression is ``FALSE``: one of ``TABLE_1``\'s values is greater than
+  ``1000.00``.
 
-* If ``TABLE_1`` contains the values {``1000.00, 200.00, 300.00``}, the 
-  expression is ``FALSE`` too: one of ``TABLE_1``\'s values is equal to 
-  ``1000.00``. 
+* If ``TABLE_1`` contains the values {``1000.00, 200.00, 300.00``}, the
+  expression is ``FALSE`` too: one of ``TABLE_1``\'s values is equal to
+  ``1000.00``.
 
-* If ``TABLE_1`` contains no values, the expression is ``TRUE``: when the set 
-  is empty, ``ALL`` is ``TRUE``. 
+* If ``TABLE_1`` contains no values, the expression is ``TRUE``: when the set
+  is empty, ``ALL`` is ``TRUE``.
 
-* If ``TABLE_1`` contains the values {``100.00, NULL, 300.00``}, the expression 
-  is ``UNKNOWN``: when ``NULL``\s are involved, ``ALL`` is ``UNKNOWN``. 
+* If ``TABLE_1`` contains the values {``100.00, NULL, 300.00``}, the expression
+  is ``UNKNOWN``: when ``NULL``\s are involved, ``ALL`` is ``UNKNOWN``.
 
 *ANY or SOME*
 -------------
@@ -368,67 +370,67 @@ comparison is:
     scalar_expression comparison_operator ANY <Table subquery> |
     scalar_expression comparison_operator SOME <Table subquery>
 
-Once again, ``scalar_expression`` may be any expression that evaluates to a 
-single value and ``comparison_operator`` may be any one of: = or > or < or >= 
-or <= or <>. ``SOME`` and ``ANY`` are synonyms. They return ``TRUE`` if the 
-comparison operator returns ``TRUE`` for at least one row returned by the Table 
-subquery. They return ``FALSE`` if the Table subquery returns zero rows or if 
-the comparison operator returns ``FALSE`` for every row returned by the Table 
-subquery. Suppose, once again, that ``TABLE_1`` has one Column, defined as 
-``DECIMAL(6,2)``. Here's what will happen, for different values in the rows of 
-``TABLE_1``, for this expression: 
+Once again, ``scalar_expression`` may be any expression that evaluates to a
+single value and ``comparison_operator`` may be any one of: = or > or < or >=
+or <= or <>. ``SOME`` and ``ANY`` are synonyms. They return ``TRUE`` if the
+comparison operator returns ``TRUE`` for at least one row returned by the Table
+subquery. They return ``FALSE`` if the Table subquery returns zero rows or if
+the comparison operator returns ``FALSE`` for every row returned by the Table
+subquery. Suppose, once again, that ``TABLE_1`` has one Column, defined as
+``DECIMAL(6,2)``. Here's what will happen, for different values in the rows of
+``TABLE_1``, for this expression:
 
 ::
 
     ... WHERE 1000.00 > ANY
           (SELECT column_1 FROM Table_1) ...
 
-* If ``TABLE_1`` contains the values {``100.00, 200.00, 300.00``}, the 
-  expression is ``TRUE``: all of ``TABLE_1``\'s values are less than 
-  ``1000.00``. 
+* If ``TABLE_1`` contains the values {``100.00, 200.00, 300.00``}, the
+  expression is ``TRUE``: all of ``TABLE_1``\'s values are less than
+  ``1000.00``.
 
-* If ``TABLE_1`` contains the values {``100.00, 2000.00, 300.00``}, the 
-  expression is ``TRUE`` too: at least some of ``TABLE_1``\'s values are less 
-  than ``1000.00``. 
+* If ``TABLE_1`` contains the values {``100.00, 2000.00, 300.00``}, the
+  expression is ``TRUE`` too: at least some of ``TABLE_1``\'s values are less
+  than ``1000.00``.
 
-* If ``TABLE_1`` contains no values, the expression is ``FALSE``: when the set 
-  is empty, ``ANY`` is ``FALSE``. 
+* If ``TABLE_1`` contains no values, the expression is ``FALSE``: when the set
+  is empty, ``ANY`` is ``FALSE``.
 
-* If ``TABLE_1`` contains the values {``1000.00, 2000.00, 3000.00``}, the 
-  expression is ``FALSE`` too: all of ``TABLE_1``\'s values are greater than or 
-  equal to ``1000.00``. 
+* If ``TABLE_1`` contains the values {``1000.00, 2000.00, 3000.00``}, the
+  expression is ``FALSE`` too: all of ``TABLE_1``\'s values are greater than or
+  equal to ``1000.00``.
 
-* If ``TABLE_1`` contains the values {``100.00, NULL, 300.00``}, the expression 
-  is ``UNKNOWN``: when ``NULL``\s are involved, ``ANY`` is ``UNKNOWN``. 
+* If ``TABLE_1`` contains the values {``100.00, NULL, 300.00``}, the expression
+  is ``UNKNOWN``: when ``NULL``\s are involved, ``ANY`` is ``UNKNOWN``.
 
-There is a small trap when one considers the expression "``... 1000.00 <> ANY`` 
-(<subquery>) ``...``". Such an expression could be carelessly read as "... 1000 
-is not equal to any subquery result ..." -- that is, 1000 is not equal to every 
-row returned by the subquery. That is not the correct way to read such 
-expressions because it leads to the English-language ambiguity that "any" can 
-mean "every". There are three ways to avoid such ambiguities: 
+There is a small trap when one considers the expression "``... 1000.00 <> ANY``
+(<subquery>) ``...``". Such an expression could be carelessly read as "... 1000
+is not equal to any subquery result ..." -- that is, 1000 is not equal to every
+row returned by the subquery. That is not the correct way to read such
+expressions because it leads to the English-language ambiguity that "any" can
+mean "every". There are three ways to avoid such ambiguities:
 
 1. Don't use the ``ANY`` <keyword>. Use its synonym, ``SOME``, instead.
 
-2. When negatives are involved, replace ``ANY`` with ``ALL``. Logic tells us 
-   that these transformations are possible: 
-   
+2. When negatives are involved, replace ``ANY`` with ``ALL``. Logic tells us
+   that these transformations are possible:
+
    ::
-   
+
        expression <> ANY subquery --> expression = ALL subquery
        NOT (expression = ANY subquery) --> expression <> ALL subquery
-   
+
    as long as the subquery does not return an empty set.
 
-3. Use a completely different syntax, for example, the ``EXISTS`` predicate, 
+3. Use a completely different syntax, for example, the ``EXISTS`` predicate,
    which we'll discuss later in this chapter.
 
 *Quantified retrieval*
 ----------------------
 
-Here's some examples of comparisons with subqueries, using the sample database 
-we defined in our chapter on "Simple Search Conditions". To find the records 
-for the employees reporting to a manager named D. Black: 
+Here's some examples of comparisons with subqueries, using the sample database
+we defined in our chapter on "Simple Search Conditions". To find the records
+for the employees reporting to a manager named D. Black:
 
 ::
 
@@ -444,11 +446,11 @@ The result is:
 | 4          | D        | MORGAN      | CHUCK     | 963 SOUTH     |
 +------------+----------+-------------+-----------+---------------+
 
-Because there is only one possible row in the ``DEPARTMENT`` Table with a 
-manager named ``BLACK D``, the equals operator can be used in this subquery 
-without a quantifier. If more than one value is possible, either ``ALL``, 
-``ANY`` or ``SOME`` is needed to quantify the comparison operator, as in this 
-example: 
+Because there is only one possible row in the ``DEPARTMENT`` Table with a
+manager named ``BLACK D``, the equals operator can be used in this subquery
+without a quantifier. If more than one value is possible, either ``ALL``,
+``ANY`` or ``SOME`` is needed to quantify the comparison operator, as in this
+example:
 
 ::
 
@@ -470,10 +472,10 @@ The result is:
 Predicates
 ==========
 
-In addition to quantified comparisons, SQL provides four other predicates that 
-operate on the results of a Table subquery: the <in predicate>, the <exists 
-predicate>, the <unique predicate>, and the <match predicate>. Each will return 
-a boolean value: either ``TRUE``, ``FALSE``, or ``UNKNOWN``. 
+In addition to quantified comparisons, SQL provides four other predicates that
+operate on the results of a Table subquery: the <in predicate>, the <exists
+predicate>, the <unique predicate>, and the <match predicate>. Each will return
+a boolean value: either ``TRUE``, ``FALSE``, or ``UNKNOWN``.
 
 *<in predicate>*
 ----------------
@@ -484,19 +486,19 @@ The required syntax for an <in predicate> is as follows.
 
     <in predicate> ::=
     row_expression [ NOT ] IN <in predicate value>
-    
+
        <in predicate value> ::=
        <Table subquery> |
        (row_expression [ {,row_expression}. . . ])
 
 
-An <in predicate> compares a value to a collection of values and returns either 
-``TRUE``, ``FALSE``, or ``UNKNOWN``. (If any argument is ``NULL``, the <in 
-predicate> returns ``UNKNOWN``.) ``IN`` searches for data that matches any one 
-of a specified collection of values. ``NOT IN`` searches for data that doesn't 
-match any of the values in the collection. Note the words we've used in this 
-explanation; ``IN`` can be used to replace the quantified comparison "=\ 
-``ANY``\ " — that is, these two expressions are equivalent: 
+An <in predicate> compares a value to a collection of values and returns either
+``TRUE``, ``FALSE``, or ``UNKNOWN``. (If any argument is ``NULL``, the <in
+predicate> returns ``UNKNOWN``.) ``IN`` searches for data that matches any one
+of a specified collection of values. ``NOT IN`` searches for data that doesn't
+match any of the values in the collection. Note the words we've used in this
+explanation; ``IN`` can be used to replace the quantified comparison "=\
+``ANY``\ " — that is, these two expressions are equivalent:
 
 ::
 
@@ -509,28 +511,28 @@ This example shows one of the two variants of ``IN``. The other variant is:
 
     IN (<list of values>)
 
-This syntax has nothing to do with subqueries, but while we're on the subject, 
-these two expressions are also equivalent: 
+This syntax has nothing to do with subqueries, but while we're on the subject,
+these two expressions are also equivalent:
 
 ::
 
     ... WHERE column_1 IN ( 'A', 'B', 'C') ...
     ... WHERE column_1 = 'A' OR column_1 = 'B' OR column_1 = 'C' ...
 
-With ``IN``, all the expressions must be comparable. You can use ``[NOT] IN`` 
-to compare one or more values to a collection; ``row_expression`` may be any 
-expression which evaluates either to a single value or to a row of values. 
+With ``IN``, all the expressions must be comparable. You can use ``[NOT] IN``
+to compare one or more values to a collection; ``row_expression`` may be any
+expression which evaluates either to a single value or to a row of values.
 
-The <in predicate> is ``TRUE`` if the value of ``row_expression`` is found 
-within the <in predicate value>. For example, these <in predicate>s are both 
-``TRUE``: 
+The <in predicate> is ``TRUE`` if the value of ``row_expression`` is found
+within the <in predicate value>. For example, these <in predicate>s are both
+``TRUE``:
 
 ::
 
     1 IN (1,2,3)
     1 IN (SELECT column_1 FROM Table_1 where column_1 = 1)
 
-``NOT IN`` is simply the negation of ``IN`` so these predicates are also 
+``NOT IN`` is simply the negation of ``IN`` so these predicates are also
 ``TRUE``:
 
 ::
@@ -538,23 +540,23 @@ within the <in predicate value>. For example, these <in predicate>s are both
     1 NOT IN (5,6,7)
     1 NOT IN (SELECT column_1 FROM Table_1 where column_1 = 15)
 
-In other words, the <in predicate> has two variants, both of which are merely 
-shorthands for some other comparison syntax, so the same rules that apply for 
-comparisons of specific <data type>s apply to ``IN`` as well. In both cases, 
-``IN`` appears to be more popular than the wordings it replaces. 
+In other words, the <in predicate> has two variants, both of which are merely
+shorthands for some other comparison syntax, so the same rules that apply for
+comparisons of specific <data type>s apply to ``IN`` as well. In both cases,
+``IN`` appears to be more popular than the wordings it replaces.
 
-If you want to restrict your code to Core SQL, make sure that all expressions 
-in an <in value list> are either <literal>s, references to host variables or 
-SQL parameters, <Field reference>s, or ``CURRENT_PATH``, ``CURRENT_ROLE``, 
-``CURRENT_USER``, ``SESSION_USER``, ``SYSTEM_USER``, ``USER``. 
+If you want to restrict your code to Core SQL, make sure that all expressions
+in an <in value list> are either <literal>s, references to host variables or
+SQL parameters, <Field reference>s, or ``CURRENT_PATH``, ``CURRENT_ROLE``,
+``CURRENT_USER``, ``SESSION_USER``, ``SYSTEM_USER``, ``USER``.
 
 *Retrieval with IN*
 -------------------
 
-Here's some examples of the <in predicate> using the sample database we defined 
-in Chapter 29 "Simple Search Conditions." To find the addresses of the 
-employees working in either department C or department D (retrieve values which 
-match any of a list of specified values): 
+Here's some examples of the <in predicate> using the sample database we defined
+in Chapter 29 "Simple Search Conditions." To find the addresses of the
+employees working in either department C or department D (retrieve values which
+match any of a list of specified values):
 
 ::
 
@@ -572,8 +574,8 @@ The result is:
 | D        | 4          | 963 SOUTH         |
 +----------+------------+-------------------+
 
-To find the employee numbers of the employees whose pay rate is not 5.00, 9.00, 
-or 16.00 (retrieve values which do not match any of a specified list): 
+To find the employee numbers of the employees whose pay rate is not 5.00, 9.00,
+or 16.00 (retrieve values which do not match any of a specified list):
 
 ::
 
@@ -591,8 +593,8 @@ The result is:
 | 4          |
 +------------+
 
-To find the names of employees earning a rate of 8.00 (retrieve values which 
-match any returned by a subquery): 
+To find the names of employees earning a rate of 8.00 (retrieve values which
+match any returned by a subquery):
 
 ::
 
@@ -611,12 +613,12 @@ The result is:
 | MORGAN      |
 +-------------+
 
-In this example, the subquery is first evaluated to find the payroll records 
-with a rate of 8.00. The employee numbers of the result are then compared to 
-the employee numbers of the ``EMPLOYEE`` Table to retrieve the surnames for the 
-final result. 
+In this example, the subquery is first evaluated to find the payroll records
+with a rate of 8.00. The employee numbers of the result are then compared to
+the employee numbers of the ``EMPLOYEE`` Table to retrieve the surnames for the
+final result.
 
-To find the employees located in the warehouse: 
+To find the employees located in the warehouse:
 
 ::
 
@@ -650,7 +652,7 @@ The result is:
 | ALICE     | SMITH       |
 +-----------+-------------+
 
-``IN`` expressions can be nested. To find the manager of employees working 
+``IN`` expressions can be nested. To find the manager of employees working
 in the warehouse:
 
 ::
@@ -669,8 +671,8 @@ The result is:
 | GREEN E       |
 +---------------+
 
-To find the names of employees who don't work on the 10th floor (retrieve 
-values which don't match any returned by a subquery): 
+To find the names of employees who don't work on the 10th floor (retrieve
+values which don't match any returned by a subquery):
 
 ::
 
@@ -708,19 +710,19 @@ The required syntax for an <exists predicate> is as follows.
     <exists predicate> ::=
     [ NOT ] EXISTS <Table subquery>
 
-An <exists predicate> is a test for a non-empty set and returns either ``TRUE`` 
-or ``FALSE``. ``EXISTS`` is ``TRUE`` if the Table subquery returns at least one 
-row; otherwise it is ``FALSE``. ``NOT EXISTS`` is ``TRUE`` if the Table 
-subquery returns zero rows; otherwise it is ``FALSE``. 
+An <exists predicate> is a test for a non-empty set and returns either ``TRUE``
+or ``FALSE``. ``EXISTS`` is ``TRUE`` if the Table subquery returns at least one
+row; otherwise it is ``FALSE``. ``NOT EXISTS`` is ``TRUE`` if the Table
+subquery returns zero rows; otherwise it is ``FALSE``.
 
-By tradition, the <Table subquery> following an <exists predicate> begins with 
-``SELECT *``. In this case, the asterisk is not a shorthand for a list of 
-Columns, it merely stands for "some Column." Unless you're using Core SQL, it 
-doesn't actually matter what you put here — but in Core SQL, the Table 
-subquery's select list must either be just an asterisk or it must evaluate to a 
-single derived Column. Whatever you use, the result is the same; if the 
-subquery returns any rows, ``EXISTS`` is ``TRUE`` — regardless of the number 
-of Columns that the subquery result contains. Here's an example: 
+By tradition, the <Table subquery> following an <exists predicate> begins with
+``SELECT *``. In this case, the asterisk is not a shorthand for a list of
+Columns, it merely stands for "some Column." Unless you're using Core SQL, it
+doesn't actually matter what you put here — but in Core SQL, the Table
+subquery's select list must either be just an asterisk or it must evaluate to a
+single derived Column. Whatever you use, the result is the same; if the
+subquery returns any rows, ``EXISTS`` is ``TRUE`` — regardless of the number
+of Columns that the subquery result contains. Here's an example:
 
 ::
 
@@ -728,15 +730,15 @@ of Columns that the subquery result contains. Here's an example:
     FROM   Table_1
     WHERE  EXISTS (SELECT * FROM Table_2);
 
-If there are any rows at all in ``TABLE_2``, then the search condition is 
-``TRUE`` and all values of ``TABLE_1.COLUMN_1`` will be selected. This is a 
-rare example of a rather static subquery. Much more often, the Table subquery 
-will be a correlated subquery. 
+If there are any rows at all in ``TABLE_2``, then the search condition is
+``TRUE`` and all values of ``TABLE_1.COLUMN_1`` will be selected. This is a
+rare example of a rather static subquery. Much more often, the Table subquery
+will be a correlated subquery.
 
-If you use ``EXISTS``, followed by a correlated subquery with a single outer 
-reference, you are accomplishing the same thing as you would accomplish with a 
-quantified ``ANY`` comparison. For example, here are two equivalent SQL 
-statements: 
+If you use ``EXISTS``, followed by a correlated subquery with a single outer
+reference, you are accomplishing the same thing as you would accomplish with a
+quantified ``ANY`` comparison. For example, here are two equivalent SQL
+statements:
 
 ::
 
@@ -747,7 +749,7 @@ statements:
        (SELECT column_1)
        FROM   Table _2
        WHERE  Table_2.column_2 = 5);
-       
+
     -- the same query, using EXISTS and a correlated subquery
     SELECT *
     FROM   Table_1
@@ -757,17 +759,17 @@ statements:
        WHERE  Table_2.column_2 = 5 AND
        Table_1.column_1 > Table_2.column_1);
 
-The ``EXISTS`` version of the request is more cumbersome, but it's a better 
-choice if there are several items to compare between the outer statement and 
-the subquery. 
+The ``EXISTS`` version of the request is more cumbersome, but it's a better
+choice if there are several items to compare between the outer statement and
+the subquery.
 
-``NOT EXISTS`` is merely the negation of ``EXISTS``, but it deserves attention 
-as a separate operator. The interesting case is a double-nested ``NOT EXISTS`` 
-predicate, which can solve questions of the general form — find all the A's 
-which are related to all of the B's. Logicians call these FORALL questions. An 
-example of a FORALL question is, "List the students who are in a class for 
-every course that the school offers." Expressed with a double-nested ``NOT 
-EXISTS`` predicate, this question is answered with: 
+``NOT EXISTS`` is merely the negation of ``EXISTS``, but it deserves attention
+as a separate operator. The interesting case is a double-nested ``NOT EXISTS``
+predicate, which can solve questions of the general form — find all the A's
+which are related to all of the B's. Logicians call these FORALL questions. An
+example of a FORALL question is, "List the students who are in a class for
+every course that the school offers." Expressed with a double-nested ``NOT
+EXISTS`` predicate, this question is answered with:
 
 ::
 
@@ -782,18 +784,18 @@ EXISTS`` predicate, this question is answered with:
           WHERE  Classes.course_id = Courses.course_id AND
                  Classes.student_id = Students.student_id));
 
-In other words, "Look for the case where there exists no student where there 
-exists no course where there exists a class for the course containing the 
-student." We can't say that quickly three times, but it doesn't matter; you can 
-use this example as a template for FORALL questions. 
+In other words, "Look for the case where there exists no student where there
+exists no course where there exists a class for the course containing the
+student." We can't say that quickly three times, but it doesn't matter; you can
+use this example as a template for FORALL questions.
 
 Retrieval with EXISTS
 _____________________
 
-Here's some examples of the <exists predicate> using the sample database we 
-defined in our Chapter on "Simple Search Conditions." To find the names of 
-employees earning a rate of 8.00 (retrieve a value only if some condition 
-exists): 
+Here's some examples of the <exists predicate> using the sample database we
+defined in our Chapter on "Simple Search Conditions." To find the names of
+employees earning a rate of 8.00 (retrieve a value only if some condition
+exists):
 
 ::
 
@@ -826,7 +828,7 @@ The result is:
 | FRANCIS     |
 +-------------+
 
-``EXISTS`` expressions can be nested. To find the managers of employees 
+``EXISTS`` expressions can be nested. To find the managers of employees
 working in the warehouse:
 
 ::
@@ -856,50 +858,50 @@ The required syntax for a <unique predicate> is as follows.
     <unique predicate> ::=
     [ NOT ] UNIQUE <Table subquery>
 
-A <unique predicate> is a test for duplicate rows and returns either ``TRUE`` 
-or ``FALSE``. ``UNIQUE`` returns ``TRUE`` if the Table subquery returns zero 
-rows or one row or if every row returned by the Table subquery is unique (that 
-is, every row contains a different set of non-null values than every other 
-row); otherwise it returns ``FALSE``. ``NOT UNIQUE`` returns ``TRUE`` if any 
-row returned by the Table subquery is an exact duplicate of another row; 
-otherwise it returns ``FALSE``. The <unique predicate> shouldn't be used if the 
-Table subquery returns Columns with a <data type> of ``BLOB``, ``CLOB``, 
-``NCLOB``, or ``ARRAY``. 
+A <unique predicate> is a test for duplicate rows and returns either ``TRUE``
+or ``FALSE``. ``UNIQUE`` returns ``TRUE`` if the Table subquery returns zero
+rows or one row or if every row returned by the Table subquery is unique (that
+is, every row contains a different set of non-null values than every other
+row); otherwise it returns ``FALSE``. ``NOT UNIQUE`` returns ``TRUE`` if any
+row returned by the Table subquery is an exact duplicate of another row;
+otherwise it returns ``FALSE``. The <unique predicate> shouldn't be used if the
+Table subquery returns Columns with a <data type> of ``BLOB``, ``CLOB``,
+``NCLOB``, or ``ARRAY``.
 
-For an example of how ``UNIQUE`` works, suppose that ``TABLE_1`` has one 
-Column, defined as ``DECIMAL(6,2)``. Here's what will happen, for different 
-values in the rows of ``TABLE_1``, for this expression: 
+For an example of how ``UNIQUE`` works, suppose that ``TABLE_1`` has one
+Column, defined as ``DECIMAL(6,2)``. Here's what will happen, for different
+values in the rows of ``TABLE_1``, for this expression:
 
 ::
 
     ... WHERE UNIQUE (SELECT column_1 FROM Table_1) ...
 
-* If ``TABLE_1`` contains the values {``100.00, 200.00, 300.00``}, the 
-  expression is ``TRUE``; all of ``TABLE_1``\'s rows are different. 
+* If ``TABLE_1`` contains the values {``100.00, 200.00, 300.00``}, the
+  expression is ``TRUE``; all of ``TABLE_1``\'s rows are different.
 
-* If ``TABLE_1`` contains only {``100.00``}, the expression is ``TRUE`` too; 
-  all of ``TABLE_1``\'s rows are different because there is only one. 
+* If ``TABLE_1`` contains only {``100.00``}, the expression is ``TRUE`` too;
+  all of ``TABLE_1``\'s rows are different because there is only one.
 
-* If ``TABLE_1`` contains no values, the expression is also ``TRUE``; when the 
-  set is empty, ``UNIQUE`` is ``TRUE``. 
+* If ``TABLE_1`` contains no values, the expression is also ``TRUE``; when the
+  set is empty, ``UNIQUE`` is ``TRUE``.
 
-* If ``TABLE_1`` contains the values {``100.00, 2000.00, 100.00``}, the 
-  expression is ``FALSE``; at least two of ``TABLE_1``\'s rows are the same. 
+* If ``TABLE_1`` contains the values {``100.00, 2000.00, 100.00``}, the
+  expression is ``FALSE``; at least two of ``TABLE_1``\'s rows are the same.
 
-* If ``TABLE_1`` contains the values {``100.00, NULL, 300.00``}, the expression 
-  is ``TRUE``; when ``NULL``\s are involved, ``UNIQUE`` ignores them and looks 
-  at the remaining values. In this case, all of ``TABLE_1``\'s remaining rows 
-  are different. 
+* If ``TABLE_1`` contains the values {``100.00, NULL, 300.00``}, the expression
+  is ``TRUE``; when ``NULL``\s are involved, ``UNIQUE`` ignores them and looks
+  at the remaining values. In this case, all of ``TABLE_1``\'s remaining rows
+  are different.
 
-* If ``TABLE_1`` contains the values {``100.00, NULL, 100.00``}, the expression 
-  is ``FALSE``; after eliminating ``NULL``\s, at least two of ``TABLE_1``\'s 
-  remaining rows are the same. 
+* If ``TABLE_1`` contains the values {``100.00, NULL, 100.00``}, the expression
+  is ``FALSE``; after eliminating ``NULL``\s, at least two of ``TABLE_1``\'s
+  remaining rows are the same.
 
-The <unique predicate> was introduced to SQL with SQL-92 but is still not much 
-used in application programs. Its main purpose is to expose the operation which 
-the DBMS uses to handle ``UNIQUE`` Constraints. For example, in the following 
-pair of SQL statements, the first is a ``UNIQUE`` Constraint definition and the 
-second is a statement that the DBMS implicitly uses to enforce the Constraint: 
+The <unique predicate> was introduced to SQL with SQL-92 but is still not much
+used in application programs. Its main purpose is to expose the operation which
+the DBMS uses to handle ``UNIQUE`` Constraints. For example, in the following
+pair of SQL statements, the first is a ``UNIQUE`` Constraint definition and the
+second is a statement that the DBMS implicitly uses to enforce the Constraint:
 
 ::
 
@@ -911,7 +913,7 @@ second is a statement that the DBMS implicitly uses to enforce the Constraint:
     SELECT * FROM Table_1
     WHERE  UNIQUE (SELECT column_1 FROM Table_1);
 
-If you want to restrict your code to Core SQL, don't use the <unique 
+If you want to restrict your code to Core SQL, don't use the <unique
 predicate>.
 
 *<match predicate>*
@@ -925,14 +927,14 @@ The required syntax for a <match predicate> is as follows.
     row_expression MATCH [ UNIQUE ] [ SIMPLE | PARTIAL | FULL ]
     <Table subquery>
 
-A <match predicate> is a test for matching rows and returns either ``TRUE`` or 
-``FALSE``. The ``row_expression`` can be any expression which evaluates to one 
-row of values; this row must be comparable to the rows returned by the Table 
-subquery — that is, ``row_expression`` and Table subquery must return rows 
-with the same number of values and each pair of corresponding values must have 
-comparable <data type>s. The <match predicate> can't be used if either 
-``row_expression`` or the Table subquery returns values with a <data type> of 
-``BLOB``, ``CLOB``, ``NCLOB``, or ``ARRAY``. 
+A <match predicate> is a test for matching rows and returns either ``TRUE`` or
+``FALSE``. The ``row_expression`` can be any expression which evaluates to one
+row of values; this row must be comparable to the rows returned by the Table
+subquery — that is, ``row_expression`` and Table subquery must return rows
+with the same number of values and each pair of corresponding values must have
+comparable <data type>s. The <match predicate> can't be used if either
+``row_expression`` or the Table subquery returns values with a <data type> of
+``BLOB``, ``CLOB``, ``NCLOB``, or ``ARRAY``.
 
 The <match predicate> has eight possible forms:
 
@@ -952,70 +954,70 @@ The <match predicate> has eight possible forms:
 
 8. ``row_expression MATCH UNIQUE FULL`` Table subquery
 
-The first and second forms are equivalent, as are the third and fourth forms; 
-if none of {``SIMPLE | PARTIAL | UNIQUE``} is specified, the default is 
-``SIMPLE``. 
+The first and second forms are equivalent, as are the third and fourth forms;
+if none of {``SIMPLE | PARTIAL | UNIQUE``} is specified, the default is
+``SIMPLE``.
 
-The expression "``row_expression MATCH SIMPLE`` Table subquery" is ``TRUE`` 
-only in two cases: 
+The expression "``row_expression MATCH SIMPLE`` Table subquery" is ``TRUE``
+only in two cases:
 
-1. It is ``TRUE`` if the result of ``row_expression`` contains at least one 
+1. It is ``TRUE`` if the result of ``row_expression`` contains at least one
    ``NULL`` — e.g., if ``row_expression`` evaluates to {``100, NULL, 300``}.
 
-2. It is ``TRUE`` if the result of ``row_expression`` contains no ``NULL``\s 
-   and the Table subquery returns at least one row that is equal to 
+2. It is ``TRUE`` if the result of ``row_expression`` contains no ``NULL``\s
+   and the Table subquery returns at least one row that is equal to
    ``row_expression``.
 
-The expression "``row_expression MATCH UNIQUE SIMPLE`` Table subquery" is 
-``TRUE`` only in two cases: 
+The expression "``row_expression MATCH UNIQUE SIMPLE`` Table subquery" is
+``TRUE`` only in two cases:
 
-1. It is ``TRUE`` if the result of ``row_expression`` contains at least one 
+1. It is ``TRUE`` if the result of ``row_expression`` contains at least one
    ``NULL``.
 
-2. It is ``TRUE`` if the result of ``row_expression`` contains no ``NULL``\s 
-   and the Table subquery returns exactly one row that is equal to 
+2. It is ``TRUE`` if the result of ``row_expression`` contains no ``NULL``\s
+   and the Table subquery returns exactly one row that is equal to
    ``row_expression``.
 
-The expression "``row_expression MATCH PARTIAL`` Table subquery" is ``TRUE`` 
+The expression "``row_expression MATCH PARTIAL`` Table subquery" is ``TRUE``
 only in two cases:
 
-1. It is ``TRUE`` if the result of ``row_expression`` contains only 
-   ``NULL``\s — e.g., if ``row_expression`` evaluates to, {``NULL, NULL, 
+1. It is ``TRUE`` if the result of ``row_expression`` contains only
+   ``NULL``\s — e.g., if ``row_expression`` evaluates to, {``NULL, NULL,
    NULL``}.
 
-2. It is ``TRUE`` if the Table subquery returns at least one row whose 
-   values equal their corresponding non-null values in ``row_expression`` — 
-   e.g., if ``row_expression`` evaluates to {``100, NULL, 300``}, at least 
-   one row returned by the subquery must be {``100``, <any value at all>, 
+2. It is ``TRUE`` if the Table subquery returns at least one row whose
+   values equal their corresponding non-null values in ``row_expression`` —
+   e.g., if ``row_expression`` evaluates to {``100, NULL, 300``}, at least
+   one row returned by the subquery must be {``100``, <any value at all>,
    ``300``}.
 
-The expression "``row_expression MATCH UNIQUE PARTIAL`` Table subquery" is 
+The expression "``row_expression MATCH UNIQUE PARTIAL`` Table subquery" is
 ``TRUE`` only in two cases:
 
 1. It is ``TRUE`` if the result of ``row_expression`` contains only ``NULL``\s.
 
-2. It is ``TRUE`` if the Table subquery returns exactly one row whose values 
+2. It is ``TRUE`` if the Table subquery returns exactly one row whose values
    equal their corresponding non-null values in ``row_expression``.
 
-The expression "``row_expression MATCH FULL`` Table subquery" is ``TRUE`` 
+The expression "``row_expression MATCH FULL`` Table subquery" is ``TRUE``
 only in two cases:
 
 1. It is ``TRUE`` if the result of ``row_expression`` contains only ``NULL``\s.
 
-2. It is ``TRUE`` if the result of ``row_expression`` contains no ``NULL``\s 
-   and the Table subquery returns at least one row that is equal to 
+2. It is ``TRUE`` if the result of ``row_expression`` contains no ``NULL``\s
+   and the Table subquery returns at least one row that is equal to
    ``row_expression``.
 
-The expression "``row_expression MATCH UNIQUE FULL`` Table subquery" is 
+The expression "``row_expression MATCH UNIQUE FULL`` Table subquery" is
 ``TRUE`` only in two cases:
 
 1. It is ``TRUE`` if the result of ``row_expression`` contains only ``NULL``\s.
 
-2. It is ``TRUE`` if the result of ``row_expression`` contains no ``NULL``\s 
-   and the Table subquery returns exactly one row that is equal to 
+2. It is ``TRUE`` if the result of ``row_expression`` contains no ``NULL``\s
+   and the Table subquery returns exactly one row that is equal to
    ``row_expression``.
 
-Assume a Table called ``TABLE_1``, defined with three Columns and containing 
+Assume a Table called ``TABLE_1``, defined with three Columns and containing
 this data:
 
 +--------------------------------------------+
@@ -1032,7 +1034,7 @@ this data:
 | 10           | 10           | 20           |
 +--------------+--------------+--------------+
 
-Using ``TABLE_1``, here are some examples of <match predicate> expressions, 
+Using ``TABLE_1``, here are some examples of <match predicate> expressions,
 all of which are ``TRUE``:
 
 ::
@@ -1054,7 +1056,7 @@ all of which are ``TRUE``:
     ... WHERE ROW(10,10,10) MATCH FULL
          (SELECT * FROM Table_1) ...
 
-Still using ``TABLE_1``, here are some examples of <match predicate> 
+Still using ``TABLE_1``, here are some examples of <match predicate>
 expressions, all of which are ``FALSE``:
 
 ::
@@ -1081,45 +1083,45 @@ The required syntax for a <quantified predicate> is as follows.
     FOR ALL <Table reference> list (<search condition>) |
     FOR ANY <Table reference> list (<search condition>) |
     FOR SOME <Table reference> list (<search condition>)
-    
+
        <Table reference> list ::=
        <Table reference> [ {,<Table reference>} ... ]
 
-A <quantified predicate> is a three-valued comparison test; it takes the 
-Cartesian product of "<Table reference> list," compares the resulting rows with 
-the search condition specified and returns either ``TRUE``, ``FALSE``, or 
-``UNKNOWN``. The <Table reference> list may contain one or more <Table name>s 
-or expressions that evaluate to Tables. The <quantified predicate>s work the 
-same way that the regular quantifiers do — that is: 
+A <quantified predicate> is a three-valued comparison test; it takes the
+Cartesian product of "<Table reference> list," compares the resulting rows with
+the search condition specified and returns either ``TRUE``, ``FALSE``, or
+``UNKNOWN``. The <Table reference> list may contain one or more <Table name>s
+or expressions that evaluate to Tables. The <quantified predicate>s work the
+same way that the regular quantifiers do — that is:
 
-``FOR ALL`` returns ``TRUE`` if the search condition is ``TRUE`` for every 
-row of the result of "<Table reference> list," returns TRUE if the result of 
-"<Table reference> list" is zero rows, returns ``FALSE`` if the search 
-condition is ``FALSE`` for at least one row of the result of "<Table 
-reference> list," and otherwise returns ``UNKNOWN``. 
+``FOR ALL`` returns ``TRUE`` if the search condition is ``TRUE`` for every
+row of the result of "<Table reference> list," returns TRUE if the result of
+"<Table reference> list" is zero rows, returns ``FALSE`` if the search
+condition is ``FALSE`` for at least one row of the result of "<Table
+reference> list," and otherwise returns ``UNKNOWN``.
 
-``FOR ANY`` returns ``TRUE`` if the search condition is ``TRUE`` for at least 
-one row of the result of "<Table reference> list," returns ``FALSE`` if the 
-search condition is ``FALSE`` for every row of the result of "<Table 
-reference> list," returns ``FALSE`` if the result of "<Table reference> list" 
-is zero rows and otherwise returns ``UNKNOWN``. (As usual, ``FOR SOME`` is a 
-synonym for ``FOR ANY``.) 
+``FOR ANY`` returns ``TRUE`` if the search condition is ``TRUE`` for at least
+one row of the result of "<Table reference> list," returns ``FALSE`` if the
+search condition is ``FALSE`` for every row of the result of "<Table
+reference> list," returns ``FALSE`` if the result of "<Table reference> list"
+is zero rows and otherwise returns ``UNKNOWN``. (As usual, ``FOR SOME`` is a
+synonym for ``FOR ANY``.)
 
-Subqueries are good for answering many complex analytical questions, but they 
-can be hard to understand. As a good example, consider the "double ``NOT 
-EXISTS``" method, which handles FORALL questions in an ugly manner. The SQL3 
-Standard tries to resolve this by introducing ``FOR ALL`` and ``FOR ANY`` — 
-two new predicates, which work only with Tables. Syntactically, the quantified 
-predicates don't have to involve subqueries. But there are times when they 
-could be replacements for subqueries (particularly the confusing ``NOT EXISTS`` 
-syntax). Here are some simple examples: 
+Subqueries are good for answering many complex analytical questions, but they
+can be hard to understand. As a good example, consider the "double ``NOT
+EXISTS``" method, which handles FORALL questions in an ugly manner. The SQL3
+Standard tries to resolve this by introducing ``FOR ALL`` and ``FOR ANY`` —
+two new predicates, which work only with Tables. Syntactically, the quantified
+predicates don't have to involve subqueries. But there are times when they
+could be replacements for subqueries (particularly the confusing ``NOT EXISTS``
+syntax). Here are some simple examples:
 
 ::
 
     ... FOR ALL
           (SELECT * FROM Employee AS Emps) (empnum>50)
 
-evaluates to ``FALSE`` if there are no employees with employee numbers greater 
+evaluates to ``FALSE`` if there are no employees with employee numbers greater
 than 50.
 
 ::
@@ -1129,22 +1131,22 @@ than 50.
 
 evaluates to ``TRUE`` if at least one employee works in the basement.
 
-If you want to restrict your code to Core SQL, don't use the <quantified 
+If you want to restrict your code to Core SQL, don't use the <quantified
 predicate>.
 
 Joins versus Subqueries
 =======================
 
-Often, SQL statements containing subqueries can be re-formulated as statements 
-containing joins or vice versa. The choice of which to use normally depends on 
-taste or optimization considerations. There are some scenarios, though, which 
-call for subqueries rather than joins: 
+Often, SQL statements containing subqueries can be re-formulated as statements
+containing joins or vice versa. The choice of which to use normally depends on
+taste or optimization considerations. There are some scenarios, though, which
+call for subqueries rather than joins:
 
-* When you want duplicates, but not false duplicates. Suppose ``Table_1`` has 
-  three rows — {``1,1,2``} — and ``Table_2`` has two rows — {``1,2,2``}. 
-  If you need to list the rows in ``Table_1`` which are also in ``Table_2``, 
-  only this subquery-based ``SELECT`` statement will give the right answer 
-  (``1,1,2``): 
+* When you want duplicates, but not false duplicates. Suppose ``Table_1`` has
+  three rows — {``1,1,2``} — and ``Table_2`` has two rows — {``1,2,2``}.
+  If you need to list the rows in ``Table_1`` which are also in ``Table_2``,
+  only this subquery-based ``SELECT`` statement will give the right answer
+  (``1,1,2``):
 
   ::
 
@@ -1155,65 +1157,65 @@ call for subqueries rather than joins:
           FROM Table_2);
 
   This SQL statement won't work:
-  
+
   ::
-  
+
       SELECT Table_1.column_1
       FROM   Table_1.Table_2
       WHERE Table_1.column_1 = Table_2.column_1;
-  
-  because the result will be {``1,1,2,2``} — and the duplication of 2 is an 
+
+  because the result will be {``1,1,2,2``} — and the duplication of 2 is an
   error. This SQL statement won't work either:
 
   ::
-  
+
       SELECT DISTINCT Table_1.column_1
       FROM   Table_1.Table_2
       WHERE  Table_1.column_1 = Table_2.column_1;
-  
-  because the result will be {``1,2``} — and the removal of the duplicated 1 
+
+  because the result will be {``1,2``} — and the removal of the duplicated 1
   is an error too.
 
 * When the outermost statement is not a query. The SQL statement:
 
   ::
-  
+
       UPDATE Table_1 SET column_1 = (SELECT column_1 FROM Table_2);
-  
+
   can't be expressed using a join unless some rare SQL3 features are used.
 
 * When the join is over an expression. The SQL statement:
-  
+
   ::
-  
+
       SELECT * FROM Table_1
       WHERE column_1 + 5 =
          (SELECT MAX(column_1) FROM Table_2);
 
-  is hard to express with a join. In fact, the only way we can think of is 
+  is hard to express with a join. In fact, the only way we can think of is
   this SQL statement:
-  
+
   ::
-  
+
       SELECT Table_1.*
       FROM   Table_1,
              (SELECT MAX(column_1) AS max_column_1 FROM Table_2) AS Table_2
       WHERE  Table_1.column_1 + 5 = Table_2.max_column_1;
 
-  which still involves a parenthesized query, so nothing is gained from the 
+  which still involves a parenthesized query, so nothing is gained from the
   transformation.
 
-* When you want to see the exception. For example, suppose the question is, 
-  "What books are longer than *Das Kapital*?" These two queries are effectively 
-  *almost* the same: 
-  
+* When you want to see the exception. For example, suppose the question is,
+  "What books are longer than *Das Kapital*?" These two queries are effectively
+  *almost* the same:
+
   ::
-  
+
       SELECT DISTINCT Bookcolumn_1.*
       FROM   Books AS Bookcolumn_1 JOIN Books AS Bookcolumn_2
              USING(page_count)
       WHERE  title = 'Das Kapital';
-      
+
       SELECT DISTINCT Bookcolumn_1.*
       FROM   Books AS Bookcolumn_1
       WHERE  Bookcolumn_1.page_count >
@@ -1221,31 +1223,31 @@ call for subqueries rather than joins:
          FROM   Books AS Bookcolumn_2
          WHERE  title = 'Das Kapital');
 
-  The difference between these two SQL statements is, if there are two editions 
-  of *Das Kapital* (with different page counts), then the self-join example 
-  will return the books which are longer than the shortest edition of *Das 
-  Kapital*. That might be the wrong answer because the original question didn't 
-  ask for ". . . longer than ``ANY`` book named *Das Kapital*" (it seems to 
-  contain a false assumption that there's only one edition). 
+  The difference between these two SQL statements is, if there are two editions
+  of *Das Kapital* (with different page counts), then the self-join example
+  will return the books which are longer than the shortest edition of *Das
+  Kapital*. That might be the wrong answer because the original question didn't
+  ask for ". . . longer than ``ANY`` book named *Das Kapital*" (it seems to
+  contain a false assumption that there's only one edition).
 
 Subquery Examples
 =================
 
-The following examples are derived, with much editing, from an SQL application 
-suite for a public library. They illustrate the most common situations where 
-subqueries have proven to be useful tools. 
+The following examples are derived, with much editing, from an SQL application
+suite for a public library. They illustrate the most common situations where
+subqueries have proven to be useful tools.
 
-When a query is on one Table, but requires a quick look at a Column in another 
-Table — for example, "Show the number of books checked out for a particular 
-patron." Here's a subquery that answers this: 
+When a query is on one Table, but requires a quick look at a Column in another
+Table — for example, "Show the number of books checked out for a particular
+patron." Here's a subquery that answers this:
 
 ::
 
     SELECT COUNT(*) FROM Circulations WHERE patron_id = ANY
        (SELECT patron_id FROM Patrons WHERE Surname = 'Jones');
 
-When detail and summary data are retrieved or compared in the same SQL 
-statement — for example, "Set a report item to show the average cost of 
+When detail and summary data are retrieved or compared in the same SQL
+statement — for example, "Set a report item to show the average cost of
 books." Here's a subquery that does this:
 
 ::
@@ -1253,10 +1255,10 @@ books." Here's a subquery that does this:
     UPDATE Reports SET
        average_book_cost = (SELECT AVG(book_cost) FROM Books);
 
-When a selection involves some calculation or complexity that has nothing to do 
-with the contents of what is ultimately selected — for example, "Who has 
-taken out books from either branch 9 or branch 10." Here's a subquery that 
-answers this: 
+When a selection involves some calculation or complexity that has nothing to do
+with the contents of what is ultimately selected — for example, "Who has
+taken out books from either branch 9 or branch 10." Here's a subquery that
+answers this:
 
 ::
 
@@ -1267,13 +1269,13 @@ answers this:
 Subquery Tips
 =============
 
-Make sure your scalar subqueries return a maximum of one row. You can help by 
-*(a)* using ``DISTINCT`` to remove duplicates, *(b)* selecting a value returned 
-by a set-function, and *(c)* including a primary key among the selected 
-Columns. 
+Make sure your scalar subqueries return a maximum of one row. You can help by
+*(a)* using ``DISTINCT`` to remove duplicates, *(b)* selecting a value returned
+by a set-function, and *(c)* including a primary key among the selected
+Columns.
 
-If your DBMS won't support row subqueries, you can still avoid repeating the 
-same subquery twice. For example, replace a construct like this: 
+If your DBMS won't support row subqueries, you can still avoid repeating the
+same subquery twice. For example, replace a construct like this:
 
 ::
 
@@ -1290,41 +1292,41 @@ with a construct like this:
        (SELECT smallint_column_1 * 100000 + smallint_column_2
         FROM Table_2);
 
-Put the fastest subquery at the deepest level. Because most DBMSs will process 
-non-correlated subqueries by travelling from innermost statements to outermost 
-statements, you're (to some extent) controlling the order of evaluation by 
-choosing which expression will be inner and which will be outer. 
+Put the fastest subquery at the deepest level. Because most DBMSs will process
+non-correlated subqueries by travelling from innermost statements to outermost
+statements, you're (to some extent) controlling the order of evaluation by
+choosing which expression will be inner and which will be outer.
 
-Use scalar subqueries rather than Table subqueries. Because scalar subqueries 
-are more restrictive, you are giving your DBMS more information when you use a 
-construct that requires a scalar subquery. The DBMS might pass that extra 
-information to its optimizer. 
+Use scalar subqueries rather than Table subqueries. Because scalar subqueries
+are more restrictive, you are giving your DBMS more information when you use a
+construct that requires a scalar subquery. The DBMS might pass that extra
+information to its optimizer.
 
-Consider alternatives to correlated subqueries. There are some SQL statements 
-that work better (or look more natural) if you use joins, set functions, or 
-Table operators. 
+Consider alternatives to correlated subqueries. There are some SQL statements
+that work better (or look more natural) if you use joins, set functions, or
+Table operators.
 
 Dialects
 ========
 
-SQL-89 was very restrictive about subqueries. SQL-92 removed most of the 
-restrictions and SQL3 changed very little. So most of the information in this 
-chapter will apply for most of the DBMSs in use today. But it doesn't hurt to 
-know what some of the historical restrictions are. Cautious programmers will 
-avoid these situations: 
+SQL-89 was very restrictive about subqueries. SQL-92 removed most of the
+restrictions and SQL3 changed very little. So most of the information in this
+chapter will apply for most of the DBMSs in use today. But it doesn't hurt to
+know what some of the historical restrictions are. Cautious programmers will
+avoid these situations:
 
 * Row subqueries.
 
 * Subqueries nested to a depth greater than 16 levels.
 
-* Statements with more than 15 <Table reference>s (this is a maximum in the 
+* Statements with more than 15 <Table reference>s (this is a maximum in the
   FIPS specification).
 
 * Subqueries that contain ``UNION``, ``EXCEPT``, or ``INTERSECT``.
 
 * Scalar subqueries that contain ``DISTINCT``, ``GROUP BY``, or ``HAVING``.
 
-* Subqueries which do not appear on the right side of a comparison operator 
-  within a ``WHERE`` clause. This last restriction is the most significant 
-  because it used to be the case that "``WHERE`` expression = (``SELECT`` ...)" 
-  was legal syntax, but almost nothing else was. 
+* Subqueries which do not appear on the right side of a comparison operator
+  within a ``WHERE`` clause. This last restriction is the most significant
+  because it used to be the case that "``WHERE`` expression = (``SELECT`` ...)"
+  was legal syntax, but almost nothing else was.

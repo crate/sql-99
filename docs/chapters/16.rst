@@ -4,6 +4,8 @@
 Chapter 16 -- SQL Catalogs
 ==========================
 
+.. include:: ../_include/note.rst
+
 In this chapter, we'll describe SQL Catalogs in detail, and show you the syntax
 to use to create, alter and destroy them.
 

@@ -4,10 +4,12 @@
 Chapter 50 -- SQL/CLI: Locator Functions
 ========================================
 
-In this chapter, we'll describe the CLI locator functions: ``SQLGetLength``, 
-``SQLGetPosition`` and ``SQLGetSubstring``. These functions are used with 
-locators of ``BLOB``\s and ``CLOB``\s. They are new in SQL3; as far as we know, 
-no DBMS supports them. Our description is therefore fairly brief. 
+.. include:: ../_include/note.rst
+
+In this chapter, we'll describe the CLI locator functions: ``SQLGetLength``,
+``SQLGetPosition`` and ``SQLGetSubstring``. These functions are used with
+locators of ``BLOB``\s and ``CLOB``\s. They are new in SQL3; as far as we know,
+no DBMS supports them. Our description is therefore fairly brief.
 
 .. rubric:: Table of Contents
 
@@ -17,38 +19,38 @@ no DBMS supports them. Our description is therefore fairly brief.
 What is a Locator?
 ==================
 
-When you assign the value of a ``BLOB``, ``CLOB``, ``NCLOB``, ``UDT`` or 
-``ARRAY`` to an embedded host language variable or a host language parameter, 
-your DBMS generates and assigns a locator to the target, to uniquely identify a 
-value of the corresponding type. The locator is a 4-octet, non-zero integer 
-(that is, locators are 32-bit ``INT``\s), and exists only until the current 
-transaction ends (unless it is held). 
+When you assign the value of a ``BLOB``, ``CLOB``, ``NCLOB``, ``UDT`` or
+``ARRAY`` to an embedded host language variable or a host language parameter,
+your DBMS generates and assigns a locator to the target, to uniquely identify a
+value of the corresponding type. The locator is a 4-octet, non-zero integer
+(that is, locators are 32-bit ``INT``\s), and exists only until the current
+transaction ends (unless it is held).
 
-Locators have certain properties. 
+Locators have certain properties.
 
 * A locator may be either valid or invalid.
 
 * A locator may be a holdable locator.
 
-When a locator is initially created, it is marked valid and (if applicable) not 
-holdable. You have to execute a ``HOLD LOCATOR`` statement before the end of 
-the transaction in which a locator is created if you want that locator to be 
-holdable. A non-holdable locator remains valid until the end of the transaction 
-in which it was generated, unless it is explicitly made invalid by a ``FREE 
-LOCATOR`` statement or a ``ROLLBACK WITH SAVEPOINT`` statement. A holdable 
-locator may remain valid beyond the end of the transaction in which it was 
-generated; it becomes invalid when you execute a ``FREE LOCATOR`` statement, a 
-``ROLLBACK WITH SAVEPOINT`` statement with a ``SAVEPOINT`` clause or if the 
-transaction in which it is generated (or any subsequent transaction) is rolled 
-back. All locators are made invalid when the current SQL-session ends. 
+When a locator is initially created, it is marked valid and (if applicable) not
+holdable. You have to execute a ``HOLD LOCATOR`` statement before the end of
+the transaction in which a locator is created if you want that locator to be
+holdable. A non-holdable locator remains valid until the end of the transaction
+in which it was generated, unless it is explicitly made invalid by a ``FREE
+LOCATOR`` statement or a ``ROLLBACK WITH SAVEPOINT`` statement. A holdable
+locator may remain valid beyond the end of the transaction in which it was
+generated; it becomes invalid when you execute a ``FREE LOCATOR`` statement, a
+``ROLLBACK WITH SAVEPOINT`` statement with a ``SAVEPOINT`` clause or if the
+transaction in which it is generated (or any subsequent transaction) is rolled
+back. All locators are made invalid when the current SQL-session ends.
 
-The following items can have the "data type" ``LOCATOR``: a host variable, a 
-host parameter, an SQL parameter in an external routine and a value returned by 
-external function. To specify an item as a locator, add the <keyword>s ``AS 
-LOCATOR`` to the specification. According to the SQL Standard, this then allows 
-the passing of very large data values "without transferring the entire value to 
-and from the SQL-agent". That is -- if you're dealing with an image, why do 
-this: 
+The following items can have the "data type" ``LOCATOR``: a host variable, a
+host parameter, an SQL parameter in an external routine and a value returned by
+external function. To specify an item as a locator, add the <keyword>s ``AS
+LOCATOR`` to the specification. According to the SQL Standard, this then allows
+the passing of very large data values "without transferring the entire value to
+and from the SQL-agent". That is -- if you're dealing with an image, why do
+this:
 
 * DBMS reads into DBMS memory
 
@@ -64,42 +66,42 @@ of each follow.
 *FREE LOCATOR Statement*
 ------------------------
 
-The ``FREE LOCATOR`` statement removes the association between a locator 
-variable or parameter and the value represented by that locator. The required 
-syntax for the ``FREE LOCATOR`` statement is: 
+The ``FREE LOCATOR`` statement removes the association between a locator
+variable or parameter and the value represented by that locator. The required
+syntax for the ``FREE LOCATOR`` statement is:
 
 ::
 
     FREE LOCATOR :host_parameter_name> [ {,:host_parameter_name}... ]
 
-The ``FREE LOCATOR`` statement frees one or more locators -- that is, it marks 
-the locators identified by the <host parameter name>s as invalid. 
+The ``FREE LOCATOR`` statement frees one or more locators -- that is, it marks
+the locators identified by the <host parameter name>s as invalid.
 
-If you want to restrict your code to Core SQL, don't use the ``FREE LOCATOR`` 
-statement. 
+If you want to restrict your code to Core SQL, don't use the ``FREE LOCATOR``
+statement.
 
 *HOLD LOCATOR Statement*
 ------------------------
 
-The ``HOLD LOCATOR`` statement marks a locator variable or parameter as a 
-holdable locator. The required syntax for the ``HOLD LOCATOR`` statement is: 
+The ``HOLD LOCATOR`` statement marks a locator variable or parameter as a
+holdable locator. The required syntax for the ``HOLD LOCATOR`` statement is:
 
 ::
 
     HOLD LOCATOR :host_parameter_name> [ {,:host_parameter_name}... ]
 
-The ``HOLD LOCATOR`` statement lets you change the status of one or more 
-locators from non-holdable to holdable. The difference between the two status 
-has to do with when a locator becomes invalid: a non-holdable locator remains 
-valid until the end of the transaction in which it was generated (unless it is 
-explicitly made invalid), while a holdable locator may remain valid beyond the 
-end of the transaction in which it was generated. All locators are made invalid 
-when the current SQL-session ends. 
+The ``HOLD LOCATOR`` statement lets you change the status of one or more
+locators from non-holdable to holdable. The difference between the two status
+has to do with when a locator becomes invalid: a non-holdable locator remains
+valid until the end of the transaction in which it was generated (unless it is
+explicitly made invalid), while a holdable locator may remain valid beyond the
+end of the transaction in which it was generated. All locators are made invalid
+when the current SQL-session ends.
 
-If you want to restrict your code to Core SQL, don't use the ``HOLD LOCATOR`` 
-statement. 
+If you want to restrict your code to Core SQL, don't use the ``HOLD LOCATOR``
+statement.
 
-The rest of this chapter describes the three CLI locator functions. 
+The rest of this chapter describes the three CLI locator functions.
 
 SQLGetLength
 ============
@@ -116,7 +118,7 @@ SQLGetLength
     SQLINTEGER *IndicatorValue      /* pointer to 32-bit output */
     );
 
-**Job:** Return the length of the value represented by a ``BLOB``, ``CLOB``, 
+**Job:** Return the length of the value represented by a ``BLOB``, ``CLOB``,
 ``NCLOB``, ``UDT`` or ``ARRAY`` locator.
 
 **Algorithm:**
@@ -135,7 +137,7 @@ SQLGetLength
     Or (LocatorType==SQL_UDT_LOCATOR and Locator doesn't refer to a UDT)
     Or (LocatorType==SQL_ARRAY_LOCATOR and Locator doesn't refer to an ARRAY)
       return error: dynamic SQL error-restricted data type attribute violation
-    
+
     Case:
     If (the Large Object's value is NULL)
       If (IndicatorValue is a null pointer)
@@ -155,7 +157,7 @@ SQLGetLength
 
 **Notes:**
 
-* The octet length and the character length will be the same value only if 
+* The octet length and the character length will be the same value only if
   8-bit Character sets are in use.
 
 **Example:**
@@ -191,7 +193,7 @@ SQLGetPosition
     SQLINTEGER *IndicatorValue        /* pointer to 32-bit integer */
     );
 
-**Job:** Return the position of a passed string within a ``BLOB``, ``CLOB``, 
+**Job:** Return the position of a passed string within a ``BLOB``, ``CLOB``,
 ``NCLOB``, ``UDT`` or ``ARRAY``.
 
 **Algorithm:**
@@ -241,8 +243,8 @@ SQLGetSubstring
     SQLINTEGER *StringLength,             /* pointer to integer output */
     SQLINTEGER *IndicatorValue);          /* pointer to integer output */
 
-**Job:** Extract a portion of a ``BLOB``, ``CLOB``, ``NCLOB``, ``UDT`` or 
-``ARRAY``, returning the result as a string or, alternatively, as a new 
+**Job:** Extract a portion of a ``BLOB``, ``CLOB``, ``NCLOB``, ``UDT`` or
+``ARRAY``, returning the result as a string or, alternatively, as a new
 ``BLOB``, ``CLOB``, ``NCLOB``, ``UDT`` or ``ARRAY``.
 
 **Algorithm:**

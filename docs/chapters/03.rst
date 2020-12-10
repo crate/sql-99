@@ -4,6 +4,8 @@
 Chapter 3 -- Numbers
 ====================
 
+.. include:: ../_include/note.rst
+
 In SQL, a number -- i.e.: any signed, or unsigned, combination of the digits 0
 to 9 -- is either an exact numeric value or an approximate numeric value. A
 numeric value may be a <literal>, the value of a parameter or a host language

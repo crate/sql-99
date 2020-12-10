@@ -4,6 +4,8 @@
 Appendices
 ==========
 
+.. include:: ../_include/note.rst
+
 .. rubric:: Table of Contents
 
 .. toctree::

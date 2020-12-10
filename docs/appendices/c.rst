@@ -4,12 +4,14 @@
 Appendix C -- Non-portable SQL Features
 =======================================
 
-Not all SQL DBMSs are created equal. This Appendix lists the areas for which 
-the SQL Standard provides no standardized solution for a DBMS, i.e.: the 
-following areas are all labeled either "implementor-defined" or "implementor- 
-dependent" in the Standard. Thus, valid syntax and/or the expected response 
-will vary from one DBMS to another -- keep this in mind when writing your 
-applications. 
+.. include:: ../_include/note.rst
+
+Not all SQL DBMSs are created equal. This Appendix lists the areas for which
+the SQL Standard provides no standardized solution for a DBMS, i.e.: the
+following areas are all labeled either "implementor-defined" or "implementor-
+dependent" in the Standard. Thus, valid syntax and/or the expected response
+will vary from one DBMS to another -- keep this in mind when writing your
+applications.
 
 .. rubric:: Table of Contents
 
@@ -40,13 +42,13 @@ non-standard for four reasons:
    the "implementor-defined" and "implementor-dependent" areas contained in the
    Standard.
 
-4. The SQL Standard allows implementors to provide options for processing 
-   database operations that the Standard does not address (e.g.: a ``CREATE 
-   INDEX`` statement), as well as allowing implementors to provide options for 
-   processing Standard-defined SQL in a non-conforming manner. To quote the 
-   Standard: "An [SQL-]implementation remains conforming even if it provides 
-   user options to process nonconforming SQL language or to process conforming 
-   SQL language in a nonconforming manner." 
+4. The SQL Standard allows implementors to provide options for processing
+   database operations that the Standard does not address (e.g.: a ``CREATE
+   INDEX`` statement), as well as allowing implementors to provide options for
+   processing Standard-defined SQL in a non-conforming manner. To quote the
+   Standard: "An [SQL-]implementation remains conforming even if it provides
+   user options to process nonconforming SQL language or to process conforming
+   SQL language in a nonconforming manner."
 
 *Connection and Session Results*
 --------------------------------
@@ -80,9 +82,9 @@ The effect of omitting the optional ``USER`` clause from a ``CONNECT`` statement
 is non-standard because the SQL Standard requires implementors to define their
 own initial default SQL-session <AuthorizationID>.
 
-Whether the <user name> in a ``CONNECT`` statement must be identical to the 
-Module <AuthorizationID> is non-standard because the SQL Standard requires 
-implementors to define whether the two must match. 
+Whether the <user name> in a ``CONNECT`` statement must be identical to the
+Module <AuthorizationID> is non-standard because the SQL Standard requires
+implementors to define whether the two must match.
 
 A DBMS's initial default Catalog is non-standard because the SQL Standard
 requires implementors to choose their own initial default <Catalog name>.
@@ -114,23 +116,23 @@ reasons:
    times, the SQL Standard allows implementors to define when exactly when the
    SQL-session default <AuthorizationID> may also be changed.
 
-SQL does not include any ``CREATE CLUSTER``, ``OPEN CLUSTER``, ``ADD TO 
-CLUSTER`` or ``DROP CLUSTER`` statements. The method you'll use to access a 
-Cluster with your DBMS is thus non-standard because the SQL Standard requires 
-implementors to define what the physical aspects of a Cluster are, whether any 
-Catalog can be part of more than one Cluster at a time, how a Cluster comes 
-into being, how it may be accessed and how it may be destroyed. 
+SQL does not include any ``CREATE CLUSTER``, ``OPEN CLUSTER``, ``ADD TO
+CLUSTER`` or ``DROP CLUSTER`` statements. The method you'll use to access a
+Cluster with your DBMS is thus non-standard because the SQL Standard requires
+implementors to define what the physical aspects of a Cluster are, whether any
+Catalog can be part of more than one Cluster at a time, how a Cluster comes
+into being, how it may be accessed and how it may be destroyed.
 
-SQL does not include any ``CREATE CATALOG``, ``OPEN CATALOG`` or ``DROP 
-CATALOG`` statements. The method you'll use to access a Catalog with your DBMS 
-is thus non-standard because the SQL Standard requires implementors to define 
-how a Catalog comes into being, how it may be accessed and how it may be 
-destroyed. 
+SQL does not include any ``CREATE CATALOG``, ``OPEN CATALOG`` or ``DROP
+CATALOG`` statements. The method you'll use to access a Catalog with your DBMS
+is thus non-standard because the SQL Standard requires implementors to define
+how a Catalog comes into being, how it may be accessed and how it may be
+destroyed.
 
-The total number of Views in ``INFORMATION_SCHEMA``, and their exact 
-definition, is non-standard because the SQL Standard allows implementors to add 
-additional Views, as well as to add additional Columns to the Standard-defined 
-Views, to describe additional, implementation-defined features. 
+The total number of Views in ``INFORMATION_SCHEMA``, and their exact
+definition, is non-standard because the SQL Standard allows implementors to add
+additional Views, as well as to add additional Columns to the Standard-defined
+Views, to describe additional, implementation-defined features.
 
 *Parsing/Display*
 -----------------
@@ -143,7 +145,7 @@ The logical representation of the null value is non-standard because the SQL
 Standard requires implementors to define the character used to display the
 null value.
 
-Either a ``NULL`` is greater than all non-null values or a ``NULL`` is less 
+Either a ``NULL`` is greater than all non-null values or a ``NULL`` is less
 than all non-null values -- it's non-standard because the SQL Standard requires
 implementors to define whether ``NULL``\s sort high or low.
 
@@ -168,11 +170,11 @@ An <AuthorizationID> is non-standard for four reasons:
    mapping <AuthorizationID>s to users.
 
 3. The SQL Standard requires implementors to define their own method for
-   creating an <AuthorizationID>. SQL does not include a ``CREATE 
+   creating an <AuthorizationID>. SQL does not include a ``CREATE
    AUTHORIZATIONID`` statement.
 
 4. The SQL Standard requires implementors to define their own method for
-   dropping an <AuthorizationID>. SQL does not include a ``DROP 
+   dropping an <AuthorizationID>. SQL does not include a ``DROP
    AUTHORIZATIONID`` statement.
 
 <Connection name>s are non-standard for two reasons:
@@ -192,7 +194,7 @@ standard because the SQL Standard requires implementors to define all valid
 ---------------------
 
 A national <character string literal> belongs to a Character set which is the
-same Character set used for ``NCHAR`` and ``NCHAR VARYING`` <data type>s but is 
+same Character set used for ``NCHAR`` and ``NCHAR VARYING`` <data type>s but is
 non-standard for two reasons:
 
 1. The SQL Standard requires implementors to define the Character set
@@ -210,7 +212,7 @@ is non-standard because the SQL Standard requires implementors to define the
 maximum size of a <time value>'s fractional seconds precision.
 
 The allowable range for a <time value> must include, at a minimum, all times
-from: ``TIME '00:00:00.0'`` to: ``TIME '23:59:61.999999'`` but the exact range 
+from: ``TIME '00:00:00.0'`` to: ``TIME '23:59:61.999999'`` but the exact range
 of valid values is non-standard because the SQL Standard requires implementors
 to define the maximum size of a <time value>'s fractional seconds precision.
 
@@ -218,18 +220,18 @@ The maximum length of a <timestamp literal> may not be less than 26 characters
 but is non-standard because the SQL Standard requires implementors to define
 the maximum size of a <time value>'s fractional seconds precision.
 
-The allowable range for a <timestamp value> must include, at a minimum, all 
-timestamps from: ``TIMESTAMP '0001-01-01 00:00:00.0'`` to: ``TIMESTAMP 
-'9999-12-31 23:59:61.999999'`` but the exact range of valid values is 
-non-standard because the SQL Standard requires implementors to define the 
-maximum size of a <time value>'s fractional seconds precision. 
+The allowable range for a <timestamp value> must include, at a minimum, all
+timestamps from: ``TIMESTAMP '0001-01-01 00:00:00.0'`` to: ``TIMESTAMP
+'9999-12-31 23:59:61.999999'`` but the exact range of valid values is
+non-standard because the SQL Standard requires implementors to define the
+maximum size of a <time value>'s fractional seconds precision.
 
 The maximum "start datetime" precision for an <interval qualifier> may not be
 less than 2 digits but is non-standard because the SQL Standard requires
 implementors to uefine the maximum leading precision.
 
 The maximum fractional seconds precision for an <interval qualifier>'s "start
-datetime" value or "end datetime" value of ``SECOND`` may not be less than 6 
+datetime" value or "end datetime" value of ``SECOND`` may not be less than 6
 digits but is non-standard because the SQL Standard requires implemented
 Privileges held on the Module by any other <AuthorizationID> are also revoked.
 
@@ -239,13 +241,13 @@ are dropped with a ``CASCADE`` drop behaviour.
 *BEGIN ... END: Compound Statement*
 -----------------------------------
 
-Advance warning: ``BEGIN ... END`` has several optional clauses. We are going 
-to start with the simplest form, and examine the options in following sections. 
+Advance warning: ``BEGIN ... END`` has several optional clauses. We are going
+to start with the simplest form, and examine the options in following sections.
 
-In its simplest form, ``BEGIN ... END`` in SQL serves the same purpose as 
-"begin...end" in Pascal or "{...}" in C. ``BEGIN ... END`` encloses a sequence 
-of statements which are part of the same syntactical unit: a compound 
-statement. The simplest required syntax is: 
+In its simplest form, ``BEGIN ... END`` in SQL serves the same purpose as
+"begin...end" in Pascal or "{...}" in C. ``BEGIN ... END`` encloses a sequence
+of statements which are part of the same syntactical unit: a compound
+statement. The simplest required syntax is:
 
 ::
 
@@ -274,9 +276,9 @@ clause: ``[NOT] ATOMIC``. The required syntax is:
       [ <SQL statement>; ... ]
     END
 
-If ``ATOMIC`` is specified, the compound statement may not contain ``COMMIT`` 
-or ``ROLLBACK``. If you omit the clause, it defaults to ``NOT ATOMIC``: the 
-compound statement may contain ``COMMIT`` or ``ROLLBACK``. Here's an example: 
+If ``ATOMIC`` is specified, the compound statement may not contain ``COMMIT``
+or ``ROLLBACK``. If you omit the clause, it defaults to ``NOT ATOMIC``: the
+compound statement may contain ``COMMIT`` or ``ROLLBACK``. Here's an example:
 
 ::
 
@@ -285,14 +287,14 @@ compound statement may contain ``COMMIT`` or ``ROLLBACK``. Here's an example:
       INSERT INTO Table_2 VALUES (6);
    END
 
-We've already discussed the idea that transactions are atomic, and individual 
-SQL statements are atomic. Compound SQL statements can be atomic too, provided 
-that they are explicitly designated by the <keyword> ``ATOMIC``. Thus, in the 
-above example, if the first ``INSERT`` statement succeeds but the second 
-``INSERT`` statement fails, then the effects of the first ``INSERT`` is 
-cancelled. It's as if there was a savepoint at the beginning of the compound 
-statement and a ``ROLLBACK TO SAVEPOINT`` was executed when the second 
-``INSERT`` failed. 
+We've already discussed the idea that transactions are atomic, and individual
+SQL statements are atomic. Compound SQL statements can be atomic too, provided
+that they are explicitly designated by the <keyword> ``ATOMIC``. Thus, in the
+above example, if the first ``INSERT`` statement succeeds but the second
+``INSERT`` statement fails, then the effects of the first ``INSERT`` is
+cancelled. It's as if there was a savepoint at the beginning of the compound
+statement and a ``ROLLBACK TO SAVEPOINT`` was executed when the second
+``INSERT`` failed.
 
 Variables
 _________
@@ -306,7 +308,7 @@ clause: a variable declaration list. The required syntax is:
       [ <variable declaration>; ... ]     /* variable-declaration list */
       [ <SQL statement>; ... ]
     END
-    
+
    <variable declaration> ::=
    DECLARE <SQL variable name> <data type> [ DEFAULT default value ]
 
@@ -324,33 +326,33 @@ Here's an example:
 
 .. CAUTION::
 
-   Don't get confused by the similarity to a <Column definition>. A variable 
-   definition can contain ``ONLY`` a <data type> and (optionally) a ``DEFAULT`` 
-   clause. It cannot contain a <Domain name>, a <Constraint> or a ``COLLATE`` 
-   clause. 
+   Don't get confused by the similarity to a <Column definition>. A variable
+   definition can contain ``ONLY`` a <data type> and (optionally) a ``DEFAULT``
+   clause. It cannot contain a <Domain name>, a <Constraint> or a ``COLLATE``
+   clause.
 
-In our example we defined five variables: ``v1``, ``v2``, ``v3``, ``v4``, 
-``v5``. ``BEGIN ... END`` defines a "local scope", which means that *(a)* these 
-variable names have no meaning outside the compound statement, *(b)* the values 
-in these variables are not saved when the compound statement ends and *(c)* the 
-values in these variables are not reset by execution of a ``ROLLBACK`` 
-statement, because variables are not part of the database. 
+In our example we defined five variables: ``v1``, ``v2``, ``v3``, ``v4``,
+``v5``. ``BEGIN ... END`` defines a "local scope", which means that *(a)* these
+variable names have no meaning outside the compound statement, *(b)* the values
+in these variables are not saved when the compound statement ends and *(c)* the
+values in these variables are not reset by execution of a ``ROLLBACK``
+statement, because variables are not part of the database.
 
-The example uses the first four variables as targets in a singleton ``SELECT`` 
-statement. It also uses all five variables as sources in an ``INSERT`` 
-statement. Variables can be used in all sorts of <value expression>s. Variables 
-are extremely useful for temporary storage, and it's a wonder that most SQL 
-implementations get along without them. The designers of SQL don't give us the 
-option of using variables for persistent storage: we're supposed to use Base 
-tables for that. 
+The example uses the first four variables as targets in a singleton ``SELECT``
+statement. It also uses all five variables as sources in an ``INSERT``
+statement. Variables can be used in all sorts of <value expression>s. Variables
+are extremely useful for temporary storage, and it's a wonder that most SQL
+implementations get along without them. The designers of SQL don't give us the
+option of using variables for persistent storage: we're supposed to use Base
+tables for that.
 
 Assignment Statements
 _____________________
 
-Assignment statements begin with the <keyword> ``SET`` -- but don't call them 
-"``SET`` statements", to avoid confusion with non-PSM statements that also 
-begin with ``SET``. Assignment statements are syntactically similar to the 
-``SET`` clauses used in ``UPDATE`` statements. Here is the required syntax: 
+Assignment statements begin with the <keyword> ``SET`` -- but don't call them
+"``SET`` statements", to avoid confusion with non-PSM statements that also
+begin with ``SET``. Assignment statements are syntactically similar to the
+``SET`` clauses used in ``UPDATE`` statements. Here is the required syntax:
 
 ::
 
@@ -401,7 +403,7 @@ for SQL/CLI. Here's an example:
 
 Objects that you declare in a compound statement have "local scope", so the
 <Cursor name> in this example -- cc -- can only be  used by SQL statements
-within the ``BEGIN ... END``. The example could be replaced with this SQL 
+within the ``BEGIN ... END``. The example could be replaced with this SQL
 statement:
 
 ::
@@ -429,12 +431,12 @@ declare conditions as well as variables. The required syntax is:
    <condition declaration> ::=
       DECLARE <condition name> CONDITION [ FOR <sqlstate value> ]
 
-**Quick review:** An ``SQLSTATE`` value is a 5-character status code string. 
-Upon completion of any SQL statement, there will be a status code in 
-``SQLSTATE``, which is the main diagnostic field. Typical values are ``'01006' 
-(warning-privilege not revoked)``, ``'22012' (data exception-division by 
-zero)``, ``'42000' (syntax error or access violation)``. You'll find a complete 
-list of ``SQLSTATE`` values in our chapter on SQL/CLI diagnostics. 
+**Quick review:** An ``SQLSTATE`` value is a 5-character status code string.
+Upon completion of any SQL statement, there will be a status code in
+``SQLSTATE``, which is the main diagnostic field. Typical values are ``'01006'
+(warning-privilege not revoked)``, ``'22012' (data exception-division by
+zero)``, ``'42000' (syntax error or access violation)``. You'll find a complete
+list of ``SQLSTATE`` values in our chapter on SQL/CLI diagnostics.
 
 Here's an example of the latest form of ``BEGIN ... END``:
 
@@ -472,16 +474,16 @@ clause: a handler declaration list. The required syntax is:
       [ <handler declaration>; ...]               /* handler-declaration list */
       [ <SQL statement>; ... ]
     END
-    
+
     <handler declaration> ::=
     DECLARE <handler type> HANDLER FOR <condition value list> <handler action>
-    
+
     <handler type> ::= {CONTINUE | EXIT | UNDO }
-    
+
     <handler action> ::= <SQL statement>
-    
+
     <condition value list> ::= <condition value> [ {,<condition value>}... ]
-    
+
     <condition value> ::=
     <sqlstate value>| <condition name>| SQLEXCEPTION | SQLWARNING | NOT FOUND
 
@@ -511,19 +513,19 @@ statement:
 
    INSERT INTO Table_1 VALUES (99999);
 
-If this SQL statement fails due to overflow, then variable ``v1`` gets 
-``'Ovflw'``; if it fails due to an integrity Constraint violation, then 
-variable ``v1`` gets ``'c-err'``; if it succeeds but there is some warning, 
-then variable ``v1`` gets ``'?????'``. But, regardless, play continues because 
-all the handlers are ``CONTINUE`` handlers. So the second ``INSERT`` statement 
-will put in one of the values ``'Ovflw'``, ``'c-err'``, ``'?????'`` or 
-``'Okay!'`` (``'Okay!'`` is the default value for ``v1`` so this is what goes 
-in if the result of the first ``INSERT`` is success with no warnings). 
+If this SQL statement fails due to overflow, then variable ``v1`` gets
+``'Ovflw'``; if it fails due to an integrity Constraint violation, then
+variable ``v1`` gets ``'c-err'``; if it succeeds but there is some warning,
+then variable ``v1`` gets ``'?????'``. But, regardless, play continues because
+all the handlers are ``CONTINUE`` handlers. So the second ``INSERT`` statement
+will put in one of the values ``'Ovflw'``, ``'c-err'``, ``'?????'`` or
+``'Okay!'`` (``'Okay!'`` is the default value for ``v1`` so this is what goes
+in if the result of the first ``INSERT`` is success with no warnings).
 
-What if exception ``'42000'`` happens? That would be an "unhandled exception" 
-since we did not define a handler for exception ``'42000'``. The result would 
-be that the second ``INSERT`` is not attempted -- the whole compound statement 
-fails. 
+What if exception ``'42000'`` happens? That would be an "unhandled exception"
+since we did not define a handler for exception ``'42000'``. The result would
+be that the second ``INSERT`` is not attempted -- the whole compound statement
+fails.
 
 The following chart compares the exception-handling features of embedded SQL,
 the CLI and the PSM.
@@ -539,7 +541,7 @@ the CLI and the PSM.
     handles specific status codes?  no                 N/A   yes
 
 Among the SQL statements that a handler can execute are two new special ones:
-the ``SIGNAL`` statement and the ``RESIGNAL`` statement. These SQL statements 
+the ``SIGNAL`` statement and the ``RESIGNAL`` statement. These SQL statements
 affect the diagnostics area.
 
 Labels
@@ -558,9 +560,9 @@ end label. The required syntax for a compound statement is:
       [ <handler declaration>; ...]
       [ <SQL statement>; ... ]
     END [ <end_label> ]
-    
+
     <beginning_label> ::= <identifier>
-    
+
     <end_label> ::= <identifier>
 
 If you add labels to your compound statement, they should be equivalent (if
@@ -587,17 +589,17 @@ definition is trivial.
 *SIGNAL Statement*
 ------------------
 
-The ``SIGNAL`` statement is used to clear the diagnostics area. The required 
+The ``SIGNAL`` statement is used to clear the diagnostics area. The required
 syntax for the ``SIGNAL`` statement is:
 
 ::
 
     SIGNAL <condition name or sqlstate value>
        SET <signal information item list>
-       
+
        <signal information item list> ::=
        <signal information item> [ {,<signal information item>}... ]
-       
+
           <signal information item> ::=
           <condition information item name> = <simple value specification>
 
@@ -609,7 +611,7 @@ you include the optional ``SET`` clause, your DBMS effectively executes:
 
    RESIGNAL <signal information item list>;
 
-**Note:** You'll find the list of <condition information item name>s in our 
+**Note:** You'll find the list of <condition information item name>s in our
 chapter on embedded SQL -- see the ``GET DIAGNOSTICS`` statement.
 
 *RESIGNAL Statement*
@@ -636,7 +638,7 @@ Program Control
 _______________
 
 Essential SQL has almost nothing that can control the program flow (except for
-the ``CALL`` and ``RETURN`` statements which are associated with SQL routines). 
+the ``CALL`` and ``RETURN`` statements which are associated with SQL routines).
 By contrast, a DBMS with PSM support will allow eight control statements. Of
 these, seven are similar to statements which appear in other languages. The
 eighth, ``FOR``, depends on Objects which are unique to the SQL environment.
@@ -668,7 +670,7 @@ value expressions. The required syntax for the ``CASE`` statement is:
       [ WHEN <search condition> THEN <statement>(s) ... ]
       [ ELSE <statement>(s) ]
     END CASE
-    
+
     simple CASE statement ::=
     CASE <case value>
        WHEN <when value> THEN <statement>(s)
@@ -676,11 +678,11 @@ value expressions. The required syntax for the ``CASE`` statement is:
        [ ELSE <statement>(s) ]
     END CASE
 
-A "simple ``CASE`` statement" is merely a shorthand, and may be replaced by a 
-"searched ``CASE`` statement" which has the form: "``CASE WHEN`` <when value> = 
-<case value> ...". Thus, the following examples, showing a searched ``CASE`` 
-statement on the left and a simple ``CASE`` statement on the right, are exactly 
-equivalent: 
+A "simple ``CASE`` statement" is merely a shorthand, and may be replaced by a
+"searched ``CASE`` statement" which has the form: "``CASE WHEN`` <when value> =
+<case value> ...". Thus, the following examples, showing a searched ``CASE``
+statement on the left and a simple ``CASE`` statement on the right, are exactly
+equivalent:
 
 ::
 
@@ -692,30 +694,30 @@ equivalent:
      ELSE INSERT INTO t VALUES (0);      ELSE INSERT INTO t VALUES (0);
    END CASE                            END CASE
 
-When executing a ``CASE`` statement, the DBMS goes through the ``WHEN`` clauses 
-from top to bottom, looking for a ``TRUE`` condition. If it finds one, it 
-executes the statement(s) after ``THEN``, and the ``CASE`` terminates. If it 
-finds none, it executes the statements(s) after ``ELSE`` -- or, if there is no 
-``ELSE``, returns this ``SQLSTATE error: 20000 "case not found for case 
-statement"``. For the above example, then, if the value of ``parameter_value`` 
-is ``5``, then the DBMS will execute this SQL statement: 
+When executing a ``CASE`` statement, the DBMS goes through the ``WHEN`` clauses
+from top to bottom, looking for a ``TRUE`` condition. If it finds one, it
+executes the statement(s) after ``THEN``, and the ``CASE`` terminates. If it
+finds none, it executes the statements(s) after ``ELSE`` -- or, if there is no
+``ELSE``, returns this ``SQLSTATE error: 20000 "case not found for case
+statement"``. For the above example, then, if the value of ``parameter_value``
+is ``5``, then the DBMS will execute this SQL statement:
 
 ::
 
    INSERT INTO t VALUES (0);
 
-.. CAUTION:: 
+.. CAUTION::
 
-   The syntax for the ``CASE`` statement is somewhat different from the syntax 
-   for the SQL ``CASE`` expression (see our chapter on Simple Search 
-   Conditions). In particular, the ``CASE`` statement has no equivalent for the 
-   ``ELSE NULL`` clause, and the terminator is ``END CASE`` rather than 
-   ``END``. 
+   The syntax for the ``CASE`` statement is somewhat different from the syntax
+   for the SQL ``CASE`` expression (see our chapter on Simple Search
+   Conditions). In particular, the ``CASE`` statement has no equivalent for the
+   ``ELSE NULL`` clause, and the terminator is ``END CASE`` rather than
+   ``END``.
 
 *IF Statement*
 --------------
 
-The ``IF`` statement is useful for simple "if (x) then (do this)" situations. 
+The ``IF`` statement is useful for simple "if (x) then (do this)" situations.
 The required syntax for the ``IF`` statement is:
 
 ::
@@ -733,9 +735,9 @@ Here's an example:
    5=5 THEN UPDATE Table_1 SET column_1 = column_1 + 1;
   END IF
 
-In this example, the search condition is ``TRUE``, so the ``UPDATE`` statement 
-will be executed. If the search condition had been ``FALSE`` or ``UNKNOWN``, 
-then the ``UPDATE`` statement would not have been executed. 
+In this example, the search condition is ``TRUE``, so the ``UPDATE`` statement
+will be executed. If the search condition had been ``FALSE`` or ``UNKNOWN``,
+then the ``UPDATE`` statement would not have been executed.
 
 *LOOP Statement*
 ----------------
@@ -789,7 +791,7 @@ In this example, the loop will be exited once the value of ``x`` passes 1000.
 -----------------
 
 The ``WHILE`` statement is useful for repeated execution of SQL statements, with
-a built-in equivalent to the ``LEAVE`` statement. The required syntax for the 
+a built-in equivalent to the ``LEAVE`` statement. The required syntax for the
 ``WHILE`` statement is:
 
 ::
@@ -799,9 +801,9 @@ a built-in equivalent to the ``LEAVE`` statement. The required syntax for the
        <SQL statement>(s)
     END WHILE [ <end_label> ]
 
-As long as the <search condition> is ``TRUE``, the SQL statements between 
-``WHILE`` and ``END WHILE`` are repeatedly executed. The <beginning_label> and 
-the <end_label> must be equivalent, if you use them both. Here's an example: 
+As long as the <search condition> is ``TRUE``, the SQL statements between
+``WHILE`` and ``END WHILE`` are repeatedly executed. The <beginning_label> and
+the <end_label> must be equivalent, if you use them both. Here's an example:
 
 ::
 
@@ -809,9 +811,9 @@ the <end_label> must be equivalent, if you use them both. Here's an example:
       SET x = x + 1;
    END WHILE
 
-This example will loop, incrementing ``x``, until "``x <= 1000``" is either 
-``FALSE`` or ``UNKNOWN``. If the <search condition> is ``FALSE`` or ``UNKNOWN`` 
-when the loop begins, then nothing happens. 
+This example will loop, incrementing ``x``, until "``x <= 1000``" is either
+``FALSE`` or ``UNKNOWN``. If the <search condition> is ``FALSE`` or ``UNKNOWN``
+when the loop begins, then nothing happens.
 
 *REPEAT Statement*
 ------------------
@@ -827,10 +829,10 @@ syntax for the ``REPEAT`` statement is:
        <SQL statement>(s) UNTIL <search condition>
     END REPEAT [ <end_label> ]
 
-As long as the <search condition> is ``FALSE`` or ``UNKNOWN``, the SQL 
-statements between ``REPEAT`` and ``END REPEAT`` are repeatedly executed. The 
-<beginning_label> and the <end_label> must be equivalent, if you use them both. 
-Here's an example: 
+As long as the <search condition> is ``FALSE`` or ``UNKNOWN``, the SQL
+statements between ``REPEAT`` and ``END REPEAT`` are repeatedly executed. The
+<beginning_label> and the <end_label> must be equivalent, if you use them both.
+Here's an example:
 
 ::
 
@@ -840,177 +842,177 @@ Here's an example:
       UNTIL x > 5
    END REPEAT
 
-In this example, the ``UPDATE`` statement will be repeated until ``x`` is 
-greater than 5 -- that is, the loop will repeat until after theIf a sensitive 
-or asensitive holdable-Cursor is held open for a subsequent transaction, then 
-whether any significant changes made to SQL-data (by this or any subsequent 
-transaction in which the Cursor is held open) will be visible through that 
-Cursor in the subsequent transaction is non-standard because the SQL Standard 
-requires implementors to define how they will handle this situation. 
+In this example, the ``UPDATE`` statement will be repeated until ``x`` is
+greater than 5 -- that is, the loop will repeat until after theIf a sensitive
+or asensitive holdable-Cursor is held open for a subsequent transaction, then
+whether any significant changes made to SQL-data (by this or any subsequent
+transaction in which the Cursor is held open) will be visible through that
+Cursor in the subsequent transaction is non-standard because the SQL Standard
+requires implementors to define how they will handle this situation.
 
-Whether a DBMS is able to disallow significant changes that would not be 
-visible through a currently open Cursor is non-standard because the SQL 
-Standard requires implementors to define their actions in such situations. 
+Whether a DBMS is able to disallow significant changes that would not be
+visible through a currently open Cursor is non-standard because the SQL
+Standard requires implementors to define their actions in such situations.
 
-The extent to which a DBMS may disallow independent changes that are not 
-significant is non-standard because the SQL Standard requires implementors to 
-define their actions in such situations. 
+The extent to which a DBMS may disallow independent changes that are not
+significant is non-standard because the SQL Standard requires implementors to
+define their actions in such situations.
 
-The status of any open Cursors in any SQL-client Module associated with the 
-current transaction that were opened by that transaction before the 
-establishment of a savepoint to which a ``ROLLBACK`` is executed is 
-non-standard because the SQL Standard requires implementors to define their 
+The status of any open Cursors in any SQL-client Module associated with the
+current transaction that were opened by that transaction before the
+establishment of a savepoint to which a ``ROLLBACK`` is executed is
+non-standard because the SQL Standard requires implementors to define their
 actions in such situations.
 
 *Diagnostics*
 -------------
 
-The actual length of variable-length character items in the diagnostics area 
-has to be at least 128 octets but is otherwise non-standard because the SQL 
-Standard requires implementors to define the actual length. 
+The actual length of variable-length character items in the diagnostics area
+has to be at least 128 octets but is otherwise non-standard because the SQL
+Standard requires implementors to define the actual length.
 
-The character string value set for the diagnostic area's ``CLASS_ORIGIN`` and 
-``SUBCLASS_ORIGIN`` fields may not be ``'ISO 9075'`` but is otherwise 
-non-standard because the SQL Standard requires implementors to define their own 
-values for any non-standard errors. 
+The character string value set for the diagnostic area's ``CLASS_ORIGIN`` and
+``SUBCLASS_ORIGIN`` fields may not be ``'ISO 9075'`` but is otherwise
+non-standard because the SQL Standard requires implementors to define their own
+values for any non-standard errors.
 
-The character string value set for the diagnostic area's ``MESSAGE_TEXT`` field 
-is non-standard because the SQL Standard requires implementors to define their 
-own values for this field. 
+The character string value set for the diagnostic area's ``MESSAGE_TEXT`` field
+is non-standard because the SQL Standard requires implementors to define their
+own values for this field.
 
-Any negative values set for the diagnostic area's ``COMMAND_FUNCTION_CODE`` 
-field indicate implementation-defined SQL-statements and are thus non-standard 
-because the SQL Standard requires implementors to define their own values for 
-this field if they support any non-standard SQL statements. 
+Any negative values set for the diagnostic area's ``COMMAND_FUNCTION_CODE``
+field indicate implementation-defined SQL-statements and are thus non-standard
+because the SQL Standard requires implementors to define their own values for
+this field if they support any non-standard SQL statements.
 
-The method of flagging nonconforming SQL language or processing of conforming 
-SQL language is implementation-defined, as is the list of additional <keyword>s 
-that may be required by the DBMS. 
+The method of flagging nonconforming SQL language or processing of conforming
+SQL language is implementation-defined, as is the list of additional <keyword>s
+that may be required by the DBMS.
 
-The full set of known functional dependencies is non-standard because the SQL 
-Standard allows implementors to define additional functional dependencies if 
-they choose. 
+The full set of known functional dependencies is non-standard because the SQL
+Standard allows implementors to define additional functional dependencies if
+they choose.
 
 Implementation-Dependent Features
 =================================
 
-The SQL Standard requires a SQL DBMS to define how it will handle each of these 
-features. The decision does not have to be documented. 
+The SQL Standard requires a SQL DBMS to define how it will handle each of these
+features. The decision does not have to be documented.
 
-If more than one condition could have occurred when executing an SQL statement, 
-it is implementation-dependent whether the DBMS will make diagnostic 
-information pertaining to more than one condition available. 
+If more than one condition could have occurred when executing an SQL statement,
+it is implementation-dependent whether the DBMS will make diagnostic
+information pertaining to more than one condition available.
 
-The treatment of language that does not conform to the SQL Standard is 
-implementation-dependent. 
+The treatment of language that does not conform to the SQL Standard is
+implementation-dependent.
 
-If evaluation of the inessential parts of an expression or search condition 
-would cause an exception condition to be raised, it is implementation-dependent 
-whether or not that condition is raised. 
+If evaluation of the inessential parts of an expression or search condition
+would cause an exception condition to be raised, it is implementation-dependent
+whether or not that condition is raised.
 
-The actual size of the diagnostics area is implementation-dependent if you 
-don't specify the size yourself. 
+The actual size of the diagnostics area is implementation-dependent if you
+don't specify the size yourself.
 
-If ``DECLARE CURSOR`` does not include an ``ORDER BY`` clause, or includes an 
-``ORDER BY`` clause that doesn't specify the order of the rows completely, then 
-the rows of the result Table have an order that is defined only to the extent 
-that the ``ORDER BY`` clause specifies and is otherwise 
-implementation-dependent. 
+If ``DECLARE CURSOR`` does not include an ``ORDER BY`` clause, or includes an
+``ORDER BY`` clause that doesn't specify the order of the rows completely, then
+the rows of the result Table have an order that is defined only to the extent
+that the ``ORDER BY`` clause specifies and is otherwise
+implementation-dependent.
 
-The effect on the position and state of an open Cursor when an error occurs 
-during the execution of an SQL statement that identifies the Cursor is 
-implementation-dependent. 
+The effect on the position and state of an open Cursor when an error occurs
+during the execution of an SQL statement that identifies the Cursor is
+implementation-dependent.
 
-If an asensitive Cursor is open and a change is made to SQL-data from within 
-the same transaction other than through that Cursor, then whether that change 
-will be visible through that Cursor before it is closed is 
-implementation-dependent. 
+If an asensitive Cursor is open and a change is made to SQL-data from within
+the same transaction other than through that Cursor, then whether that change
+will be visible through that Cursor before it is closed is
+implementation-dependent.
 
-The mapping of <AuthorizationID>s to operating system users is 
-implementation-dependent. 
+The mapping of <AuthorizationID>s to operating system users is
+implementation-dependent.
 
-When an SQL-session is initiated, the current <authorization identifier> for 
-the SQL-session is determined in an implementation-dependent manner, unless the 
-session is initiated using a <connect statement>. 
+When an SQL-session is initiated, the current <authorization identifier> for
+the SQL-session is determined in an implementation-dependent manner, unless the
+session is initiated using a <connect statement>.
 
-A unique implementation-dependent SQL-session identifier is associated with 
-each SQL-session. 
+A unique implementation-dependent SQL-session identifier is associated with
+each SQL-session.
 
-The SQL-client <Module name> of the SQL-client Module that is effectively 
-materialized on an SQL-server is implementation-dependent. 
+The SQL-client <Module name> of the SQL-client Module that is effectively
+materialized on an SQL-server is implementation-dependent.
 
-Diagnostic information is passed to the diagnostics area in an application in 
-an implementation-dependent manner. 
+Diagnostic information is passed to the diagnostics area in an application in
+an implementation-dependent manner.
 
-The effect on diagnostic information of incompatibilities between the character 
-repertoires supported by the SQL-client and SQL-server environments is 
-implementation-dependent. 
+The effect on diagnostic information of incompatibilities between the character
+repertoires supported by the SQL-client and SQL-server environments is
+implementation-dependent.
 
-The time of evaluation of the ``CURRENT_DATE``, ``CURRENT_TIME`` and 
-``CURRENT_TIMESTAMP`` functions during the execution of an SQL statement is 
-implementation-dependent. 
+The time of evaluation of the ``CURRENT_DATE``, ``CURRENT_TIME`` and
+``CURRENT_TIMESTAMP`` functions during the execution of an SQL statement is
+implementation-dependent.
 
-The start datetime used for converting intervals to scalars for subtraction 
-purposes is implementation-dependent. 
+The start datetime used for converting intervals to scalars for subtraction
+purposes is implementation-dependent.
 
-The names of the Columns of a <row value constructor> that specifies a <row 
-value constructor list> are implementation-dependent. 
+The names of the Columns of a <row value constructor> that specifies a <row
+value constructor list> are implementation-dependent.
 
-When a Column is not named by an ``AS`` clause and is not derived from a single 
-Column reference, then the name of the Column is implementation-dependent. 
+When a Column is not named by an ``AS`` clause and is not derived from a single
+Column reference, then the name of the Column is implementation-dependent.
 
-If a <simple Table> is neither a <query specification> nor an <explicit Table>, 
-then the name of each Column of the <simple Table> is implementation-dependent. 
+If a <simple Table> is neither a <query specification> nor an <explicit Table>,
+then the name of each Column of the <simple Table> is implementation-dependent.
 
-If a <non-join query term> is not a <non-join query primary> and the <Column 
-name> of the corresponding Columns of both Tables participating in the 
-<non-join query term> are not the same, then the result Column has an 
-implementation-dependent <Column name>. 
+If a <non-join query term> is not a <non-join query primary> and the <Column
+name> of the corresponding Columns of both Tables participating in the
+<non-join query term> are not the same, then the result Column has an
+implementation-dependent <Column name>.
 
-If a <non-join query expression> is not a <non-join query term> and the <Column 
-name> of the corresponding Columns of both Tables participating in the 
-<non-join query expression> are not the same, then the result Column has an 
-implementation-dependent <Column name>. 
+If a <non-join query expression> is not a <non-join query term> and the <Column
+name> of the corresponding Columns of both Tables participating in the
+<non-join query expression> are not the same, then the result Column has an
+implementation-dependent <Column name>.
 
-When the operations ``MAX``, ``MIN``, ``DISTINCT``, and references to a 
-grouping Column refer to a variable-length character string or a 
-variable-length bit string, the specific value selected from the set of equal 
-values is implementation-dependent. 
+When the operations ``MAX``, ``MIN``, ``DISTINCT``, and references to a
+grouping Column refer to a variable-length character string or a
+variable-length bit string, the specific value selected from the set of equal
+values is implementation-dependent.
 
-The specific Character set chosen for the result of an aggregation is 
-implementation-dependent, but must be the Character set of one of the <data 
-type>s being aggregated. 
+The specific Character set chosen for the result of an aggregation is
+implementation-dependent, but must be the Character set of one of the <data
+type>s being aggregated.
 
-The <Constraint name> of a Constraint that does not specify a <Constraint name> 
-is implementation-dependent. 
+The <Constraint name> of a Constraint that does not specify a <Constraint name>
+is implementation-dependent.
 
-The specific value to use for cascading foreign keys among various values that 
-are not distinct is implementation-dependent. 
+The specific value to use for cascading foreign keys among various values that
+are not distinct is implementation-dependent.
 
-The Collation of characters for which a Collation is not otherwise specified is 
-implementation-dependent. 
+The Collation of characters for which a Collation is not otherwise specified is
+implementation-dependent.
 
-If an error occurs during assignment of a value to a target during the 
-execution of a singleton ``SELECT``, the values of targets other than status 
-parameters are implementation-dependent. 
+If an error occurs during assignment of a value to a target during the
+execution of a singleton ``SELECT``, the values of targets other than status
+parameters are implementation-dependent.
 
-If the cardinality of a singleton ``SELECT`` is greater than one, it is 
-implementation-dependent whether or not values are assigned to the 
-``SELECT``\'s targets. 
+If the cardinality of a singleton ``SELECT`` is greater than one, it is
+implementation-dependent whether or not values are assigned to the
+``SELECT``\'s targets.
 
-For Cursor operations, if an exception condition occurs during the assignment 
-of a value to a target, the values of all targets are implementation-dependent 
-and the Cursor remains positioned on the current row. 
+For Cursor operations, if an exception condition occurs during the assignment
+of a value to a target, the values of all targets are implementation-dependent
+and the Cursor remains positioned on the current row.
 
-It is implementation-dependent whether a Cursor remains positioned on the 
-current row when an exception condition is raised during the derivation of any 
-derived Column. 
+It is implementation-dependent whether a Cursor remains positioned on the
+current row when an exception condition is raised during the derivation of any
+derived Column.
 
-If <number of conditions> for the diagnostics area is not specified in a ``SET 
-TRANSACTION`` statement, then an implementation-dependent value, not less than 
-one, is the default. 
+If <number of conditions> for the diagnostics area is not specified in a ``SET
+TRANSACTION`` statement, then an implementation-dependent value, not less than
+one, is the default.
 
-The value of the diagnostic area's ``ROW_COUNT`` following the execution of an 
-SQL-statement that does not directly result in the execution of a <delete 
-statement: searched>, an <insert statement> or an <update statement: searched> 
-is implementation-dependent. 
+The value of the diagnostic area's ``ROW_COUNT`` following the execution of an
+SQL-statement that does not directly result in the execution of a <delete
+statement: searched>, an <insert statement> or an <update statement: searched>
+is implementation-dependent.

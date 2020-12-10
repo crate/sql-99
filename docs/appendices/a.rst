@@ -4,6 +4,8 @@
 Appendix A -- Remote Database Access
 ====================================
 
+.. include:: ../_include/note.rst
+
 Remote Database Access (RDA) is a standard for interfacing to databases via
 some network. The standards for networks are usually bound up with a hierarchy
 called the Open Systems Interconnect (OSI) layers, which look like this:
@@ -65,27 +67,27 @@ you'll get an idea of:
 ISO/IEC 9759
 ------------
 
-The standard for RDA is ISO/IEC 9759 "Remote Database Access For SQL". This is 
-a completely different document from the standard SQL document (ISO/IEC 9075), 
-so it's not correct to say that RDA is part of the SQL standard. But it's a 
-related standard, and the respective committees work together closely. 
+The standard for RDA is ISO/IEC 9759 "Remote Database Access For SQL". This is
+a completely different document from the standard SQL document (ISO/IEC 9075),
+so it's not correct to say that RDA is part of the SQL standard. But it's a
+related standard, and the respective committees work together closely.
 
-Much of the impetus for RDA came from an industry consortium known as the SQL 
-Access Group (SAG). In 1991 members of the SAG consortium produced the first 
-prototypes for version 1 of RDA. The latest edition is Version 3, which is 
-still unofficial at the time we're writing this. Version 3 is quite different 
-from the earlier versions. It operates very much like the SQL/CLI 
-specification, using similar or even the same names and parameters for most of 
-its functions. For example, the SQL/CLI function ``SQLExecDirect`` has an RDA 
-equivalent: ``RDAExecDirect``. The parameters are similar (a handle and a 
-string with an SQL statement and a size word). The effect is similar (an SQL 
-statement is parsed and executed). The big difference, and the whole point of 
-RDA, is architecture: ``SQLExecDirect`` is a function which you call directly, 
-``RDAExecDirect`` is a message which you pass to a "remote" entity. 
+Much of the impetus for RDA came from an industry consortium known as the SQL
+Access Group (SAG). In 1991 members of the SAG consortium produced the first
+prototypes for version 1 of RDA. The latest edition is Version 3, which is
+still unofficial at the time we're writing this. Version 3 is quite different
+from the earlier versions. It operates very much like the SQL/CLI
+specification, using similar or even the same names and parameters for most of
+its functions. For example, the SQL/CLI function ``SQLExecDirect`` has an RDA
+equivalent: ``RDAExecDirect``. The parameters are similar (a handle and a
+string with an SQL statement and a size word). The effect is similar (an SQL
+statement is parsed and executed). The big difference, and the whole point of
+RDA, is architecture: ``SQLExecDirect`` is a function which you call directly,
+``RDAExecDirect`` is a message which you pass to a "remote" entity.
 
-The nearby functions are the "client", the messages they send out are called 
-"requests". The remote entity is the "server", the messages that it sends back 
-are called "responses". 
+The nearby functions are the "client", the messages they send out are called
+"requests". The remote entity is the "server", the messages that it sends back
+are called "responses".
 
 TCP/IP
 ------
@@ -202,21 +204,21 @@ RDAEndTran
 
 **What the server is supposed to:**
 
-The ``RDAEndTran`` marks a transaction boundary, and the flag will usually 
-indicate ``COMMIT`` or ``ROLLBACK``, so the usual job is simple: the server 
-should end a current transaction with ``COMMIT`` or with ``ROLLBACK``. 
+The ``RDAEndTran`` marks a transaction boundary, and the flag will usually
+indicate ``COMMIT`` or ``ROLLBACK``, so the usual job is simple: the server
+should end a current transaction with ``COMMIT`` or with ``ROLLBACK``.
 
-There is a reason that ``RDAEndTran`` is a distinct message -- that makes it 
-easier for the network to notice it, without having to know how to parse SQL 
-statements. The network might intercept ``RDAEndTran``, because the job of 
-"committing" might affect more than just one server job. 
+There is a reason that ``RDAEndTran`` is a distinct message -- that makes it
+easier for the network to notice it, without having to know how to parse SQL
+statements. The network might intercept ``RDAEndTran``, because the job of
+"committing" might affect more than just one server job.
 
-One other flag value that ``CompletionType`` may contain (besides ``COMMIT`` or 
-``ROLLBACK``) is: ``PREPARE TO COMMIT``. As part of what we call the "two-phase 
-commit" process, the first step is to co-ordinate: get all the servers on the 
-network to acknowledge that they are all ready to commit. The second step is 
-the ``COMMIT`` itself. Two-phase commit is advanced stuff; many DBMSs will 
-refuse to support the ``PREPARE TO COMMIT`` operation. 
+One other flag value that ``CompletionType`` may contain (besides ``COMMIT`` or
+``ROLLBACK``) is: ``PREPARE TO COMMIT``. As part of what we call the "two-phase
+commit" process, the first step is to co-ordinate: get all the servers on the
+network to acknowledge that they are all ready to commit. The second step is
+the ``COMMIT`` itself. Two-phase commit is advanced stuff; many DBMSs will
+refuse to support the ``PREPARE TO COMMIT`` operation.
 
 RDAClientAttribute
 ..................
@@ -229,16 +231,16 @@ RDAClientAttribute
 
 **What the server is supposed to do:**
 
-Take note of what attributes the client has. An "attribute" is an ``env`` or 
-``dbc`` or ``stmt`` attribute. That is, it's a number or string that was 
-earlier passed to the client, via a ``SQLSetEnvAttr`` or ``SQLSetConnectAttr`` 
-or ``SQLSetStmtAttr`` function call. 
+Take note of what attributes the client has. An "attribute" is an ``env`` or
+``dbc`` or ``stmt`` attribute. That is, it's a number or string that was
+earlier passed to the client, via a ``SQLSetEnvAttr`` or ``SQLSetConnectAttr``
+or ``SQLSetStmtAttr`` function call.
 
-The client won't send a new ``RDAClientAttribute`` message every time its own 
-attributes change. That would result in too much network traffic. One of the 
-features of client/server architecture is: the server doesn't do everything. 
-The client is capable of storing data locally for a particular connection and 
-only passing on what's necessary when it's necessary. 
+The client won't send a new ``RDAClientAttribute`` message every time its own
+attributes change. That would result in too much network traffic. One of the
+features of client/server architecture is: the server doesn't do everything.
+The client is capable of storing data locally for a particular connection and
+only passing on what's necessary when it's necessary.
 
 RDAStatementPrepare
 ...................
@@ -252,17 +254,17 @@ RDAStatementPrepare
 
 **What the server is supposed to do:**
 
-Prepare an SQL statement. The client might be able to do some primitive syntax 
-checking, but for the full job of binding and parsing, the client has to pass 
-the SQL statement to the server. Only the server has direct access to the 
-database and its metadata. 
+Prepare an SQL statement. The client might be able to do some primitive syntax
+checking, but for the full job of binding and parsing, the client has to pass
+the SQL statement to the server. Only the server has direct access to the
+database and its metadata.
 
-If we were calling ``SQLPrepare``, we'd pass a ``hstmt`` (handle of a 
-``stmt``). But a handle is a local identifier. There's no guarantee that a 
-handle value will be unique over the whole network. Therefore, instead of a 
-``hstmt``, the client must pass a ``StatementIdent``. This is a handle of a 
-handle. Given a ``StatementIdent``, the client and server can each look up what 
-their respective hstmt values are for the same ``stmt``. 
+If we were calling ``SQLPrepare``, we'd pass a ``hstmt`` (handle of a
+``stmt``). But a handle is a local identifier. There's no guarantee that a
+handle value will be unique over the whole network. Therefore, instead of a
+``hstmt``, the client must pass a ``StatementIdent``. This is a handle of a
+handle. Given a ``StatementIdent``, the client and server can each look up what
+their respective hstmt values are for the same ``stmt``.
 
 RDAStatementDeallocate
 ......................
@@ -275,7 +277,7 @@ RDAStatementDeallocate
 
 **What the server is supposed to do:**
 
-Free a ``stmt``. Compare the SQL/CLI function 
+Free a ``stmt``. Compare the SQL/CLI function
 ``SQLFreeHandle(SQL_HANDLE_STMT,...)``.
 
 With client-server, any statement resource (``stmt``) will be duplicated in two
@@ -296,21 +298,21 @@ RDAStatementExecute
 
 **What the server is supposed to do:**
 
-Execute an SQL statement. Presumably the statement was prepared earlier, due to 
-an ``RDAStatementPrepare`` message with the same ``StatementIdent``. 
+Execute an SQL statement. Presumably the statement was prepared earlier, due to
+an ``RDAStatementPrepare`` message with the same ``StatementIdent``.
 
-The ``ParameterDescriptor`` and ``ParameterData`` fields -- which weren't 
-necessary for ``SQLPrepare`` -- represent the solution to a rather tough 
-question: what should be done with input parameters? There are no direct RDA 
-equivalents for the SQL/CLI functions that handle "parameter descriptors". 
-They'd be useless anyway, because SQL/CLI parameter descriptors require 
-pointers and pointers have no meaning to a job on a different machine. So what 
-happens is: the client bundles up all the input parameter values, and sends 
-them as part of the message. 
+The ``ParameterDescriptor`` and ``ParameterData`` fields -- which weren't
+necessary for ``SQLPrepare`` -- represent the solution to a rather tough
+question: what should be done with input parameters? There are no direct RDA
+equivalents for the SQL/CLI functions that handle "parameter descriptors".
+They'd be useless anyway, because SQL/CLI parameter descriptors require
+pointers and pointers have no meaning to a job on a different machine. So what
+happens is: the client bundles up all the input parameter values, and sends
+them as part of the message.
 
-This might mean that requests get monstrous. But RDA's designers thought it 
-would be a bad idea to split ``RDAStatementExecute`` into multiple separate 
-messages. What if the messages didn't all arrive in the right order? 
+This might mean that requests get monstrous. But RDA's designers thought it
+would be a bad idea to split ``RDAStatementExecute`` into multiple separate
+messages. What if the messages didn't all arrive in the right order?
 
 RDAStatementExecDirect
 ......................
@@ -326,13 +328,13 @@ RDAStatementExecDirect
 
 **What the Server is supposed to do:**
 
-Prepare what's in ``StatementText``, then execute it (using the input 
-parameters if there are any). 
+Prepare what's in ``StatementText``, then execute it (using the input
+parameters if there are any).
 
-``RDAStatementExecDirect`` is logically redundant: we could accomplish the same 
-thing by sending ``RDAStatementPrepare`` followed by ``RDAStatementExecute``. 
-Such redundancy is occasionally justifiable because it's more efficient to send 
-one message instead of two. Network traffic is expensive. 
+``RDAStatementExecDirect`` is logically redundant: we could accomplish the same
+thing by sending ``RDAStatementPrepare`` followed by ``RDAStatementExecute``.
+Such redundancy is occasionally justifiable because it's more efficient to send
+one message instead of two. Network traffic is expensive.
 
 RDAStatementFetchRows
 .....................
@@ -348,21 +350,21 @@ RDAStatementFetchRows
 
 **What the server is supposed to do:**
 
-Get the values in each of the indicated rows, and ship them to the client. 
-Presumably there was an early ``RDAStatementExecute`` or 
-``RDAStatementExecDirect`` message for this ``StatementIdent``, which caused a 
-query to be executed. So the server has a result set that it can fetch the rows 
-from. 
+Get the values in each of the indicated rows, and ship them to the client.
+Presumably there was an early ``RDAStatementExecute`` or
+``RDAStatementExecDirect`` message for this ``StatementIdent``, which caused a
+query to be executed. So the server has a result set that it can fetch the rows
+from.
 
-The ``FetchOrientation`` and ``FetchOffset`` parameters contain values 
-equivalent to those which are used by the SQL/CLI function ``SQLFetchScroll``. 
-For example, ``FetchOrientation`` might equal ``SQL_FETCH_ABSOLUTE`` and 
-``FetchOffset`` might equal 55. 
+The ``FetchOrientation`` and ``FetchOffset`` parameters contain values
+equivalent to those which are used by the SQL/CLI function ``SQLFetchScroll``.
+For example, ``FetchOrientation`` might equal ``SQL_FETCH_ABSOLUTE`` and
+``FetchOffset`` might equal 55.
 
-In standard SQL, it's only possible to fetch one row at a time. With RDA -- and 
-once again this can be explained by "efficiency" -- it's possible to ask for 
-multiple rows to be fetched at once. That's what the ``FetchCount`` parameter 
-is for. 
+In standard SQL, it's only possible to fetch one row at a time. With RDA -- and
+once again this can be explained by "efficiency" -- it's possible to ask for
+multiple rows to be fetched at once. That's what the ``FetchCount`` parameter
+is for.
 
 RDAStatementCloseCursor
 .......................
@@ -375,16 +377,16 @@ RDAStatementCloseCursor
 
 **What the server is supposed to do:**
 
-Well, close the Cursor. This isn't an end-of-transaction signal, but it does 
-tell the server that it can forget about a result set that it created with a 
-recent ``SELECT`` statement. 
+Well, close the Cursor. This isn't an end-of-transaction signal, but it does
+tell the server that it can forget about a result set that it created with a
+recent ``SELECT`` statement.
 
-The client could pass messages in this sequence: *(a)* 
-``RDAStatementExecDirect`` with a ``SELECT`` statement so that the server 
-creates a result set and Cursor, *(b)* ``RDAStatementFetchRows`` so that the 
-server will fetch row values and send them to the client and *(c)* 
-``RDAStatementCloseCursor`` so that the server will free (and possibly unlock) 
-resources that were allocated for Cursor maintenance. 
+The client could pass messages in this sequence: *(a)*
+``RDAStatementExecDirect`` with a ``SELECT`` statement so that the server
+creates a result set and Cursor, *(b)* ``RDAStatementFetchRows`` so that the
+server will fetch row values and send them to the client and *(c)*
+``RDAStatementCloseCursor`` so that the server will free (and possibly unlock)
+resources that were allocated for Cursor maintenance.
 
 RDAStatementCancel
 ..................
@@ -407,19 +409,19 @@ perhaps because the execution is taking too long or because some new
 information has arrived (such as a Shutdown message from Windows). Or,
 consider this scenario:
 
-1. There are two servers. Each server is responsible for a copy of the same 
-   database. 
+1. There are two servers. Each server is responsible for a copy of the same
+   database.
 
-2. The client sends an ``RDAExecDirect`` message to both servers, with the 
-   same query. 
+2. The client sends an ``RDAExecDirect`` message to both servers, with the
+   same query.
 
-3. Inevitably, one of the servers will respond more quickly than the other. 
-   Perhaps it's less busy, or perhaps its message packets are just moving by a 
-   shorter route. 
+3. Inevitably, one of the servers will respond more quickly than the other.
+   Perhaps it's less busy, or perhaps its message packets are just moving by a
+   shorter route.
 
-4. Once the client receives the response from the fast server, it sends an 
-   ``RDAStatementCancel`` message to the slow one, meaning "oh forget it -- I 
-   already have the data". 
+4. Once the client receives the response from the fast server, it sends an
+   ``RDAStatementCancel`` message to the slow one, meaning "oh forget it -- I
+   already have the data".
 
 5. The Server's Response: ``RDAResponse``
 
@@ -526,7 +528,7 @@ potentially significant.
 
 5. There are optional Schemas which contain Tables which contain information
    about available servers, logs of requests and so on. The Tables can be
-   accessed in the same way that Views can be accessed in 
+   accessed in the same way that Views can be accessed in
    ``INFORMATION_SCHEMA``.
 
 What good is RDA?

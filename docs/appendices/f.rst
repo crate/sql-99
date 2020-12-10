@@ -4,6 +4,8 @@
 Appendix F -- Glossary
 ======================
 
+.. include:: ../_include/note.rst
+
 The entries in this glossary include the computer-related words, names,
 acronyms, abbreviations, SQL keywords and official terms used in this book, as
 well as those that are common in the SQL/database industry. Each entry is

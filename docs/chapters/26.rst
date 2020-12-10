@@ -4,23 +4,25 @@
 Chapter 26 -- PSM: Not just Persistent Stored Modules
 =====================================================
 
+.. include:: ../_include/note.rst
+
 The initials *PSM* refer to the specifications of a document labelled "ISO/IEC
 9075-4 Information Technology - Database Languages - SQL: Part 4: Persistent
 Stored Modules (SQL/PSM)". Part 4 is one of the standard SQL documents, but it
 is not essential -- that is, it describes SQL features that are optional. A
 DBMS that complies with part 4 can claim "enhanced SQL conformance" (provided,
 of course, that it also fully supports Core SQL). We will use the phrase
-"essential SQL" to mean "SQL without PSM, as defined in Parts 1 and 2 of the 
+"essential SQL" to mean "SQL without PSM, as defined in Parts 1 and 2 of the
 SQL Standard".
 
-In essential SQL, the concept of Modules -- that is, SQL-client Modules -- is 
-defined and used frequently (in effect, every type of SQL binding style 
-conceptually uses Modules, at least implicitly). However, nobody implements 
-them and nobody cares. What vendors have implemented, and what programmers have 
-used throughout SQL's history, is some variant of: *(a)* embedded SQL, *(b)* 
-SQL/CLI or *(c)* both. There has been no popular implementation of a complete 
-SQL language which can do all the things that other programming languages 
-offer. 
+In essential SQL, the concept of Modules -- that is, SQL-client Modules -- is
+defined and used frequently (in effect, every type of SQL binding style
+conceptually uses Modules, at least implicitly). However, nobody implements
+them and nobody cares. What vendors have implemented, and what programmers have
+used throughout SQL's history, is some variant of: *(a)* embedded SQL, *(b)*
+SQL/CLI or *(c)* both. There has been no popular implementation of a complete
+SQL language which can do all the things that other programming languages
+offer.
 
 For example, in essential SQL, there is no easy way to do these things:
 
@@ -38,7 +40,7 @@ specification. Since one important extension is the ability to create and
 destroy program modules, the package name is "Persistent Stored Modules".
 However, the other extensions -- variable handling and program control -- can
 be implemented independently. For example, some DBMSs allow "assignment"
-statements to be used within Triggers, even though they have no support for 
+statements to be used within Triggers, even though they have no support for
 persistent stored modules.
 
 .. rubric:: Table of Contents
@@ -56,12 +58,12 @@ Tables and Domains and other Schema Objects are. (The actual storage is on the
 server and these Objects are sometimes called "SQL-server Modules", but their
 physical location is not important.)
 
-It is, then, reasonable to think of a Persistent Stored Module as a [program] 
-Module which is stored permanently within a Schema of an SQL "database". As 
-with other Schema Objects, there are ``CREATE``, ``ALTER`` and ``DROP`` 
-statements for creating, altering and dropping Modules. In this chapter, we'll 
-briefly describe these Modules, and show you the syntax to use to create, alter 
-and destroy them. 
+It is, then, reasonable to think of a Persistent Stored Module as a [program]
+Module which is stored permanently within a Schema of an SQL "database". As
+with other Schema Objects, there are ``CREATE``, ``ALTER`` and ``DROP``
+statements for creating, altering and dropping Modules. In this chapter, we'll
+briefly describe these Modules, and show you the syntax to use to create, alter
+and destroy them.
 
 A Schema may contain zero or more Modules. An SQL Module is a named group of
 SQL statements. Modules are dependent on some Schema -- the <Module name> must
@@ -81,19 +83,19 @@ procedure. SQL procedures must reference parameters to pass values between the
 program and SQL-data. Since parameters must map to host language variables,
 they are not nullable unless they are coupled with an indicator parameter.
 
-SQL provides a status parameter -- ``SQLSTATE`` -- whose value indicates 
-whether or not an SQL statement was successfully executed. All procedures must 
-contain an ``SQLSTATE`` declaration. 
+SQL provides a status parameter -- ``SQLSTATE`` -- whose value indicates
+whether or not an SQL statement was successfully executed. All procedures must
+contain an ``SQLSTATE`` declaration.
 
 A Module is defined by a descriptor that contains six pieces of information:
 
-1. The <Module name>, qualified by the <Schema name> of the Schema it 
+1. The <Module name>, qualified by the <Schema name> of the Schema it
    belongs to.
 
-2. The name of the Character set that is used to express the names of all 
+2. The name of the Character set that is used to express the names of all
    Schema Objects mentioned in the Module's definition.
 
-3. The Module's <AuthorizationID> -- this is the <AuthorizationID> that owns 
+3. The Module's <AuthorizationID> -- this is the <AuthorizationID> that owns
    the Module's Schema.
 
 4. The list of <Schema name>s contained in the Module's path specification.
@@ -102,20 +104,20 @@ A Module is defined by a descriptor that contains six pieces of information:
 
 6. A descriptor for every SQL-invoked routine contained in the Module.
 
-To create a Module, use the ``CREATE MODULE`` statement (either as a 
-stand-alone SQL statement or within a ``CREATE SCHEMA`` statement). ``CREATE 
-MODULE`` specifies the enclosing Schema, names the Module and identifies the 
-Module's Character set, declared Tables and routines. To change an existing 
-Module, use the ``ALTER MODULE`` statement. To destroy a Module, use the ``DROP 
-MODULE`` statement. 
+To create a Module, use the ``CREATE MODULE`` statement (either as a
+stand-alone SQL statement or within a ``CREATE SCHEMA`` statement). ``CREATE
+MODULE`` specifies the enclosing Schema, names the Module and identifies the
+Module's Character set, declared Tables and routines. To change an existing
+Module, use the ``ALTER MODULE`` statement. To destroy a Module, use the ``DROP
+MODULE`` statement.
 
-There is a one-to-many association between Schemas and Modules: one Schema 
+There is a one-to-many association between Schemas and Modules: one Schema
 can own multiple Modules.
 
 *Module Names*
 --------------
 
-A <Module name> identifies a Module. The required syntax for a <Module name> 
+A <Module name> identifies a Module. The required syntax for a <Module name>
 is:
 
 ::
@@ -123,18 +125,18 @@ is:
     <Module name> ::=
     [ <Schema name>. ] unqualified name
 
-A <Module name> is a <regular identifier> or a <delimited identifier> that is 
-unique (for all Modules) within the Schema it belongs to. The <Schema name> 
-which qualifies a <Module name> names the Schema that the Module belongs to and 
-can either be explicitly stated, or a default will be supplied by your DBMS as 
-follows: 
+A <Module name> is a <regular identifier> or a <delimited identifier> that is
+unique (for all Modules) within the Schema it belongs to. The <Schema name>
+which qualifies a <Module name> names the Schema that the Module belongs to and
+can either be explicitly stated, or a default will be supplied by your DBMS as
+follows:
 
-* If a <Module name> in a ``CREATE SCHEMA`` statement isn't qualified, the 
+* If a <Module name> in a ``CREATE SCHEMA`` statement isn't qualified, the
   default qualifier is the name of the Schema you're creating.
 
 * If the unqualified <Module name> is found in any other SQL statement,
   the default qualifier is the name of the Schema identified in the ``SCHEMA``
-  clause or ``AUTHORIZATION`` clause of the ``CREATE MODULE`` statement that 
+  clause or ``AUTHORIZATION`` clause of the ``CREATE MODULE`` statement that
   defines that Module.
 
 Here are some examples of <Module name>s:
@@ -153,8 +155,8 @@ Here are some examples of <Module name>s:
 CREATE MODULE Statement
 =======================
 
-The ``CREATE MODULE`` statement creates an SQL-server Module: a Module that 
-belongs to a Schema. The required syntax for the ``CREATE MODULE`` statement 
+The ``CREATE MODULE`` statement creates an SQL-server Module: a Module that
+belongs to a Schema. The required syntax for the ``CREATE MODULE`` statement
 is:
 
 ::
@@ -167,11 +169,11 @@ is:
        <SQL-invoked routine>; ...
        END MODULE
 
-``CREATE MODULE`` defines a new SQL-server Module -- don't get this mixed up 
-with the simple ``MODULE`` statement that is part of essential SQL, it defines 
-an SQL- client Module and, although the two are similar, PSM statements won;t 
-work on anything but a PSM Module. An SQL-server Module is owned by the Schema 
-it belongs to. 
+``CREATE MODULE`` defines a new SQL-server Module -- don't get this mixed up
+with the simple ``MODULE`` statement that is part of essential SQL, it defines
+an SQL- client Module and, although the two are similar, PSM statements won;t
+work on anything but a PSM Module. An SQL-server Module is owned by the Schema
+it belongs to.
 
 The <Module name> identifies the Module and the Schema that it belongs to. A
 <Module name> that includes an explicit <Schema name> qualifier belongs to the
@@ -179,20 +181,20 @@ Schema named. A <Module name> that does not include an explicit <Schema name>
 qualifier belongs to the SQL-session default Schema. The <Module name> must be
 unique within the Schema that owns it.
 
-If ``CREATE MODULE`` is part of a ``CREATE SCHEMA`` statement, the <Module 
-name>, if explicitly qualified, must include the <Schema name> of the Schema 
-being created; that is, it isn't possible to create a Module belonging to a 
-different Schema from within ``CREATE SCHEMA``. 
+If ``CREATE MODULE`` is part of a ``CREATE SCHEMA`` statement, the <Module
+name>, if explicitly qualified, must include the <Schema name> of the Schema
+being created; that is, it isn't possible to create a Module belonging to a
+different Schema from within ``CREATE SCHEMA``.
 
-The optional ``NAMES ARE`` clause provides the name of the Character set that 
-is used to express the names of all Schema Objects mentioned in the Module's 
-definition. If you omit the clause, the Module's Character set is the default 
-Character set of the Schema it belongs to. 
+The optional ``NAMES ARE`` clause provides the name of the Character set that
+is used to express the names of all Schema Objects mentioned in the Module's
+definition. If you omit the clause, the Module's Character set is the default
+Character set of the Schema it belongs to.
 
-The optional ``SCHEMA`` clause names the default Schema for the Module -- that 
-is, the name of the Schema that owns the Schema Objects referred to in the 
-Module. If you omit the clause, the default <Schema name> is the name of the 
-Schema that owns the Module. 
+The optional ``SCHEMA`` clause names the default Schema for the Module -- that
+is, the name of the Schema that owns the Schema Objects referred to in the
+Module. If you omit the clause, the default <Schema name> is the name of the
+Schema that owns the Module.
 
 The optional ``PATH`` clause names the Module's default path: the path used to
 qualify unqualified <Routine name>s that identify <routine invocation>s that
@@ -202,10 +204,10 @@ all of the Schemas named must belong to the same Catalog. If you omit the
 clause, your DBMS will give the Module a default path that includes the name
 of the Schema that the Module belongs to.
 
-The Module can contain zero or more ``DECLARE TABLE`` statements, each 
-declaring a local temporary Table that will only be visible to this Module. 
+The Module can contain zero or more ``DECLARE TABLE`` statements, each
+declaring a local temporary Table that will only be visible to this Module.
 
-The Module can contain one or more SQL-invoked routines -- these do the 
+The Module can contain one or more SQL-invoked routines -- these do the
 Module's work. Here's a simple example:
 
 ::
@@ -222,20 +224,20 @@ Module's work. Here's a simple example:
           INSERT INTO Employees VALUES (5);
       END MODULE
 
-If your memory stretches back to our chapter on SQL routines, you'll recognize 
-the ``PROCEDURE`` statements here -- procedures and functions are part of 
-essential SQL. What the ``CREATE MODULE`` statement allows you to do is 
-construct a "package" of procedures, in the same way that a C implementation 
-allows the construction of a library. Our example is a rather crude attempt to 
-"package" the main SQL-data change statements that can happen with the 
-``EMPLOYEES`` Table. Note: The ``DECLARE`` <keyword> before ``PROCEDURE`` is 
+If your memory stretches back to our chapter on SQL routines, you'll recognize
+the ``PROCEDURE`` statements here -- procedures and functions are part of
+essential SQL. What the ``CREATE MODULE`` statement allows you to do is
+construct a "package" of procedures, in the same way that a C implementation
+allows the construction of a library. Our example is a rather crude attempt to
+"package" the main SQL-data change statements that can happen with the
+``EMPLOYEES`` Table. Note: The ``DECLARE`` <keyword> before ``PROCEDURE`` is
 optional.
 
 
 ALTER MODULE Statement
 ======================
 
-The ``ALTER MODULE`` statement lets you change a Module's definition. The 
+The ``ALTER MODULE`` statement lets you change a Module's definition. The
 required syntax for the ``ALTER MODULE`` statement is:
 
 ::
@@ -243,9 +245,9 @@ required syntax for the ``ALTER MODULE`` statement is:
     ALTER MODULE <Module name>
        {ADD | DROP} <Module contents> ...
 
-``ALTER MODULE`` changes an existing Module. <Module contents> can be a 
-function, a procedure or any of the other things that might be part of a Module 
-(exceptions, handlers, variables, Cursors, declared Tables and so on). 
+``ALTER MODULE`` changes an existing Module. <Module contents> can be a
+function, a procedure or any of the other things that might be part of a Module
+(exceptions, handlers, variables, Cursors, declared Tables and so on).
 
 Here's an example of an ``ALTER MODULE`` statement:
 
@@ -254,14 +256,14 @@ Here's an example of an ``ALTER MODULE`` statement:
    ALTER Module Employees_Module
      DROP PROCEDURE Insert_Employees;
 
-After the execution of this ``ALTER MODULE`` statement, the 
-``EMPLOYEES_MODULE`` Module will have only two procedures left: 
-``Delete_Employees`` and ``Update_Employees``. 
+After the execution of this ``ALTER MODULE`` statement, the
+``EMPLOYEES_MODULE`` Module will have only two procedures left:
+``Delete_Employees`` and ``Update_Employees``.
 
 DROP MODULE Statement
 =====================
 
-The ``DROP MODULE`` statement destroys an SQL-server Module. The required syntax 
+The ``DROP MODULE`` statement destroys an SQL-server Module. The required syntax
 for the ``DROP MODULE`` statement is:
 
 ::
@@ -278,13 +280,13 @@ The effect of ``DROP MODULE`` <Module name> ``RESTRICT``, e.g.:
 
    DROP MODULE module_1 RESTRICT;
 
-is that the Module named is destroyed, provided that the Module doesn't contain 
-the definition of an SQL-invoked routine that is invoked outside of the Module 
--- i.e.: in an SQL routine that isn't defined in this Module or in any View 
-definition, Trigger definition, Constraint or Assertion definition. That is, 
-``RESTRICT`` ensures that only a Module with no dependent Objects can be 
-destroyed. If the Module is used by any other Object, ``DROP MODULE ... 
-RESTRICT`` will fail. 
+is that the Module named is destroyed, provided that the Module doesn't contain
+the definition of an SQL-invoked routine that is invoked outside of the Module
+-- i.e.: in an SQL routine that isn't defined in this Module or in any View
+definition, Trigger definition, Constraint or Assertion definition. That is,
+``RESTRICT`` ensures that only a Module with no dependent Objects can be
+destroyed. If the Module is used by any other Object, ``DROP MODULE ...
+RESTRICT`` will fail.
 
 The effect of ``DROP MODULE`` <Module name> ``CASCADE``, e.g.:
 
@@ -299,23 +301,23 @@ Successfully dropping a Module has a three-fold effect:
 1. The Module named is destroyed.
 
 2. All Privileges held on the Module by the <AuthorizationID> that owns
-   it are revoked (by the SQL special grantor, "``_SYSTEM``") with a 
-   ``CASCADE`` revoke behaviour, so that all Privileges held on the Module by 
+   it are revoked (by the SQL special grantor, "``_SYSTEM``") with a
+   ``CASCADE`` revoke behaviour, so that all Privileges held on the Module by
    any other <AuthorizationID> are also revoked.
 
-3. All SQL routines, Triggers, Views and Constraints that depend on the 
+3. All SQL routines, Triggers, Views and Constraints that depend on the
    Module are dropped with a ``CASCADE`` drop behaviour.
 
 BEGIN ... END: compound Statement
 =================================
 
-Advance warning: ``BEGIN ... END`` has several optional clauses. We are going 
-to start with the simplest form, and examine the options in following sections. 
+Advance warning: ``BEGIN ... END`` has several optional clauses. We are going
+to start with the simplest form, and examine the options in following sections.
 
-In its simplest form, ``BEGIN ... END`` in SQL serves the same purpose as 
-"begin...end" in Pascal or "{...}" in C. ``BEGIN ... END`` encloses a sequence 
-of statements which are part of the same syntactical unit: a compound 
-statement. The simplest required syntax is: 
+In its simplest form, ``BEGIN ... END`` in SQL serves the same purpose as
+"begin...end" in Pascal or "{...}" in C. ``BEGIN ... END`` encloses a sequence
+of statements which are part of the same syntactical unit: a compound
+statement. The simplest required syntax is:
 
 ::
 
@@ -335,7 +337,7 @@ Here's a simple example:
 *ATOMIC Statements*
 -------------------
 
-A slightly more complicated form of a compound statement has one extra 
+A slightly more complicated form of a compound statement has one extra
 optional clause: ``[NOT] ATOMIC``. The required syntax is:
 
 ::
@@ -344,9 +346,9 @@ optional clause: ``[NOT] ATOMIC``. The required syntax is:
       [ <SQL statement>; ... ]
     END
 
-If ``ATOMIC`` is specified, the compound statement may not contain ``COMMIT`` 
-or ``ROLLBACK``. If you omit the clause, it defaults to ``NOT ATOMIC``: the 
-compound statement may contain ``COMMIT`` or ``ROLLBACK``. Here's an example: 
+If ``ATOMIC`` is specified, the compound statement may not contain ``COMMIT``
+or ``ROLLBACK``. If you omit the clause, it defaults to ``NOT ATOMIC``: the
+compound statement may contain ``COMMIT`` or ``ROLLBACK``. Here's an example:
 
 ::
 
@@ -355,14 +357,14 @@ compound statement may contain ``COMMIT`` or ``ROLLBACK``. Here's an example:
       INSERT INTO Table_2 VALUES (6);
    END
 
-We've already discussed the idea that transactions are atomic, and individual 
-SQL statements are atomic. Compound SQL statements can be atomic too, provided 
-that they are explicitly designated by the <keyword> ``ATOMIC``. Thus, in the 
-above example, if the first ``INSERT`` statement succeeds but the second 
-``INSERT`` statement fails, then the effects of the first ``INSERT`` is 
-cancelled. It's as if there was a savepoint at the beginning of the compound 
-statement and a ``ROLLBACK TO SAVEPOINT`` was executed when the second 
-``INSERT`` failed. 
+We've already discussed the idea that transactions are atomic, and individual
+SQL statements are atomic. Compound SQL statements can be atomic too, provided
+that they are explicitly designated by the <keyword> ``ATOMIC``. Thus, in the
+above example, if the first ``INSERT`` statement succeeds but the second
+``INSERT`` statement fails, then the effects of the first ``INSERT`` is
+cancelled. It's as if there was a savepoint at the beginning of the compound
+statement and a ``ROLLBACK TO SAVEPOINT`` was executed when the second
+``INSERT`` failed.
 
 *Variables*
 -----------
@@ -397,32 +399,32 @@ Here's an example:
 .. CAUTION::
 
    Don't get confused by the similarity to a <Column definition>. A
-   variable definition can contain ONLY a <data type> and (optionally) a 
-   ``DEFAULT`` clause. It cannot contain a <Domain name>, a <Constraint> or a 
+   variable definition can contain ONLY a <data type> and (optionally) a
+   ``DEFAULT`` clause. It cannot contain a <Domain name>, a <Constraint> or a
    ``COLLATE`` clause.
 
-In our example we defined five variables: ``v1, v2, v3, v4, v5``. ``BEGIN ... 
-END`` defines a "local scope", which means that *(a)* these variable names have 
-no meaning outside the compound statement, *(b)* the values in these variables 
-are not saved when the compound statement ends and *(c)* the values in these 
-variables are not reset by execution of a ``ROLLBACK`` statement, because 
-variables are not part of the database. 
+In our example we defined five variables: ``v1, v2, v3, v4, v5``. ``BEGIN ...
+END`` defines a "local scope", which means that *(a)* these variable names have
+no meaning outside the compound statement, *(b)* the values in these variables
+are not saved when the compound statement ends and *(c)* the values in these
+variables are not reset by execution of a ``ROLLBACK`` statement, because
+variables are not part of the database.
 
-The example uses the first four variables as targets in a singleton ``SELECT`` 
-statement. It also uses all five variables as sources in an ``INSERT`` 
-statement. Variables can be used in all sorts of <value expression>s. Variables 
-are extremely useful for temporary storage, and it's a wonder that most SQL 
-implementations get along without them. The designers of SQL don't give us the 
-option of using variables for persistent storage: we're supposed to use Base 
-tables for that. 
+The example uses the first four variables as targets in a singleton ``SELECT``
+statement. It also uses all five variables as sources in an ``INSERT``
+statement. Variables can be used in all sorts of <value expression>s. Variables
+are extremely useful for temporary storage, and it's a wonder that most SQL
+implementations get along without them. The designers of SQL don't give us the
+option of using variables for persistent storage: we're supposed to use Base
+tables for that.
 
 *Assignment Statements*
 -----------------------
 
-Assignment statements begin with the <keyword> ``SET`` -- but don't call them 
-"``SET`` statements", to avoid confusion with non-PSM statements that also 
-begin with ``SET``. Assignment statements are syntactically similar to the 
-``SET`` clauses used in ``UPDATE`` statements. Here is the required syntax: 
+Assignment statements begin with the <keyword> ``SET`` -- but don't call them
+"``SET`` statements", to avoid confusion with non-PSM statements that also
+begin with ``SET``. Assignment statements are syntactically similar to the
+``SET`` clauses used in ``UPDATE`` statements. Here is the required syntax:
 
 ::
 
@@ -459,7 +461,7 @@ clause: a Cursor declaration list. The required syntax is:
       [ <SQL statement>; ... ]
     END
 
-The mechanics of Cursors are the same for PSM as they are for embedded SQL 
+The mechanics of Cursors are the same for PSM as they are for embedded SQL
 and for SQL/CLI. Here's an example:
 
 ::
@@ -476,7 +478,7 @@ and for SQL/CLI. Here's an example:
 
 Objects that you declare in a compound statement have "local scope", so the
 <Cursor name> in this example -- ``cc`` -- can only be  used by SQL statements
-within the ``BEGIN ... END``. The example could be replaced with this SQL 
+within the ``BEGIN ... END``. The example could be replaced with this SQL
 statement:
 
 ::
@@ -488,10 +490,10 @@ if there is only one row in ``TABLE_1``.
 *Conditions*
 ------------
 
-A slightly more complicated form of a compound statement changes the optional 
-variable declaration clause: instead of a variable declaration list, ``BEGIN 
-... END`` actually allows a variable or condition declaration list, so that you 
-can declare conditions as well as variables. The required syntax is: 
+A slightly more complicated form of a compound statement changes the optional
+variable declaration clause: instead of a variable declaration list, ``BEGIN
+... END`` actually allows a variable or condition declaration list, so that you
+can declare conditions as well as variables. The required syntax is:
 
 ::
 
@@ -531,7 +533,7 @@ Here's an example of the latest form of ``BEGIN ... END``:
      INSERT INTO Table_2 VALUES (1);               /* statement */
    END
 
-In this example, we have simply given condition names to three of the 
+In this example, we have simply given condition names to three of the
 possible ``SQLSTATE`` values.
 
 *Handlers*
@@ -557,7 +559,7 @@ clause: a handler declaration list. The required syntax is:
          <handler action> ::= <SQL statement>
 
          <condition value list> ::= <condition value> [ {,<condition value>}... ]
-         
+
              <condition value> ::=
              <sqlstate value>|
              <condition name>|
@@ -584,29 +586,29 @@ value, the second is for a condition name and the third is for any warning
     INSERT INTO Table_2 VALUES (v1);               /* statement */
   END
 
-To see the effect of these handlers, consider what will happen with the SQL 
+To see the effect of these handlers, consider what will happen with the SQL
 statement:
 
 ::
 
    INSERT INTO Table_1 VALUES (99999);
 
-If this SQL statement fails due to overflow, then variable ``v1`` gets 
-``'Ovflw'``; if it fails due to an integrity Constraint violation, then 
-variable ``v1`` gets ``'c-err'``; if it succeeds but there is some warning, 
-then variable ``v1`` gets ``'?????'``. But, regardless, play continues because 
-all the handlers are ``CONTINUE`` handlers. So the second ``INSERT`` statement 
-will put in one of the values ``'Ovflw'``, ``'c-err'``, ``'?????'`` or 
-``'Okay!'`` (``'Okay!'`` is the default value for ``v1`` so this is what goes 
-in if the result of the first ``INSERT`` is success with no warnings). 
+If this SQL statement fails due to overflow, then variable ``v1`` gets
+``'Ovflw'``; if it fails due to an integrity Constraint violation, then
+variable ``v1`` gets ``'c-err'``; if it succeeds but there is some warning,
+then variable ``v1`` gets ``'?????'``. But, regardless, play continues because
+all the handlers are ``CONTINUE`` handlers. So the second ``INSERT`` statement
+will put in one of the values ``'Ovflw'``, ``'c-err'``, ``'?????'`` or
+``'Okay!'`` (``'Okay!'`` is the default value for ``v1`` so this is what goes
+in if the result of the first ``INSERT`` is success with no warnings).
 
-What if exception ``'42000'`` happens? That would be an "unhandled exception" 
-since we did not define a handler for exception ``'42000'``. The result would 
-be that the second ``INSERT`` is not attempted -- the whole compound statement 
-fails. 
+What if exception ``'42000'`` happens? That would be an "unhandled exception"
+since we did not define a handler for exception ``'42000'``. The result would
+be that the second ``INSERT`` is not attempted -- the whole compound statement
+fails.
 
-The following chart compares the exception-handling features of embedded SQL, 
-the CLI and the PSM. 
+The following chart compares the exception-handling features of embedded SQL,
+the CLI and the PSM.
 
 +--------------------------------+-----------------------+----------+---------------------+
 |                                | **EMBEDDED SQL**      | **CLI**  | **PSM**             |
@@ -624,8 +626,8 @@ the CLI and the PSM.
 | handles specific status codes? | no                    | N/A      | yes                 |
 +--------------------------------+-----------------------+----------+---------------------+
 
-Among the SQL statements that a handler can execute are two new special 
-ones: the ``SIGNAL`` statement and the ``RESIGNAL`` statement. These SQL 
+Among the SQL statements that a handler can execute are two new special
+ones: the ``SIGNAL`` statement and the ``RESIGNAL`` statement. These SQL
 statements affect the diagnostics area.
 
 *Labels*
@@ -667,13 +669,13 @@ statements, which we will discuss later. Here's an example:
 
 This is our final version of ``BEGIN .. END``. It looks quite imposing. That's
 because MOST SYNTACTIC ITEMS ARE LOCAL TO THE COMPOUND STATEMENT. Therefore
-everything is within the compound statement and, by contrast, the Module 
+everything is within the compound statement and, by contrast, the Module
 definition is trivial.
 
 SIGNAL Statement
 ================
 
-The ``SIGNAL`` statement is used to clear the diagnostics area. The required 
+The ``SIGNAL`` statement is used to clear the diagnostics area. The required
 syntax for the ``SIGNAL`` statement is:
 
 ::
@@ -688,21 +690,21 @@ syntax for the ``SIGNAL`` statement is:
           <condition information item name> = <simple value specification>
 
 The ``SIGNAL`` statement clears every record in the diagnostics area. The end
-result is a record containing the passed condition name or ``sqlstate`` 
-value. If you include the optional ``SET`` clause, your DBMS effectively 
+result is a record containing the passed condition name or ``sqlstate``
+value. If you include the optional ``SET`` clause, your DBMS effectively
 executes:
 
 ::
 
    RESIGNAL <signal information item list>;
 
-Note: You'll find the list of <condition information item name>s in our 
+Note: You'll find the list of <condition information item name>s in our
 chapter on embedded SQL -- see the ``GET DIAGNOSTICS`` statement.
 
 RESIGNAL Statement
 ==================
 
-The ``RESIGNAL`` statement is used to pass conditions on to another handler. 
+The ``RESIGNAL`` statement is used to pass conditions on to another handler.
 The required syntax for the ``RESIGNAL`` statement is:
 
 ::
@@ -723,10 +725,10 @@ first condition area in the diagnostics area is changed to the value indicated.
 -----------------
 
 Essential SQL has almost nothing that can control the program flow (except for
-the ``CALL`` and ``RETURN`` statements which are associated with SQL 
-routines). By contrast, a DBMS with PSM support will allow eight control 
-statements. Of these, seven are similar to statements which appear in other 
-languages. The eighth, ``FOR``, depends on Objects which are unique to the 
+the ``CALL`` and ``RETURN`` statements which are associated with SQL
+routines). By contrast, a DBMS with PSM support will allow eight control
+statements. Of these, seven are similar to statements which appear in other
+languages. The eighth, ``FOR``, depends on Objects which are unique to the
 SQL environment. Here's a list of these statements:
 
 * ``CASE`` -- Switch depending on condition.
@@ -748,8 +750,8 @@ SQL environment. Here's a list of these statements:
 *CASE Statement*
 ----------------
 
-The ``CASE`` statement is useful for switching between possible execution 
-paths. There are two forms -- one contains search conditions, the other 
+The ``CASE`` statement is useful for switching between possible execution
+paths. There are two forms -- one contains search conditions, the other
 contains value expressions. The required syntax for the ``CASE`` statement is:
 
 ::
@@ -769,9 +771,9 @@ contains value expressions. The required syntax for the ``CASE`` statement is:
     END CASE
 
 A "simple ``CASE`` statement" is merely a shorthand, and may be replaced by a
-"searched ``CASE`` statement" which has the form: "``CASE WHEN`` <when 
-value> = <case value> ...". Thus, the following examples, showing a searched 
-``CASE`` statement on the left and a simple ``CASE`` statement on the right, 
+"searched ``CASE`` statement" which has the form: "``CASE WHEN`` <when
+value> = <case value> ...". Thus, the following examples, showing a searched
+``CASE`` statement on the left and a simple ``CASE`` statement on the right,
 are exactly equivalent:
 
 ::
@@ -784,13 +786,13 @@ are exactly equivalent:
      ELSE INSERT INTO t VALUES (0);      ELSE INSERT INTO t VALUES (0);
    END CASE                            END CASE
 
-When executing a ``CASE`` statement, the DBMS goes through the ``WHEN`` clauses 
-from top to bottom, looking for a ``TRUE`` condition. If it finds one, it 
-executes the statement(s) after ``THEN``, and the ``CASE`` terminates. If it 
-finds none, it executes the statements(s) after ``ELSE`` -- or, if there is no 
-``ELSE``, returns this ``SQLSTATE error: 20000 "case not found for case 
-statement"``. For the above example, then, if the value of ``parameter_value`` 
-is 5, then the DBMS will execute this SQL statement: 
+When executing a ``CASE`` statement, the DBMS goes through the ``WHEN`` clauses
+from top to bottom, looking for a ``TRUE`` condition. If it finds one, it
+executes the statement(s) after ``THEN``, and the ``CASE`` terminates. If it
+finds none, it executes the statements(s) after ``ELSE`` -- or, if there is no
+``ELSE``, returns this ``SQLSTATE error: 20000 "case not found for case
+statement"``. For the above example, then, if the value of ``parameter_value``
+is 5, then the DBMS will execute this SQL statement:
 
 ::
 
@@ -800,14 +802,14 @@ is 5, then the DBMS will execute this SQL statement:
 
    The syntax for the ``CASE`` statement is somewhat different from the
    syntax for the SQL ``CASE`` expression (see our chapter on simple search
-   conditions). In particular, the ``CASE`` statement has no equivalent for 
-   the ``ELSE NULL`` clause, and the terminator is ``END CASE`` rather than 
+   conditions). In particular, the ``CASE`` statement has no equivalent for
+   the ``ELSE NULL`` clause, and the terminator is ``END CASE`` rather than
    ``END``.
 
 *IF Statement*
 --------------
 
-The ``IF`` statement is useful for simple "if (x) then (do this)" situations. 
+The ``IF`` statement is useful for simple "if (x) then (do this)" situations.
 The required syntax for the ``IF`` statement is:
 
 ::
@@ -825,14 +827,14 @@ Here's an example:
        5=5 THEN UPDATE Table_1 SET column_1 = column_1 + 1;
       END IF
 
-In this example, the search condition is ``TRUE``, so the ``UPDATE`` 
-statement will be executed. If the search condition had been ``FALSE`` or 
+In this example, the search condition is ``TRUE``, so the ``UPDATE``
+statement will be executed. If the search condition had been ``FALSE`` or
 ``UNKNOWN``, then the ``UPDATE`` statement would not have been executed.
 
 *LOOP Statement*
 ----------------
 
-The ``LOOP`` statement is useful for repeated execution of SQL statements. The 
+The ``LOOP`` statement is useful for repeated execution of SQL statements. The
 required syntax for the ``LOOP`` statement is:
 
 ::
@@ -842,8 +844,8 @@ required syntax for the ``LOOP`` statement is:
        <SQL statement>(s)
     END LOOP [ <end_label> ]
 
-The SQL statements between ``LOOP`` and ``END LOOP`` are repeated until the 
-loop finishes. The <beginning_label> and the <end_label> must be equivalent, 
+The SQL statements between ``LOOP`` and ``END LOOP`` are repeated until the
+loop finishes. The <beginning_label> and the <end_label> must be equivalent,
 if you use them both. Here's an example:
 
 ::
@@ -852,13 +854,13 @@ if you use them both. Here's an example:
       SET x = x + 1;
    END LOOP
 
-This example shows an infinite loop. The usual way to exit from a loop is 
+This example shows an infinite loop. The usual way to exit from a loop is
 with the ``LEAVE`` statement.
 
 *LEAVE Statement*
 -----------------
 
-The ``LEAVE`` statement is useful for exiting a block or for exiting a loop. 
+The ``LEAVE`` statement is useful for exiting a block or for exiting a loop.
 The required syntax for the ``LEAVE`` statement is:
 
 LEAVE <statement_label>
@@ -878,8 +880,8 @@ In this example, the loop will be exited once the value of x passes 1000.
 *WHILE statement*
 -----------------
 
-The ``WHILE`` statement is useful for repeated execution of SQL statements, 
-with a built-in equivalent to the ``LEAVE`` statement. The required syntax 
+The ``WHILE`` statement is useful for repeated execution of SQL statements,
+with a built-in equivalent to the ``LEAVE`` statement. The required syntax
 for the ``WHILE`` statement is:
 
 ::
@@ -889,9 +891,9 @@ for the ``WHILE`` statement is:
        <SQL statement>(s)
     END WHILE [ <end_label> ]
 
-As long as the <search condition> is ``TRUE``, the SQL statements between 
-``WHILE`` and ``END WHILE`` are repeatedly executed. The <beginning_label> 
-and the <end_label> must be equivalent, if you use them both. Here's an 
+As long as the <search condition> is ``TRUE``, the SQL statements between
+``WHILE`` and ``END WHILE`` are repeatedly executed. The <beginning_label>
+and the <end_label> must be equivalent, if you use them both. Here's an
 example:
 
 ::
@@ -900,15 +902,15 @@ example:
       SET x = x + 1;
    END WHILE
 
-This example will loop, incrementing ``x``, until ``x <= 1000`` is either 
-``FALSE`` or ``UNKNOWN``. If the <search condition> is ``FALSE`` or 
+This example will loop, incrementing ``x``, until ``x <= 1000`` is either
+``FALSE`` or ``UNKNOWN``. If the <search condition> is ``FALSE`` or
 ``UNKNOWN`` when the loop begins, then nothing happens.
 
 *REPEAT Statement*
 ------------------
 
 The ``REPEAT`` statement is much like the ``WHILE`` statement, except that the
-condition is tested *after* the execution of the SQL statement(s). The 
+condition is tested *after* the execution of the SQL statement(s). The
 required syntax for the ``REPEAT`` statement is:
 
 ::
@@ -918,9 +920,9 @@ required syntax for the ``REPEAT`` statement is:
        <SQL statement>(s) UNTIL <search condition>
     END REPEAT [ <end_label> ]
 
-As long as the <search condition> is ``FALSE`` or ``UNKNOWN``, the SQL 
-statements between ``REPEAT`` and ``END REPEAT`` are repeatedly executed. 
-The <beginning_label> and the <end_label> must be equivalent, if you use 
+As long as the <search condition> is ``FALSE`` or ``UNKNOWN``, the SQL
+statements between ``REPEAT`` and ``END REPEAT`` are repeatedly executed.
+The <beginning_label> and the <end_label> must be equivalent, if you use
 them both. Here's an example:
 
 ::
@@ -931,8 +933,8 @@ them both. Here's an example:
       UNTIL x > 5
    END REPEAT
 
-In this example, the ``UPDATE`` statement will be repeated until ``x`` is 
-greater than 5 -- that is, the loop will repeat until after the condition is 
+In this example, the ``UPDATE`` statement will be repeated until ``x`` is
+greater than 5 -- that is, the loop will repeat until after the condition is
 ``TRUE``.
 
 .. CAUTION::
@@ -942,8 +944,8 @@ greater than 5 -- that is, the loop will repeat until after the condition is
 *FOR Statement*
 ---------------
 
-The ``FOR`` statement is useful for simplified ``FETCH`` loops. Execution 
-takes place for each row of a result set. The required syntax for the 
+The ``FOR`` statement is useful for simplified ``FETCH`` loops. Execution
+takes place for each row of a result set. The required syntax for the
 ``FOR`` statement is:
 
 ::
@@ -975,7 +977,7 @@ languages.
 *ITERATE Statement*
 -------------------
 
-The ``ITERATE`` statement is useful for "re-starting": going back to the 
+The ``ITERATE`` statement is useful for "re-starting": going back to the
 beginning of the list of statements inside a loop, and proceeding with the next
 iteration of the loop. The required syntax for the ``ITERATE`` statement is:
 
@@ -983,13 +985,13 @@ iteration of the loop. The required syntax for the ``ITERATE`` statement is:
 
    ITERATE <statement_label>
 
-The ``ITERATE`` statement can appear only within an "iterated SQL statement" -- 
-that is, within ``LOOP``, ``WHILE``, ``REPEAT`` or ``FOR``). The 
-<statement_label> must be the <beginning_label> of the iterated SQL statement. 
-If the iteration condition for the iterated SQL statement is ``TRUE``, or if 
-the statement doesn't have an iteration condition, ``ITERATE`` causes the next 
-iteration of the loop to start. If the iteration condition is ``FALSE`` or 
-``UNKNOWN``, ``ITERATE`` causes the loop to end. Here's an example: 
+The ``ITERATE`` statement can appear only within an "iterated SQL statement" --
+that is, within ``LOOP``, ``WHILE``, ``REPEAT`` or ``FOR``). The
+<statement_label> must be the <beginning_label> of the iterated SQL statement.
+If the iteration condition for the iterated SQL statement is ``TRUE``, or if
+the statement doesn't have an iteration condition, ``ITERATE`` causes the next
+iteration of the loop to start. If the iteration condition is ``FALSE`` or
+``UNKNOWN``, ``ITERATE`` causes the loop to end. Here's an example:
 
 ::
 
@@ -1008,7 +1010,7 @@ Should everything be in SQL?
 
 PSM is an extension package which makes SQL3 a reasonably complete language.
 There are still some things you can't do (such as disk or screen I/O), but
-anybody could write external-routine libraries which would plug the 
+anybody could write external-routine libraries which would plug the
 remaining gaps.
 
 So what?
@@ -1017,20 +1019,20 @@ For several years, programmers have written applications in "host languages"
 and invoked SQL statements either via embedded SQL or via the CLI. By now
 there is an awful lot of legacy code in those host languages. It has to be
 expected, too, that there are good host-language optimizers out there -- don't
-bother pitting C and SQL head-to-head with a "Sieve of Eratosthenes" 
+bother pitting C and SQL head-to-head with a "Sieve of Eratosthenes"
 benchmark. The SQL code would lose.
 
 On the other hand, we could say that:
 
-* Yes, SQL optimizers are inferior for low-level benchmarks, but they're 
-  better at the high level -- and you'd be helping SQL optimizers if 
-  you could pass them groups of SQL statements, rather than individual SQL 
+* Yes, SQL optimizers are inferior for low-level benchmarks, but they're
+  better at the high level -- and you'd be helping SQL optimizers if
+  you could pass them groups of SQL statements, rather than individual SQL
   statements.
 
 * A lot of programming effort is spent solving the "impedance mismatch"
   problem -- the fact that host languages don't store data the SQL way, or
   process sets the SQL way, or have the same ideas of access control. With
-  Modules inside the SQL environment, DBMSs can act in a consistent way across 
+  Modules inside the SQL environment, DBMSs can act in a consistent way across
   platforms.
 
 * Remote Data Access is feasible with SQL, but not with a host language.
@@ -1042,8 +1044,8 @@ Dialects
 ========
 
 PSM's features are vaguely similar to Oracle's PL/SQL, which also has: ``BEGIN
-... END``, ``LOOP``, ``WHILE``, and (using different keywords) assignment 
-statements and handlers. Informix SQL has a FOREACH statement, which does 
+... END``, ``LOOP``, ``WHILE``, and (using different keywords) assignment
+statements and handlers. Informix SQL has a FOREACH statement, which does
 the same thing as the standard ``FOR`` statement.
 
 Even if a vendor does not support any form of PSM, you may find that some of

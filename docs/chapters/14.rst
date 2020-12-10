@@ -4,6 +4,8 @@
 Chapter 14 -- SQL Cluster
 =========================
 
+.. include:: ../_include/note.rst
+
 The SQL Standard describes the concepts on which SQL is based in terms of
 Objects, such as Tables. Each SQL Object is defined in terms of the
 characteristics (e.g.: its name) that describe it; the Standard calls this the

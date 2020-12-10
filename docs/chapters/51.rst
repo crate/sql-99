@@ -4,11 +4,13 @@
 Chapter 51 -- SQL/CLI: Catalog Functions
 ========================================
 
-The CLI Catalog functions are so called because they involve implicit searches 
-of the metadata -- what in pre-SQL-92 days was known as the *system catalog*. 
-Nowadays the metadata is in ``INFORMATION_SCHEMA``. The functions, and the 
-``INFORMATION_SCHEMA`` Views which provides most of the information for them, 
-are: 
+.. include:: ../_include/note.rst
+
+The CLI Catalog functions are so called because they involve implicit searches
+of the metadata -- what in pre-SQL-92 days was known as the *system catalog*.
+Nowadays the metadata is in ``INFORMATION_SCHEMA``. The functions, and the
+``INFORMATION_SCHEMA`` Views which provides most of the information for them,
+are:
 
 +--------------------------+------------------------------------------------------+
 | Function                 | Related ``INFORMATION_SCHEMA`` View(s)               |
@@ -61,95 +63,95 @@ Catalogs and use the simple mechanisms you already know. It's cleaner to
 Some necessary preliminaries
 ============================
 
-Calling a Catalog function is equivalent to calling ``SQLExecDirect`` with an 
-argument containing a ``SELECT`` statement. That means that data is returned in 
-a result set. You may traverse the rows in the result set using ``SQLFetch`` or 
-``SQLFetchScroll``. You should call ``SQLCloseCursor`` when there is nothing 
-more to fetch. 
+Calling a Catalog function is equivalent to calling ``SQLExecDirect`` with an
+argument containing a ``SELECT`` statement. That means that data is returned in
+a result set. You may traverse the rows in the result set using ``SQLFetch`` or
+``SQLFetchScroll``. You should call ``SQLCloseCursor`` when there is nothing
+more to fetch.
 
-For most Catalog functions, you pass (character string) input parameters to 
-specify which rows should be selected for the result set. There are several 
-rules concerning these input parameters. There is no use trying to figure out 
-what the rationale is behind these rules. You'll simply have to learn them if 
-you want Catalog functions to work reliably. Here they are: 
+For most Catalog functions, you pass (character string) input parameters to
+specify which rows should be selected for the result set. There are several
+rules concerning these input parameters. There is no use trying to figure out
+what the rationale is behind these rules. You'll simply have to learn them if
+you want Catalog functions to work reliably. Here they are:
 
-* Accessible tables. You may recall that there is an option to the  
-  ``SQLGetInfo`` function, namely ``SQL_ACCESSIBLE_TABLES``, which returns as 
+* Accessible tables. You may recall that there is an option to the
+  ``SQLGetInfo`` function, namely ``SQL_ACCESSIBLE_TABLES``, which returns as
   follows:
-  
+
    * ``'Y'``: the DBMS only returns information about Tables to users
      who have ``SELECT`` Privileges on the Tables.
 
    * ``'N'``: the DBMS returns information about Tables based on some
      other, implementation-defined, criterion.
-     
-     In fact, all standard DBMSs should return ``'N'`` because information is 
-     available to users who have any Privileges on the Tables, not necessarily 
-     just ``SELECT`` Privileges. In all that follows, we will just assume that 
-     the ``INFORMATION_SCHEMA`` rows are the rows that would be available in 
-     standard SQL. 
 
-* Catalogs. Not every DBMS supports Catalogs. For the cases where we say that a 
-  <Catalog name> is retrieved, it is possible that the actual retrieval will be 
-  ``NULL``. Once again, this is a case where ``NULL`` means "not applicable". 
+     In fact, all standard DBMSs should return ``'N'`` because information is
+     available to users who have any Privileges on the Tables, not necessarily
+     just ``SELECT`` Privileges. In all that follows, we will just assume that
+     the ``INFORMATION_SCHEMA`` rows are the rows that would be available in
+     standard SQL.
 
-* Length. All input-string parameters are accompanied by a ``SMALLINT`` 
-  parameter -- the "length". This length should be the number of octets in the 
-  input string. The special value ``SQL_NTS`` is permissible. The special value 
-  ``0`` (zero) is permissible, and a zero-length string means "don't care" -- 
-  for example, if you pass a zero-length string for a parameter named 
-  ``*SchemaName``, the DBMS will accept all <Schema name>s in the Catalog. 
+* Catalogs. Not every DBMS supports Catalogs. For the cases where we say that a
+  <Catalog name> is retrieved, it is possible that the actual retrieval will be
+  ``NULL``. Once again, this is a case where ``NULL`` means "not applicable".
 
-* Metadata ID. You may recall that there is an option to the ``SQLGetStmtAttr`` 
-  function, namely ``SQL_ATTR_METADATA_ID``, which returns either ``TRUE`` (the 
-  ``METADATA ID`` attribute is ``TRUE``) or ``FALSE`` (the ``METADATA ID`` 
-  attribute is ``FALSE``). 
-  
+* Length. All input-string parameters are accompanied by a ``SMALLINT``
+  parameter -- the "length". This length should be the number of octets in the
+  input string. The special value ``SQL_NTS`` is permissible. The special value
+  ``0`` (zero) is permissible, and a zero-length string means "don't care" --
+  for example, if you pass a zero-length string for a parameter named
+  ``*SchemaName``, the DBMS will accept all <Schema name>s in the Catalog.
+
+* Metadata ID. You may recall that there is an option to the ``SQLGetStmtAttr``
+  function, namely ``SQL_ATTR_METADATA_ID``, which returns either ``TRUE`` (the
+  ``METADATA ID`` attribute is ``TRUE``) or ``FALSE`` (the ``METADATA ID``
+  attribute is ``FALSE``).
+
    * If ``METADATA ID`` is ``TRUE``:
-   
-     * If there is such a thing as a <Catalog name> (which is the case in all 
-       standard DBMSs), then you must not pass a null pointer for any Catalog 
-       function parameter which is labelled ``*CatalogName``. Passing a null 
-       pointer will result in the error: ``HY009 CLI-specific condition-invalid 
-       use of null pointer``. 
-       
-     * You must not pass a null pointer for any Catalog function parameter which 
-       is labelled ``*SchemaName``. Passing a null pointer will result in the 
-       error: ``HY009 CLI-specific condition-invalid use of null pointer``. 
-       
-     * You may pass a string which begins and ends with quotes, as is the custom 
-       for <delimited identifier>s. If you do pass a quoted string, the quotes 
-       are stripped and the string is not converted to upper case. If you don't 
-       pass a quoted string, the string is converted to upper case. 
-   
+
+     * If there is such a thing as a <Catalog name> (which is the case in all
+       standard DBMSs), then you must not pass a null pointer for any Catalog
+       function parameter which is labelled ``*CatalogName``. Passing a null
+       pointer will result in the error: ``HY009 CLI-specific condition-invalid
+       use of null pointer``.
+
+     * You must not pass a null pointer for any Catalog function parameter which
+       is labelled ``*SchemaName``. Passing a null pointer will result in the
+       error: ``HY009 CLI-specific condition-invalid use of null pointer``.
+
+     * You may pass a string which begins and ends with quotes, as is the custom
+       for <delimited identifier>s. If you do pass a quoted string, the quotes
+       are stripped and the string is not converted to upper case. If you don't
+       pass a quoted string, the string is converted to upper case.
+
    * If ``METADATA ID`` is ``FALSE``:
-   
-     * You may pass a null pointer for any string parameter. Doing so is 
-       equivalent to passing a string with zero length. 
-       
-     * The string may be treated as a search pattern; that is, wild cards are 
-       allowed as they are in ``LIKE`` predicates. If you need to find out what 
-       the value is for the escape character, call 
-       ``SQLGetInfo(hstmt,SQL_SEARCH_PATTERN_ESCAPE,...)``. 
-       
+
+     * You may pass a null pointer for any string parameter. Doing so is
+       equivalent to passing a string with zero length.
+
+     * The string may be treated as a search pattern; that is, wild cards are
+       allowed as they are in ``LIKE`` predicates. If you need to find out what
+       the value is for the escape character, call
+       ``SQLGetInfo(hstmt,SQL_SEARCH_PATTERN_ESCAPE,...)``.
+
        .. TIP::
-       
-          You'll only have to learn one set of rules if ``METADATA ID`` is 
-          always ``TRUE``. Therefore, as soon as you allocate a ``stmt``, 
+
+          You'll only have to learn one set of rules if ``METADATA ID`` is
+          always ``TRUE``. Therefore, as soon as you allocate a ``stmt``,
           execute this function:
-          
+
           ::
-          
+
             SQLSetStmtAttr(hstmt,SQL_ATTR_METADATA_ID,&1,NULL);
-          
-          and leave it that way. Henceforward, we'll forget about the 
+
+          and leave it that way. Henceforward, we'll forget about the
           possibility that ``METADATA ID`` could be ``FALSE``.
 
-In ODBC, searching is different in significant ways: quotes are not stripped, 
-<identifier>s are always converted to upper case, regardless of the value of 
-METADATA ID. If quotes are not present, then trail spaces are trimmed. The 
-character used for <delimited identifier>s may be something other than a quote 
-mark. 
+In ODBC, searching is different in significant ways: quotes are not stripped,
+<identifier>s are always converted to upper case, regardless of the value of
+METADATA ID. If quotes are not present, then trail spaces are trimmed. The
+character used for <delimited identifier>s may be something other than a quote
+mark.
 
 .. TIP::
 
@@ -219,9 +221,9 @@ SQLColumnPrivileges
     hstmt,CatalogName,SQL_NTS,SchemaName,SQL_NTS,TableName,
     SQL_NTS,ColumnName,SQL_NTS);
 
-**ODBC:** ``SQLColumnPrivileges`` has been around since ODBC 1.0. However, 
-searching is significantly different: see the earlier section titled "Some 
-Necessary Preliminaries". 
+**ODBC:** ``SQLColumnPrivileges`` has been around since ODBC 1.0. However,
+searching is significantly different: see the earlier section titled "Some
+Necessary Preliminaries".
 
 SQLColumns
 ==========
@@ -419,47 +421,47 @@ SQLColumns
 
 **Notes:**
 
-* The algorithm's ``SELECT`` statement does not reflect some minor matters. See 
-  the earlier section titled "Some Necessary Preliminaries". 
+* The algorithm's ``SELECT`` statement does not reflect some minor matters. See
+  the earlier section titled "Some Necessary Preliminaries".
 
-* Some of the newer SQL3 <data type>s, for instance ``BOOLEAN``, are not yet 
-  representable by a numeric ``DATA_TYPE`` code. 
+* Some of the newer SQL3 <data type>s, for instance ``BOOLEAN``, are not yet
+  representable by a numeric ``DATA_TYPE`` code.
 
-* ``TYPE_NAME`` is implementation-defined. This field is supposed to 
-  accommodate DBMSs which use non-standard <data type> names. 
+* ``TYPE_NAME`` is implementation-defined. This field is supposed to
+  accommodate DBMSs which use non-standard <data type> names.
 
-* ``COLUMN_SIZE`` is implementation-defined when the <data type> is 
-  ``SMALLINT``, ``INTEGER``, ``REAL``, ``FLOAT`` or ``DOUBLE PRECISION``. For 
-  what's above, we assumed that the DBMS will return ``NUMERIC_PRECISION``. 
+* ``COLUMN_SIZE`` is implementation-defined when the <data type> is
+  ``SMALLINT``, ``INTEGER``, ``REAL``, ``FLOAT`` or ``DOUBLE PRECISION``. For
+  what's above, we assumed that the DBMS will return ``NUMERIC_PRECISION``.
 
-* What's above does not show all the calculations required for ``INTERVAL`` 
-  <data type>s. Put simply, the rule is that ``COLUMN_SIZE`` is the number of 
-  positions. 
+* What's above does not show all the calculations required for ``INTERVAL``
+  <data type>s. Put simply, the rule is that ``COLUMN_SIZE`` is the number of
+  positions.
 
-* ``BUFFER_LENGTH`` is implementation-defined. The intent is that the value 
-  should be the number of octets transferred during ``SQLFetch`` or 
-  ``SQLFetchScroll``, so for character string <data type>s the source would be 
-  the ``CHARACTER_OCTET_LENGTH`` Column in ``INFORMATION_SCHEMA.COLUMNS``. 
+* ``BUFFER_LENGTH`` is implementation-defined. The intent is that the value
+  should be the number of octets transferred during ``SQLFetch`` or
+  ``SQLFetchScroll``, so for character string <data type>s the source would be
+  the ``CHARACTER_OCTET_LENGTH`` Column in ``INFORMATION_SCHEMA.COLUMNS``.
 
-* ``REMARKS`` is implementation-defined. 
+* ``REMARKS`` is implementation-defined.
 
-* ``SQL_DATA_TYPE`` is not defined at all. What's above is what we believe was 
-  the intention. 
+* ``SQL_DATA_TYPE`` is not defined at all. What's above is what we believe was
+  the intention.
 
-* For ``SQL_DATETIME_SUB``, the Standard contains errors. What's above is what 
-  we believe was the intention. 
+* For ``SQL_DATETIME_SUB``, the Standard contains errors. What's above is what
+  we believe was the intention.
 
-* ``SQL_DATA_TYPE``, ``CHAR_OCTET_LENGTH``, ``ORDINAL_POSITION`` and 
-  ``IS_NULLABLE`` are not defined in the Standard. What's above is what we 
-  believe was the intention. 
+* ``SQL_DATA_TYPE``, ``CHAR_OCTET_LENGTH``, ``ORDINAL_POSITION`` and
+  ``IS_NULLABLE`` are not defined in the Standard. What's above is what we
+  believe was the intention.
 
-* The Columns ``UDT_CAT``, ``UDT_SCHEM`` and ``UDT_NAME`` are strictly SQL3 
-  (for user-defined types). To run the query with an SQL-92 DBMS, remove the 
-  references to those fields. 
+* The Columns ``UDT_CAT``, ``UDT_SCHEM`` and ``UDT_NAME`` are strictly SQL3
+  (for user-defined types). To run the query with an SQL-92 DBMS, remove the
+  references to those fields.
 
-**Example:** Given <Table name> ``T``, make an SQL statement which selects all 
-the Columns in ``T`` without using the "*" shorthand. For example: if ``T`` has 
-two Columns -- ``COLUMN_1`` and ``COLUMN_2`` -- the output string will be: 
+**Example:** Given <Table name> ``T``, make an SQL statement which selects all
+the Columns in ``T`` without using the "*" shorthand. For example: if ``T`` has
+two Columns -- ``COLUMN_1`` and ``COLUMN_2`` -- the output string will be:
 
 ::
 
@@ -515,20 +517,20 @@ SQLForeignKeys
     SQLSMALLINT NameLength6       /* 16-bit input */
     );
 
-**Job:** Depending on the input parameters, ``SQLForeignKeys`` will either 
-*(a)* return a result set with information about a referenced Table, *(b)* 
-return a result set with information about a referencing Table or *(c)* both 
-*(a)* and *(b)*. By definition, every foreign key is associated with one 
-referencing Table, one referenced Table and one primary or unique key. The 
-returned result set will contain information about them too. 
+**Job:** Depending on the input parameters, ``SQLForeignKeys`` will either
+*(a)* return a result set with information about a referenced Table, *(b)*
+return a result set with information about a referencing Table or *(c)* both
+*(a)* and *(b)*. By definition, every foreign key is associated with one
+referencing Table, one referenced Table and one primary or unique key. The
+returned result set will contain information about them too.
 
-**Algorithm:** To visualize how the DBMS gets the result set and what it will 
-contain, assume that the DBMS makes a View and then ``SELECT``\s from it. We 
-are trying, in the following ``CREATE VIEW`` statement, to make it clear what 
-each <Column name> will be (that's why there are ``AS`` clauses) and what each 
-Column <data type> will be (that's why there are ``/* comments */``). The View 
-we're creating is a join of three ``INFORMATION_SCHEMA`` Views: 
-``KEY_COLUMN_USAGE``, ``REFERENTIAL_CONSTRAINTS`` and ``TABLE_CONSTRAINTS``. 
+**Algorithm:** To visualize how the DBMS gets the result set and what it will
+contain, assume that the DBMS makes a View and then ``SELECT``\s from it. We
+are trying, in the following ``CREATE VIEW`` statement, to make it clear what
+each <Column name> will be (that's why there are ``AS`` clauses) and what each
+Column <data type> will be (that's why there are ``/* comments */``). The View
+we're creating is a join of three ``INFORMATION_SCHEMA`` Views:
+``KEY_COLUMN_USAGE``, ``REFERENTIAL_CONSTRAINTS`` and ``TABLE_CONSTRAINTS``.
 
 ::
 
@@ -570,7 +572,7 @@ we're creating is a join of three ``INFORMATION_SCHEMA`` Views:
 
 Incidentally, the Standard needs 15 pages to express the above, so this is a
 tribute to the expressive power of the ``SELECT`` statement. To get our result
-set, we will ``SELECT`` from this View. For the sake of an example, assume 
+set, we will ``SELECT`` from this View. For the sake of an example, assume
 there are three Tables, with these definitions:
 
 ::
@@ -600,9 +602,9 @@ looking for primary key:
    AND UK_CATALOG_NAME = ?   /* included if *PKCatalogName is passed */
    ORDER BY FK_table_cat,FK_table_schem,FK_TABLE_NAME,ORDINAL_POSITION;
 
-What this means is: if you pass ``*PKTableName = 'T2'``, you get a result set 
-with information about every ``FOREIGN KEY`` Constraint that references ``T2``. 
-Given the above example Tables, the result of this call: 
+What this means is: if you pass ``*PKTableName = 'T2'``, you get a result set
+with information about every ``FOREIGN KEY`` Constraint that references ``T2``.
+Given the above example Tables, the result of this call:
 
 ::
 
@@ -616,7 +618,7 @@ is:
 | ``T2``            | ``T2_COL_1``       | ``T3``            | ``T3_COL_1``       |
 +-------------------+--------------------+-------------------+--------------------+
 
-[2] If the ``*FKTableName`` parameter is passed, search the temporary View 
+[2] If the ``*FKTableName`` parameter is passed, search the temporary View
 looking for foreign key:
 
 ::
@@ -627,9 +629,9 @@ looking for foreign key:
     AND FK_CATALOG_NAME = ?      /* included if FKCatalogName is passed */
     ORDER BY FK_table_cat,FK_table_schem,FK_TABLE_NAME,ORDINAL_POSITION;
 
-What this means is: if you pass ``*FKTableName = 'T2'``, you get a result set 
-with information about all the foreign keys defined in ``T2``. Given the above 
-example Tables, the result of this call: 
+What this means is: if you pass ``*FKTableName = 'T2'``, you get a result set
+with information about all the foreign keys defined in ``T2``. Given the above
+example Tables, the result of this call:
 
 ::
 
@@ -643,7 +645,7 @@ is:
 | ``T1``            | ``T1_COL_1``       | ``T2``            | ``T2_COL_1``       |
 +-------------------+--------------------+-------------------+--------------------+
 
-[3] If both the ``*PKTableName`` and ``*FKTableName`` parameters are passed, 
+[3] If both the ``*PKTableName`` and ``*FKTableName`` parameters are passed,
 then search the temporary View looking for both primary and foreign key:
 
 ::
@@ -657,9 +659,9 @@ then search the temporary View looking for both primary and foreign key:
     AND FK_CATALOG_NAME = ?      /* included if FKCatalogName is passed */
     ORDER BY FK_table_cat,FK_table_schem,FK_TABLE_NAME,ORDINAL_POSITION;
 
-What this means is: if you pass ``*PKTableName = 'T1'`` and ``*FKTableName = 
-'T3'``, you get a result set with information about one of the foreign keys 
-that's in ``T3``. Given the above example Tables, the result of this call: 
+What this means is: if you pass ``*PKTableName = 'T1'`` and ``*FKTableName =
+'T3'``, you get a result set with information about one of the foreign keys
+that's in ``T3``. Given the above example Tables, the result of this call:
 
 ::
 
@@ -681,7 +683,7 @@ is:
 * For readability, this example only shows the joins on "name" Columns
   -- it omits the joins on "Schema" and "Catalog" Columns.
 
-**Example:** This function call might put several rows in the result set, since 
+**Example:** This function call might put several rows in the result set, since
 we are asking for "any Catalog", "any Schema".
 
 ::
@@ -698,7 +700,7 @@ we are asking for "any Catalog", "any Schema".
             "",0,        /* Foreign Schema */
             "",0);       /* Foreign Table  */
 
-**ODBC:** The ``SQLForeignKeys`` function has been around since ODBC 1.0. Most 
+**ODBC:** The ``SQLForeignKeys`` function has been around since ODBC 1.0. Most
 of the <Column name>s are different in ODBC. That's partly because ODBC only
 recognizes references to primary keys, it doesn't expect that foreign keys
 could reference unique keys.
@@ -715,15 +717,15 @@ SQLGetTypeInfo
     SQLSMALLINT DataType            /* 16-bit input */
     );
 
-**Job:** Return a result set, with one row for each <data type> that the DBMS 
+**Job:** Return a result set, with one row for each <data type> that the DBMS
 supports. It is possible to select a particular <data type>.
 
-**Algorithm:** The SQL Standard asks us to pretend that there is a 
-``TYPE_INFO`` Table containing information about the <data type>: its name, 
-whether there is a scale, the SQL <data type> code and so on. To help the 
-pretense, we have actually made an ``INFORMATION_SCHEMA`` View which is defined 
-according to the Standard's specification. PLEASE SEE THE DESCRIPTION OF THE 
-TYPE_INFO VIEW IN OUR CHAPTER ON CATALOGS FOR A COMPLETE DESCRIPTION. 
+**Algorithm:** The SQL Standard asks us to pretend that there is a
+``TYPE_INFO`` Table containing information about the <data type>: its name,
+whether there is a scale, the SQL <data type> code and so on. To help the
+pretense, we have actually made an ``INFORMATION_SCHEMA`` View which is defined
+according to the Standard's specification. PLEASE SEE THE DESCRIPTION OF THE
+TYPE_INFO VIEW IN OUR CHAPTER ON CATALOGS FOR A COMPLETE DESCRIPTION.
 
 Assuming that such a View exists, the DBMS algorithm is simple:
 
@@ -743,25 +745,25 @@ then in effect this search happens:
       FROM   INFORMATION_SCHEMA.TYPE_INFO
       WHERE  DATA_TYPE = ?;
 
-where the parameter marker ? stands for "the value of the ``DataType`` 
+where the parameter marker ? stands for "the value of the ``DataType``
 parameter".
 
 **Notes:**
 
-* Much of the information returned by ``SQLGetTypeInfo`` is stuff you already 
-  know, because it's standard. What you should worry about is the parts 
-  labelled "implementation-defined". For example, the maximum size of a 
-  ``CHAR`` Column varies from DBMS to DBMS. Unfortunately, the ``TYPE_INFO`` 
-  View lacks a few items which might be useful -- such as the Character set. 
+* Much of the information returned by ``SQLGetTypeInfo`` is stuff you already
+  know, because it's standard. What you should worry about is the parts
+  labelled "implementation-defined". For example, the maximum size of a
+  ``CHAR`` Column varies from DBMS to DBMS. Unfortunately, the ``TYPE_INFO``
+  View lacks a few items which might be useful -- such as the Character set.
 
-* A typical application: if you allow the user to create Tables, it's handy to 
-  call ``SQLGetTypeInfo`` and display list boxes (showing the localized <data 
-  type> names) or explanatory notes based on implementation-defined maxima. 
+* A typical application: if you allow the user to create Tables, it's handy to
+  call ``SQLGetTypeInfo`` and display list boxes (showing the localized <data
+  type> names) or explanatory notes based on implementation-defined maxima.
 
-**Example:** This Column will display "10", because the third Column in 
-``INFORMATION_SCHEMA.TYPE_INFO`` is ``COLUMN_SIZE`` and the Column size for a 
-``DATE`` <data type> is always 10 positions. The value of ``SQL_TYPE_DATE`` is 
-91. 
+**Example:** This Column will display "10", because the third Column in
+``INFORMATION_SCHEMA.TYPE_INFO`` is ``COLUMN_SIZE`` and the Column size for a
+``DATE`` <data type> is always 10 positions. The value of ``SQL_TYPE_DATE`` is
+91.
 
 ::
 
@@ -775,9 +777,9 @@ parameter".
   SQLCloseCursor;
   printf("column size = %d\n",column_size);
 
-**ODBC:** ``SQLGetTypeInfo`` has been around since ODBC 1.0, but many of the 
-Columns are new in ODBC 3.0. The implicit ``SELECT`` statements contain the 
-clause ``ORDER BY DATA_TYPE``. 
+**ODBC:** ``SQLGetTypeInfo`` has been around since ODBC 1.0, but many of the
+Columns are new in ODBC 3.0. The implicit ``SELECT`` statements contain the
+clause ``ORDER BY DATA_TYPE``.
 
 SQLParameters
 =============
@@ -842,24 +844,24 @@ SQLParameters
 
 **Notes:**
 
-* The algorithm's ``SELECT`` statement does not reflect some minor matters. See 
-  the earlier section titled "Some Necessary Preliminaries". 
+* The algorithm's ``SELECT`` statement does not reflect some minor matters. See
+  the earlier section titled "Some Necessary Preliminaries".
 
-* For the result set's ``DATA_TYPE``, ``BUFFER_LENGTH``, ``DECIMAL_DIGITS`` and 
-  ``SQL_DATA_TYPE`` Columns, the DBMS uses the same calculations that it uses 
-  for the ``SQLColumns`` function -- see the long ``CASE`` expressions in the 
-  ``SQLColumns`` description. 
+* For the result set's ``DATA_TYPE``, ``BUFFER_LENGTH``, ``DECIMAL_DIGITS`` and
+  ``SQL_DATA_TYPE`` Columns, the DBMS uses the same calculations that it uses
+  for the ``SQLColumns`` function -- see the long ``CASE`` expressions in the
+  ``SQLColumns`` description.
 
-* The value in ``TYPE_NAME`` is implementation-defined; in our implementation 
-  we defined that it's the same as ``PARAMETERS.DATA_TYPE``. 
+* The value in ``TYPE_NAME`` is implementation-defined; in our implementation
+  we defined that it's the same as ``PARAMETERS.DATA_TYPE``.
 
-* The value in the result set's ``PARAMETER_SIZE`` Column is the same as the 
-  value in the ``BUFFER_SIZE`` Column. (Although ``PARAMETER_SIZE`` and 
-  ``BUFFER_SIZE`` depend on several implementation-defined rules, we believe 
-  that any practical DBMS will employ the same rules for both Columns.) 
+* The value in the result set's ``PARAMETER_SIZE`` Column is the same as the
+  value in the ``BUFFER_SIZE`` Column. (Although ``PARAMETER_SIZE`` and
+  ``BUFFER_SIZE`` depend on several implementation-defined rules, we believe
+  that any practical DBMS will employ the same rules for both Columns.)
 
-* The DBMS will only return rows for routines that you have ``EXECUTE`` 
-  Privileges on. 
+* The DBMS will only return rows for routines that you have ``EXECUTE``
+  Privileges on.
 
 **Example:**
 
@@ -890,7 +892,7 @@ SQLPrimaryKeys
     SQLSMALLINT NameLength3         /* 16-bit input */
     );
 
-**Job:** Given a <Table name>, return a list of the Columns in the Table's 
+**Job:** Given a <Table name>, return a list of the Columns in the Table's
 primary key. The return is a result set.
 
 **Algorithm:**
@@ -921,9 +923,9 @@ primary key. The return is a result set.
 
 **Notes:**
 
-* The only returned rows are for ``PRIMARY KEY`` Constraints. If there is a 
-  ``UNIQUE`` Constraint -- even a ``UNIQUE`` Constraint that is referenced by a 
-  foreign key -- ``SQLPrimaryKeys`` will not see it. 
+* The only returned rows are for ``PRIMARY KEY`` Constraints. If there is a
+  ``UNIQUE`` Constraint -- even a ``UNIQUE`` Constraint that is referenced by a
+  foreign key -- ``SQLPrimaryKeys`` will not see it.
 
 **Example:**
 
@@ -938,9 +940,9 @@ primary key. The return is a result set.
       SQLPrimaryKeys(
         hstmt,"OCELOT",sizeof("OCELOT"),"OCELOT",sizeof("OCELOT"),"",0);
 
-**ODBC:** The ``SQLPrimaryKeys`` function has been around since ODBC 1.0. The 
-name of the fifth returned Column is ``KEY_SEQ`` instead of 
-``ORDINAL_POSITION``. 
+**ODBC:** The ``SQLPrimaryKeys`` function has been around since ODBC 1.0. The
+name of the fifth returned Column is ``KEY_SEQ`` instead of
+``ORDINAL_POSITION``.
 
 SQLRoutinePrivileges
 ====================
@@ -986,11 +988,11 @@ SQLRoutinePrivileges
 
 **Notes:**
 
-* In SQL-92, there is no such thing as a routine. Therefore 
-  ``SQLRoutinePrivileges`` is supported only by SQL3 DBMSs. 
+* In SQL-92, there is no such thing as a routine. Therefore
+  ``SQLRoutinePrivileges`` is supported only by SQL3 DBMSs.
 
-* The value in the ``RoutineName`` parameter is matched against 
-  ``ROUTINE_NAME``, not ``SPECIFIC_NAME``. 
+* The value in the ``RoutineName`` parameter is matched against
+  ``ROUTINE_NAME``, not ``SPECIFIC_NAME``.
 
 **Example:**
 
@@ -1094,13 +1096,13 @@ SQLRoutines
 * The first variant is:
 
   ::
-  
+
      SQLRoutines(hstmt,"%",1,"",0,"",0,"",0);
 
   This is effectively equivalent to:
 
   ::
-  
+
      SELECT DISTINCT ROUTINE_CATALOG AS routine_cat,
                       CAST(NULL AS VARCHAR(128)),
                       CAST(NULL AS VARCHAR(128)),
@@ -1109,15 +1111,15 @@ SQLRoutines
      FROM INFORMATION_SCHEMA.ROUTINES;
 
 * The second variant is:
-  
+
   ::
-  
+
      SQLRoutines(hstmt,"",0,"%",1,"",0,"",0);
-  
+
   This is effectively equivalent to:
-  
+
   ::
-  
+
      SELECT DISTINCT CAST(NULL AS VARCHAR(128)),
                       ROUTINE_SCHEMA AS ROUTINE_SCHEM,
                       CAST(NULL AS VARCHAR(128)),
@@ -1126,15 +1128,15 @@ SQLRoutines
      FROM INFORMATION_SCHEMA.ROUTINES;
 
 * The third variant is:
-  
+
   ::
-  
+
      SQLRoutines(hstmt,"",0,"",0,"",0,"%",1);
-  
+
   This is effectively equivalent to:
-  
+
   ::
-  
+
      SELECT DISTINCT CAST(NULL AS VARCHAR(128)),
                       CAST(NULL AS VARCHAR(128)),
                       CAST(NULL AS VARCHAR(128)),
@@ -1177,7 +1179,7 @@ SQLSpecialColumns
     SQLSMALLINT Nullable            /* 16-bit input */
     );
 
-**Job:** Show the Columns that can be used for uniquely identifying a row in a 
+**Job:** Show the Columns that can be used for uniquely identifying a row in a
 given Table.
 
 **Algorithm:**
@@ -1215,44 +1217,44 @@ given Table.
 
 * We have used ... in the algorithm's select list as a shorthand. The
   meaning of this shorthand is that the same inputs and calculations should be
-  used as were used in the lengthy ``CASE`` expressions for the ``SQLColumns`` 
+  used as were used in the lengthy ``CASE`` expressions for the ``SQLColumns``
   function.
 
 * Don't worry about the outre' select list in the algorithm. The only
   thing that you really need is the <Column name> and the scope. All the rest
-  can be found using straightforward selections from ``INFORMATION_SCHEMA`` 
+  can be found using straightforward selections from ``INFORMATION_SCHEMA``
   Views.
 
 * It's implementation-defined which Columns make the "best rowid" and
   have a particular "scope".
 
 * The Special Column Type can be:
-  
+
    * 1  ``SQL_BEST_ROWID``
 
 * The Scope of Row Id can be:
-  
+
    * 0 ``SQL_SCOPE_CURRENT_ROW`` (valid while Cursor is positioned on
      that row -- the ODBC name is ``SQL_SCOPE_CURROW``)
-   
+
    * 1  ``SQL_SCOPE_TRANSACTION`` (valid until transaction ends)
-   
+
    * 2  ``SQL_SCOPE_SESSION`` (valid until SQL-session ends)
-   
+
 * How does the DBMS pick what Columns are special?
-  
+
    * First choice: the "rowid".
-   
+
    * Second choice: a single Column which is defined as ``UNIQUE`` or
      ``PRIMARY KEY``.
-   
+
    * Third choice: a combination of Columns which make up a ``UNIQUE``
      or ``PRIMARY KEY``.
-   
+
    * Fourth choice: a "serial number" Column.
-   
+
    * Fifth choice: a "timestamp" Column (the Sybase way).
-  
+
   Columns lose points if nullable; gain points if short, numeric, constrained.
 
 * What's a pseudo-column? Perhaps it's called the ROWID (Oracle),
@@ -1261,11 +1263,11 @@ given Table.
   that pseudo-columns exist in the ``COLUMNS`` View.
 
 * The Pseudo Column Flag can be:
-  
+
    * 0 ``SQL_PSEUDO_UNKNOWN``
-   
+
    * 1 ``SQL_PSEUDO_NOT_PSEUDO``
-   
+
    * 2 ``SQL_PSEUDO_PSEUDO``
 
 * Many DBMSs support "rowid" as a unique identifier. The rowid is often
@@ -1295,7 +1297,7 @@ given Table.
 * There might be no rows returned. But if you define every Table with a
   primary or unique key, ``SQLSpecialColumns`` can't fail.
 
-* Because calculation happens à la ``SQLColumns``, the ``COLUMN_SIZE`` for 
+* Because calculation happens à la ``SQLColumns``, the ``COLUMN_SIZE`` for
   ``BIT`` and ``BIT VARYING`` <data type>s is a length in bits.
 
 **Example:**
@@ -1314,11 +1316,11 @@ given Table.
       SQL_SCOPE_TRANSACTION,       /* Scope */
       SQL_PSEUDO_UNKNOWN);         /* Nullable */
 
-**ODBC:** The ``SQLSpecialColumns`` function has been in ODBC since version 
-1.0. Perhaps because it depends on non-standard features, ``SQLSpecialColumns`` 
-wasn't in the SQL-92 CLI (but was in X/Open). Besides the "best rowid" option, 
-one can ask about Columns which are automatically changed whenever there is an 
-update (e.g.: Sybase's TIMESTAMP Column). 
+**ODBC:** The ``SQLSpecialColumns`` function has been in ODBC since version
+1.0. Perhaps because it depends on non-standard features, ``SQLSpecialColumns``
+wasn't in the SQL-92 CLI (but was in X/Open). Besides the "best rowid" option,
+one can ask about Columns which are automatically changed whenever there is an
+update (e.g.: Sybase's TIMESTAMP Column).
 
 SQLTablePrivileges
 ==================
@@ -1368,20 +1370,20 @@ SQLTablePrivileges
 
 * If you lack the ``UPDATE`` Privilege on a Table T, that does not prove
   that this SQL statement:
-  
+
   ::
-  
+
      UPDATE T SET column_1 = 5;
-  
-  is illegal for you. You might have a Column ``UPDATE`` Privilege on 
-  ``COLUMN_1`` only (Column Privileges are discovered by calling 
-  ``SQLColumnPrivileges`` or selecting from 
-  ``INFORMATION_SCHEMA.COLUMN_PRIVILEGES``). You might hold a Role or an 
-  implementation-defined "super user" Privilege. So the only guaranteed proof 
-  is: try it and see. Seriously: 
-  
+
+  is illegal for you. You might have a Column ``UPDATE`` Privilege on
+  ``COLUMN_1`` only (Column Privileges are discovered by calling
+  ``SQLColumnPrivileges`` or selecting from
+  ``INFORMATION_SCHEMA.COLUMN_PRIVILEGES``). You might hold a Role or an
+  implementation-defined "super user" Privilege. So the only guaranteed proof
+  is: try it and see. Seriously:
+
   ::
-  
+
       x=SQLExecDirect(hstmt,"UPDATE T SET column_1=5 WHERE 1=2;",SQL_NTS);
       if (x<0) {
         SQLGetDiagField(...<sqlstate>)
@@ -1392,10 +1394,10 @@ SQLTablePrivileges
           /* UPDATE failed but for some other reason. Test is no good. */ }
       else {
         /* UPDATE succeeded, so you have the right Privileges. */  }
-  
-  The key for this tip is to use an always-``FALSE`` condition in the ``WHERE`` 
-  clause -- do not try setting the Column to itself and do not depend on 
-  ``ROLLBACK``. 
+
+  The key for this tip is to use an always-``FALSE`` condition in the ``WHERE``
+  clause -- do not try setting the Column to itself and do not depend on
+  ``ROLLBACK``.
 
 **Example:**
 
@@ -1407,7 +1409,7 @@ SQLTablePrivileges
       SQLTablePrivileges(hstmt,"",0,"",0,"",0);
       ...
 
-**ODBC:** The ``SQLTablePrivileges`` function has been around since ODBC 
+**ODBC:** The ``SQLTablePrivileges`` function has been around since ODBC
 version 1.0.
 
 SQLTables
@@ -1467,80 +1469,80 @@ SQLTables
 
 **Notes:**
 
-* The ``*TableType`` parameter is a wrinkle which is hard to show in an SQL 
-  statement but it's reasonably straightforward. The idea is that there are 
-  five general categories of Tables: the ``INFORMATION_SCHEMA Views`` 
-  (``'SYSTEM TABLE'``), all other Views (``'VIEW'``), ordinary Base tables 
-  (``'TABLE'``) and the two kinds of temporary Tables (``'GLOBAL TEMPORARY'`` 
-  or ``'LOCAL TEMPORARY'``). To restrict to the categories you want, pass a 
-  commalist in ``*TableType`` -- for example: ``'SYSTEM TABLE','VIEW'``. Or 
-  pass ``SYSTEM TABLE,VIEW`` (the quote marks are optional). Or pass nothing 
-  (if you pass a blank string, the DBMS returns Tables in all categories). 
+* The ``*TableType`` parameter is a wrinkle which is hard to show in an SQL
+  statement but it's reasonably straightforward. The idea is that there are
+  five general categories of Tables: the ``INFORMATION_SCHEMA Views``
+  (``'SYSTEM TABLE'``), all other Views (``'VIEW'``), ordinary Base tables
+  (``'TABLE'``) and the two kinds of temporary Tables (``'GLOBAL TEMPORARY'``
+  or ``'LOCAL TEMPORARY'``). To restrict to the categories you want, pass a
+  commalist in ``*TableType`` -- for example: ``'SYSTEM TABLE','VIEW'``. Or
+  pass ``SYSTEM TABLE,VIEW`` (the quote marks are optional). Or pass nothing
+  (if you pass a blank string, the DBMS returns Tables in all categories).
 
-* The algorithm's ``SELECT`` statement does not reflect some minor matters. See 
-  the earlier section titled "Some Necessary Preliminaries". 
+* The algorithm's ``SELECT`` statement does not reflect some minor matters. See
+  the earlier section titled "Some Necessary Preliminaries".
 
-* The ``REMARKS`` Column is supposed to contain an implementation-defined 
-  description of the Table. For IBM's DB2 this would be the value that you 
-  enter with a ``COMMENT`` statement. 
+* The ``REMARKS`` Column is supposed to contain an implementation-defined
+  description of the Table. For IBM's DB2 this would be the value that you
+  enter with a ``COMMENT`` statement.
 
-* Many Windows applications have a "File" menu item and within that an 
-  "Open..." menu item, for putting a dialog box on the screen. Your database 
-  application doesn't have files -- it has Tables -- but the dialog box should 
-  look similar. 
+* Many Windows applications have a "File" menu item and within that an
+  "Open..." menu item, for putting a dialog box on the screen. Your database
+  application doesn't have files -- it has Tables -- but the dialog box should
+  look similar.
 
-* ``SQLTables`` was not available in SQL-92; it is new to SQL with SQL3. 
+* ``SQLTables`` was not available in SQL-92; it is new to SQL with SQL3.
 
-* [Obscure Rule] There are three variants of ``SQLTables`` which are so 
-  different, they should be regarded as different functions. These variants are 
-  easily recognized by the arguments: one argument is always "%" and the others 
-  are always "" (blank strings). The variants always return result sets with 
-  five Columns. 
-  
+* [Obscure Rule] There are three variants of ``SQLTables`` which are so
+  different, they should be regarded as different functions. These variants are
+  easily recognized by the arguments: one argument is always "%" and the others
+  are always "" (blank strings). The variants always return result sets with
+  five Columns.
+
    * The first variant is:
-     
+
      ::
-     
+
        SQLTables(hstmt,"%",1,"",0,"",0,"",0);
-     
+
      This is effectively equivalent to:
-     
+
      ::
-     
+
        SELECT DISTINCT TABLE_CATALOG AS table_cat,
                        CAST(NULL AS VARCHAR(128)),
                        CAST(NULL AS VARCHAR(128)),
                        CAST(NULL AS VARCHAR(254)),
                        CAST(NULL AS VARCHAR(254))
        FROM INFORMATION_SCHEMA.TABLES;
-     
+
    * The second variant is:
-     
+
      ::
-     
+
        SQLTables(hstmt,"",0,"%",1,"",0,"",0);
-     
+
      This is effectively equivalent to:
-     
+
      ::
-     
+
        SELECT DISTINCT CAST(NULL AS VARCHAR(128)),
                        TABLE_SCHEMA AS table_schem,
                        CAST(NULL AS VARCHAR(128)),
                        CAST(NULL AS VARCHAR(254)),
                        CAST(NULL AS VARCHAR(254))
        FROM INFORMATION_SCHEMA.TABLES;
-     
+
    * The third variant is:
-     
+
      ::
-     
+
        SQLTables(hstmt,"",0,"",0,"",0,"%",1);
-     
+
      This is effectively equivalent to:
-     
+
      ::
-     
+
        SELECT DISTINCT CAST(NULL AS VARCHAR(128)),
                         CAST(NULL AS VARCHAR(128)),
                         CAST(NULL AS VARCHAR(128)),
@@ -1557,13 +1559,13 @@ SQLTables
                         AS TABLE_TYPE,
                        CAST(NULL AS VARCHAR(254))
         FROM INFORMATION_SCHEMA.TABLES;
-  
-  There are no Privilege checks: with variant ``SQLTables`` functions, you can 
-  find Tables that you have no Privileges on. Compare the variant 
+
+  There are no Privilege checks: with variant ``SQLTables`` functions, you can
+  find Tables that you have no Privileges on. Compare the variant
   ``SQLRoutines`` functions.
-  
+
   ::
-  
+
       #include "sqlcli.h"
       SQLHSTMT hstmt;
       ...
@@ -1586,39 +1588,39 @@ SQLTables
       SQLTables(hstmt,NULL,0,NULL,0,TEXT("q%"),SQL_NTS,
       TEXT("'TABLE'"),SQL_NTS);
 
-**ODBC:** The ``SQLTables`` function has been around since ODBC version 1.0. In 
-ODBC, the result set is guaranteed to be in order by ``TABLE_CAT``, 
-``TABLE_SCHEM``, ``TABLE_NAME`` ... -- this order is not specified in the 
-Standard but it will probably be the case. 
+**ODBC:** The ``SQLTables`` function has been around since ODBC version 1.0. In
+ODBC, the result set is guaranteed to be in order by ``TABLE_CAT``,
+``TABLE_SCHEM``, ``TABLE_NAME`` ... -- this order is not specified in the
+Standard but it will probably be the case.
 
 THE END
 =======
 
-The description of SQL/CLI is -- at long last -- finished. Here's a summary of 
-some of the good and the bad and the ugly points that we've talked about in the 
-past several chapters: 
+The description of SQL/CLI is -- at long last -- finished. Here's a summary of
+some of the good and the bad and the ugly points that we've talked about in the
+past several chapters:
 
-* The impedance-mismatch problem is solved. It's considerably easier, for the 
-  vendor especially, to supply a library of functions rather than to allow 
-  mixing of host language code with SQL code. Since most programmers are well 
-  acquainted with the concept of a function library, there are no strong 
-  objections to the practice. 
+* The impedance-mismatch problem is solved. It's considerably easier, for the
+  vendor especially, to supply a library of functions rather than to allow
+  mixing of host language code with SQL code. Since most programmers are well
+  acquainted with the concept of a function library, there are no strong
+  objections to the practice.
 
-* The CLI's functionality is analogous to that of "dynamic SQL" in the embedded 
-  SQL specification. The absence of "static SQL" does entail that there will 
-  have to be some parsing and binding at runtime which, in theory, could have 
-  been done once and for all when the program was produced. 
+* The CLI's functionality is analogous to that of "dynamic SQL" in the embedded
+  SQL specification. The absence of "static SQL" does entail that there will
+  have to be some parsing and binding at runtime which, in theory, could have
+  been done once and for all when the program was produced.
 
-* A considerable debt is owed by the programming community to SAG, X/Open and 
-  Microsoft. Before the CLI came along, SQL was a much smaller deal. The use of 
-  the CLI has opened up the power of database programming to a much wider 
-  audience than the embedded SQL and PSM styles were ever likely to produce. 
-  Particularly this is true for shrink-wrapped software. 
+* A considerable debt is owed by the programming community to SAG, X/Open and
+  Microsoft. Before the CLI came along, SQL was a much smaller deal. The use of
+  the CLI has opened up the power of database programming to a much wider
+  audience than the embedded SQL and PSM styles were ever likely to produce.
+  Particularly this is true for shrink-wrapped software.
 
-* The CLI contains many redundancies. 
+* The CLI contains many redundancies.
 
-* The CLI specifications often appear to be influenced by ideas which run 
-  counter to the general spirit of SQL. 
+* The CLI specifications often appear to be influenced by ideas which run
+  counter to the general spirit of SQL.
 
-* The CLI is much more complex than it would have been if a single design team 
-  had started with standard SQL-92 as a base. 
+* The CLI is much more complex than it would have been if a single design team
+  had started with standard SQL-92 as a base.

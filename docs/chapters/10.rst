@@ -4,6 +4,8 @@
 Chapter 10 -- Collection types
 ==============================
 
+.. include:: ../_include/note.rst
+
 [Obscure Rule] applies for this entire chapter.
 
 In SQL, a <collection type> is an array: a composite constructed SQL <data

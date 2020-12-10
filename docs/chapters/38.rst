@@ -4,6 +4,8 @@
 Chapter 38 -- SQL Sessions
 ==========================
 
+.. include:: ../_include/note.rst
+
 An SQL-session spans the execution of one or more consecutive SQL statements by
 a single user. In order to execute any SQL statements, your DBMS has to
 establish an SQL-Connection (using the ``CONNECT`` statement) -- the

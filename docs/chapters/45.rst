@@ -4,8 +4,10 @@
 Chapter 45 -- SQL/CLI: Cursor Functions
 =======================================
 
-When you execute a query, you are implicitly opening a Cursor. For example, the 
-function call: 
+.. include:: ../_include/note.rst
+
+When you execute a query, you are implicitly opening a Cursor. For example, the
+function call:
 
 ::
 
@@ -13,34 +15,34 @@ function call:
 
 will open a Cursor.
 
-The reason for Cursors is that a query returns a set of rows -- a "result set", 
-as it's usually referred to in CLI contexts. But it is not possible for the 
-host language to deal with the whole result set at once -- it must deal with 
-one row at a time. The Cursor is the Object that indicates which row of the 
-result set you're currently dealing with. 
+The reason for Cursors is that a query returns a set of rows -- a "result set",
+as it's usually referred to in CLI contexts. But it is not possible for the
+host language to deal with the whole result set at once -- it must deal with
+one row at a time. The Cursor is the Object that indicates which row of the
+result set you're currently dealing with.
 
-Cursor movement is just part of the story: "Get the stick, Rover!", coos the 
-hopeful master. Rover charges off, picks up the stick, and sits down. "No, I 
-mean get the stick and *fetch it to me*!" addends the master. So Rover trots 
-dutifully back to his caller, and sits down again -- still holding the stick in 
-his teeth. "!@###~$!!", yells the master (we've amended the wording slightly as 
-this is a family computer book). "I wanted you to get the stick, then fetch it, 
-then *put it in my hands*!" 
+Cursor movement is just part of the story: "Get the stick, Rover!", coos the
+hopeful master. Rover charges off, picks up the stick, and sits down. "No, I
+mean get the stick and *fetch it to me*!" addends the master. So Rover trots
+dutifully back to his caller, and sits down again -- still holding the stick in
+his teeth. "!@###~$!!", yells the master (we've amended the wording slightly as
+this is a family computer book). "I wanted you to get the stick, then fetch it,
+then *put it in my hands*!"
 
-Well, you know, Rover is a lot like our faithful pal SQL. The execution of an 
-SQL query (the subject of the last chapter) is analogous to a dog picking up a 
-stick. Now, in this chapter, we've reached step 2: fetch the stick. And -- like 
-Rover -- that's as far as we go. Step 3, delivering the fetched stuff into your 
-hands, must wait until you have a thorough grounding in the desc functions. So 
-this chapter on "Cursors" is short. The only thing we'll worry about now is the 
-mechanics of opening, closing, fetching and naming Cursors. The fun part -- 
-doing something with the contents -- will come later. 
+Well, you know, Rover is a lot like our faithful pal SQL. The execution of an
+SQL query (the subject of the last chapter) is analogous to a dog picking up a
+stick. Now, in this chapter, we've reached step 2: fetch the stick. And -- like
+Rover -- that's as far as we go. Step 3, delivering the fetched stuff into your
+hands, must wait until you have a thorough grounding in the desc functions. So
+this chapter on "Cursors" is short. The only thing we'll worry about now is the
+mechanics of opening, closing, fetching and naming Cursors. The fun part --
+doing something with the contents -- will come later.
 
-The following diagram shows a result set: the result of an execution of a query 
-statement, which has returned three rows. The Cursor is represented by the 
-symbol <<<. The diagram shows where the Cursor is *(a)* after the execution, 
-*(b)* after one fetch, *(c)* after another fetch, *(d)* after another fetch and 
-*(e)* after another fetch. 
+The following diagram shows a result set: the result of an execution of a query
+statement, which has returned three rows. The Cursor is represented by the
+symbol <<<. The diagram shows where the Cursor is *(a)* after the execution,
+*(b)* after one fetch, *(c)* after another fetch, *(d)* after another fetch and
+*(e)* after another fetch.
 
 ::
 
@@ -55,12 +57,12 @@ symbol <<<. The diagram shows where the Cursor is *(a)* after the execution,
     ----------      ----------     ----------     ----------     ----------
                                                                             <<<
 
-Notice that there are five possible positions of the Cursor, since it is 
-possible to be "before the first row" or "after the last row", as well as "on 
-each row". 
+Notice that there are five possible positions of the Cursor, since it is
+possible to be "before the first row" or "after the last row", as well as "on
+each row".
 
-There are six CLI functions for creating Cursors, dropping Cursors, getting 
-Cursor attributes and fetching from Cursors. Their descriptions follow. 
+There are six CLI functions for creating Cursors, dropping Cursors, getting
+Cursor attributes and fetching from Cursors. Their descriptions follow.
 
 .. rubric:: Table of Contents
 
@@ -77,13 +79,13 @@ SQLFetch
       SQLHSTMT hstmt                    /* input: 32-bit handle */
       );
 
-**Job:** Get the next row of a Cursor's result set. (Assumption: using 
-``hstmt``, you've already run a query which returned a result set.) 
+**Job:** Get the next row of a Cursor's result set. (Assumption: using
+``hstmt``, you've already run a query which returned a result set.)
 
-You can use ``SQLFetch`` for one-row-at-a-time processing of a result set. 
-``SQLFetch`` is appropriate for sequential processing, since it always gets the 
-"next" row. For random-access processing, use a different function: 
-``SQLFetchScroll``. 
+You can use ``SQLFetch`` for one-row-at-a-time processing of a result set.
+``SQLFetch`` is appropriate for sequential processing, since it always gets the
+"next" row. For random-access processing, use a different function:
+``SQLFetchScroll``.
 
 **Algorithm:**
 
@@ -100,22 +102,22 @@ You can use ``SQLFetch`` for one-row-at-a-time processing of a result set.
       Transfer the values in the select list to bound Columns, if any.
       (Column-binding and transfer is the subject of the CLI desc chapter.)
 
-For common errors, see our descriptions of SQLSTATE`` codes ``HY010``, 
-``24000`` and ``02000`` in our chapter on CLI diagnostics. Note that ``SQLSTATE 
-02000`` is not an exception condition -- it is a completion condition. There 
-are also possible errors -- data exceptions -- which can take place during 
-transfers. There are also possible warnings, such as ``01004 "string data right 
-truncation"``. 
+For common errors, see our descriptions of SQLSTATE`` codes ``HY010``,
+``24000`` and ``02000`` in our chapter on CLI diagnostics. Note that ``SQLSTATE
+02000`` is not an exception condition -- it is a completion condition. There
+are also possible errors -- data exceptions -- which can take place during
+transfers. There are also possible warnings, such as ``01004 "string data right
+truncation"``.
 
 **Notes:**
 
-* ``SQLFetch`` only works if there is an open Cursor. A Cursor is automatically 
-  opened as a result of executing an SQL query statement. A Cursor can be 
-  explicitly closed using the CLI function ``SQLCloseCursor``. Usually, though, 
-  a Cursor is closed as a result of calling the CLI function ``SQLEndTran``. 
+* ``SQLFetch`` only works if there is an open Cursor. A Cursor is automatically
+  opened as a result of executing an SQL query statement. A Cursor can be
+  explicitly closed using the CLI function ``SQLCloseCursor``. Usually, though,
+  a Cursor is closed as a result of calling the CLI function ``SQLEndTran``.
 
-* There is no such Cursor position as "two places after the last row". A Cursor 
-  which is "after the last row" does not move. 
+* There is no such Cursor position as "two places after the last row". A Cursor
+  which is "after the last row" does not move.
 
 **Example:** Here's a fetch loop example:
 
@@ -151,11 +153,11 @@ style is different -- using names, macros and indentation a la Microsoft:
       ...  rc = SQLFetch(hstmt0);
     } // while
 
-**ODBC:** All versions of ODBC support the ``SQLFetch`` function as described 
-here, but ODBC version 3.0 has an optional feature: you can fetch multiple rows 
-with one call. Logically, such a feature is unnecessary, and it makes 
-applications more complex. We assume Microsoft added the feature for 
-performance reasons. 
+**ODBC:** All versions of ODBC support the ``SQLFetch`` function as described
+here, but ODBC version 3.0 has an optional feature: you can fetch multiple rows
+with one call. Logically, such a feature is unnecessary, and it makes
+applications more complex. We assume Microsoft added the feature for
+performance reasons.
 
 *Fetch Loops*
 --------------
@@ -164,13 +166,13 @@ When dealing with a result set, the procedure is almost always to:
 
 1. Make a result set.
 
-2. Begin a loop which calls ``SQLFetch`` for each row; stopping when there 
+2. Begin a loop which calls ``SQLFetch`` for each row; stopping when there
    are no more rows.
-   
+
    Here's what it looks like in pseudocode:
-   
+
    ::
-   
+
      Make a result set.
      LOOP:
        Call SQLFetch to get the next row.
@@ -182,9 +184,9 @@ Let's explore these pseudocode statements in a little more detail.
 
 * Make a result set:
 
-You create a result set when you execute an SQL "query". The "query" statements 
-are the ones that begin with ``SELECT`` or ``VALUES`` or ``TABLE``. For 
-example, this CLI function call makes a result set associated with ``stmt``: 
+You create a result set when you execute an SQL "query". The "query" statements
+are the ones that begin with ``SELECT`` or ``VALUES`` or ``TABLE``. For
+example, this CLI function call makes a result set associated with ``stmt``:
 
 ::
 
@@ -201,12 +203,12 @@ execute SQL queries implicitly. See our chapter on that subject.)
 
 * Check for end of result set.
 
-Eventually, the ``SQLFetch`` function will return ``SQL_NO_DATA``. At that 
-point, it is certain that the ``SQLSTATE`` class is '``02``'. ``SQL_NO_DATA`` 
-is a completion condition -- the function is completed. But there wasn't any 
-row to fetch, so no data actually moved from bound Columns into host variables. 
-The Cursor is now positioned "after the last row" and if you call ``SQLFetch`` 
-again, it will remain there. This is a cue to break out of the fetch loop: 
+Eventually, the ``SQLFetch`` function will return ``SQL_NO_DATA``. At that
+point, it is certain that the ``SQLSTATE`` class is '``02``'. ``SQL_NO_DATA``
+is a completion condition -- the function is completed. But there wasn't any
+row to fetch, so no data actually moved from bound Columns into host variables.
+The Cursor is now positioned "after the last row" and if you call ``SQLFetch``
+again, it will remain there. This is a cue to break out of the fetch loop:
 
 ::
 
@@ -214,7 +216,7 @@ again, it will remain there. This is a cue to break out of the fetch loop:
 
 * Check for errors.
 
-``SQLFetch`` functions rarely return ``SQL_ERROR``, but we'll do some 
+``SQLFetch`` functions rarely return ``SQL_ERROR``, but we'll do some
 checking to be on the safe side:
 
 ::
@@ -229,8 +231,8 @@ has moved forward despite the error, and the next row is okay.
 
 * Do something with the result row.
 
-The data in the fetched row will go to host variables in the program. We do 
-not show that here. We will revisit fetch loops later, after looking at 
+The data in the fetched row will go to host variables in the program. We do
+not show that here. We will revisit fetch loops later, after looking at
 ``desc`` functions. Until then, remember: Rover is still holding the stick.
 
 SQLFetchScroll
@@ -246,13 +248,13 @@ SQLFetchScroll
     SQLINTEGER FetchOffset               /* 32-bit input. offset. */
     );
 
-**Job:** Get a specified row of a Cursor's result set. (Assumption: using 
+**Job:** Get a specified row of a Cursor's result set. (Assumption: using
 ``hstmt``, you've already run a query which returned a result set.)
 
-You can use ``SQLFetchScroll`` for one-row-at-a-time processing of a result 
-set. ``SQLFetchScroll`` is appropriate for random-order processing, since it 
-always gets the "specified" row. For sequential processing, use a different 
-function: ``SQLFetch``. 
+You can use ``SQLFetchScroll`` for one-row-at-a-time processing of a result
+set. ``SQLFetchScroll`` is appropriate for random-order processing, since it
+always gets the "specified" row. For sequential processing, use a different
+function: ``SQLFetch``.
 
 **Algorithm:**
 
@@ -278,34 +280,34 @@ function: ``SQLFetch``.
   the way it positions the Cursor. There are six possible values of the
   ``FetchOrientation`` parameter:
 
-   * If the value is 1, the ``#define`` in ``sqlcli.h`` is ``SQL_FETCH_NEXT`` 
-     and the requested action is "Fetch the next row of the result set", just 
-     as for ``SQLFetch``. ``SQL_FETCH_NEXT`` is the only legal orientation if 
-     the Cursor is non-scrollable. 
+   * If the value is 1, the ``#define`` in ``sqlcli.h`` is ``SQL_FETCH_NEXT``
+     and the requested action is "Fetch the next row of the result set", just
+     as for ``SQLFetch``. ``SQL_FETCH_NEXT`` is the only legal orientation if
+     the Cursor is non-scrollable.
 
-   * If the value is 2, the ``#define`` in ``sqlcli.h`` is ``SQL_FETCH_FIRST`` 
-     and the requested action is "Fetch the first row of the result set". 
+   * If the value is 2, the ``#define`` in ``sqlcli.h`` is ``SQL_FETCH_FIRST``
+     and the requested action is "Fetch the first row of the result set".
 
-   * If the value is 3, the ``#define`` in ``sqlcli.h`` is ``SQL_FETCH_LAST`` 
-     and the requested action is "Fetch the last row of the result set". 
+   * If the value is 3, the ``#define`` in ``sqlcli.h`` is ``SQL_FETCH_LAST``
+     and the requested action is "Fetch the last row of the result set".
 
-   * If the value is 4, the ``#define`` in ``sqlcli.h`` is ``SQL_FETCH_PRIOR`` 
-     and the requested action is "Fetch the previous row of the result set". 
+   * If the value is 4, the ``#define`` in ``sqlcli.h`` is ``SQL_FETCH_PRIOR``
+     and the requested action is "Fetch the previous row of the result set".
 
-   * If the value is 5, the ``#define`` in ``sqlcli.h`` is 
-     ``SQL_FETCH_ABSOLUTE`` and the requested action is "Fetch row#n of the 
-     result set" (where ``n = FetchOffset`` -- see parameter list). The 
-     ``FetchOffset`` parameter can be negative, in which case the DBMS seeks 
-     relative to the end of the result set rather than relative to the 
-     beginning of the result set. If you pass ``FetchOrientation=SQL_ABSOLUTE`` 
-     and ``FetchOffset=0``, you fetch the first row in the result set. 
+   * If the value is 5, the ``#define`` in ``sqlcli.h`` is
+     ``SQL_FETCH_ABSOLUTE`` and the requested action is "Fetch row#n of the
+     result set" (where ``n = FetchOffset`` -- see parameter list). The
+     ``FetchOffset`` parameter can be negative, in which case the DBMS seeks
+     relative to the end of the result set rather than relative to the
+     beginning of the result set. If you pass ``FetchOrientation=SQL_ABSOLUTE``
+     and ``FetchOffset=0``, you fetch the first row in the result set.
 
-   * If the value is 6, the ``#define`` in ``sqlcli.h is`` 
-     ``SQL_FETCH_RELATIVE`` and the requested action is "Fetch row#n of the 
-     result set" (where ``n`` = current row#``+FetchOffset``). Once again, the 
-     ``FetchOffset`` parameter can be negative. If you pass 
-     ``FetchOrientation=SQL_RELATIVE`` and ``FetchOffset=0``, you re-fetch the 
-     same row as last time. 
+   * If the value is 6, the ``#define`` in ``sqlcli.h is``
+     ``SQL_FETCH_RELATIVE`` and the requested action is "Fetch row#n of the
+     result set" (where ``n`` = current row#``+FetchOffset``). Once again, the
+     ``FetchOffset`` parameter can be negative. If you pass
+     ``FetchOrientation=SQL_RELATIVE`` and ``FetchOffset=0``, you re-fetch the
+     same row as last time.
 
 * The ``ABSOLUTE`` and ``RELATIVE`` fetch orientations may be thought of as
   similar to the arguments for the C function ``l seek``.
@@ -332,24 +334,24 @@ non-scrollable. A non-scrollable Cursor is useful only for ``SQLFetch`` and
 ``SQLFetchScroll(...SQL_FETCH_NEXT...)``. A non-scrollable Cursor is generally
 slightly more efficient than a scrollable Cursor.
 
-* It might be convenient to use ``SQLFetchScroll`` for paged-display purposes. 
-  For example, start by displaying the first 20 rows on the screen. If the user 
-  presses a "next page" button, fetch the next 20 rows. If the user presses a 
-  "previous page" button, fetch the previous 20 rows. This process is easy to 
-  keep track of with ``SQLFetchScroll(...,ABSOLUTE,...)`` using a 
-  ``FetchOffset`` value to which you add or subtract 20, depending on the 
-  button pushing. (In multi-user environments, paged displays might require a 
-  different mechanism.) 
+* It might be convenient to use ``SQLFetchScroll`` for paged-display purposes.
+  For example, start by displaying the first 20 rows on the screen. If the user
+  presses a "next page" button, fetch the next 20 rows. If the user presses a
+  "previous page" button, fetch the previous 20 rows. This process is easy to
+  keep track of with ``SQLFetchScroll(...,ABSOLUTE,...)`` using a
+  ``FetchOffset`` value to which you add or subtract 20, depending on the
+  button pushing. (In multi-user environments, paged displays might require a
+  different mechanism.)
 
-* ``Fetch orientation`` only works within the bounds of the result set. For 
-  example, suppose that there are 3 rows in a result set. If you try to fetch 
-  row number 20 -- using ``SQLFetchScroll(...,ABSOLUTE,20)`` -- the function 
-  will fail with ``SQLSTATE 02000 "no data"``. The possible surprise lies in 
-  the fact that the Cursor is now positioned, not at some nonexistent "row 
-  #20", but just after the last row of the result set -- so if you then call 
-  ``SQLFetchScroll(...,PRIOR,...)``, the DBMS will fetch row#3. 
+* ``Fetch orientation`` only works within the bounds of the result set. For
+  example, suppose that there are 3 rows in a result set. If you try to fetch
+  row number 20 -- using ``SQLFetchScroll(...,ABSOLUTE,20)`` -- the function
+  will fail with ``SQLSTATE 02000 "no data"``. The possible surprise lies in
+  the fact that the Cursor is now positioned, not at some nonexistent "row
+  #20", but just after the last row of the result set -- so if you then call
+  ``SQLFetchScroll(...,PRIOR,...)``, the DBMS will fetch row#3.
 
-* ``SQLFetch`` and ``SQLFetchScroll`` calls can be interlaced. 
+* ``SQLFetch`` and ``SQLFetchScroll`` calls can be interlaced.
 
 **Example:**
 
@@ -365,12 +367,12 @@ slightly more efficient than a scrollable Cursor.
       SQLFetchScroll(hstmt,SQL_FETCH_LAST,NULL);      /* get last row */
       SQLFetchScroll(hstmt,SQL_FETCH_RELATIVE,-1);    /* now 2nd-last row */
 
-**ODBC:** The ODBC function is pretty much as described above, except for 
-details -- for example, ``SQLFetchScroll(hstmt,SQL_ABSOLUTE,0)`` will cause the 
-Cursor to be positioned before the first row (in standard SQL it would cause 
-the Cursor to be positioned at the first row). The more important difference is 
-that ODBC allows many extensions, such as multi-row retrieval and retrieval 
-using "bookmarks" (which are a special sort row address). 
+**ODBC:** The ODBC function is pretty much as described above, except for
+details -- for example, ``SQLFetchScroll(hstmt,SQL_ABSOLUTE,0)`` will cause the
+Cursor to be positioned before the first row (in standard SQL it would cause
+the Cursor to be positioned at the first row). The more important difference is
+that ODBC allows many extensions, such as multi-row retrieval and retrieval
+using "bookmarks" (which are a special sort row address).
 
 SQLCloseCursor
 ==============
@@ -400,21 +402,21 @@ SQLCloseCursor
 
 **Notes:**
 
-* You MUST close the Cursor when you are done processing a result set. 
-  Otherwise, you won't be able to re-use the ``stmt``. ``SQLPrepare`` and 
+* You MUST close the Cursor when you are done processing a result set.
+  Otherwise, you won't be able to re-use the ``stmt``. ``SQLPrepare`` and
   ``SQLExecute`` will return with an error if there is an open Cursor.
 
-* The DBMS automatically closes the Cursor when executing any of these CLI 
+* The DBMS automatically closes the Cursor when executing any of these CLI
   functions:
-   
+
    * ``SQLFreeStmt(...,SQL_CLOSE)``
-   
+
    * ``SQLEndTran`` (but see later description of "held Cursors")
-   
+
    * ``SQLCancel``
-   
+
    * ``SQLFreeHandle(SQL_HANDLE_STMT,...)``
-   
+
    * ``SQLMoreResults``
 
 However, it is good style to call ``SQLCloseCursor`` explicitly, rather than
@@ -425,7 +427,7 @@ depending on automatic behaviour.
   currently open, then ``SQLCloseCursor`` returns an error, while
   ``SQLFreeStmt(...,SQL_CLOSE)`` does not return an error.
 
-**Example:** This is a repetition of the earlier "fetch loop" example. 
+**Example:** This is a repetition of the earlier "fetch loop" example.
 Notice that ``SQLCloseCursor`` is called at the end of the loop.
 
 ::
@@ -444,12 +446,12 @@ Notice that ``SQLCloseCursor`` is called at the end of the loop.
     printf("*"); }
   SQLCloseCursor(hstmt);      /* "Close Cursor" */
 
-**ODBC:** The ``SQLCloseCursor`` function is new in ODBC 3.0; with earlier ODBC 
-versions, the way to close Cursors was ``SQLFreeStmt(hstmt,SQL_CLOSE);``. If 
-ODBC's "autocommit" mode is in effect, then ``SQLCloseCursor`` causes a 
-``COMMIT``. (In order for this to work, the DBMS must avoid performing an 
-automatic commit immediately after execution of the ``SELECT`` statement which 
-causes the Cursor to be opened.) 
+**ODBC:** The ``SQLCloseCursor`` function is new in ODBC 3.0; with earlier ODBC
+versions, the way to close Cursors was ``SQLFreeStmt(hstmt,SQL_CLOSE);``. If
+ODBC's "autocommit" mode is in effect, then ``SQLCloseCursor`` causes a
+``COMMIT``. (In order for this to work, the DBMS must avoid performing an
+automatic commit immediately after execution of the ``SELECT`` statement which
+causes the Cursor to be opened.)
 
 SQLGetCursorName
 ================
@@ -483,23 +485,23 @@ SQLGetCursorName
 
 **Notes:**
 
-* With embedded SQL, the <Cursor name> is important. With the CLI, the <Cursor 
-  name> is not important -- we distinguish between statements using the 
-  ``hstmt`` value. The only time you actually need a <Cursor name> is when you 
-  have to use positioned ``UPDATE|DELETE`` statements (we'll discuss positioned 
-  ``UPDATE|DELETE`` statements later in this chapter). 
+* With embedded SQL, the <Cursor name> is important. With the CLI, the <Cursor
+  name> is not important -- we distinguish between statements using the
+  ``hstmt`` value. The only time you actually need a <Cursor name> is when you
+  have to use positioned ``UPDATE|DELETE`` statements (we'll discuss positioned
+  ``UPDATE|DELETE`` statements later in this chapter).
 
-* The <Cursor name> exists independently of the Cursor itself. You can retrieve 
-  a <Cursor name> even if the Cursor is not open. 
+* The <Cursor name> exists independently of the Cursor itself. You can retrieve
+  a <Cursor name> even if the Cursor is not open.
 
-* An implicit <Cursor name> begins with the letters ``SQL_CUR`` or ``SQLCUR`` 
-  (e.g.: ``SQL_CUR0001``). In practice, implicit <Cursor name>s are not more 
-  than 18 characters long. A <Cursor name> is created implicitly (if it doesn't 
-  already exist) when either of these things happens: *(a)* ``SQLPrepare`` is 
-  called and the prepared statement is a query or *(b)* ``SQLGetCursorName`` is 
-  called. Once an implicit <Cursor name> is established, it remains until the 
-  statement is freed, or until a call to ``SQLSetCursorName`` changes it 
-  explicitly. 
+* An implicit <Cursor name> begins with the letters ``SQL_CUR`` or ``SQLCUR``
+  (e.g.: ``SQL_CUR0001``). In practice, implicit <Cursor name>s are not more
+  than 18 characters long. A <Cursor name> is created implicitly (if it doesn't
+  already exist) when either of these things happens: *(a)* ``SQLPrepare`` is
+  called and the prepared statement is a query or *(b)* ``SQLGetCursorName`` is
+  called. Once an implicit <Cursor name> is established, it remains until the
+  statement is freed, or until a call to ``SQLSetCursorName`` changes it
+  explicitly.
 
 **Example:**
 
@@ -513,8 +515,8 @@ SQLGetCursorName
   ...
   SQLGetCursorName(hstmt,Cursor_name,sizeof(Cursor_name),&Cursor_name_length);
 
-**ODBC:** The ``SQLGetCursorName`` function has been around since ODBC 1.0. 
-In ODBC, implicit <Cursor name>s always begin with ``SQL_CUR`` (not 
+**ODBC:** The ``SQLGetCursorName`` function has been around since ODBC 1.0.
+In ODBC, implicit <Cursor name>s always begin with ``SQL_CUR`` (not
 ``SQLCUR``).
 
 SQLSetCursorName
@@ -550,18 +552,18 @@ SQLSetCursorName
 
 **Notes:**
 
-* You only need to call ``SQLSetCursorName`` if you intend to execute 
-  "positioned ``UPDATE|DELETE``" statements. 
+* You only need to call ``SQLSetCursorName`` if you intend to execute
+  "positioned ``UPDATE|DELETE``" statements.
 
-* It is a good idea to assign your own <Cursor name>, rather than depending on 
-  an implicit <Cursor name>. 
+* It is a good idea to assign your own <Cursor name>, rather than depending on
+  an implicit <Cursor name>.
 
-* The best time to call ``SQLSetCursorName`` is immediately after calling 
-  ``SQLAllocHandle(SQL_HANDLE_STMT,...)``. 
+* The best time to call ``SQLSetCursorName`` is immediately after calling
+  ``SQLAllocHandle(SQL_HANDLE_STMT,...)``.
 
-* The <Cursor name> is permanent. It exists until the ``stmt`` is freed, or 
-  until superseded by another call to ``SQLSetCursorName``. Opening and closing 
-  the Cursor has no effect on the name. 
+* The <Cursor name> is permanent. It exists until the ``stmt`` is freed, or
+  until superseded by another call to ``SQLSetCursorName``. Opening and closing
+  the Cursor has no effect on the name.
 
 **Example:**
 
@@ -574,9 +576,9 @@ SQLSetCursorName
   SQLAllocHandle(SQLHANDLE_STMT,hdbc,&hstmt);
   SQLSetCursorName(hstmt,"Cursor_1",sizeof("Cursor_1"));
 
-**ODBC:** The ``SQLSetCursorName`` function has been around since ODBC version 
-1.0. If the <Cursor name> already exists, ODBC requires that the ``SQLSTATE`` 
-should be ``3C000 "Duplicate <Cursor name>"``, instead of ``34000``. 
+**ODBC:** The ``SQLSetCursorName`` function has been around since ODBC version
+1.0. If the <Cursor name> already exists, ODBC requires that the ``SQLSTATE``
+should be ``3C000 "Duplicate <Cursor name>"``, instead of ``34000``.
 
 Embedded SQL versus CLI
 =======================
@@ -607,24 +609,24 @@ Comparing these two examples, you will notice two major differences:
    opened by execution of a ``SELECT`` statement.
 
 2. In the CLI, there is no use of <Cursor name>s -- different Cursors
-   are associated with different ``stmt``\s, so ``hstmt`` alone is sufficient 
+   are associated with different ``stmt``\s, so ``hstmt`` alone is sufficient
    for unique identification.
 
-The CLI functions ``SQLGetCursorName`` and ``SQLSetCursorName`` are 
-unimportant. CLI programmers only worry about <Cursor name>s if they have 
+The CLI functions ``SQLGetCursorName`` and ``SQLSetCursorName`` are
+unimportant. CLI programmers only worry about <Cursor name>s if they have
 to use positioned ``UPDATE|DELETE`` statements.
 
 *Positioned UPDATE|DELETE Statements*
 -------------------------------------
 
-In our chapter on embedded SQL, we mentioned that there are two kinds of 
-``UPDATE`` and ``DELETE`` statements. The normal kind (called "searched 
-``UPDATE``" and "searched ``DELETE``"), provide conditions for changing or 
-removing rows in a ``WHERE`` clause -- these statements are not our concern 
-here. The Cursor-related kind (called "positioned ``UPDATE``" and "positioned 
-``DELETE``") are distinguished by the presence of a ``WHERE CURRENT OF`` 
-<Cursor name> clause, rather than a conditional ``WHERE`` clause. Here's an 
-example of each: 
+In our chapter on embedded SQL, we mentioned that there are two kinds of
+``UPDATE`` and ``DELETE`` statements. The normal kind (called "searched
+``UPDATE``" and "searched ``DELETE``"), provide conditions for changing or
+removing rows in a ``WHERE`` clause -- these statements are not our concern
+here. The Cursor-related kind (called "positioned ``UPDATE``" and "positioned
+``DELETE``") are distinguished by the presence of a ``WHERE CURRENT OF``
+<Cursor name> clause, rather than a conditional ``WHERE`` clause. Here's an
+example of each:
 
 ::
 
@@ -632,19 +634,19 @@ example of each:
 
    DELETE FROM Table_1 WHERE CURRENT OF Cursor_1;
 
-The first example will update only one row in ``TABLE_1``: the row that 
-underlies the result-set row which is indicated by the current position of 
-``CURSOR_1``. The second example will delete only that single row of 
-``TABLE_1``. 
+The first example will update only one row in ``TABLE_1``: the row that
+underlies the result-set row which is indicated by the current position of
+``CURSOR_1``. The second example will delete only that single row of
+``TABLE_1``.
 
-With the CLI, there is one complicating factor: the positioned 
-``UPDATE|DELETE`` statement must be executed using a different ``stmt`` than 
-the ``stmt`` which is associated with ``CURSOR_1``. This is just a corollary of 
-the reasonable rule that "at any given time there may be only one statement 
-associated with a ``stmt``". Since there is already an active statement -- the 
-``SELECT`` which caused the Cursor to be opened -- the positioned ``UPDATE`` 
-must go elsewhere. A general skeleton of a positioned ``UPDATE|DELETE`` 
-operation, then, could be: 
+With the CLI, there is one complicating factor: the positioned
+``UPDATE|DELETE`` statement must be executed using a different ``stmt`` than
+the ``stmt`` which is associated with ``CURSOR_1``. This is just a corollary of
+the reasonable rule that "at any given time there may be only one statement
+associated with a ``stmt``". Since there is already an active statement -- the
+``SELECT`` which caused the Cursor to be opened -- the positioned ``UPDATE``
+must go elsewhere. A general skeleton of a positioned ``UPDATE|DELETE``
+operation, then, could be:
 
 ::
 
@@ -655,13 +657,13 @@ operation, then, could be:
     Fetch on stmt_1 (thus positioning the Cursor)
     Execute positioned UPDATE|DELETE on stmt_2, using the <Cursor name>
 
-(If, later, the same row is re-fetched using ``SQLFetchScroll``, then results 
-are implementation-defined.) 
+(If, later, the same row is re-fetched using ``SQLFetchScroll``, then results
+are implementation-defined.)
 
-**Example:** This program uses a positioned ``DELETE`` statement. Just by the 
-way, we'll use "A delimited identifier" for our <Cursor name>. In real life the 
-<Cursor name> would be a short <regular identifier> like ``X`` or ``Cursor_1`` 
-or ``SELECTION_WHERE_X_GT_0``. 
+**Example:** This program uses a positioned ``DELETE`` statement. Just by the
+way, we'll use "A delimited identifier" for our <Cursor name>. In real life the
+<Cursor name> would be a short <regular identifier> like ``X`` or ``Cursor_1``
+or ``SELECTION_WHERE_X_GT_0``.
 
 ::
 
@@ -698,83 +700,83 @@ or ``SELECTION_WHERE_X_GT_0``.
 *Singleton SELECTs*
 -------------------
 
-In embedded SQL, there is a construct called the singleton ``SELECT``. 
+In embedded SQL, there is a construct called the singleton ``SELECT``.
 Here's an example:
 
 ::
 
    EXEC SQL SELECT Column_1 INTO :host_variable FROM Table_1;
 
-In the CLI, there is no equivalent of a singleton ``SELECT``. All query 
-results, even ones that consist of zero rows or one row, must be processed 
+In the CLI, there is no equivalent of a singleton ``SELECT``. All query
+results, even ones that consist of zero rows or one row, must be processed
 via the Cursor functions.
 
 *Sensitive Cursors*
 -------------------
 
-What happens if a Cursor is open on ``stmt_1``, and a data change operation 
-happens on ``stmt_2``? We've already noted that "positioned ``UPDATE|DELETE`` 
-statements" are possible, but here we're asking about effects in a more general 
-way -- that is, we're assuming that the SQL-data change statement is 
-``INSERT``, ``UPDATE`` or ``DELETE`` and that ``stmt_2`` is associated either 
-with the same ``dbc``, or with another ``dbc``. For example, suppose you've 
-executed this SQL statement: 
+What happens if a Cursor is open on ``stmt_1``, and a data change operation
+happens on ``stmt_2``? We've already noted that "positioned ``UPDATE|DELETE``
+statements" are possible, but here we're asking about effects in a more general
+way -- that is, we're assuming that the SQL-data change statement is
+``INSERT``, ``UPDATE`` or ``DELETE`` and that ``stmt_2`` is associated either
+with the same ``dbc``, or with another ``dbc``. For example, suppose you've
+executed this SQL statement:
 
 ::
 
    SELECT * FROM Table_1;
 
-and you are now fetching from the result. But -- after the ``SELECT`` was 
-processed and before your first ``FETCH``, some ``UPDATE`` took place on one 
-row of ``TABLE_1``. When you ``FETCH`` that row, will you see the new values, 
-or the original values? There are three possible answers, which depend on an 
-attribute of the ``stmt`` called the *Cursor sensitivity*. Here are the 
-options: 
+and you are now fetching from the result. But -- after the ``SELECT`` was
+processed and before your first ``FETCH``, some ``UPDATE`` took place on one
+row of ``TABLE_1``. When you ``FETCH`` that row, will you see the new values,
+or the original values? There are three possible answers, which depend on an
+attribute of the ``stmt`` called the *Cursor sensitivity*. Here are the
+options:
 
-1. If the attribute value is 0, the ``#define`` in ``sqlcli.h`` is 
-   ``SQL_UNDEFINED`` and the requested action is "I don't care whether I see 
-   new or old values; leave it up to the implementation". 
+1. If the attribute value is 0, the ``#define`` in ``sqlcli.h`` is
+   ``SQL_UNDEFINED`` and the requested action is "I don't care whether I see
+   new or old values; leave it up to the implementation".
 
-2. If the attribute value is 1, the ``#define`` in ``sqlcli.h`` is 
-   ``SQL_INSENSITIVE`` and the requested action is "show me the original 
-   values". 
+2. If the attribute value is 1, the ``#define`` in ``sqlcli.h`` is
+   ``SQL_INSENSITIVE`` and the requested action is "show me the original
+   values".
 
-3. If the attribute value is 2, the ``#define`` in ``sqlcli.h`` is 
-   ``SQL_SENSITIVE`` and the requested action is "show me the changed values". 
+3. If the attribute value is 2, the ``#define`` in ``sqlcli.h`` is
+   ``SQL_SENSITIVE`` and the requested action is "show me the changed values".
 
-The default is ``SQL_UNDEFINED`` (which may be known as ``SQL_ASENSITIVE`` in 
-ANSI SQL3). Your best option is to just leave this attribute setting alone, and 
-do what you can to avoid the situation. If you must specify one of the other 
-settings, you can do so with a call to the ``SQLSetStmtAttr`` function, for 
-example: 
+The default is ``SQL_UNDEFINED`` (which may be known as ``SQL_ASENSITIVE`` in
+ANSI SQL3). Your best option is to just leave this attribute setting alone, and
+do what you can to avoid the situation. If you must specify one of the other
+settings, you can do so with a call to the ``SQLSetStmtAttr`` function, for
+example:
 
 ::
 
    SQLSetStmtAttr(hstmt,SQL_ATTR_CURSOR_SENSITIVITY,&SQL_INSENSITIVE,NULL);
 
-You would probably want an insensitive Cursor if the fetched rows have to be 
-consistent with each other. However, most DBMSs maintain insensitive Cursors by 
-making a copy of the Table (that is: the rows in the result set are not 
-necessarily identical to the rows of the Table you selected from). Therefore, 
-an insensitive Cursor is always a *READ-ONLY Cursor*. The ``SQLGetStmtAttr`` 
-function can be used to check which Cursor sensitivity option is currently in 
-effect. The ``SQLGetInfo`` function can be used to check whether a DBMS 
-supports the Cursor sensitivity options. Many DBMSs support ``SQL_UNSPECIFIED`` 
-only. 
+You would probably want an insensitive Cursor if the fetched rows have to be
+consistent with each other. However, most DBMSs maintain insensitive Cursors by
+making a copy of the Table (that is: the rows in the result set are not
+necessarily identical to the rows of the Table you selected from). Therefore,
+an insensitive Cursor is always a *READ-ONLY Cursor*. The ``SQLGetStmtAttr``
+function can be used to check which Cursor sensitivity option is currently in
+effect. The ``SQLGetInfo`` function can be used to check whether a DBMS
+supports the Cursor sensitivity options. Many DBMSs support ``SQL_UNSPECIFIED``
+only.
 
 *Holdable Cursors*
 ------------------
 
-Another ``stmt`` attribute that affects Cursor management is "holdability". 
-This attribute, which can also be set with the ``SQLSetStmtAttr`` function, 
-affects the question: What happens to an open Cursor when we end a transaction 
-with ``SQLEndTran(...SQL_COMMIT)``? Here are the two possible options: 
+Another ``stmt`` attribute that affects Cursor management is "holdability".
+This attribute, which can also be set with the ``SQLSetStmtAttr`` function,
+affects the question: What happens to an open Cursor when we end a transaction
+with ``SQLEndTran(...SQL_COMMIT)``? Here are the two possible options:
 
-1. If the attribute value is 0, the ``#define`` in ``sqlcli.h`` is 
+1. If the attribute value is 0, the ``#define`` in ``sqlcli.h`` is
    ``SQL_NONHOLDABLE`` and the requested action is "close the Cursor".
 
-2. If the attribute value is 1, the ``#define`` in ``sqlcli.h`` is 
-   ``SQL_HOLDABLE`` and the requested action is "leave the Cursor open into 
+2. If the attribute value is 1, the ``#define`` in ``sqlcli.h`` is
+   ``SQL_HOLDABLE`` and the requested action is "leave the Cursor open into
    the next transaction".
 
 The default is ``SQL_NONHOLDABLE``. In fact, for most DBMSs, holdability is not
@@ -793,9 +795,9 @@ SQLMoreResults
     SQLHSTMT hstmt       /* 32-bit input */
     );
 
-**Job:** Find out if there is another result set associated with the 
-``stmt``. If so, position the Cursor at the start of the next result set 
-(that is, before the first row of the next result set). This is an SQL3 
+**Job:** Find out if there is another result set associated with the
+``stmt``. If so, position the Cursor at the start of the next result set
+(that is, before the first row of the next result set). This is an SQL3
 function.
 
 Only one SQL statement can produce multiple result sets:
@@ -804,7 +806,7 @@ Only one SQL statement can produce multiple result sets:
 
    CALL <procedure-name>
 
-That's because a "procedure" might contain multiple ``SELECT`` statements. 
+That's because a "procedure" might contain multiple ``SELECT`` statements.
 In such a case, result sets are returned in the order they were produced.
 
 **Algorithm:**
@@ -829,7 +831,7 @@ In such a case, result sets are returned in the order they were produced.
 * Result sets must be processed one at a time. You cannot process them
   in parallel (though that's a feature that's being considered for SQL4).
 
-* Since earlier versions of the SQL Standard didn't support SQL procedures, 
+* Since earlier versions of the SQL Standard didn't support SQL procedures,
   there was no need for an ``SQLMoreResults`` function until SQL3.
 
 **Example:**
@@ -845,10 +847,10 @@ In such a case, result sets are returned in the order they were produced.
       SQLMoreResults(hstmt);
       SQLFetch(hstmt);
 
-**ODBC:** ``SQLMoreResults`` has been around since ODBC version 1.0. That has 
-more to do with ODBC's non-standard "batching" feature than with support for 
-procedures. However, Microsoft has always assumed that DBMSs support 
-procedures. 
+**ODBC:** ``SQLMoreResults`` has been around since ODBC version 1.0. That has
+more to do with ODBC's non-standard "batching" feature than with support for
+procedures. However, Microsoft has always assumed that DBMSs support
+procedures.
 
-And that's it for the Cursor functions. In the next chapter, we'll take a look 
-at the meat of CLI -- the ``desc`` functions. 
+And that's it for the Cursor functions. In the next chapter, we'll take a look
+at the meat of CLI -- the ``desc`` functions.

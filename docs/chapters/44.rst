@@ -4,12 +4,14 @@
 Chapter 44 -- SQL/CLI Statement Functions
 =========================================
 
-Of the 62 CLI functions, only three actually handle what we know as "SQL 
-statements". There are two steps in SQL statement handling: the "prepare" step 
-and the "execute" step. You can do these steps separately, using the 
-``SQLPrepare`` and ``SQLExecute`` functions or you can roll them together and 
-just use the ``SQLExecDirect`` function. The following flowchart shows the 
-steps involved: 
+.. include:: ../_include/note.rst
+
+Of the 62 CLI functions, only three actually handle what we know as "SQL
+statements". There are two steps in SQL statement handling: the "prepare" step
+and the "execute" step. You can do these steps separately, using the
+``SQLPrepare`` and ``SQLExecute`` functions or you can roll them together and
+just use the ``SQLExecDirect`` function. The following flowchart shows the
+steps involved:
 
 ::
 
@@ -78,7 +80,7 @@ steps involved:
 Preparable SQL Statements
 =========================
 
-Some SQL statements are not preparable. Here's the list of all 
+Some SQL statements are not preparable. Here's the list of all
 possibilities, showing whether the SQL statement can be prepared.
 
 +--------------------------+---------------------+-----------------+
@@ -145,21 +147,21 @@ possibilities, showing whether the SQL statement can be prepared.
 
 **Notes:** The "preparable statements" for embedded SQL are as above, except:
 
-* [1] Connection statements are "directly executable" with embedded SQL, 
+* [1] Connection statements are "directly executable" with embedded SQL,
   but not preparable.
 
 * [2] ``COMMIT`` and ``ROLLBACK`` are "preparable" with embedded SQL.
 
-There are some SQL statements which you may use in other contexts (such as 
-embedded SQL or SQL/PSM), but their use is inappropriate with the CLI because 
-their functionality is included in special function calls which require a 
-``henv`` or ``hdbc`` as the input handle -- and the ``SQLPrepare`` function 
-requires a ``hstmt``. For such SQL statements there will usually be an 
-analogous CLI function. For example: ``CONNECT`` and ``DISCONNECT`` statements 
-are not preparable, but there are ``SQLConnect`` and ``SQLDisconnect`` 
-functions; ``GET DIAGNOSTICS`` is not preparable but there are 
-``SQLGetDiag...`` functions; ``COMMIT`` and ``ROLLBACK`` are not preparable but 
-there is an ``SQLEndTran`` ("end transaction") function. 
+There are some SQL statements which you may use in other contexts (such as
+embedded SQL or SQL/PSM), but their use is inappropriate with the CLI because
+their functionality is included in special function calls which require a
+``henv`` or ``hdbc`` as the input handle -- and the ``SQLPrepare`` function
+requires a ``hstmt``. For such SQL statements there will usually be an
+analogous CLI function. For example: ``CONNECT`` and ``DISCONNECT`` statements
+are not preparable, but there are ``SQLConnect`` and ``SQLDisconnect``
+functions; ``GET DIAGNOSTICS`` is not preparable but there are
+``SQLGetDiag...`` functions; ``COMMIT`` and ``ROLLBACK`` are not preparable but
+there is an ``SQLEndTran`` ("end transaction") function.
 
 SQLPrepare
 ==========
@@ -174,8 +176,8 @@ SQLPrepare
     SQLINTEGER TextLength     /* 32-bit input */
     );
 
-**Job:** Check a SQL statement for syntax or access errors. If all is well, 
-make this string the "prepared SQL statement" associated with ``stmt``. It 
+**Job:** Check a SQL statement for syntax or access errors. If all is well,
+make this string the "prepared SQL statement" associated with ``stmt``. It
 is then ready to execute.
 
 **Algorithm:**
@@ -223,59 +225,59 @@ is then ready to execute.
 
 **Notes:**
 
-* You can process SQL statements in two separate phases using the 
-  ``SQLPrepare`` and ``SQLExecute`` functions. Usually, you would want to do 
-  the two phases separately if the SQL statement appeared in a loop -- you'd 
-  call ``SQLPrepare`` before entering the loop, and you'd call ``SQLExecute`` 
-  within the loop. That way, you'd only be preparing once, but executing many 
-  times. If you used the alternative -- ``SQLExecDirect`` -- you'd be preparing 
-  and executing with every iteration of the loop. 
+* You can process SQL statements in two separate phases using the
+  ``SQLPrepare`` and ``SQLExecute`` functions. Usually, you would want to do
+  the two phases separately if the SQL statement appeared in a loop -- you'd
+  call ``SQLPrepare`` before entering the loop, and you'd call ``SQLExecute``
+  within the loop. That way, you'd only be preparing once, but executing many
+  times. If you used the alternative -- ``SQLExecDirect`` -- you'd be preparing
+  and executing with every iteration of the loop.
 
-* The prepare and execute phases of SQL resemble the compile and execute phases 
-  of most computer languages. If we were going to make a distinction between 
-  preparing and compiling, we would point out that: *(a)* preparing fails if an 
-  SQL statement refers to an inaccessible Table, but compiling does not fail if 
-  a file is unavailable at compile time; and *(b)* compiling results in 
-  executable code, but preparing results only in a descriptive "plan" which 
-  needs some interpretation at run time. Such, at least, is the state of SQL 
-  today. There are no true SQL compilers. 
+* The prepare and execute phases of SQL resemble the compile and execute phases
+  of most computer languages. If we were going to make a distinction between
+  preparing and compiling, we would point out that: *(a)* preparing fails if an
+  SQL statement refers to an inaccessible Table, but compiling does not fail if
+  a file is unavailable at compile time; and *(b)* compiling results in
+  executable code, but preparing results only in a descriptive "plan" which
+  needs some interpretation at run time. Such, at least, is the state of SQL
+  today. There are no true SQL compilers.
 
-* If ``SQLPrepare`` finds an error, the ``stmt``\'s state is unchanged. A SQL 
-  statement that was previously prepared continues to be "live". For example: 
-  
+* If ``SQLPrepare`` finds an error, the ``stmt``\'s state is unchanged. A SQL
+  statement that was previously prepared continues to be "live". For example:
+
   ::
-  
+
      SQLPrepare(hstmt,"UPDATE t SET t_column = t_column + 1;",SQL_NTS);
      SQLExecute(hstmt);
      SQLPrepare(hstmt,"SELCT * FROM t;",SQL_NTS); /* sic-"SELCT" */
      SQLExecute(hstmt);
-  
-  The second ``SQLPrepare`` won't work because ``"SELCT"`` is bad SQL syntax -- 
-  but what happens to the ``SQLExecute`` that follows it? Answer: it executes 
-  the ``"UPDATE t ..."`` statement a second time. Silly, eh? Well it wouldn't 
-  happen if we had made sure to check what the ``SQLPrepare`` call returned. 
 
-* Some DBMSs do nothing during ``SQLPrepare``. They defer even syntax 
-  checking until ``SQLExecute`` time. You have to be ready for such 
-  non-standard behaviour: do not assume that an SQL statement is 
+  The second ``SQLPrepare`` won't work because ``"SELCT"`` is bad SQL syntax --
+  but what happens to the ``SQLExecute`` that follows it? Answer: it executes
+  the ``"UPDATE t ..."`` statement a second time. Silly, eh? Well it wouldn't
+  happen if we had made sure to check what the ``SQLPrepare`` call returned.
+
+* Some DBMSs do nothing during ``SQLPrepare``. They defer even syntax
+  checking until ``SQLExecute`` time. You have to be ready for such
+  non-standard behaviour: do not assume that an SQL statement is
   grammatical until it's been executed.
 
-* There is no "UnPrepare" function. Instead, prepared statements are 
+* There is no "UnPrepare" function. Instead, prepared statements are
   removed by:
 
    * Calling ``SQLPrepare`` again for the same ``stmt``.
 
    * Calling ``SQLFreeStmt(...,SQL_REALLOCATE)``.
 
-   * Cascade effects -- for example, if the prepared statement depends on a 
+   * Cascade effects -- for example, if the prepared statement depends on a
      Cursor which is destroyed.
 
-   * (Usually) calling ``SQLEndTran`` (the "transaction-end" function which is 
-     used instead of ``COMMIT`` or ``ROLLBACK``). It is best to assume that SQL 
-     statements need re-preparing after transaction end, though some DBMSs 
-     preserve prepared statements. You can find out what your DBMS does by 
-     calling the ``SQLGetInfo`` function. (In any case, if a Cursor is 
-     holdable, its result set survives if the termination is with ``COMMIT``.) 
+   * (Usually) calling ``SQLEndTran`` (the "transaction-end" function which is
+     used instead of ``COMMIT`` or ``ROLLBACK``). It is best to assume that SQL
+     statements need re-preparing after transaction end, though some DBMSs
+     preserve prepared statements. You can find out what your DBMS does by
+     calling the ``SQLGetInfo`` function. (In any case, if a Cursor is
+     holdable, its result set survives if the termination is with ``COMMIT``.)
 
 * In standard SQL, the SQL statement does not have to end with a semicolon.
 
@@ -289,7 +291,7 @@ is then ready to execute.
   SQLPrepare(hstmt,"DELETE FROM t",SQL_NTS);
   /* Now we need to call SQLExecute. */
 
-**ODBC:** The ``SQLPrepare`` function has been part of ODBC since ODBC 
+**ODBC:** The ``SQLPrepare`` function has been part of ODBC since ODBC
 version 1.0.
 
 SQLExecute
@@ -325,21 +327,21 @@ SQLExecute
         Get parameter addresses and do appropriate "casting"
       Change the Diagnostics Area
 
-Since there are many possible SQL statements, the range of possible problem 
-conditions is wide -- see especially the ``SQLSTATE`` errors in class ``22000`` 
-(data exception) and class ``23000`` (integrity constraint violation) in our 
-chapter on SQL/CLI diagnostics. Watch also for warnings and even "No data" 
-conditions (for example, execution of ``UPDATE Table_1 SET column_1 = 0;`` will 
-result in ``SQLSTATE 02000 "Data not found"`` if there are no rows in 
-``TABLE_1``). 
+Since there are many possible SQL statements, the range of possible problem
+conditions is wide -- see especially the ``SQLSTATE`` errors in class ``22000``
+(data exception) and class ``23000`` (integrity constraint violation) in our
+chapter on SQL/CLI diagnostics. Watch also for warnings and even "No data"
+conditions (for example, execution of ``UPDATE Table_1 SET column_1 = 0;`` will
+result in ``SQLSTATE 02000 "Data not found"`` if there are no rows in
+``TABLE_1``).
 
 **Notes:**
 
-* Calls to ``SQLExecute`` always follow calls to ``SQLPrepare`` (for the 
+* Calls to ``SQLExecute`` always follow calls to ``SQLPrepare`` (for the
   same ``stmt``), but other function calls may intervene.
 
-**Example:** In this example we prepare and execute two SQL statements. We 
-use two different ``stmt``\s, so that we can get all the preparing done 
+**Example:** In this example we prepare and execute two SQL statements. We
+use two different ``stmt``\s, so that we can get all the preparing done
 before we start executing.
 
 ::
@@ -387,40 +389,40 @@ is the same as
 
 **Notes:**
 
-* Technically, ``SQLExecDirect`` is redundant: you can do the same thing by 
-  calling ``SQLPrepare`` and ``SQLExecute``. But programmers prefer to use 
-  ``SQLExecDirect`` for SQL statements that will only be prepared and executed 
-  once. 
+* Technically, ``SQLExecDirect`` is redundant: you can do the same thing by
+  calling ``SQLPrepare`` and ``SQLExecute``. But programmers prefer to use
+  ``SQLExecDirect`` for SQL statements that will only be prepared and executed
+  once.
 
-* Since ``SQLExecDirect`` includes a "prepare" step, it follows that 
-  non-preparable SQL statements cannot be arguments of ``SQLExecDirect``. Such 
-  statements include ``CONNECT``, ``DISCONNECT``, ``COMMIT``, ``ROLLBACK`` -- 
-  refer to the list of "Preparable and Non-Preparable SQL Statements", shown 
-  earlier. 
+* Since ``SQLExecDirect`` includes a "prepare" step, it follows that
+  non-preparable SQL statements cannot be arguments of ``SQLExecDirect``. Such
+  statements include ``CONNECT``, ``DISCONNECT``, ``COMMIT``, ``ROLLBACK`` --
+  refer to the list of "Preparable and Non-Preparable SQL Statements", shown
+  earlier.
 
 * Does the size of a string include the null terminator?
 
    * If you are passing a string's octet length: NO. For example:
-     
+
      ::
-     
+
         SQLExecDirect(hstmt,"abcd",4);
-   
+
    * If you are passing (maximum) target octet length: YES. For example:
-     
+
      ::
-     
+
         char x[8];
         ...
         SQLGetCursorName(hstmt,x,8,&strlen_or_ind);
-     
-   * If the DBMS is returning the (actual) target octet length: NO. Using 
-     the previous example: if a null-terminated string "``abcd\0``" is 
+
+   * If the DBMS is returning the (actual) target octet length: NO. Using
+     the previous example: if a null-terminated string "``abcd\0``" is
      returned, then ``strlen_or_ind`` will equal 4.
-   
+
    * If the string is a ``BIT`` or ``BINARY`` string: NO.
 
-**Example:** Take a value at run time, incorporate it in an SQL statement. 
+**Example:** Take a value at run time, incorporate it in an SQL statement.
 This is how you can pass a parameter value without using a ``desc`` function.
 
 ::
@@ -434,8 +436,8 @@ This is how you can pass a parameter value without using a ``desc`` function.
     len = sprintf(statement, "UPDATE t SET measurement = %f", measurement);
     SQLExecDirect(hstmt, update_statement, len); }
 
-**EXAMPLE3.C; Basic "Interactive SQL" Program:** If you want to put together 
-a program that accepts SQL statements from the keyboard and displays 
+**EXAMPLE3.C; Basic "Interactive SQL" Program:** If you want to put together
+a program that accepts SQL statements from the keyboard and displays
 results on the screen, this is the skeletal arrangement:
 
 ::
@@ -454,13 +456,13 @@ results on the screen, this is the skeletal arrangement:
   ...
   SQLFreeHandle(); SQLDisconnect(); SQLFreeHandle(); SQLFreeHandle();
 
-In this code, notice how ``SQLExecDirect`` is fundamental -- it's the only CLI 
-function that must be called for every iteration of the loop. In later 
-examples, we'll show you other things that are necessary here (e.g.: how to 
-exit from the loop, what to do with errors and how queries need special 
-handling). 
+In this code, notice how ``SQLExecDirect`` is fundamental -- it's the only CLI
+function that must be called for every iteration of the loop. In later
+examples, we'll show you other things that are necessary here (e.g.: how to
+exit from the loop, what to do with errors and how queries need special
+handling).
 
-**ODBC:** The SQLExecDirect function has been around since ODBC 1.0. 
+**ODBC:** The SQLExecDirect function has been around since ODBC 1.0.
 
 SQLEndTran
 ==========
@@ -475,10 +477,10 @@ SQLEndTran
     SQLSMALLINT CompletionType      /* 16-bit input */
     );
 
-**Job:** End a transaction, either with ``COMMIT`` or with ``ROLLBACK``. 
-``SQLEndTran`` is not a "statement" function, but we believe that it fits in 
-this chapter because it's used to ``COMMIT`` or ``ROLLBACK`` the results of SQL 
-statements that have been processed with ``SQLExecute`` or ``SQLExecDirect``. 
+**Job:** End a transaction, either with ``COMMIT`` or with ``ROLLBACK``.
+``SQLEndTran`` is not a "statement" function, but we believe that it fits in
+this chapter because it's used to ``COMMIT`` or ``ROLLBACK`` the results of SQL
+statements that have been processed with ``SQLExecute`` or ``SQLExecDirect``.
 
 **Algorithm:**
 
@@ -534,24 +536,24 @@ statements that have been processed with ``SQLExecute`` or ``SQLExecDirect``.
 
 **Notes about the algorithm:**
 
-* See the ``SQLSTATE`` error codes ``HY010``, ``HY092`` and ``40002`` in our 
-  chapter on SQL/CLI diagnostics. Pay particular attention to ``40002``, which 
-  implies that ``ROLLBACK`` occurred when you asked for ``COMMIT``. 
+* See the ``SQLSTATE`` error codes ``HY010``, ``HY092`` and ``40002`` in our
+  chapter on SQL/CLI diagnostics. Pay particular attention to ``40002``, which
+  implies that ``ROLLBACK`` occurred when you asked for ``COMMIT``.
 
-* Since ``COMMIT`` and ``ROLLBACK`` are non-preparable SQL statements, the 
-  correct way to end a transaction is to call ``SQLEndTran``. Some DBMSs accept 
-  ``SQLExecDirect(hstmt,"COMMIT;",SQL_NTS);`` anyway, but it's not legal 
-  according to the SQL Standard and you can't be sure exactly what will happen. 
+* Since ``COMMIT`` and ``ROLLBACK`` are non-preparable SQL statements, the
+  correct way to end a transaction is to call ``SQLEndTran``. Some DBMSs accept
+  ``SQLExecDirect(hstmt,"COMMIT;",SQL_NTS);`` anyway, but it's not legal
+  according to the SQL Standard and you can't be sure exactly what will happen.
 
-* It is not clear why one would pass a ``hstmt`` or ``hdesc`` to 
-  ``SQLEndTran``. These are new (SQL3) options. The safe thing is to use only 
-  ``hdbc`` or ``henv`` for the handle. 
+* It is not clear why one would pass a ``hstmt`` or ``hdesc`` to
+  ``SQLEndTran``. These are new (SQL3) options. The safe thing is to use only
+  ``hdbc`` or ``henv`` for the handle.
 
-* When there is only one ``env`` and one ``dbc``, the convention is to use the 
-  ``henv`` for this function: 
-  
+* When there is only one ``env`` and one ``dbc``, the convention is to use the
+  ``henv`` for this function:
+
   ::
-  
+
      SQLEndTran(SQL_HANDLE_ENV,henv,SQL_COMMIT)
 
 * Have a look at our chapter on transactions before you try to use
@@ -571,20 +573,20 @@ statements that have been processed with ``SQLExecute`` or ``SQLExecDirect``.
   /* Commit the statement results using the dbc */
   SQLEndTran(SQL_HANDLE_DBC,hdbc,SQL_COMMIT);
 
-**ODBC:** The ``SQLEndTran`` function was added in ODBC 3.0, but there was a 
-nearly-equivalent function in ODBC 2.0 (``SQLTransact``). With ODBC, if the 
-``HandleType`` value is not ``SQL_HANDLE_ENV`` or ``SQL_HANDLE_DBC``, the 
-return is ``HY092`` (invalid attribute/option identifier), rather than 
-"``invalid handle``". 
+**ODBC:** The ``SQLEndTran`` function was added in ODBC 3.0, but there was a
+nearly-equivalent function in ODBC 2.0 (``SQLTransact``). With ODBC, if the
+``HandleType`` value is not ``SQL_HANDLE_ENV`` or ``SQL_HANDLE_DBC``, the
+return is ``HY092`` (invalid attribute/option identifier), rather than
+"``invalid handle``".
 
-With ODBC, the default behaviour is "autocommit" (i.e.: perform an automatic 
-"commit" after every SQL statement), so ``SQLEndTran`` has nothing to do. *This 
-is a major difference between ODBC and Standard SQL.* The suggested way to 
-resolve it is to call an ODBC function which turns the "autocommit" flag off: 
+With ODBC, the default behaviour is "autocommit" (i.e.: perform an automatic
+"commit" after every SQL statement), so ``SQLEndTran`` has nothing to do. *This
+is a major difference between ODBC and Standard SQL.* The suggested way to
+resolve it is to call an ODBC function which turns the "autocommit" flag off:
 
 ::
 
     SQLSetConnectAttr(hdbc,SQL_ATTR_AUTOCOMMIT,SQL_AUTOCOMMIT_OFF);
 
-And that's it for the statement functions. In the next chapter, we'll take 
+And that's it for the statement functions. In the next chapter, we'll take
 a look at the Cursor functions.

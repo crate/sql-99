@@ -4,6 +4,8 @@
 Appendix B -- SQL Taxonomy
 ==========================
 
+.. include:: ../_include/note.rst
+
 For easy reference, this appendix gathers together all of our notes on what to
 avoid if you want to restrict your code to Core SQL. It also includes the SQL
 Taxonomy tables from the SQL Standard -- these list all of the features
@@ -41,40 +43,40 @@ Core SQL Notes
   operator, ``SUBSTRING`` or the ``[NOT LIKE]`` predicate with ``BLOB``\s.
 
 * If you want to restrict your code to Core SQL, don't add a Character set
-  specification to <character string literal>s, don't add a ``COLLATE`` clause 
-  to <character string literal>s and don't split long <character string 
+  specification to <character string literal>s, don't add a ``COLLATE`` clause
+  to <character string literal>s and don't split long <character string
   literal>s into smaller strings.
 
 * If you want to restrict your code to Core SQL, don't use <national
   character string literal>s.
 
 * If you want to restrict your code to Core SQL, don't use the ``CHARACTER SET``
-  clause or the ``COLLATE`` clause for ``CHAR`` or ``VARCHAR`` or ``CLOB`` 
+  clause or the ``COLLATE`` clause for ``CHAR`` or ``VARCHAR`` or ``CLOB``
   <data type> specifications.
 
-* If you want to restrict your code to Core SQL, don't use the ``NCHAR`` or 
+* If you want to restrict your code to Core SQL, don't use the ``NCHAR`` or
   ``NCHAR VARYING`` or ``NCLOB`` <data type>s.
 
-* If you want to restrict your code to Core SQL, don't use ``CLOB``\s or 
+* If you want to restrict your code to Core SQL, don't use ``CLOB``\s or
   ``NCLOB``\s in comparisons.
 
 * If you want to restrict your code to Core SQL, don't use the concatenation
-  operator with ``CLOB``\s or ``NCLOB``\s and don't use the ``COLLATE`` clause 
+  operator with ``CLOB``\s or ``NCLOB``\s and don't use the ``COLLATE`` clause
   to force an ``EXPLICIT`` Collation for any character string concatenation.
 
-* If you want to restrict your code to Core SQL, don't use ``SUBSTRING`` with 
-  ``NCLOB``\s and don't use the ``COLLATE`` clause to force an ``EXPLICIT`` 
+* If you want to restrict your code to Core SQL, don't use ``SUBSTRING`` with
+  ``NCLOB``\s and don't use the ``COLLATE`` clause to force an ``EXPLICIT``
   Collation for any ``SUBSTRING`` operation.
 
 * If you want to restrict your code to Core SQL, don't use ``OVERLAY`` with
   character strings.
 
-* If you want to restrict your code to Core SQL, don't use ``TRIM`` with 
-  ``NCLOB``\s and don't use the ``COLLATE`` clause to force an ``EXPLICIT`` 
+* If you want to restrict your code to Core SQL, don't use ``TRIM`` with
+  ``NCLOB``\s and don't use the ``COLLATE`` clause to force an ``EXPLICIT``
   Collation for any ``TRIM`` operation.
 
-* If you want to restrict your code to Core SQL, don't use the ``COLLATE`` 
-  clause to force an ``EXPLICIT`` Collation for any ``UPPER`` or ``LOWER`` 
+* If you want to restrict your code to Core SQL, don't use the ``COLLATE``
+  clause to force an ``EXPLICIT`` Collation for any ``UPPER`` or ``LOWER``
   operation.
 
 * If you want to restrict your code to Core SQL, don't use ``TRANSLATE``.
@@ -91,9 +93,9 @@ Core SQL Notes
   ``CHAR_LENGTH`` or ``OCTET_LENGTH`` with ``NCLOB``\s.
 
 * If you want to restrict your code to Core SQL, don't use the ``[NOT] LIKE``
-  predicate with ``CLOB``\s or ``NCLOB``\s and, when you do use ``[NOT LIKE]``, 
-  make sure your ``character_string_argument`` is a <Column reference> and that 
-  your ``pattern`` and your ``escape_character`` are both 
+  predicate with ``CLOB``\s or ``NCLOB``\s and, when you do use ``[NOT LIKE]``,
+  make sure your ``character_string_argument`` is a <Column reference> and that
+  your ``pattern`` and your ``escape_character`` are both
   <value specification>s.
 
 * If you want to restrict your code to Core SQL, don't use the ``[NOT] SIMILAR``
@@ -113,9 +115,9 @@ Core SQL Notes
   seconds precision greater than 6 digits or a <time zone interval> to your
   timestamp values.
 
-* If you want to restrict your code to Core SQL, don't define your ``TIME`` 
-  <data type>s with a fractional seconds precision and don't add the optional 
-  noise words ``WITHOUT TIME ZONE``: use only ``TIME``, never ``TIME(x) WITHOUT 
+* If you want to restrict your code to Core SQL, don't define your ``TIME``
+  <data type>s with a fractional seconds precision and don't add the optional
+  noise words ``WITHOUT TIME ZONE``: use only ``TIME``, never ``TIME(x) WITHOUT
   TIME ZONE``.
 
 * If you want to restrict your code to Core SQL, don't use ``TIME WITH TIME
@@ -136,12 +138,12 @@ Core SQL Notes
   type>.
 
 * If you want to restrict your code to Core SQL, don't add or subtract
-  datetime expressions, don't add the optional ``AT LOCAL/AT TIME ZONE`` clause 
+  datetime expressions, don't add the optional ``AT LOCAL/AT TIME ZONE`` clause
   to any time or timestamp value and don't use interval expressions at all.
 
 * If you want to restrict your code to Core SQL, don't use ``CURRENT_TIME`` or
-  ``CURRENT_TIMESTAMP``, don't specify a fractional seconds precision for 
-  ``LOCALTIME`` and don't specify a fractional seconds precision for 
+  ``CURRENT_TIMESTAMP``, don't specify a fractional seconds precision for
+  ``LOCALTIME`` and don't specify a fractional seconds precision for
   ``LOCALTIMESTAMP`` other than zero or 6.
 
 * If you want to restrict your code to Core SQL, don't use ``EXTRACT``.
@@ -159,12 +161,12 @@ Core SQL Notes
   <data type>s.
 
 * If you want to restrict your code to Core SQL, don't use the optional truth
-  value Boolean test (i.e.: don't use the constructs "boolean_argument" ``IS 
-  TRUE``, "boolean_argument" ``IS FALSE`` or "boolean_argument" ``IS UNKNOWN``) 
-  and don't use "boolean_argument" unless it's an SQL predicate or it's 
+  value Boolean test (i.e.: don't use the constructs "boolean_argument" ``IS
+  TRUE``, "boolean_argument" ``IS FALSE`` or "boolean_argument" ``IS UNKNOWN``)
+  and don't use "boolean_argument" unless it's an SQL predicate or it's
   enclosed in parentheses.
 
-* If you want to restrict your code to Core SQL, don't define any ``ARRAY`` 
+* If you want to restrict your code to Core SQL, don't define any ``ARRAY``
   <data type>s and don't use any of SQL's array syntax.
 
 * If you want to restrict your code to Core SQL, don't use ``CONCATENATE``.
@@ -173,9 +175,9 @@ Core SQL Notes
 
 * If you want to restrict your code to Core SQL, don't use the ``ROW`` <data
   type> or <row reference>s and <Field reference>s and, when using a <row value
-  constructor>, don't use ``ARRAY[]`` or ``ARRAY??(??)`` as an 
-  "element_expression", don't construct a row with more than one Field, don't 
-  use the ``ROW`` <keyword> in front of your element_expression and don't use a 
+  constructor>, don't use ``ARRAY[]`` or ``ARRAY??(??)`` as an
+  "element_expression", don't construct a row with more than one Field, don't
+  use the ``ROW`` <keyword> in front of your element_expression and don't use a
   subquery to construct your row.
 
 * If you want to restrict your code to Core SQL, don't use the ``REF`` <data
@@ -183,7 +185,7 @@ Core SQL Notes
 
 * If you want to restrict your code to Core SQL, don't use ``DEREF``.
 
-* If you want to restrict your code to Core SQL, don't use ``UDT``\s, methods 
+* If you want to restrict your code to Core SQL, don't use ``UDT``\s, methods
   or any of SQL's <reference type> or ``UDT`` syntax.
 
 * If you want to restrict your code to Core SQL, don't use <Domain name> as a
@@ -202,11 +204,11 @@ Core SQL Notes
   statement.
 
 * If you want to restrict your code to Core SQL, don't specify the ``UNDER``
-  Privilege, don't specify the ``SELECT`` Privilege as a Column Privilege (that 
-  is, with a <Column name> list) and don't specify the ``INSERT`` Privilege as 
+  Privilege, don't specify the ``SELECT`` Privilege as a Column Privilege (that
+  is, with a <Column name> list) and don't specify the ``INSERT`` Privilege as
   a Column Privilege.
 
-* If you want to restrict your code to Core SQL, don't use the ``FROM`` 
+* If you want to restrict your code to Core SQL, don't use the ``FROM``
   <grantor> clause with the ``GRANT`` statement.
 
 * If you want to restrict your code to Core SQL, don't use the <grant role
@@ -214,11 +216,11 @@ Core SQL Notes
   Privileges on your Objects to other users -- Core SQL only allows the owner of
   an Object to hold a grantable Privilege.
 
-* If you want to restrict your code to Core SQL, don't use the <revoke role 
-  statement> form of the ``REVOKE`` statement and don't use ``REVOKE ... 
-  CASCADE`` or the ``GRANT OPTION FOR`` clause. Also, when revoking, make sure 
-  that your current <AuthorizationID> is the owner of the Schema that owns the 
-  Object you're revoking Privileges for. 
+* If you want to restrict your code to Core SQL, don't use the <revoke role
+  statement> form of the ``REVOKE`` statement and don't use ``REVOKE ...
+  CASCADE`` or the ``GRANT OPTION FOR`` clause. Also, when revoking, make sure
+  that your current <AuthorizationID> is the owner of the Schema that owns the
+  Object you're revoking Privileges for.
 
 * If you want to restrict your code to Core SQL, don't use the ``DROP ROLE``
   statement.
@@ -230,62 +232,62 @@ Core SQL Notes
   name>s.
 
 * If you want to restrict your code to Core SQL, do not reference
-  
+
   ::
-  
+
    INFORMATION_SCHEMA.ADMINISTRABLE_ROLE_AUTHORIZATIONS,
-   INFORMATION_SCHEMA.APPLICABLE_ROLES, 
+   INFORMATION_SCHEMA.APPLICABLE_ROLES,
    INFORMATION_SCHEMA.ASSERTIONS,
-   INFORMATION_SCHEMA.COLLATIONS, 
+   INFORMATION_SCHEMA.COLLATIONS,
    INFORMATION_SCHEMA.COLUMN_DOMAIN_USAGE,
    INFORMATION_SCHEMA.COLUMN_PRIVILEGES,
    INFORMATION_SCHEMA.COLUMN_USER_DEFINED_TYPE_USAGE,
    INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE,
    INFORMATION_SCHEMA.CONSTRAINT_TABLE_USAGE,
-   INFORMATION_SCHEMA.DIRECT_SUPERTABLES, 
+   INFORMATION_SCHEMA.DIRECT_SUPERTABLES,
    INFORMATION_SCHEMA.DOMAINS,
    INFORMATION_SCHEMA.DOMAIN_CONSTRAINTS,
    INFORMATION_SCHEMA.DOMAIN_USER_DEFINED_TYPE_USAGE,
-   INFORMATION_SCHEMA.ENABLED_ROLES, 
+   INFORMATION_SCHEMA.ENABLED_ROLES,
    INFORMATION_SCHEMA.KEY_COLUMN_USAGE,
    INFORMATION_SCHEMA.METHOD_SIGNATURES,
    INFORMATION_SCHEMA.METHOD_SIGNATURE_PARAMETERS,
-   INFORMATION_SCHEMA.ROLE_COLUMN_GRANTS, 
+   INFORMATION_SCHEMA.ROLE_COLUMN_GRANTS,
    INFORMATION_SCHEMA.ROLE_ROUTINE_GRANTS,
-   INFORMATION_SCHEMA.ROLE_TABLE_GRANTS, 
+   INFORMATION_SCHEMA.ROLE_TABLE_GRANTS,
    INFORMATION_SCHEMA.ROLE_USAGE_GRANTS,
    INFORMATION_SCHEMA.ROLE_USER_DEFINED_TYPE_GRANTS,
    INFORMATION_SCHEMA.ROUTINE_COLUMN_USAGE,
-   INFORMATION_SCHEMA.ROUTINE_TABLE_USAGE, 
+   INFORMATION_SCHEMA.ROUTINE_TABLE_USAGE,
    INFORMATION_SCHEMA.SQL_FEATURES,
-   INFORMATION_SCHEMA.SQL_IMPLEMENTATION_INFO, 
+   INFORMATION_SCHEMA.SQL_IMPLEMENTATION_INFO,
    INFORMATION_SCHEMA.SQL_SIZING,
-   INFORMATION_SCHEMA.SQL_SIZING_PROFILES, 
+   INFORMATION_SCHEMA.SQL_SIZING_PROFILES,
    INFORMATION_SCHEMA.TABLE_PRIVILEGES,
-   INFORMATION_SCHEMA.TRANSFORMS, 
+   INFORMATION_SCHEMA.TRANSFORMS,
    INFORMATION_SCHEMA.TRANSLATIONS,
    INFORMATION_SCHEMA.TRIGGER_COLUMN_USAGE,
-   INFORMATION_SCHEMA.TRIGGER_TABLE_USAGE, 
+   INFORMATION_SCHEMA.TRIGGER_TABLE_USAGE,
    INFORMATION_SCHEMA.USAGE_PRIVILEGES,
    INFORMATION_SCHEMA.USER_DEFINED_TYPE_PRIVILEGES,
-   INFORMATION_SCHEMA.USER_DEFINED_TYPES, 
+   INFORMATION_SCHEMA.USER_DEFINED_TYPES,
    INFORMATION_SCHEMA.VIEW_COLUMN_USAGE or
    INFORMATION_SCHEMA.VIEW_TABLE_USAGE.
 
-* If you want to restrict your code to Core SQL, don't use a ``DEFAULT 
-  CHARACTER SET`` clause or a ``PATH`` clause in your ``CREATE SCHEMA`` 
-  statements and don't include any of the following in your <Schema element 
-  list>: ``CREATE ASSERTION`` statements, ``CREATE CHARACTER SET`` statements, 
-  ``CREATE COLLATION`` statements, ``CREATE DOMAIN`` statements, ``CREATE 
-  TRANSLATION`` statements, ``CREATE TYPE`` statements, ``CREATE ROLE`` 
-  statements or ``GRANT`` statements to Roles. 
+* If you want to restrict your code to Core SQL, don't use a ``DEFAULT
+  CHARACTER SET`` clause or a ``PATH`` clause in your ``CREATE SCHEMA``
+  statements and don't include any of the following in your <Schema element
+  list>: ``CREATE ASSERTION`` statements, ``CREATE CHARACTER SET`` statements,
+  ``CREATE COLLATION`` statements, ``CREATE DOMAIN`` statements, ``CREATE
+  TRANSLATION`` statements, ``CREATE TYPE`` statements, ``CREATE ROLE``
+  statements or ``GRANT`` statements to Roles.
 
 * If you want to restrict your code to Core SQL, don't use the ``DROP SCHEMA``
   statement.
 
 * If you want to restrict your code to Core SQL, don't create any temporary
-  Base tables, don't use a ``LIKE`` clause as a <table element>, don't use an 
-  ``OF`` clause as a <table element> and don't add a <column scope clause> to 
+  Base tables, don't use a ``LIKE`` clause as a <table element>, don't use an
+  ``OF`` clause as a <table element> and don't add a <column scope clause> to
   any ``CREATE TABLE`` statement.
 
 * If you want to restrict your code to Core SQL, don't add a ``COLLATE`` clause
@@ -304,16 +306,16 @@ Core SQL Notes
 * If you want to restrict your code to Core SQL, don't use the ``CASCADE`` drop
   behaviour for your ``DROP TABLE`` statements.
 
-* If you want to restrict your code to Core SQL, don't define any ``RECURSIVE`` 
-  Views, don't use the ``EXCEPT``, ``INTERSECT`` or ``CORRESPONDING`` operators 
-  in your View queries and don't use the optional ``CASCADED`` or ``LOCAL`` 
-  levels specification in your check clauses -- always define Views only with 
-  ``WITH CHECK OPTION`` alone. 
+* If you want to restrict your code to Core SQL, don't define any ``RECURSIVE``
+  Views, don't use the ``EXCEPT``, ``INTERSECT`` or ``CORRESPONDING`` operators
+  in your View queries and don't use the optional ``CASCADED`` or ``LOCAL``
+  levels specification in your check clauses -- always define Views only with
+  ``WITH CHECK OPTION`` alone.
 
 * If you want to restrict your code to Core SQL, don't use the ``CASCADE`` drop
   behaviour for your ``DROP VIEW`` statements.
 
-* If you want to restrict your code to Core SQL, don't use the ``DECLARE LOCAL 
+* If you want to restrict your code to Core SQL, don't use the ``DECLARE LOCAL
   TEMPORARY TABLE`` statement.
 
 * If you want to restrict your code to Core SQL, don't use the ``CREATE DOMAIN``
@@ -327,26 +329,26 @@ Core SQL Notes
 
 * If you want to restrict your code to Core SQL, don't name your Constraints
   and don't add a <constraint attributes> clause to your Constraint definitions.
-  (This means you'll be defining all Constraints as ``NOT DEFERRABLE 
+  (This means you'll be defining all Constraints as ``NOT DEFERRABLE
   INITIALLY IMMEDIATE``.)
 
 * If you want to restrict your code to Core SQL, don't use the
-  ``UNIQUE(VALUE)`` form to define a ``UNIQUE`` Constraint and don't add a 
-  ``NOT NULL`` Constraint to any Column that is part of a unique key for a 
+  ``UNIQUE(VALUE)`` form to define a ``UNIQUE`` Constraint and don't add a
+  ``NOT NULL`` Constraint to any Column that is part of a unique key for a
   ``UNIQUE`` Constraint.
 
 * If you want to restrict your code to Core SQL, don't define your ``FOREIGN
-  KEY`` Constraints with a ``MATCH`` clause, an ``ON UPDATE`` clause or an 
+  KEY`` Constraints with a ``MATCH`` clause, an ``ON UPDATE`` clause or an
   ``ON DELETE`` clause.
 
-* If you want to restrict your code to Core SQL, don't use a subquery in a 
-  ``CHECK`` Constraint's search condition. Also, for Core SQL, the 
-  ``REFERENCES`` Privilege isn't needed to create a ``CHECK`` Constraint. 
+* If you want to restrict your code to Core SQL, don't use a subquery in a
+  ``CHECK`` Constraint's search condition. Also, for Core SQL, the
+  ``REFERENCES`` Privilege isn't needed to create a ``CHECK`` Constraint.
 
 * If you want to restrict your code to Core SQL, don't use the ``CREATE
   ASSERTION`` statement.
 
-* If you want to restrict your code to Core SQL, don't use the ``DROP 
+* If you want to restrict your code to Core SQL, don't use the ``DROP
   ASSERTION`` statement.
 
 * If you want to restrict your code to Core SQL, don't use any <Character set
@@ -355,7 +357,7 @@ Core SQL Notes
 * If you want to restrict your code to Core SQL, don't use the ``CREATE
   CHARACTER SET`` statement.
 
-* If you want to restrict your code to Core SQL, don't use the ``DROP 
+* If you want to restrict your code to Core SQL, don't use the ``DROP
   CHARACTER SET`` statement.
 
 * If you want to restrict your code to Core SQL, don't use any <Collation
@@ -364,7 +366,7 @@ Core SQL Notes
 * If you want to restrict your code to Core SQL, don't use the ``CREATE
   COLLATION`` statement.
 
-* If you want to restrict your code to Core SQL, don't use the ``DROP 
+* If you want to restrict your code to Core SQL, don't use the ``DROP
   COLLATION`` statement.
 
 * If you want to restrict your code to Core SQL, don't use any <Translation
@@ -376,16 +378,16 @@ Core SQL Notes
 * If you want to restrict your code to Core SQL, don't use the ``DROP
   TRANSLATION`` statement.
 
-* If you want to restrict your code to Core SQL, don't use the ``CREATE 
+* If you want to restrict your code to Core SQL, don't use the ``CREATE
   TRIGGER`` statement.
 
-* If you want to restrict your code to Core SQL, don't use the ``DROP 
+* If you want to restrict your code to Core SQL, don't use the ``DROP
   TRIGGER`` statement.
 
-* If you want to restrict your code to Core SQL, don't use ``LOCATOR`` 
-  indicators, ``DYNAMIC RESULT SETS`` clauses, ``TRANSFORM GROUP`` clauses or 
-  duplicate <Routine name>s when defining an SQL-invoked routine and don't 
-  define any SQL-invoked methods. 
+* If you want to restrict your code to Core SQL, don't use ``LOCATOR``
+  indicators, ``DYNAMIC RESULT SETS`` clauses, ``TRANSFORM GROUP`` clauses or
+  duplicate <Routine name>s when defining an SQL-invoked routine and don't
+  define any SQL-invoked methods.
 
 * If you want to restrict your code to Core SQL, don't use the ``CASCADE`` drop
   behaviour for your ``DROP ROUTINE/FUNCTION/PROCEDURE`` statements.
@@ -394,8 +396,8 @@ Core SQL Notes
   reference> or ``CURRENT_PATH`` to specify a value.
 
 * If you want to restrict your code to Core SQL, don't use a <value
-  expression> that evaluates to a Boolean value, an array, an interval or a 
-  ``REF`` value, don't use a <subtype treatment> to specify a value and don't 
+  expression> that evaluates to a Boolean value, an array, an interval or a
+  ``REF`` value, don't use a <subtype treatment> to specify a value and don't
   use the ``COLLATE`` clause to force a collating sequence for any value.
 
 * If you want to restrict your code to Core SQL, don't use a <query name> to
@@ -405,11 +407,11 @@ Core SQL Notes
 * If you want to restrict your code to Core SQL, don't use the <distinct
   predicate>.
 
-* If you want to restrict your code to Core SQL, don't use ``BLOB``\s, 
+* If you want to restrict your code to Core SQL, don't use ``BLOB``\s,
   ``CLOB``\s or ``NCLOB``\s in a ``CASE`` expression.
 
 * If you want to restrict your code to Core SQL, don't use ``CROSS JOIN``, don't
-  use ``UNION JOIN``, don't use ``NATURAL`` for any type of join and don't use 
+  use ``UNION JOIN``, don't use ``NATURAL`` for any type of join and don't use
   ``FULL [OUTER] JOIN``.
 
 * If you want to restrict your code to Core SQL, make sure that all
@@ -435,50 +437,50 @@ Core SQL Notes
   contain exactly one row.
 
 * If you want to restrict your code to Core SQL, don't use ``WITH [RECURSIVE]``
-  in a <query expression>, the ``INTERSECT`` set operator, a ``CORRESPONDING`` 
-  clause with any set operator or any set operator with an explicit 
+  in a <query expression>, the ``INTERSECT`` set operator, a ``CORRESPONDING``
+  clause with any set operator or any set operator with an explicit
   ``DISTINCT``.
 
-* If you want to restrict your code to Core SQL, don't use ``ROLLUP`` or 
+* If you want to restrict your code to Core SQL, don't use ``ROLLUP`` or
   ``CUBE``, and don't add a ``COLLATE`` clause to any grouping Column reference.
 
-* If you want to restrict your code to Core SQL, don't use the set functions 
-  ``EVERY``, ``ANY``, ``SOME`` or ``GROUPING``, don't use a set function unless 
-  it operates only on a <Column reference> that refers to a Column belonging to 
-  a Table named in the ``FROM`` clause, and when counting, always use 
-  ``COUNT(*)``: don't use ``COUNT(Column)`` or ``COUNT(ALL Column)`` at all. 
+* If you want to restrict your code to Core SQL, don't use the set functions
+  ``EVERY``, ``ANY``, ``SOME`` or ``GROUPING``, don't use a set function unless
+  it operates only on a <Column reference> that refers to a Column belonging to
+  a Table named in the ``FROM`` clause, and when counting, always use
+  ``COUNT(*)``: don't use ``COUNT(Column)`` or ``COUNT(ALL Column)`` at all.
 
-* If you want to restrict your code to Core SQL, don't use a <query expression> 
-  with ``EXCEPT``, ``INTERSECT`` or ``CORRESPONDING`` in an ``INSERT`` 
-  statement, don't use a <query expression> that names an underlying Table of 
-  your target Table in an ``INSERT`` statement, don't use the <query 
-  expression> ``TABLE`` <Table name> in an ``INSERT`` statement, if you use the 
-  <query expression ``VALUES`` (value commalist) in an ``INSERT`` statement, 
-  make sure it constructs only one new row, don't use the ``DEFAULT VALUES`` 
-  form of the ``INSERT`` statement and make sure all your ``INSERT`` <Table 
-  reference>s are actually <Table name>s, with no <Correlation name>s or 
-  <derived Column list>s. 
+* If you want to restrict your code to Core SQL, don't use a <query expression>
+  with ``EXCEPT``, ``INTERSECT`` or ``CORRESPONDING`` in an ``INSERT``
+  statement, don't use a <query expression> that names an underlying Table of
+  your target Table in an ``INSERT`` statement, don't use the <query
+  expression> ``TABLE`` <Table name> in an ``INSERT`` statement, if you use the
+  <query expression ``VALUES`` (value commalist) in an ``INSERT`` statement,
+  make sure it constructs only one new row, don't use the ``DEFAULT VALUES``
+  form of the ``INSERT`` statement and make sure all your ``INSERT`` <Table
+  reference>s are actually <Table name>s, with no <Correlation name>s or
+  <derived Column list>s.
 
-* If you want to restrict your code to Core SQL, don't use a <search condition> 
-  that names an underlying Table of your target Table in an ``UPDATE`` 
-  statement and make sure all your ``UPDATE`` <Table reference>s are actually 
-  <Table name>s, with no <Correlation name>s or <derived Column list>s. 
+* If you want to restrict your code to Core SQL, don't use a <search condition>
+  that names an underlying Table of your target Table in an ``UPDATE``
+  statement and make sure all your ``UPDATE`` <Table reference>s are actually
+  <Table name>s, with no <Correlation name>s or <derived Column list>s.
 
-* If you want to restrict your code to Core SQL, don't use a <search condition> 
-  that names an underlying Table of your target Table in a ``DELETE`` statement 
-  and make sure all your ``DELETE`` <Table reference>s are actually <Table 
-  name>s, with no <Correlation name>s or <derived Column list>s. 
+* If you want to restrict your code to Core SQL, don't use a <search condition>
+  that names an underlying Table of your target Table in a ``DELETE`` statement
+  and make sure all your ``DELETE`` <Table reference>s are actually <Table
+  name>s, with no <Correlation name>s or <derived Column list>s.
 
-* If you want to restrict your code to Core SQL, don't use ``AND CHAIN`` or 
+* If you want to restrict your code to Core SQL, don't use ``AND CHAIN`` or
   ``AND NO CHAIN`` with ``COMMIT``.
 
-* If you want to restrict your code to Core SQL, don't use ``AND CHAIN``, ``AND 
+* If you want to restrict your code to Core SQL, don't use ``AND CHAIN``, ``AND
   NO CHAIN`` or ``TO SAVEPOINT`` with ``ROLLBACK``.
 
-* If you want to restrict your code to Core SQL, don't use the ``SAVEPOINT`` 
+* If you want to restrict your code to Core SQL, don't use the ``SAVEPOINT``
   statement.
 
-* If you want to restrict your code to Core SQL, don't use the ``RELEASE 
+* If you want to restrict your code to Core SQL, don't use the ``RELEASE
   SAVEPOINT`` statement.
 
 * If you want to restrict your code to Core SQL, don't use ``SET LOCAL
@@ -491,7 +493,7 @@ Core SQL Notes
 * If you want to restrict your code to Core SQL, don't use the ``CONNECT``
   statement.
 
-* If you want to restrict your code to Core SQL, don't use the ``SET 
+* If you want to restrict your code to Core SQL, don't use the ``SET
   CONNECTION`` statement.
 
 * If you want to restrict your code to Core SQL, don't use the ``DISCONNECT``
@@ -514,21 +516,21 @@ Taxonomy Tables
 
 In the following tables:
 
-* The first column, "Feature ID", gives the SQL Standard's identification 
-  for each feature and subfeature. The Feature ID value consists of either a 
-  letter and three digits or a letter, three digits, a hyphen and one or two 
-  additional digits. Feature ID values without a hyphen identify complete 
-  features. Feature ID values containing a hyphen and additional digits 
-  identify subfeatures that help to define a complete feature. 
+* The first column, "Feature ID", gives the SQL Standard's identification
+  for each feature and subfeature. The Feature ID value consists of either a
+  letter and three digits or a letter, three digits, a hyphen and one or two
+  additional digits. Feature ID values without a hyphen identify complete
+  features. Feature ID values containing a hyphen and additional digits
+  identify subfeatures that help to define a complete feature.
 
-* The second column, "Feature Description", gives a brief description of 
-  the feature or subfeature. 
+* The second column, "Feature Description", gives a brief description of
+  the feature or subfeature.
 
-* The third column, "Core SQL?", shows the SQL Standard's definition of 
-  the minimal conformance requirement, called "Core SQL". Features that are 
-  included in the definition of Core SQL contain a "YES" in this column (their 
-  subfeatures contain "(yes)" for consistency). Features and subfeatures that 
-  are not part of Core SQL contain a "No" in this column. 
+* The third column, "Core SQL?", shows the SQL Standard's definition of
+  the minimal conformance requirement, called "Core SQL". Features that are
+  included in the definition of Core SQL contain a "YES" in this column (their
+  subfeatures contain "(yes)" for consistency). Features and subfeatures that
+  are not part of Core SQL contain a "No" in this column.
 
 Table Tax_1: SQL/Foundation Feature Taxonomy
 ............................................

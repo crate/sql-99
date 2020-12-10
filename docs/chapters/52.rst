@@ -4,34 +4,36 @@
 Chapter 52 -- Module Binding Style
 ==================================
 
-SQL DBMSs communicate with SQL applications through a common programming 
-language interface that is invoked through one of the SQL Standard-defined 
-binding styles, or interface options. There are three main approaches to 
-writing complete programs with SQL: 
+.. include:: ../_include/note.rst
 
-1. With embedded SQL, you can put SQL statements directly into host programs. 
+SQL DBMSs communicate with SQL applications through a common programming
+language interface that is invoked through one of the SQL Standard-defined
+binding styles, or interface options. There are three main approaches to
+writing complete programs with SQL:
+
+1. With embedded SQL, you can put SQL statements directly into host programs.
    We described this binding style earlier.
 
-2. With SQL/CLI, you can call a SQL DBMS's library from a host program. This 
+2. With SQL/CLI, you can call a SQL DBMS's library from a host program. This
    binding style was the subject of the last several chapters.
 
-3. With the Module language, you can dispense with host programs and write 
-   entire Modules in SQL. You'll still have to call these Modules from one of 
-   the standard host languages though. The Module language binding style is the 
+3. With the Module language, you can dispense with host programs and write
+   entire Modules in SQL. You'll still have to call these Modules from one of
+   the standard host languages though. The Module language binding style is the
    subject of this chapter.
 
-Because we believe that SQL/CLI will quickly become the SQL interface of 
-choice, this chapter omits large amounts of detail, in favour of providing the 
-necessary detail in our chapters on SQL/CLI. 
+Because we believe that SQL/CLI will quickly become the SQL interface of
+choice, this chapter omits large amounts of detail, in favour of providing the
+necessary detail in our chapters on SQL/CLI.
 
 .. NOTE::
 
-   The SQL Standard actually describes three kinds of SQL Module, each of which 
-   has certain characteristics and contains various kinds of Module Objects 
-   (principally, routines). An SQL-client Module contains only 
-   externally-invoked procedures, an SQL-session Module contains only SQL 
-   statements prepared in that SQL-session and an SQL-server Module -- the 
-   SQL/PSM type -- is a Schema Object that contains only SQL-invoked routines. 
+   The SQL Standard actually describes three kinds of SQL Module, each of which
+   has certain characteristics and contains various kinds of Module Objects
+   (principally, routines). An SQL-client Module contains only
+   externally-invoked procedures, an SQL-session Module contains only SQL
+   statements prepared in that SQL-session and an SQL-server Module -- the
+   SQL/PSM type -- is a Schema Object that contains only SQL-invoked routines.
 
 .. rubric:: Table of Contents
 
@@ -41,28 +43,28 @@ necessary detail in our chapters on SQL/CLI.
 SQL-client Modules
 ==================
 
-SQL-client Modules are programming modules that contain externally-invoked 
-procedures -- that is, SQL procedures that are invoked by a host language. 
-Generally speaking, this methodology is really the basic SQL binding style: all 
-of the binding styles -- direct SQL, embedded SQL, CLI or SQL-client Modules -- 
-at least conceptually, involve a program module. Before SQL/PSM came on the 
-scene, SQL "module language" was the only way to identify SQL Modules. But now, 
-with the advent of SQL/PSM and (far better) of SQL/CLI, we believe this method 
-of utilizing SQL will rapidly become obsolete and so we give only a brief 
-description here. 
+SQL-client Modules are programming modules that contain externally-invoked
+procedures -- that is, SQL procedures that are invoked by a host language.
+Generally speaking, this methodology is really the basic SQL binding style: all
+of the binding styles -- direct SQL, embedded SQL, CLI or SQL-client Modules --
+at least conceptually, involve a program module. Before SQL/PSM came on the
+scene, SQL "module language" was the only way to identify SQL Modules. But now,
+with the advent of SQL/PSM and (far better) of SQL/CLI, we believe this method
+of utilizing SQL will rapidly become obsolete and so we give only a brief
+description here.
 
-An SQL-client Module is an Object -- a programming module -- that you define 
-with SQL's module language: a subset of SQL that allows you to write database 
-routines in pure SQL. It contains SQL statements that will operate on your 
-SQL-data, and you link it (in some implementation-defined way) with modules of 
-code in one or more of the Standard's host languages. The database routines are 
-called *externally-invoked procedures* because they are invoked by the host 
-language program to which you link the Module they belong to. 
+An SQL-client Module is an Object -- a programming module -- that you define
+with SQL's module language: a subset of SQL that allows you to write database
+routines in pure SQL. It contains SQL statements that will operate on your
+SQL-data, and you link it (in some implementation-defined way) with modules of
+code in one or more of the Standard's host languages. The database routines are
+called *externally-invoked procedures* because they are invoked by the host
+language program to which you link the Module they belong to.
 
 MODULE Statement
 ================
 
-The ``MODULE`` statement defines an SQL-client Module. The required syntax for 
+The ``MODULE`` statement defines an SQL-client Module. The required syntax for
 the ``MODULE`` statement is:
 
 ::
@@ -76,76 +78,76 @@ the ``MODULE`` statement is:
      [ TRANSFORM GROUP {<group name> | {<group name> FOR TYPE <UDT name>} , ...} ]
      [ DECLARE TABLE statement(s) ]
      <Module contents>...
-     
+
           <Module authorization clause> ::=
           SCHEMA <Schema name> |
           AUTHORIZATION <AuthorizationID> |
           SCHEMA <Schema name> AUTHORIZATION <AuthorizationID>
-          
+
           <Module contents> ::=
           DECLARE CURSOR statement(s) |
           PROCEDURE statement(s)
 
-An SQL-client Module doesn't have to be named (unless the Module's ``LANGUAGE`` 
-clause specifies ADA, in which case you must give the Module a valid Ada 
-library unit name); your SQL-environment can contain multiple unnamed SQL- 
-client Modules. If you do name an SQL-client Module, though, you must give it a 
-unique name (for all SQL-client Modules) in your SQL-environment. A <SQL-client 
-Module name> is a <regular identifier> or a <delimited identifier>. 
+An SQL-client Module doesn't have to be named (unless the Module's ``LANGUAGE``
+clause specifies ADA, in which case you must give the Module a valid Ada
+library unit name); your SQL-environment can contain multiple unnamed SQL-
+client Modules. If you do name an SQL-client Module, though, you must give it a
+unique name (for all SQL-client Modules) in your SQL-environment. A <SQL-client
+Module name> is a <regular identifier> or a <delimited identifier>.
 
-The optional ``NAMES ARE`` clause provides the name of the Module's default 
-Character set: the Character set that your DBMS will use for any character 
-strings in the Module that don't include an explicit Character set 
-specification. If you omit this clause, the Module's default Character set is 
-chosen by your DBMS, and must contain at least every <SQL language character>. 
+The optional ``NAMES ARE`` clause provides the name of the Module's default
+Character set: the Character set that your DBMS will use for any character
+strings in the Module that don't include an explicit Character set
+specification. If you omit this clause, the Module's default Character set is
+chosen by your DBMS, and must contain at least every <SQL language character>.
 
-The ``LANGUAGE`` clause provides the name of the host language that will invoke 
-the routines this Module contains. 
+The ``LANGUAGE`` clause provides the name of the host language that will invoke
+the routines this Module contains.
 
-The Module authorization clause provides either the Module's default Schema, 
-the Module's <AuthorizationID> or both (at least one must be included). 
+The Module authorization clause provides either the Module's default Schema,
+the Module's <AuthorizationID> or both (at least one must be included).
 
-* ``SCHEMA`` <Schema name> provides an explicit <Schema name> -- this will be 
-  the default <Schema name> qualifier for any Objects referred to in the Module 
-  without explicit qualifiers. If you omit this clause, the default <Schema 
-  name> defaults to the value in the ``AUTHORIZATION`` clause. 
+* ``SCHEMA`` <Schema name> provides an explicit <Schema name> -- this will be
+  the default <Schema name> qualifier for any Objects referred to in the Module
+  without explicit qualifiers. If you omit this clause, the default <Schema
+  name> defaults to the value in the ``AUTHORIZATION`` clause.
 
-* ``AUTHORIZATION`` <AuthorizationID> provides an explicit <AuthorizationID> to 
-  be the owner of the Module -- this will be the <AuthorizationID> whose 
-  Privileges will be checked when the Module's SQL statements are executed. If 
-  you omit this clause, your DBMS will treat the SQL-session <AuthorizationID> 
-  as the Module's owner at runtime. 
+* ``AUTHORIZATION`` <AuthorizationID> provides an explicit <AuthorizationID> to
+  be the owner of the Module -- this will be the <AuthorizationID> whose
+  Privileges will be checked when the Module's SQL statements are executed. If
+  you omit this clause, your DBMS will treat the SQL-session <AuthorizationID>
+  as the Module's owner at runtime.
 
-The optional ``PATH`` clause provides a list of <Schema name>s that will be 
-used as the Module's default path -- that is, the qualifying <Schema name>s 
-that will be used for any unqualified <Routine name>s in this Module. You can 
-name zero or more Schemas in this clause (your DBMS will pick the one that 
-matches the unqualified routine best at runtime); each Schema in the list must 
-belong to the same Catalog that this Module's default Schema belongs to. If you 
-omit this clause, it will default to a list of Schemas, containing at least 
-this Module's default Schema, chosen by your DBMS. 
+The optional ``PATH`` clause provides a list of <Schema name>s that will be
+used as the Module's default path -- that is, the qualifying <Schema name>s
+that will be used for any unqualified <Routine name>s in this Module. You can
+name zero or more Schemas in this clause (your DBMS will pick the one that
+matches the unqualified routine best at runtime); each Schema in the list must
+belong to the same Catalog that this Module's default Schema belongs to. If you
+omit this clause, it will default to a list of Schemas, containing at least
+this Module's default Schema, chosen by your DBMS.
 
-The optional ``TRANSFORM GROUP`` clause provides a <group name> for each UDT 
-parameter that has no locator; see our chapter on UDTs. 
+The optional ``TRANSFORM GROUP`` clause provides a <group name> for each UDT
+parameter that has no locator; see our chapter on UDTs.
 
-You can declare zero or more temporary Tables for the Module. Each will be 
-visible only to the Module you declare them in. 
+You can declare zero or more temporary Tables for the Module. Each will be
+visible only to the Module you declare them in.
 
-The <Module contents> clause is the meat of the Module -- it contains the SQL 
-statements that do the work you need done on your SQL-data. You can declare 
-zero or more Cursors here (see our chapter on embedded SQL), as well as one or 
-more externally-invoked procedures (with the ``PROCEDURE`` statement, see 
-below). 
+The <Module contents> clause is the meat of the Module -- it contains the SQL
+statements that do the work you need done on your SQL-data. You can declare
+zero or more Cursors here (see our chapter on embedded SQL), as well as one or
+more externally-invoked procedures (with the ``PROCEDURE`` statement, see
+below).
 
-If you want to restrict your code to Core SQL, don't use the ``NAMES ARE`` 
-clause, the ``PATH`` clause, the ``TRANSFORM GROUP`` clause or any ``DECLARE 
-TABLE`` statements in a ``MODULE`` statement. 
+If you want to restrict your code to Core SQL, don't use the ``NAMES ARE``
+clause, the ``PATH`` clause, the ``TRANSFORM GROUP`` clause or any ``DECLARE
+TABLE`` statements in a ``MODULE`` statement.
 
 PROCEDURE Statement
 ===================
 
-The ``PROCEDURE`` statement defines an externally-invoked procedure. The 
-required syntax for the ``PROCEDURE`` statement is: 
+The ``PROCEDURE`` statement defines an externally-invoked procedure. The
+required syntax for the ``PROCEDURE`` statement is:
 
 ::
 
@@ -153,75 +155,75 @@ required syntax for the ``PROCEDURE`` statement is:
     {(<host parameter declaration> [ {,<host parameter declaration>}... ] ) |
     <host parameter declaration>...};
     SQL procedure statement;
-    
+
        <host parameter declaration> ::=
        :<host parameter name> <data type> [ AS LOCATOR ] |
        SQLSTATE
 
-An externally-invoked procedure is an SQL procedure that is called from a host 
-language program. It belongs to an SQL-client Module, and must have a 
-<procedure name> that is unique (for all procedures) within that Module. A 
-<procedure name> is a <regular identifier> or a <delimited identifier> and 
-should conform to the host language you'll be calling it from. 
+An externally-invoked procedure is an SQL procedure that is called from a host
+language program. It belongs to an SQL-client Module, and must have a
+<procedure name> that is unique (for all procedures) within that Module. A
+<procedure name> is a <regular identifier> or a <delimited identifier> and
+should conform to the host language you'll be calling it from.
 
-Each procedure has to contain a list of one or more parameter declarations, 
-terminated with a semicolon -- ``SQLSTATE`` is always mandatory. Your list 
-should be enclosed in parentheses, with each parameter declaration separated 
-from the next by a comma (though our syntax diagram shows that both the 
-parentheses and the commas are currently optional, this is a deprecated feature 
-in the Standard, so avoid it). Other than ``SQLSTATE``, each parameter has a 
-name (preceded by a colon), a <data type> and -- if it is a ``BLOB``, ``CLOB``, 
-``NCLOB``, ``UDT`` or ``ARRAY`` -- an optional ``AS LOCATOR`` indicator. A call 
-of an externally-invoked procedure has to supply the same number of arguments 
-as the parameter declarations in the procedure. 
+Each procedure has to contain a list of one or more parameter declarations,
+terminated with a semicolon -- ``SQLSTATE`` is always mandatory. Your list
+should be enclosed in parentheses, with each parameter declaration separated
+from the next by a comma (though our syntax diagram shows that both the
+parentheses and the commas are currently optional, this is a deprecated feature
+in the Standard, so avoid it). Other than ``SQLSTATE``, each parameter has a
+name (preceded by a colon), a <data type> and -- if it is a ``BLOB``, ``CLOB``,
+``NCLOB``, ``UDT`` or ``ARRAY`` -- an optional ``AS LOCATOR`` indicator. A call
+of an externally-invoked procedure has to supply the same number of arguments
+as the parameter declarations in the procedure.
 
-Each procedure has to contain exactly one SQL procedure statement, terminated 
-with a semicolon. This is the SQL statement that gets executed when the 
-procedure is called. An SQL procedure statement is any executable SQL statement 
--- this includes all the SQL-Schema statements, the SQL-data statements, the 
-SQL-control statements, the SQL-transaction statements, the SQL-Connection 
-statements, the SQL-session statements and the SQL diagnostics statement. 
+Each procedure has to contain exactly one SQL procedure statement, terminated
+with a semicolon. This is the SQL statement that gets executed when the
+procedure is called. An SQL procedure statement is any executable SQL statement
+-- this includes all the SQL-Schema statements, the SQL-data statements, the
+SQL-control statements, the SQL-transaction statements, the SQL-Connection
+statements, the SQL-session statements and the SQL diagnostics statement.
 
-If you calling the procedure from: 
+If you calling the procedure from:
 
-**Ada** -- then use only these <data type>s in your <host parameter 
-declaration>s: ``CHARACTER``, ``BIT``, ``SMALLINT``, ``INTEGER``, ``REAL``, 
-``DOUBLE PRECISION``, declare ``SQLSTATE``\'s base type as 
-``SQL_STANDARD.SQLSTATE_TYPE``, and identify the procedure by its <procedure 
-name>, as if it was declared within an Ada library unit specification that has 
-a name equal to the name of the SQL-client Module that contains the procedure. 
+**Ada** -- then use only these <data type>s in your <host parameter
+declaration>s: ``CHARACTER``, ``BIT``, ``SMALLINT``, ``INTEGER``, ``REAL``,
+``DOUBLE PRECISION``, declare ``SQLSTATE``\'s base type as
+``SQL_STANDARD.SQLSTATE_TYPE``, and identify the procedure by its <procedure
+name>, as if it was declared within an Ada library unit specification that has
+a name equal to the name of the SQL-client Module that contains the procedure.
 
-**C** -- then use only these <data type>s in your <host parameter 
-declaration>s: ``CHARACTER``, ``CHARACTER VARYING``, ``BIT``, ``INTEGER``, 
-``SMALLINT``, ``REAL``, ``DOUBLE PRECISION``, and declare ``SQLSTATE`` as a C 
-``char`` with length 6. 
+**C** -- then use only these <data type>s in your <host parameter
+declaration>s: ``CHARACTER``, ``CHARACTER VARYING``, ``BIT``, ``INTEGER``,
+``SMALLINT``, ``REAL``, ``DOUBLE PRECISION``, and declare ``SQLSTATE`` as a C
+``char`` with length 6.
 
-**COBOL** -- then use only these <data type>s in your <host parameter 
-declaration>s: ``CHARACTER``, ``BIT``, ``NUMERIC``, ``INTEGER``, ``SMALLINT``, 
-and declare ``SQLSTATE`` as a COBOL ``PICTURE X(5)``. 
+**COBOL** -- then use only these <data type>s in your <host parameter
+declaration>s: ``CHARACTER``, ``BIT``, ``NUMERIC``, ``INTEGER``, ``SMALLINT``,
+and declare ``SQLSTATE`` as a COBOL ``PICTURE X(5)``.
 
-**Fortran** -- then use only these <data type>s in your <host parameter 
-declaration>s: ``CHARACTER``, ``BIT``, ``INTEGER``, ``REAL``, ``DOUBLE 
-PRECISION``, and declare ``SQLSTATE`` as a Fortran ``CHARACTER`` with length 5. 
+**Fortran** -- then use only these <data type>s in your <host parameter
+declaration>s: ``CHARACTER``, ``BIT``, ``INTEGER``, ``REAL``, ``DOUBLE
+PRECISION``, and declare ``SQLSTATE`` as a Fortran ``CHARACTER`` with length 5.
 
-**MUMPS** -- then use only these <data type>s in your <host parameter 
-declaration>s: ``CHARACTER VARYING``, ``INTEGER``, ``DECIMAL``, ``REAL``, and 
-declare ``SQLSTATE`` as a MUMPS character with maximum length greater than or 
-equal to 5. 
+**MUMPS** -- then use only these <data type>s in your <host parameter
+declaration>s: ``CHARACTER VARYING``, ``INTEGER``, ``DECIMAL``, ``REAL``, and
+declare ``SQLSTATE`` as a MUMPS character with maximum length greater than or
+equal to 5.
 
-**Pascal** -- then use only these <data type>s in your <host parameter 
-declaration>s: ``CHARACTER``, ``BIT``, ``INTEGER``, ``REAL``, and declare 
-``SQLSTATE`` as a Pascal ``PACKED ARRAY [1..5] OF CHAR``. 
+**Pascal** -- then use only these <data type>s in your <host parameter
+declaration>s: ``CHARACTER``, ``BIT``, ``INTEGER``, ``REAL``, and declare
+``SQLSTATE`` as a Pascal ``PACKED ARRAY [1..5] OF CHAR``.
 
-**PL/I** -- then use only these <data type>s in your <host parameter 
-declaration>s: ``CHARACTER``, ``CHARACTER VARYING``, ``BIT``, ``BIT VARYING``, 
-``DECIMAL``, ``INTEGER``, ``SMALLINT``, ``FLOAT``, and declare ``SQLSTATE`` as 
-a PL/I ``CHARACTER(5)``. 
+**PL/I** -- then use only these <data type>s in your <host parameter
+declaration>s: ``CHARACTER``, ``CHARACTER VARYING``, ``BIT``, ``BIT VARYING``,
+``DECIMAL``, ``INTEGER``, ``SMALLINT``, ``FLOAT``, and declare ``SQLSTATE`` as
+a PL/I ``CHARACTER(5)``.
 
-For a list of the correspondences between SQL <data type>s and host data types, 
-see "Host Variables" in our chapter on embedded SQL. 
+For a list of the correspondences between SQL <data type>s and host data types,
+see "Host Variables" in our chapter on embedded SQL.
 
-Here's an example of an SQL-client Module: 
+Here's an example of an SQL-client Module:
 
 ::
 
