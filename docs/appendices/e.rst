@@ -4,6 +4,8 @@
 Appendix E -- SQL Web Sites
 ===========================
 
+.. include:: ../_include/note.rst
+
 You will get millions of hits if you submit the keyword SQL to any Internet
 search engine. You will get only 12 hits from this list. But they all have one
 interesting common feature: FREE STUFF. Our list of SQL web sites includes:

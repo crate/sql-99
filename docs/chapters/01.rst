@@ -4,6 +4,8 @@
 Chapter 1 -- Introduction
 =========================
 
+.. include:: ../_include/note.rst
+
 SQL-99 (more commonly still called, "SQL3", the term we'll use throughout this
 book) will soon be the current internationally accepted standard for the
 database programming language called SQL. The SQL Standard -- a complicated

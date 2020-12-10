@@ -4,6 +4,8 @@
 Chapter 15 -- SQL Authorizationid
 =================================
 
+.. include:: ../_include/note.rst
+
 In this chapter, we'll describe SQL <AuthorizationID>s in detail, and show you
 the syntax to use to create, alter and destroy them.
 

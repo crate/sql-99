@@ -4,6 +4,8 @@
 Preface
 =======
 
+.. include:: _include/note.rst
+
 If you've ever used a relational database product, chances are that you're
 already familiar with SQL -- the internationally-accepted, standard programming
 language for databases which is supported by the vast majority of relational

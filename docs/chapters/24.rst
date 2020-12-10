@@ -4,11 +4,13 @@
 Chapter 24 -- SQL Trigger
 =========================
 
-| *"If you press the SECOND dorsal fin-spine on a trigger fish, an amazing 
+.. include:: ../_include/note.rst
+
+| *"If you press the SECOND dorsal fin-spine on a trigger fish, an amazing
   event occurs. The FIRST dorsal fin-spine goes down too."*
 | *-- Applied Ichthyology*
 
-In this chapter, we'll describe SQL Triggers in detail, and show you the 
+In this chapter, we'll describe SQL Triggers in detail, and show you the
 syntax to use to create, alter and destroy them.
 
 .. rubric:: Table of Contents
@@ -19,69 +21,69 @@ syntax to use to create, alter and destroy them.
 Trigger
 =======
 
-A Schema may contain zero or more Triggers. An *SQL Trigger* is a named chain 
-reaction that you set off with an SQL data change statement: it specifies a set 
-of SQL statements that are to be executed (either once for each row or once for 
-the whole triggering ``INSERT``, ``DELETE`` or ``UPDATE`` statement) either 
-before or after rows are inserted into a Table, rows are deleted from a Table, 
-or one or more Columns are updated in rows of a Table. Triggers are dependent 
-on some Schema -- the <Trigger name> must be unique within the Schema the 
-Trigger belongs to -- and are created, altered and dropped using standard SQL 
-statements. 
+A Schema may contain zero or more Triggers. An *SQL Trigger* is a named chain
+reaction that you set off with an SQL data change statement: it specifies a set
+of SQL statements that are to be executed (either once for each row or once for
+the whole triggering ``INSERT``, ``DELETE`` or ``UPDATE`` statement) either
+before or after rows are inserted into a Table, rows are deleted from a Table,
+or one or more Columns are updated in rows of a Table. Triggers are dependent
+on some Schema -- the <Trigger name> must be unique within the Schema the
+Trigger belongs to -- and are created, altered and dropped using standard SQL
+statements.
 
-Triggers are similar to Constraints. (In fact, referential Constraints are now 
-defined by the SQL Standard as merely a type of Trigger, although they don't 
-share the same name-space.) What distinguishes a Trigger from a Constraint is 
-flexibility: the Trigger body may contain actual SQL procedure statements, that 
-you define yourself. In effect, when you "create a Trigger on Table 
-``TABLE_1``\", you are saying "whenever (in the future) a specific sort of 
-event occurs which changes Table ``TABLE_1``, execute the following further SQL 
-statements". For example, you could create a Trigger so that, whenever 
-``TABLE_1`` is updated, a counter should be incremented in a summary Table. 
+Triggers are similar to Constraints. (In fact, referential Constraints are now
+defined by the SQL Standard as merely a type of Trigger, although they don't
+share the same name-space.) What distinguishes a Trigger from a Constraint is
+flexibility: the Trigger body may contain actual SQL procedure statements, that
+you define yourself. In effect, when you "create a Trigger on Table
+``TABLE_1``\", you are saying "whenever (in the future) a specific sort of
+event occurs which changes Table ``TABLE_1``, execute the following further SQL
+statements". For example, you could create a Trigger so that, whenever
+``TABLE_1`` is updated, a counter should be incremented in a summary Table.
 
-Triggers are a SQL3 feature, but most DBMS vendors implemented them years ago. 
-People use Triggers to enforce business rules, to maintain logs or to 
-substitute for Constraints (where the rules for Constraints are too 
-restrictive). 
+Triggers are a SQL3 feature, but most DBMS vendors implemented them years ago.
+People use Triggers to enforce business rules, to maintain logs or to
+substitute for Constraints (where the rules for Constraints are too
+restrictive).
 
 A Trigger is defined by a descriptor that contains eight pieces of information:
 
-1. The <Trigger name>, qualified by the <Schema name> of the Schema it 
+1. The <Trigger name>, qualified by the <Schema name> of the Schema it
    belongs to.
 
-2. The name of the Table whose data, when changed, will cause the Trigger to 
+2. The name of the Table whose data, when changed, will cause the Trigger to
    be activated. (This is called the Trigger's *subject Table*.)
 
-3. The Trigger action time, which tells your DBMS when to execute the 
+3. The Trigger action time, which tells your DBMS when to execute the
    Trigger body (either ``BEFORE`` or ``AFTER`` the Trigger event).
 
-4. The Trigger event, which tells your DBMS which data change statement 
-   (either ``INSERT``, ``UPDATE`` or ``DELETE``), executed on the Trigger's 
+4. The Trigger event, which tells your DBMS which data change statement
+   (either ``INSERT``, ``UPDATE`` or ``DELETE``), executed on the Trigger's
    Table, activates the Trigger.
 
-5. The Trigger Column list for the Trigger event, as well as whether the 
-   list was explicitly or implicitly defined (for ``UPDATE`` Trigger events 
+5. The Trigger Column list for the Trigger event, as well as whether the
+   list was explicitly or implicitly defined (for ``UPDATE`` Trigger events
    only).
 
-6. Any old values <Correlation name>, new values <Correlation name>, old 
+6. Any old values <Correlation name>, new values <Correlation name>, old
    values Table alias or new values Table alias defined for the Trigger.
 
-7. The Trigger body: the SQL statements you want your DBMS to execute on the 
+7. The Trigger body: the SQL statements you want your DBMS to execute on the
    Trigger's Table when the Trigger is activated.
 
 8. The Trigger's timestamp: when it was created.
 
-To create a Trigger use the ``CREATE TRIGGER`` statement (either as a 
-stand-alone SQL statement or within a ``CREATE SCHEMA`` statement). ``CREATE 
-TRIGGER`` specifies the enclosing Schema, names the Trigger and defines the 
-Trigger's Table, action time, event and body. To destroy a Trigger, use the 
-``DROP TRIGGER`` statement. To change an existing Trigger, drop and then 
-redefine it. 
+To create a Trigger use the ``CREATE TRIGGER`` statement (either as a
+stand-alone SQL statement or within a ``CREATE SCHEMA`` statement). ``CREATE
+TRIGGER`` specifies the enclosing Schema, names the Trigger and defines the
+Trigger's Table, action time, event and body. To destroy a Trigger, use the
+``DROP TRIGGER`` statement. To change an existing Trigger, drop and then
+redefine it.
 
 *Trigger Names*
 ---------------
 
-A <Trigger name> identifies a Trigger. The required syntax for a <Trigger 
+A <Trigger name> identifies a Trigger. The required syntax for a <Trigger
 name> is:
 
 ::
@@ -89,18 +91,18 @@ name> is:
     <Trigger name> ::=
     [ <Schema name>. ] unqualified name
 
-A <Trigger name> is a <regular identifier> or a <delimited identifier> that is 
-unique (for all Triggers) within the Schema it belongs to. The <Schema name> 
-that qualifies a <Trigger name> names the Schema that the Trigger belongs to 
-and can either be explicitly stated, or a default will be supplied by your 
-DBMS, as follows: 
+A <Trigger name> is a <regular identifier> or a <delimited identifier> that is
+unique (for all Triggers) within the Schema it belongs to. The <Schema name>
+that qualifies a <Trigger name> names the Schema that the Trigger belongs to
+and can either be explicitly stated, or a default will be supplied by your
+DBMS, as follows:
 
-* If a <Trigger name> in a ``CREATE SCHEMA`` statement isn't qualified, the 
+* If a <Trigger name> in a ``CREATE SCHEMA`` statement isn't qualified, the
   default qualifier is the name of the Schema you're creating.
 
-* If the unqualified <Trigger name> is found in any other SQL statement in a 
-  Module, the default qualifier is the name of the Schema identified in the 
-  ``SCHEMA`` clause or ``AUTHORIZATION`` clause of the ``MODULE`` statement 
+* If the unqualified <Trigger name> is found in any other SQL statement in a
+  Module, the default qualifier is the name of the Schema identified in the
+  ``SCHEMA`` clause or ``AUTHORIZATION`` clause of the ``MODULE`` statement
   which defines that Module.
 
 Here are some examples of <Trigger name>s:
@@ -119,8 +121,8 @@ Here are some examples of <Trigger name>s:
 CREATE TRIGGER Statement
 ========================
 
-The ``CREATE TRIGGER`` statement names a new Trigger and defines the 
-Trigger's Table, action time, event and body. The required syntax for the 
+The ``CREATE TRIGGER`` statement names a new Trigger and defines the
+Trigger's Table, action time, event and body. The required syntax for the
 ``CREATE TRIGGER`` statement is:
 
 ::
@@ -158,23 +160,23 @@ Trigger's Table, action time, event and body. The required syntax for the
           SQL statement |
           BEGIN ATOMIC {SQL statement;}... END
 
-``CREATE TRIGGER`` defines a new Trigger. A Trigger is owned by the Schema 
+``CREATE TRIGGER`` defines a new Trigger. A Trigger is owned by the Schema
 it belongs to.
 
-The <Trigger name> identifies the Trigger and the Schema that it belongs to. 
-Typical <Trigger name>s include the Trigger event, e.g.: ``Employee_Update`` or 
-``After_Delete_From_Employee``. A <Trigger name> that includes an explicit 
-<Schema name> qualifier belongs to the Schema named. A <Trigger name> that does 
-not include an explicit <Schema name> qualifier belongs to the SQL-session 
-default Schema. The <Trigger name> must be unique (for all Triggers) within the 
-Schema that owns it. 
+The <Trigger name> identifies the Trigger and the Schema that it belongs to.
+Typical <Trigger name>s include the Trigger event, e.g.: ``Employee_Update`` or
+``After_Delete_From_Employee``. A <Trigger name> that includes an explicit
+<Schema name> qualifier belongs to the Schema named. A <Trigger name> that does
+not include an explicit <Schema name> qualifier belongs to the SQL-session
+default Schema. The <Trigger name> must be unique (for all Triggers) within the
+Schema that owns it.
 
-If ``CREATE TRIGGER`` is part of a ``CREATE SCHEMA`` statement, the <Trigger 
-name>, if explicitly qualified, must include the <Schema name> of the Schema 
-being created; that is, it isn't possible to create a Trigger belonging to a 
-different Schema from within ``CREATE SCHEMA``. For example, this SQL statement 
-will not return an error because the <Trigger name> will default to include the 
-qualifying <Schema name>: 
+If ``CREATE TRIGGER`` is part of a ``CREATE SCHEMA`` statement, the <Trigger
+name>, if explicitly qualified, must include the <Schema name> of the Schema
+being created; that is, it isn't possible to create a Trigger belonging to a
+different Schema from within ``CREATE SCHEMA``. For example, this SQL statement
+will not return an error because the <Trigger name> will default to include the
+qualifying <Schema name>:
 
 ::
 
@@ -184,9 +186,9 @@ qualifying <Schema name>:
          INSERT INTO Log_table VALUES ('deleted from Table_1');
    -- creates a Trigger called BOB.TRIGGER_1 in Schema BOB
 
-This SQL statement will not return an error either because the <Trigger name> 
-explicitly includes a qualifying <Schema name> that matches the name of the 
-Schema being created: 
+This SQL statement will not return an error either because the <Trigger name>
+explicitly includes a qualifying <Schema name> that matches the name of the
+Schema being created:
 
 ::
 
@@ -196,9 +198,9 @@ Schema being created:
          INSERT INTO Log_table VALUES ('deleted from Table_1');
    -- creates a Trigger called BOB.TRIGGER_1 in Schema BOB
 
-But this SQL statement will return an error because the <Trigger name> 
-explicitly includes a qualifying <Schema name> that is different from the name 
-of the Schema being created: 
+But this SQL statement will return an error because the <Trigger name>
+explicitly includes a qualifying <Schema name> that is different from the name
+of the Schema being created:
 
 ::
 
@@ -208,49 +210,49 @@ of the Schema being created:
          INSERT INTO Log_table VALUES ('deleted from Table_1');
    -- tries to create a Trigger belonging to Schema SAM inside Schema BOB; illegal syntax
 
-If ``CREATE TRIGGER`` is executed as a stand-alone SQL statement, the current 
-<AuthorizationID> must either be the owner of the Schema that this new Trigger 
-belongs to, or the Schema's owner must be a Role that the current 
-<AuthorizationID> may use. That is, only the owner of a Schema can create 
-Triggers for that Schema. 
+If ``CREATE TRIGGER`` is executed as a stand-alone SQL statement, the current
+<AuthorizationID> must either be the owner of the Schema that this new Trigger
+belongs to, or the Schema's owner must be a Role that the current
+<AuthorizationID> may use. That is, only the owner of a Schema can create
+Triggers for that Schema.
 
-The ``CREATE TRIGGER`` statement's main parts are its Table, its event (the 
-description of the SQL-data change statement that activates the Trigger) and 
-its action (the SQL statements which are to be executed by the Trigger). 
+The ``CREATE TRIGGER`` statement's main parts are its Table, its event (the
+description of the SQL-data change statement that activates the Trigger) and
+its action (the SQL statements which are to be executed by the Trigger).
 
 *ON Clause*
 -----------
 
-The ``ON`` clause of the ``CREATE TRIGGER`` statement names the Trigger's 
-Table: the Base table that, when changed, may cause the Trigger to act. The 
-Table must belong to the same Schema that the Trigger will belong to, and the 
-current <AuthorizationID> must have the ``TRIGGER`` Privilege on that Table. 
-(You do not need a Privilege to "use" a Trigger. Triggers will be activated 
-whenever you execute the appropriate SQL data-change statement on the Table, 
-whether you want them or not.) 
+The ``ON`` clause of the ``CREATE TRIGGER`` statement names the Trigger's
+Table: the Base table that, when changed, may cause the Trigger to act. The
+Table must belong to the same Schema that the Trigger will belong to, and the
+current <AuthorizationID> must have the ``TRIGGER`` Privilege on that Table.
+(You do not need a Privilege to "use" a Trigger. Triggers will be activated
+whenever you execute the appropriate SQL data-change statement on the Table,
+whether you want them or not.)
 
 *Trigger Action Time*
 ---------------------
 
-The Trigger action time defines when you want the Trigger's action to be 
-executed: it may be either ``BEFORE`` or ``AFTER``. Trigger action time should 
-be ``BEFORE`` if you want the Trigger action to occur before the Trigger event. 
-It should be ``AFTER`` if you want the Trigger action to occur after the 
-Trigger event. 
+The Trigger action time defines when you want the Trigger's action to be
+executed: it may be either ``BEFORE`` or ``AFTER``. Trigger action time should
+be ``BEFORE`` if you want the Trigger action to occur before the Trigger event.
+It should be ``AFTER`` if you want the Trigger action to occur after the
+Trigger event.
 
 *Trigger Event*
 ---------------
 
-The Trigger event defines the SQL-data change statement whose execution (on the 
-Trigger's Table) will activate the Trigger: it may be either ``INSERT``, 
-``DELETE`` or ``UPDATE``. In the case of ``UPDATE`` only, you may add an 
-optional subclause that lists the Trigger Columns: the Columns on which an 
-``UPDATE`` will activate the Trigger (``UPDATE`` on Columns not in the list 
-won't activate the Trigger). The Column list names some or all of the Trigger 
-Table's Columns (each may appear in the list only once). If you omit this 
-optional subclause, the effect is as if you included an ``OF`` clause that 
-names every Column of the Trigger's Table. For example, given this Table 
-definition: 
+The Trigger event defines the SQL-data change statement whose execution (on the
+Trigger's Table) will activate the Trigger: it may be either ``INSERT``,
+``DELETE`` or ``UPDATE``. In the case of ``UPDATE`` only, you may add an
+optional subclause that lists the Trigger Columns: the Columns on which an
+``UPDATE`` will activate the Trigger (``UPDATE`` on Columns not in the list
+won't activate the Trigger). The Column list names some or all of the Trigger
+Table's Columns (each may appear in the list only once). If you omit this
+optional subclause, the effect is as if you included an ``OF`` clause that
+names every Column of the Trigger's Table. For example, given this Table
+definition:
 
 ::
 
@@ -283,14 +285,14 @@ Here are two more Trigger definition examples:
 *REFERENCING Clause*
 --------------------
 
-The optional ``REFERENCING`` clause of the ``CREATE TRIGGER`` statement defines 
-a list of one to four unique <Correlation name>s, or aliases: one name for the 
-old row acted on by the Trigger and/or one name for the new row acted on by the 
-Trigger and/or one name for the old Table acted on by the Trigger and/or one 
-name for the new Table acted on by the Trigger (each may be specified once). 
-The <keyword> ``AS`` in each alias option is noise and may be omitted. If 
-neither ``ROW`` nor ``TABLE`` is specified, the default is ``ROW`` -- for 
-example, these four SQL statements are equivalent: 
+The optional ``REFERENCING`` clause of the ``CREATE TRIGGER`` statement defines
+a list of one to four unique <Correlation name>s, or aliases: one name for the
+old row acted on by the Trigger and/or one name for the new row acted on by the
+Trigger and/or one name for the old Table acted on by the Trigger and/or one
+name for the new Table acted on by the Trigger (each may be specified once).
+The <keyword> ``AS`` in each alias option is noise and may be omitted. If
+neither ``ROW`` nor ``TABLE`` is specified, the default is ``ROW`` -- for
+example, these four SQL statements are equivalent:
 
 ::
 
@@ -310,15 +312,15 @@ example, these four SQL statements are equivalent:
       AFTER UPDATE ON Table_1 REFERENCING OLD old_row_name
          FOR EACH ROW INSERT INTO Log_table VALUES ('updated Table_1');
 
-Your Trigger definition must include a ``REFERENCING`` clause if the Trigger 
-action contains references to the Trigger's <Table name> or any of its <Column 
-name>s. The ``OLD`` values are the values before the ``UPDATE`` / ``DELETE`` 
-Trigger event (``OLD ROW`` and ``OLD TABLE`` are not allowed if the Trigger 
-event is ``INSERT``) and the ``NEW`` values are the values after the ``UPDATE`` 
-/ ``INSERT`` Trigger event (``NEW ROW`` and ``NEW TABLE`` are not allowed if 
-the Trigger event is ``DELETE``). If Trigger action time is ``BEFORE``, a 
-``REFERENCING`` clause may not specify ``OLD TABLE`` or ``NEW TABLE``. Here are 
-some more ``REFERENCING`` clause examples: 
+Your Trigger definition must include a ``REFERENCING`` clause if the Trigger
+action contains references to the Trigger's <Table name> or any of its <Column
+name>s. The ``OLD`` values are the values before the ``UPDATE`` / ``DELETE``
+Trigger event (``OLD ROW`` and ``OLD TABLE`` are not allowed if the Trigger
+event is ``INSERT``) and the ``NEW`` values are the values after the ``UPDATE``
+/ ``INSERT`` Trigger event (``NEW ROW`` and ``NEW TABLE`` are not allowed if
+the Trigger event is ``DELETE``). If Trigger action time is ``BEFORE``, a
+``REFERENCING`` clause may not specify ``OLD TABLE`` or ``NEW TABLE``. Here are
+some more ``REFERENCING`` clause examples:
 
 ::
 
@@ -330,42 +332,42 @@ some more ``REFERENCING`` clause examples:
 
 (A table alias is either a <regular identifier> or a <delimited identifier>.)
 
-Every Trigger event has its own "execution context": it includes the old row 
-values and/or the new row values of the Trigger's Table. If the Trigger event 
-is ``INSERT``, then there are no old row values since no existing rows of a 
-Table are affected by ``INSERT``. If the Trigger event is ``DELETE``, then 
-there are no new row values since ``DELETE``\'s action is to remove rows from a 
-Table. If the Trigger event is ``UPDATE``, then there are three row versions: 
+Every Trigger event has its own "execution context": it includes the old row
+values and/or the new row values of the Trigger's Table. If the Trigger event
+is ``INSERT``, then there are no old row values since no existing rows of a
+Table are affected by ``INSERT``. If the Trigger event is ``DELETE``, then
+there are no new row values since ``DELETE``\'s action is to remove rows from a
+Table. If the Trigger event is ``UPDATE``, then there are three row versions:
 
 1. The actual row of data in the Trigger's Table.
 
-2. The "old row values" copy of the actual row -- often the same as [1], but 
-   if there are two distinct ``UPDATE`` events then there might be a difference 
-   between [1] and [2]. We'll call this the "old row" from now on. The set of 
+2. The "old row values" copy of the actual row -- often the same as [1], but
+   if there are two distinct ``UPDATE`` events then there might be a difference
+   between [1] and [2]. We'll call this the "old row" from now on. The set of
    all old rows is the "old Table".
 
-3. The "new row values" copy of the actual row -- it contains what the DBMS 
-   proposes to change the actual row to once the ``UPDATE`` statement's 
-   execution is completed. We'll call this the "new row" from now on. The set 
-   of all new rows is the "new  Table". (Note: Even with a ``BEFORE`` Trigger, 
+3. The "new row values" copy of the actual row -- it contains what the DBMS
+   proposes to change the actual row to once the ``UPDATE`` statement's
+   execution is completed. We'll call this the "new row" from now on. The set
+   of all new rows is the "new  Table". (Note: Even with a ``BEFORE`` Trigger,
    the "new row values" are known to the DBMS.)
 
-A Trigger's execution context is important (indeed, it's mandatory) if you are 
-going to refer to the Trigger's Table in the Trigger's action statements. It 
-would usually be wrong to refer to Column ``COLUMN_1`` of Table ``TABLE_1`` 
-with its <Column reference>, ``TABLE_1.COLUMN_1``, since the <Column reference> 
-refers to that Column in the actual Base table copy. What you really need to 
-refer to is either the old row or the new row. The ``REFERENCING`` clause of 
-the ``CREATE TRIGGER`` statement makes it possible to specify what context 
-names you will use for referring to ``OLD ROW`` or ``NEW ROW`` in the Trigger 
-action. 
+A Trigger's execution context is important (indeed, it's mandatory) if you are
+going to refer to the Trigger's Table in the Trigger's action statements. It
+would usually be wrong to refer to Column ``COLUMN_1`` of Table ``TABLE_1``
+with its <Column reference>, ``TABLE_1.COLUMN_1``, since the <Column reference>
+refers to that Column in the actual Base table copy. What you really need to
+refer to is either the old row or the new row. The ``REFERENCING`` clause of
+the ``CREATE TRIGGER`` statement makes it possible to specify what context
+names you will use for referring to ``OLD ROW`` or ``NEW ROW`` in the Trigger
+action.
 
-The execution context is "atomic" in the usual SQL sense of the word: if any 
-action statements fail, then all action statements fail and so does the 
-statement that caused the Trigger activation: your DBMS will return the 
-``SQLSTATE error 09000 "triggered action exception"``. In other words, the old 
-row and the new row are simply destroyed and you're left with the same thing 
-you started with: the actual row. 
+The execution context is "atomic" in the usual SQL sense of the word: if any
+action statements fail, then all action statements fail and so does the
+statement that caused the Trigger activation: your DBMS will return the
+``SQLSTATE error 09000 "triggered action exception"``. In other words, the old
+row and the new row are simply destroyed and you're left with the same thing
+you started with: the actual row.
 
 *Trigger Action*
 ----------------
@@ -377,54 +379,54 @@ when condition and the action body.
 Action Granularity
 __________________
 
-The optional ``FOR EACH`` clause of the ``CREATE TRIGGER`` statement defines 
-the Trigger action granularity: it may be either ``FOR EACH STATEMENT`` (the 
-default) or ``FOR EACH ROW``. The action granularity tells your DBMS how big 
-the field of action is. For example, suppose you create a Trigger for ``AFTER 
-UPDATE OF column_1 ON Employees``, then do this: 
+The optional ``FOR EACH`` clause of the ``CREATE TRIGGER`` statement defines
+the Trigger action granularity: it may be either ``FOR EACH STATEMENT`` (the
+default) or ``FOR EACH ROW``. The action granularity tells your DBMS how big
+the field of action is. For example, suppose you create a Trigger for ``AFTER
+UPDATE OF column_1 ON Employees``, then do this:
 
 ::
 
    UPDATE Employees SET column_1 = 5;
 
-Assume that the ``EMPLOYEES`` Table has 1000 rows. If action granularity is 
-``FOR EACH STATEMENT``, the Trigger action will occur once (just for the 
-statement). If action granularity is ``FOR EACH ROW``, the Trigger action will 
-occur 1000 times (once for each row of the Trigger Table). As stated earlier, 
-the default is ``FOR EACH STATEMENT``, but "row" granularity is more common. In 
-fact, if your Trigger definition contains a ``REFERENCING`` clause that 
-includes either ``OLD ROW`` or ``NEW ROW``, it must also include an action 
-granularity clause of ``FOR EACH ROW``. 
+Assume that the ``EMPLOYEES`` Table has 1000 rows. If action granularity is
+``FOR EACH STATEMENT``, the Trigger action will occur once (just for the
+statement). If action granularity is ``FOR EACH ROW``, the Trigger action will
+occur 1000 times (once for each row of the Trigger Table). As stated earlier,
+the default is ``FOR EACH STATEMENT``, but "row" granularity is more common. In
+fact, if your Trigger definition contains a ``REFERENCING`` clause that
+includes either ``OLD ROW`` or ``NEW ROW``, it must also include an action
+granularity clause of ``FOR EACH ROW``.
 
 Action When Condition
 _____________________
 
-The optional ``WHEN`` clause of the ``CREATE TRIGGER`` statement defines the 
-Trigger action when condition: it may be any parenthesized search condition. 
-When the Trigger is activated, if the search condition is ``TRUE``, the Trigger 
-action will occur, if the search condition is ``FALSE``, the Trigger action 
-will not occur and if the search condition is ``UNKNOWN``, then apparently the 
-Trigger action will not occur (the Standard document is unclear about this 
-point: see "satisfies" in the Glossary). If you omit the ``WHEN`` clause from a 
-Trigger definition, the Trigger action will occur as soon as the Trigger is 
-activated. 
+The optional ``WHEN`` clause of the ``CREATE TRIGGER`` statement defines the
+Trigger action when condition: it may be any parenthesized search condition.
+When the Trigger is activated, if the search condition is ``TRUE``, the Trigger
+action will occur, if the search condition is ``FALSE``, the Trigger action
+will not occur and if the search condition is ``UNKNOWN``, then apparently the
+Trigger action will not occur (the Standard document is unclear about this
+point: see "satisfies" in the Glossary). If you omit the ``WHEN`` clause from a
+Trigger definition, the Trigger action will occur as soon as the Trigger is
+activated.
 
-Typically, you'd add a ``WHEN`` clause to your Trigger definition if the 
-Trigger event definition is too general for your purposes. For example, the 
-Trigger event might be "``UPDATE Employees``", but the Trigger action should 
-occur only "``WHEN salary > 1000.00``". Such specificity only makes sense if 
-the action granularity is ``FOR EACH ROW``. 
+Typically, you'd add a ``WHEN`` clause to your Trigger definition if the
+Trigger event definition is too general for your purposes. For example, the
+Trigger event might be "``UPDATE Employees``", but the Trigger action should
+occur only "``WHEN salary > 1000.00``". Such specificity only makes sense if
+the action granularity is ``FOR EACH ROW``.
 
 Action Body
 ___________
 
-The action body of the ``CREATE TRIGGER`` statement defines the Trigger action 
-itself: the SQL statement(s) you want your DBMS to execute when the Trigger is 
-activated. The action body may be either a single SQL statement or it may be a 
-series of SQL statements, delimited by semicolons, with a ``BEGIN ATOMIC ... 
-END`` subclause. Here are two examples of Trigger action bodies (the first 
-shows an action body using a single SQL statement and the second shows an 
-action body showing multiple SQL statements): 
+The action body of the ``CREATE TRIGGER`` statement defines the Trigger action
+itself: the SQL statement(s) you want your DBMS to execute when the Trigger is
+activated. The action body may be either a single SQL statement or it may be a
+series of SQL statements, delimited by semicolons, with a ``BEGIN ATOMIC ...
+END`` subclause. Here are two examples of Trigger action bodies (the first
+shows an action body using a single SQL statement and the second shows an
+action body showing multiple SQL statements):
 
 ::
 
@@ -442,42 +444,42 @@ transaction statement, an SQL-Connection statement, an SQL-Schema statement or
 an SQL-session statement (see chapter 1, SQL statement classes). A variety of
 SQL statements are legal inside the Trigger body, though.
 
-* If Trigger action time is ``BEFORE``, the Trigger action may include these 
-  SQL statements: ``DECLARE TABLE``, ``DECLARE CURSOR``, ``OPEN``, ``CLOSE``, 
-  ``FETCH``, ``SELECT`` (for a single row only), ``FREE LOCATOR``, ``HOLD 
-  LOCATOR``, ``CALL``, ``RETURN`` and ``GET DIAGNOSTICS``. It may also name an 
-  SQL-invoked routine, as long as that routine isn't one that possibly modifies 
-  SQL-data. 
+* If Trigger action time is ``BEFORE``, the Trigger action may include these
+  SQL statements: ``DECLARE TABLE``, ``DECLARE CURSOR``, ``OPEN``, ``CLOSE``,
+  ``FETCH``, ``SELECT`` (for a single row only), ``FREE LOCATOR``, ``HOLD
+  LOCATOR``, ``CALL``, ``RETURN`` and ``GET DIAGNOSTICS``. It may also name an
+  SQL-invoked routine, as long as that routine isn't one that possibly modifies
+  SQL-data.
 
-* If Trigger action time is ``AFTER``, the Trigger action may include all of 
-  the SQL statements allowed for ``BEFORE`` Triggers, plus: ``INSERT``, 
-  ``UPDATE`` and ``DELETE``. It may also name any SQL-invoked routine. 
+* If Trigger action time is ``AFTER``, the Trigger action may include all of
+  the SQL statements allowed for ``BEFORE`` Triggers, plus: ``INSERT``,
+  ``UPDATE`` and ``DELETE``. It may also name any SQL-invoked routine.
 
-Of the SQL statements available to you for a Trigger action, ``OPEN``, 
-``FETCH``, ``CLOSE``, single-row ``SELECT`` and ``GET DIAGNOSTICS`` are not 
-very useful because it is forbidden to include host variables and parameters 
-inside the action body of a Trigger definition. ``INSERT``, ``UPDATE`` and 
-``DELETE`` are much more useful; often a Trigger action body consists of just 
-one such SQL-data change statement. (Remember, though, that you can't use them 
-with a ``BEFORE`` Trigger.) SQL-invoked routines are useful too. In effect, a 
-procedure in your host language program can be called by a Trigger -- compare 
-the various "callback" situations in the Windows API. 
+Of the SQL statements available to you for a Trigger action, ``OPEN``,
+``FETCH``, ``CLOSE``, single-row ``SELECT`` and ``GET DIAGNOSTICS`` are not
+very useful because it is forbidden to include host variables and parameters
+inside the action body of a Trigger definition. ``INSERT``, ``UPDATE`` and
+``DELETE`` are much more useful; often a Trigger action body consists of just
+one such SQL-data change statement. (Remember, though, that you can't use them
+with a ``BEFORE`` Trigger.) SQL-invoked routines are useful too. In effect, a
+procedure in your host language program can be called by a Trigger -- compare
+the various "callback" situations in the Windows API.
 
-If you want to restrict your code to Core SQL, don't use the ``CREATE TRIGGER`` 
-statement. 
+If you want to restrict your code to Core SQL, don't use the ``CREATE TRIGGER``
+statement.
 
 Activation of Triggers
 ======================
 
-In our discussion of the ``CREATE TRIGGER`` statement, we made this true, 
-but imprecise statement: "When the Trigger event occurs, the Trigger is 
-activated." Let's get more precise about the meaning of "when" and 
+In our discussion of the ``CREATE TRIGGER`` statement, we made this true,
+but imprecise statement: "When the Trigger event occurs, the Trigger is
+activated." Let's get more precise about the meaning of "when" and
 "activated".
 
-The meaning of "when" depends on the Trigger action time (``BEFORE`` or 
-``AFTER``) and on the Trigger's priority relative to other Triggers or 
-Constraints. For example, suppose we associate three Triggers and one 
-Constraint with Table ``TABLE_1``: 
+The meaning of "when" depends on the Trigger action time (``BEFORE`` or
+``AFTER``) and on the Trigger's priority relative to other Triggers or
+Constraints. For example, suppose we associate three Triggers and one
+Constraint with Table ``TABLE_1``:
 
 ::
 
@@ -489,38 +491,38 @@ Constraint with Table ``TABLE_1``:
 
    ALTER TABLE Table_1 ADD CONSTRAINT Constraint_1 ...;
 
-What is the effect when an ``UPDATE`` on ``TABLE_1`` is executed? Since such an 
-``UPDATE`` is a Trigger event for ``TABLE_1``, several things happen -- in a 
-rigid order of events. 
+What is the effect when an ``UPDATE`` on ``TABLE_1`` is executed? Since such an
+``UPDATE`` is a Trigger event for ``TABLE_1``, several things happen -- in a
+rigid order of events.
 
-* First, ``TRIGGER_2`` is activated. It's a ``BEFORE`` Trigger, so it's 
-  first. The DBMS executes ``TRIGGER_2``\'s action (if ``TRIGGER_2``\'s 
-  definition includes a ``WHEN`` clause, this happens only if the search 
+* First, ``TRIGGER_2`` is activated. It's a ``BEFORE`` Trigger, so it's
+  first. The DBMS executes ``TRIGGER_2``\'s action (if ``TRIGGER_2``\'s
+  definition includes a ``WHEN`` clause, this happens only if the search
   condition is ``TRUE``).
 
-* Second, the DBMS updates ``TABLE_1``. Trigger events follow ``BEFORE`` 
+* Second, the DBMS updates ``TABLE_1``. Trigger events follow ``BEFORE``
   Trigger actions.
 
-* Third, ``CONSTRAINT_1`` is checked. Constraint checks occur at 
+* Third, ``CONSTRAINT_1`` is checked. Constraint checks occur at
   end-of-statement.
 
-* Fourth, ``TRIGGER_1`` is activated. It's an ``AFTER`` Trigger, so it 
-  occurs after execution of the action statement -- and after any Constraint 
+* Fourth, ``TRIGGER_1`` is activated. It's an ``AFTER`` Trigger, so it
+  occurs after execution of the action statement -- and after any Constraint
   checking associated with the action statement.
 
-* Fifth, ``TRIGGER_3`` is activated. It's another ``AFTER`` Trigger, and it 
-  follows ``TRIGGER_1`` because it was created later (Triggers are timestamped 
-  so the DBMS knows the order in which Triggers were created: older Triggers 
+* Fifth, ``TRIGGER_3`` is activated. It's another ``AFTER`` Trigger, and it
+  follows ``TRIGGER_1`` because it was created later (Triggers are timestamped
+  so the DBMS knows the order in which Triggers were created: older Triggers
   have priority).
 
-To sum it up, the order-of-execution for any Triggered SQL-data change 
-statement is: *(1)* ``BEFORE`` Triggers, *(2)* SQL-data change statement 
-itself, *(3)* Constraint checks on SQL-data change statement, *(4)* ``AFTER`` 
-Triggers -- and within that, old Triggers before young Triggers. 
+To sum it up, the order-of-execution for any Triggered SQL-data change
+statement is: *(1)* ``BEFORE`` Triggers, *(2)* SQL-data change statement
+itself, *(3)* Constraint checks on SQL-data change statement, *(4)* ``AFTER``
+Triggers -- and within that, old Triggers before young Triggers.
 
-The meaning of "activated" means "the Trigger action happens". Remember that 
-the Trigger action is defined by three separate clauses in the ``CREATE 
-TRIGGER`` statement: 
+The meaning of "activated" means "the Trigger action happens". Remember that
+the Trigger action is defined by three separate clauses in the ``CREATE
+TRIGGER`` statement:
 
 ::
 
@@ -529,15 +531,15 @@ TRIGGER`` statement:
    SQL statement |                       -- body
    BEGIN ATOMIC {SQL statement;}... END
 
-If Trigger action doesn't include "``WHEN`` (search condition)" or if Trigger 
-action does include "``WHEN`` (search condition)" and the condition is 
-``TRUE``, the DBMS decides that the Trigger action has happened. This 
-specifically means that: 
+If Trigger action doesn't include "``WHEN`` (search condition)" or if Trigger
+action does include "``WHEN`` (search condition)" and the condition is
+``TRUE``, the DBMS decides that the Trigger action has happened. This
+specifically means that:
 
 * If the action body is a SQL statement, the DBMS executes that SQL statement.
 
-* Otherwise, the action body must be ``BEGIN ATOMIC ... END``, and the DBMS 
-  executes all of the SQL statements that occur between the <keyword>s 
+* Otherwise, the action body must be ``BEGIN ATOMIC ... END``, and the DBMS
+  executes all of the SQL statements that occur between the <keyword>s
   ``ATOMIC`` and ``END``, in the order that they are defined.
 
 If any part of the Trigger action can't be executed successfully, that SQL
@@ -550,15 +552,15 @@ Trigger might have affected.
 Trigger Examples
 ================
 
-The following four scenarios show the use of a Trigger in a real-life 
+The following four scenarios show the use of a Trigger in a real-life
 situation.
 
 *Trigger Example -- Logging Deletions*
 --------------------------------------
 
-Scenario: We want to keep a log file containing data from rows that have been 
-deleted from the ``BOOKS`` Table. Here's a Trigger definition that accomplishes 
-this: 
+Scenario: We want to keep a log file containing data from rows that have been
+deleted from the ``BOOKS`` Table. Here's a Trigger definition that accomplishes
+this:
 
 ::
 
@@ -569,31 +571,31 @@ this:
       INSERT INTO Books_Deleted_Log
          VALUES (Old.title);             /* See note (d) */
 
-This Trigger copies the title of every book deleted from the ``BOOKS`` Table 
+This Trigger copies the title of every book deleted from the ``BOOKS`` Table
 into a Table (the log) called ``BOOKS_DELETED_LOG``.
 
 .. NOTE::
 
-   (a) The Trigger action has to be ``AFTER``, since the Trigger 
+   (a) The Trigger action has to be ``AFTER``, since the Trigger
        action includes an SQL-data change statement.
 
-   (b) It is conventional to use the alias ``Old`` or ``Old_Row`` for 
+   (b) It is conventional to use the alias ``Old`` or ``Old_Row`` for
        the old row.
 
-   (c) No log will occur for a ``DELETE`` statement that affects zero 
+   (c) No log will occur for a ``DELETE`` statement that affects zero
        rows.
 
-   (d) ``OLD`` is an alias for a single old row, so ``OLD.TITLE`` is 
+   (d) ``OLD`` is an alias for a single old row, so ``OLD.TITLE`` is
        the scalar value derived from the ``TITLE`` Column of that old row.
 
 *Trigger Example -- Inserting Default Expressions*
 --------------------------------------------------
 
-Scenario: When we add a client, we want the default value for 
-``HOME_TELEPHONE`` to be the same as the ``WORK_TELEPHONE`` number. The 
-``DEFAULT`` clause is no good for cases like this, because "``DEFAULT`` <Column 
-name>" is not a legal option. Here's a Trigger definition that accomplishes 
-this: 
+Scenario: When we add a client, we want the default value for
+``HOME_TELEPHONE`` to be the same as the ``WORK_TELEPHONE`` number. The
+``DEFAULT`` clause is no good for cases like this, because "``DEFAULT`` <Column
+name>" is not a legal option. Here's a Trigger definition that accomplishes
+this:
 
 ::
 
@@ -615,10 +617,10 @@ With this Trigger in place, this SQL statement:
    INSERT INTO Clients (work_telephone)
    VALUES ('493-1125');
 
-will insert a new row into ``CLIENTS`` that has ``'493-1125'`` in the 
-``HOME_TELEPHONE`` Column as well as in the ``WORK_TELEPHONE`` Column. This 
-Trigger must be activated ``BEFORE`` the ``INSERT``, but it is possible to see 
-in advance what values the DBMS has tentatively assigned for the new row. 
+will insert a new row into ``CLIENTS`` that has ``'493-1125'`` in the
+``HOME_TELEPHONE`` Column as well as in the ``WORK_TELEPHONE`` Column. This
+Trigger must be activated ``BEFORE`` the ``INSERT``, but it is possible to see
+in advance what values the DBMS has tentatively assigned for the new row.
 
 *Trigger Example: Constraint Substitute*
 ----------------------------------------
@@ -633,21 +635,21 @@ Here's a Trigger definition that accomplishes this -- but it has some flaws:
    WHEN (CURRENT_TIME > '17:00:00')             /* second flaw */
       SELECT MAX(budget) / 0 FROM Departments;  /* third flaw */
 
-Since this ``CREATE TRIGGER`` statement contains no action granularity clause, 
-the default applies: ``FOR EACH STATEMENT``. This means that if this SQL 
-statement is executed: 
+Since this ``CREATE TRIGGER`` statement contains no action granularity clause,
+the default applies: ``FOR EACH STATEMENT``. This means that if this SQL
+statement is executed:
 
 ::
 
    UPDATE Departments SET budget = <value>;
 
-the Trigger's ``SELECT`` action will be executed -- and it will fail, since it 
-contains a division-by-zero expression. This, in turn, will cause the Trigger 
-event -- the ``UPDATE`` statement -- to fail too, since execution context is 
-atomic. (Actually there will be two errors. The main one will be "Triggered 
-action exception" and the secondary one will be "Division by zero".) Therefore, 
-this Trigger prevents anyone from updating ``DEPARTMENTS.BUDGET`` after 5 pm. 
-Usually it works, but sometimes it doesn't work -- it contains subtle flaws. 
+the Trigger's ``SELECT`` action will be executed -- and it will fail, since it
+contains a division-by-zero expression. This, in turn, will cause the Trigger
+event -- the ``UPDATE`` statement -- to fail too, since execution context is
+atomic. (Actually there will be two errors. The main one will be "Triggered
+action exception" and the secondary one will be "Division by zero".) Therefore,
+this Trigger prevents anyone from updating ``DEPARTMENTS.BUDGET`` after 5 pm.
+Usually it works, but sometimes it doesn't work -- it contains subtle flaws.
 
 The first flaw is that a SQL statement like this:
 
@@ -655,9 +657,9 @@ The first flaw is that a SQL statement like this:
 
    UPDATE Departments SET budget = <value>, name = <value>;
 
-might fail to activate the Trigger. In strict Standard SQL, a Trigger's 
-explicit ``UPDATE`` Column list -- which in this case is ``budget`` -- must 
-exactly match the Columns in the ``UPDATE`` statement. 
+might fail to activate the Trigger. In strict Standard SQL, a Trigger's
+explicit ``UPDATE`` Column list -- which in this case is ``budget`` -- must
+exactly match the Columns in the ``UPDATE`` statement.
 
 The second flaw is that the ``WHEN`` clause is non-deterministic. In a sense,
 that's the point of using a Trigger here rather than a Constraint: SQL doesn't
@@ -702,10 +704,10 @@ popularity to drop. Here are two Trigger definitions that map this situation:
         approval_rating = approval_rating - 0.01;
    END;
 
-In this example, some updates of the ``PRIME_MINISTERS`` Table will cause an 
-update of the ``TAXPAYERS`` Table, and updates of ``TAXPAYERS`` will cause both 
-an update of the ``NATIONAL_DEBT`` Table and of ``PRIME_MINISTERS``. Shown as a 
-diagram, with --> as a symbol for "causes possible ``UPDATE`` of", we have: 
+In this example, some updates of the ``PRIME_MINISTERS`` Table will cause an
+update of the ``TAXPAYERS`` Table, and updates of ``TAXPAYERS`` will cause both
+an update of the ``NATIONAL_DEBT`` Table and of ``PRIME_MINISTERS``. Shown as a
+diagram, with --> as a symbol for "causes possible ``UPDATE`` of", we have:
 
 ::
 
@@ -715,64 +717,64 @@ diagram, with --> as a symbol for "causes possible ``UPDATE`` of", we have:
          |                 |
          -------------------
 
-There is an apparent cycle here, but the second ``UPDATE`` to 
-``PRIME_MINISTERS`` is for a different Column than the first, so the effects 
-don't cascade forever. If we said "a change in the national debt will Trigger 
-Bob's overthrow", then we would have a true cycle -- that would be bad. Your 
-DBMS is supposed to detect it if the same Column changes value twice in a 
-cycle, and cause the Trigger action (and the SQL data-change statement that 
-activated the Trigger) to fail: it will return the ``SQLSTATE error 27000 
-"triggered data change violation"``. 
+There is an apparent cycle here, but the second ``UPDATE`` to
+``PRIME_MINISTERS`` is for a different Column than the first, so the effects
+don't cascade forever. If we said "a change in the national debt will Trigger
+Bob's overthrow", then we would have a true cycle -- that would be bad. Your
+DBMS is supposed to detect it if the same Column changes value twice in a
+cycle, and cause the Trigger action (and the SQL data-change statement that
+activated the Trigger) to fail: it will return the ``SQLSTATE error 27000
+"triggered data change violation"``.
 
 Triggers versus Constraints
 ===========================
 
-The essential idea of a Trigger is that if you change a Table, you cause a 
-given set of SQL statements to be executed. This idea is good: it allows you to 
-associate "rules" with Tables. And it can be efficient in a client-server 
-environment, because Trigger actions are pre-parsed and stored on the server. 
-However, Triggers are not the only way to implement this idea. There are other 
-ways to accomplish the same effect. 
+The essential idea of a Trigger is that if you change a Table, you cause a
+given set of SQL statements to be executed. This idea is good: it allows you to
+associate "rules" with Tables. And it can be efficient in a client-server
+environment, because Trigger actions are pre-parsed and stored on the server.
+However, Triggers are not the only way to implement this idea. There are other
+ways to accomplish the same effect.
 
-As one alternative, you could incorporate SQL statements in "method" 
-procedures. This requires somewhat advanced procedures; see our chapter on 
-UDTs. 
+As one alternative, you could incorporate SQL statements in "method"
+procedures. This requires somewhat advanced procedures; see our chapter on
+UDTs.
 
-As another alternative, you could use a Constraint to declare what the most 
-important rules are. As we said earlier though, the advantage of using a 
-Trigger, instead of a Constraint, is *flexibility*. You can use a wide variety 
-of SQL statements in a Trigger, while the only things you can do with 
-Constraints are integrity checks and foreign key options. But is flexibility a 
-good thing? There are reasons why you should prefer the "rigidity" that 
-Constraints imply: 
+As another alternative, you could use a Constraint to declare what the most
+important rules are. As we said earlier though, the advantage of using a
+Trigger, instead of a Constraint, is *flexibility*. You can use a wide variety
+of SQL statements in a Trigger, while the only things you can do with
+Constraints are integrity checks and foreign key options. But is flexibility a
+good thing? There are reasons why you should prefer the "rigidity" that
+Constraints imply:
 
-* Your DBMS can recognize exactly what you're trying to accomplish, and 
+* Your DBMS can recognize exactly what you're trying to accomplish, and
   optimize accordingly.
 
-* You know what the consequences are because people thought them through 
+* You know what the consequences are because people thought them through
   when they devised the rigid syntax -- so there's less chance of bugs.
 
-* Constraints have been part of standard SQL for a long time, while Triggers 
+* Constraints have been part of standard SQL for a long time, while Triggers
   have not been.
 
-* Constraints are deferrable; Triggers aren't. Most experts appear to agree 
-  that you should use Constraints instead of Triggers, if you can. Triggers 
+* Constraints are deferrable; Triggers aren't. Most experts appear to agree
+  that you should use Constraints instead of Triggers, if you can. Triggers
   are tricky.
 
 DROP TRIGGER Statement
 ======================
 
-The ``DROP TRIGGER`` statement destroys a Trigger. The required syntax for 
+The ``DROP TRIGGER`` statement destroys a Trigger. The required syntax for
 the ``DROP TRIGGER`` statement is:
 
 ::
 
     DROP TRIGGER <Trigger name>
 
-``DROP TRIGGER`` destroys a Trigger. The <Trigger name> must identify an 
-existing Trigger whose owner is either the current <AuthorizationID> or a Role 
-that the current <AuthorizationID> may use. That is, only the <AuthorizationID> 
-that owns the Trigger may drop it. 
+``DROP TRIGGER`` destroys a Trigger. The <Trigger name> must identify an
+existing Trigger whose owner is either the current <AuthorizationID> or a Role
+that the current <AuthorizationID> may use. That is, only the <AuthorizationID>
+that owns the Trigger may drop it.
 
 The effect of ``DROP TRIGGER`` <Table name>, e.g.:
 
@@ -780,11 +782,11 @@ The effect of ``DROP TRIGGER`` <Table name>, e.g.:
 
    DROP TRIGGER Trigger_1;
 
-is that the Trigger named is destroyed: it will have no further effect on 
-SQL-data. No other Objects are affected by ``DROP TRIGGER``, since no 
+is that the Trigger named is destroyed: it will have no further effect on
+SQL-data. No other Objects are affected by ``DROP TRIGGER``, since no
 Objects are dependent on Triggers.
 
-If you want to restrict your code to Core SQL, don't use the ``DROP 
+If you want to restrict your code to Core SQL, don't use the ``DROP
 TRIGGER`` statement.
 
 Dialects
@@ -797,16 +799,16 @@ from SQL3 and from each other. Here are some deviations we have noticed:
 
 * There is no ``TRIGGER`` Privilege; only Table owners can create Triggers.
 
-* A given Table can have only one ``BEFORE`` Trigger and one ``AFTER`` 
+* A given Table can have only one ``BEFORE`` Trigger and one ``AFTER``
   Trigger, or can have only a limited number of Triggers (e.g. 12) in total.
 
 * Trigger events are conglomerable, e.g.: ``BEFORE INSERT OR UPDATE OF ...``.
 
-* It is illegal to access the subject Table during the Trigger action, 
-  except through "new" and "old" row references. Such references must always 
+* It is illegal to access the subject Table during the Trigger action,
+  except through "new" and "old" row references. Such references must always
   be preceded by a colon (as if they're host variables).
 
 * The ``WHEN`` clause is not supported.
 
-* Assignments do not include the keyword ``SET``, and are legal only for 
+* Assignments do not include the keyword ``SET``, and are legal only for
   Triggers.

@@ -4,6 +4,8 @@
 Chapter 8 -- Temporal values
 ============================
 
+.. include:: ../_include/note.rst
+
 In SQL, a *temporal value* is either a datetime (i.e.: a date, a clock time or
 a timestamp) or an interval (i.e.: a span of time). They consist of a
 contiguous subset of one or more of the datetime fields (in their order of

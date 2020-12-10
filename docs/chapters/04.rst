@@ -4,6 +4,8 @@
 Chapter 4 -- Bit strings
 ========================
 
+.. include:: ../_include/note.rst
+
 In SQL, a bit string is either a binary bit string or a hexadecimal bit string.
 Binary bit strings are arbitrary sequences of zero or more binary digits
 (bits), each having a value of 0 or 1 and a length of 1 bit. Hexadecimal bit

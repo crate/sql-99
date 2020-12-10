@@ -4,6 +4,8 @@
 Chapter 17 -- SQL Schema
 ========================
 
+.. include:: ../_include/note.rst
+
 The SQL Standard describes the concepts on which SQL is based in terms of
 Objects, such as Tables. Most of these Objects are Schema Objects; that is,
 they depend on some Schema. In this chapter, we'll describe SQL Schemas in

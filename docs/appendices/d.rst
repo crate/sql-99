@@ -4,6 +4,8 @@
 Appendix D -- Incompatibilities with SQL-92
 ===========================================
 
+.. include:: ../_include/note.rst
+
 SQL3 is compatible with the former version of the Standard (SQL-92) except in
 the following cases.
 
@@ -21,7 +23,7 @@ the following cases.
   warning-cursor operation conflict.
 
 * In SQL-92, there were two <status parameter>s provided: the deprecated
-  ``SQLCODE`` and ``SQLSTATE``. SQL3 does not support the ``SQLCODE`` <status 
+  ``SQLCODE`` and ``SQLSTATE``. SQL3 does not support the ``SQLCODE`` <status
   parameter> and ``SQLCODE`` is no longer a reserved <keyword>.
 
 * SQL-92 allowed you to omit the semicolon at the end of <module contents>;
@@ -35,7 +37,7 @@ the following cases.
   their names and other minor details.
 
 * In SQL-92, it was possible for applications to specify the Character set
-  associated with an <identifier> using: ``_<Character set specification>``. 
+  associated with an <identifier> using: ``_<Character set specification>``.
   SQL3 no longer supports that capability.
 
 * In SQL-92, it was possible to sort a Cursor by a Column's ordinal position

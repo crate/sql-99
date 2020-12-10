@@ -4,6 +4,8 @@
 Chapter 13 -- NULLs
 ===================
 
+.. include:: ../_include/note.rst
+
 *"The problem isn't what they don't know. It's what they do know that ain't
 *so."*
 

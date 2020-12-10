@@ -4,6 +4,8 @@
 Chapter 9 -- Boolean values
 ===========================
 
+.. include:: ../_include/note.rst
+
 In SQL, a Boolean value -- either ``TRUE``, ``FALSE`` or ``UNKNOWN`` -- is a
 truth value. A Boolean value may be a <literal>, the value of a parameter or a
 host language variable or the result of any expression or argument (including a

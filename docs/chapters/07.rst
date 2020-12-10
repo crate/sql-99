@@ -4,6 +4,8 @@
 Chapter 7 -- Character strings
 ==============================
 
+.. include:: ../_include/note.rst
+
 In SQL, a character string is any sequence of zero or more alphanumeric
 characters that belong to a given Character set. A *Character* set is a named
 characters that belong to a given *Character set*. A Character set is a named

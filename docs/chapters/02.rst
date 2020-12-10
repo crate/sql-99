@@ -4,6 +4,8 @@
 Chapter 2 -- General Concepts
 =============================
 
+.. include:: ../_include/note.rst
+
 A *database system* can be described as essentially nothing more than a
 computerized record-keeping system. A *database*, then, is simply a collection
 of structured data files and any associated indexes. The user of such a system

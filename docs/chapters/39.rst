@@ -4,6 +4,8 @@
 Chapter 39 -- Embedded SQL Binding Style
 ========================================
 
+.. include:: ../_include/note.rst
+
 SQL DBMSs communicate with SQL applications through a common programming
 language interface that is invoked through one of the SQL Standard-defined
 binding styles, or interface options. The programming language used -- either

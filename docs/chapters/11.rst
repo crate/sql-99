@@ -4,6 +4,8 @@
 Chapter 11 -- Row types
 =======================
 
+.. include:: ../_include/note.rst
+
 [Obscure Rule] applies for this entire chapter.
 
 In SQL, a <row type> is a row of data: a composite constructed SQL <data type>.

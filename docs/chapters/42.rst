@@ -4,11 +4,13 @@
 Chapter 42 -- SQL/CLI: dbc Functions
 ====================================
 
-In this chapter, we'll describe the second essential CLI resource: the ``dbc``. 
-For CLI programs, the ``dbc`` is at the level below ``env`` and above ``stmt``. 
-The ``env`` may contain multiple ``dbc``\s, and the ``dbc`` may contain multiple 
-``stmt``\s (the ``dbc`` may also contain multiple ``desc``\s, but only of the 
-"user" kind). Here's a closeup view of a ``dbc``: 
+.. include:: ../_include/note.rst
+
+In this chapter, we'll describe the second essential CLI resource: the ``dbc``.
+For CLI programs, the ``dbc`` is at the level below ``env`` and above ``stmt``.
+The ``env`` may contain multiple ``dbc``\s, and the ``dbc`` may contain multiple
+``stmt``\s (the ``dbc`` may also contain multiple ``desc``\s, but only of the
+"user" kind). Here's a closeup view of a ``dbc``:
 
 ::
 
@@ -27,8 +29,8 @@ The ``env`` may contain multiple ``dbc``\s, and the ``dbc`` may contain multiple
                          v v           v v
                          ... to stmts  ... to user descs
 
-There are eight CLI functions for creating ``dbc``\s, dropping ``dbc``\s, 
-getting ``dbc`` attributes, setting ``dbc`` attributes, connecting and 
+There are eight CLI functions for creating ``dbc``\s, dropping ``dbc``\s,
+getting ``dbc`` attributes, setting ``dbc`` attributes, connecting and
 disconnecting. Their descriptions follow.
 
 .. rubric:: Table of Contents
@@ -60,16 +62,16 @@ SQLAllocHandle(SQL_HANDLE_DBC,...)
     handle is passed in InputHandle) and returns the handle of the new dbc into
     the memory location addressed by OutputHandle. }
 
-That is, If ``(HandleType == SQL_HANDLE_DBC)``, then the job is to allocate 
+That is, If ``(HandleType == SQL_HANDLE_DBC)``, then the job is to allocate
 a new ``dbc``.
 
 **Notes:**
 
-* The second parameter, ``InputHandle``, must be a valid ``henv`` so this 
+* The second parameter, ``InputHandle``, must be a valid ``henv`` so this
   function call happens after ``SQLAllocHandle(SQL_ALLOC_ENV,...)``.
 
-* Keep the ``hdbc``, you'll need it later for 
-  ``SQLAllocHandle(SQL_HANDLE_STMT, ...)``, for ``SQLFreeHandle(SQL_HANDLE_DBC, 
+* Keep the ``hdbc``, you'll need it later for
+  ``SQLAllocHandle(SQL_HANDLE_STMT, ...)``, for ``SQLFreeHandle(SQL_HANDLE_DBC,
   ...)`` and for other functions.
 
 **Example:**
@@ -84,7 +86,7 @@ a new ``dbc``.
       sqlreturn = SQLAllocHandle(SQL_HANDLE_DBC,henv,&hdbc);
       ...
 
-**ODBC:** The ``SQLAllocHandle`` function is new in ODBC 3.0. Error 
+**ODBC:** The ``SQLAllocHandle`` function is new in ODBC 3.0. Error
 information will not be available until you call the "connect" function.
 
 SQLAllocConnect
@@ -128,11 +130,11 @@ is the same as:
 
 **Notes:**
 
-* Although ``SQLAllocConnect`` is in the "obsolescent" category, it is 
+* Although ``SQLAllocConnect`` is in the "obsolescent" category, it is
   still a standard function supported by all DBMSs.
 
-**ODBC:** The ``SQLAllocConnect`` routine has been in ODBC since version 
-1.0. The ODBC 3.0 manual deprecates it, suggesting that users should switch 
+**ODBC:** The ``SQLAllocConnect`` routine has been in ODBC since version
+1.0. The ODBC 3.0 manual deprecates it, suggesting that users should switch
 to using ``SQLAllocHandle(SQL_HANDLE_DBC, ...)``.
 
 SQLConnect
@@ -152,78 +154,78 @@ SQLConnect
     SQLSMALLINT NameLength3         /* 16-bit input (Authentication length)*/
     );
 
-**Job:** Establish an SQL-Connection for a ``dbc``. The details of "how to 
-connect" depend largely on the implementation. We describe two broad cases: a 
-Single-Tier Scenario (everything on one computer) and a Two-Tier Scenario 
-(Client on one computer, Server on another computer). One or the other will be 
-fairly close to what your specific implementation does. 
+**Job:** Establish an SQL-Connection for a ``dbc``. The details of "how to
+connect" depend largely on the implementation. We describe two broad cases: a
+Single-Tier Scenario (everything on one computer) and a Two-Tier Scenario
+(Client on one computer, Server on another computer). One or the other will be
+fairly close to what your specific implementation does.
 
 * Single-Tier scenario
 
-   * Step 1. The client (which is effectively the same thing as "the DBMS") 
-     verifies that the parameters have valid data. Specifically, it must be 
-     true that: *(a)* The ``dbc`` exists. If it doesn't, the return is 
-     CLI-specific condition: invalid handle. Read up on the ``SQLAllocHandle`` 
-     function to see how to set up the handle. *(b)* There is no SQL 
-     transaction running on this Connection. (Actually some sophisticated 
-     systems allow this, but we assume the normal case.) If there is one, the 
-     return is ``0A001`` feature not supported: multiple transactions. It's 
-     okay if you have a transaction going on a different SQL-Connection -- this 
-     just means you can't connect twice using the same ``dbc`` handle. Read up 
-     on ``SQLDisconnect`` if you're already connected. *(c)* The ``ServerName`` 
-     parameter is valid. This should be a string, with a maximum length of 128 
-     octets (as usual the length is passed along with the string, in 
-     ``NameLength1``, and may be ``SQL_NTS``). If it's not valid, the return is 
-     ``HY090`` invalid string length or buffer length. *(d)* The ``UserName`` 
-     is valid. The contents of this string will become the <AuthorizationID>, 
-     so the string should contain a valid identifier, such as: ``'USER_1'`` or 
-     ``' USER_1 '`` (lead and trail spaces don't matter). *(e)* The 
-     authentication is valid. Usually a blank is acceptable: ''. 
+   * Step 1. The client (which is effectively the same thing as "the DBMS")
+     verifies that the parameters have valid data. Specifically, it must be
+     true that: *(a)* The ``dbc`` exists. If it doesn't, the return is
+     CLI-specific condition: invalid handle. Read up on the ``SQLAllocHandle``
+     function to see how to set up the handle. *(b)* There is no SQL
+     transaction running on this Connection. (Actually some sophisticated
+     systems allow this, but we assume the normal case.) If there is one, the
+     return is ``0A001`` feature not supported: multiple transactions. It's
+     okay if you have a transaction going on a different SQL-Connection -- this
+     just means you can't connect twice using the same ``dbc`` handle. Read up
+     on ``SQLDisconnect`` if you're already connected. *(c)* The ``ServerName``
+     parameter is valid. This should be a string, with a maximum length of 128
+     octets (as usual the length is passed along with the string, in
+     ``NameLength1``, and may be ``SQL_NTS``). If it's not valid, the return is
+     ``HY090`` invalid string length or buffer length. *(d)* The ``UserName``
+     is valid. The contents of this string will become the <AuthorizationID>,
+     so the string should contain a valid identifier, such as: ``'USER_1'`` or
+     ``' USER_1 '`` (lead and trail spaces don't matter). *(e)* The
+     authentication is valid. Usually a blank is acceptable: ''.
 
-   * Step 2. The DBMS "opens" the database named ``ServerName``. This may seem 
-     like a misuse of the parameter, but the fact is, we don't need to contact 
-     a server -- but we do need to open a database. And it's fairly common that 
-     there will be more than one database on a computer, so names are 
-     necessary. 
+   * Step 2. The DBMS "opens" the database named ``ServerName``. This may seem
+     like a misuse of the parameter, but the fact is, we don't need to contact
+     a server -- but we do need to open a database. And it's fairly common that
+     there will be more than one database on a computer, so names are
+     necessary.
 
 * Two-Tier scenario
 
-   * Step 1. The client (the local task which your application is calling) 
-     verifies that the parameters have valid data. This step is local, the only 
-     likely difference is that the client will not bother to verify the 
-     "authentication" parameter, since that's usually the server's problem. 
+   * Step 1. The client (the local task which your application is calling)
+     verifies that the parameters have valid data. This step is local, the only
+     likely difference is that the client will not bother to verify the
+     "authentication" parameter, since that's usually the server's problem.
 
    * Step 2. If ``ServerName = "DEFAULT"``:
-   
+
    ::
-   
+
      If (User Name Length <> 0) invalid string or buffer length
      If (Authentication Length <> 0) invalid string or buffer length
      If (Somebody else already in as default) connection name in use
          Otherwise:
      (Compare the effect of a "CONNECT TO DEFAULT;" statement.)
 
-   * Step 3. Using RDA, the client finds the server identified by the parameter 
-     ``ServerName``, and sends a message to the server containing the parameter 
-     values (``UserName`` and ``Authentication``). If the network's down, or 
-     the server's not out there, then the return is: ``08001 connection 
-     exception-SQL-client unable to establish SQL-session.`` 
+   * Step 3. Using RDA, the client finds the server identified by the parameter
+     ``ServerName``, and sends a message to the server containing the parameter
+     values (``UserName`` and ``Authentication``). If the network's down, or
+     the server's not out there, then the return is: ``08001 connection
+     exception-SQL-client unable to establish SQL-session.``
 
-   * Step 4. The server does its own validation of ``UserName`` and 
-     ``Authentication``. One possibility is that the ``Authentication`` is 
-     designed to be a password, and it doesn't match what that ``UserName``\'s 
-     password is supposed to be. In this case, the return is: ``08004 
-     connection exception-SQL-server rejected establishment of SQL-session.`` 
-     Notice the difference between this error and the one described in Step 3 
-     -- ``SQLSTATE is '08001'`` if the client can't talk to the server; 
-     ``SQLSTATE is '08004'`` is if they can talk, but the server says no. 
+   * Step 4. The server does its own validation of ``UserName`` and
+     ``Authentication``. One possibility is that the ``Authentication`` is
+     designed to be a password, and it doesn't match what that ``UserName``\'s
+     password is supposed to be. In this case, the return is: ``08004
+     connection exception-SQL-server rejected establishment of SQL-session.``
+     Notice the difference between this error and the one described in Step 3
+     -- ``SQLSTATE is '08001'`` if the client can't talk to the server;
+     ``SQLSTATE is '08004'`` is if they can talk, but the server says no.
 
-   * Step 5. All having gone well, we now have a new SQL-session. If there was 
-     already an SQL-session in progress, it becomes dormant. The new 
-     SQL-session becomes the current SQL-session. The new SQL-session's session 
-     <AuthorizationID> becomes ``UserName`` -- that is, if the ``UserName`` 
-     parameter is ``'X'``, and you use the niladic function ``SESSION_USER`` in 
-     an SQL statement, you'll get ``'X'``. 
+   * Step 5. All having gone well, we now have a new SQL-session. If there was
+     already an SQL-session in progress, it becomes dormant. The new
+     SQL-session becomes the current SQL-session. The new SQL-session's session
+     <AuthorizationID> becomes ``UserName`` -- that is, if the ``UserName``
+     parameter is ``'X'``, and you use the niladic function ``SESSION_USER`` in
+     an SQL statement, you'll get ``'X'``.
 
 **Example:**
 
@@ -250,11 +252,11 @@ fairly close to what your specific implementation does.
             if (sqlreturn == SQL_SUCCESS || sqlreturn == SQL_SUCCESS_WITH_INFO) {
               printf("connected successfully.\n"); } } } }
 
-**ODBC:** ``SQLConnect`` has been a supported function since ODBC 1.0. But 
-there are other, non-standard, ODBC functions which can be used to connect. The 
-alternatives take advantage of the Windows environment (by putting up dialog 
-boxes etc.), and assume that Microsoft's Driver Manager software will take care 
-of some details. 
+**ODBC:** ``SQLConnect`` has been a supported function since ODBC 1.0. But
+there are other, non-standard, ODBC functions which can be used to connect. The
+alternatives take advantage of the Windows environment (by putting up dialog
+boxes etc.), and assume that Microsoft's Driver Manager software will take care
+of some details.
 
 *CONNECT versus SQLConnect:*
 ----------------------------
@@ -263,22 +265,22 @@ There is an SQL statement which we've already discussed:
 
 ::
 
-   CONNECT TO <SQL-server-name> [AS <Connection name>] 
+   CONNECT TO <SQL-server-name> [AS <Connection name>]
                USER <AuthorizationID>;
 
-You are not supposed to execute this SQL statement using the CLI! The business 
-of connecting is to be handled exclusively through the ``SQLConnect`` function. 
-So if you write a program which accepts user commands in the form of SQL 
-statements, you must intercept any that begin with ``"CONNECT ..."`` and call 
-the ``SQLAllocConnect`` and ``SQLConnect`` functions for them. Unfortunately, 
-this is difficult because there is an imperfect mapping between the arguments 
-of the ``CONNECT`` statement and the parameters of ``SQLConnect``. 
+You are not supposed to execute this SQL statement using the CLI! The business
+of connecting is to be handled exclusively through the ``SQLConnect`` function.
+So if you write a program which accepts user commands in the form of SQL
+statements, you must intercept any that begin with ``"CONNECT ..."`` and call
+the ``SQLAllocConnect`` and ``SQLConnect`` functions for them. Unfortunately,
+this is difficult because there is an imperfect mapping between the arguments
+of the ``CONNECT`` statement and the parameters of ``SQLConnect``.
 
-Similar interceptions will be necessary for the three other SQL statements 
-which must not be executed directly using the CLI: ``DISCONNECT``, ``COMMIT`` 
-and ``ROLLBACK``. For each of these statements there is an approximate 
-CLI-function analogue: ``SQLDisconnect``, ``SQLEndTran(...SQL_COMMIT)`` and 
-``SQLEndTran(...SQL_ROLLBACK)``. 
+Similar interceptions will be necessary for the three other SQL statements
+which must not be executed directly using the CLI: ``DISCONNECT``, ``COMMIT``
+and ``ROLLBACK``. For each of these statements there is an approximate
+CLI-function analogue: ``SQLDisconnect``, ``SQLEndTran(...SQL_COMMIT)`` and
+``SQLEndTran(...SQL_ROLLBACK)``.
 
 SQLDisconnect
 =============
@@ -291,7 +293,7 @@ SQLDisconnect
     SQLHDBC hdbc                    /* 32-bit input */
     );
 
-**Job:** End an SQL session which was started by calling the ``SQLConnect`` 
+**Job:** End an SQL session which was started by calling the ``SQLConnect``
 function. Analogous to the SQL ``DISCONNECT`` statement.
 
 **Algorithm:**
@@ -325,16 +327,16 @@ function. Analogous to the SQL ``DISCONNECT`` statement.
 
 **Notes:**
 
-* A connected ``dbc`` takes up space, and in a multi-user scenario there might 
-  be conflicts with other SQL-sessions using the same server. You should always 
-  call ``SQLDisconnect`` to end an SQL-session, although some single-tier DBMSs 
-  don't require it. After you call ``SQLDisconnect``, you can either re-connect 
-  (see ``SQLConnect``) or finish the tear-down process by freeing the ``dbc`` 
-  (see ``SQLFreeHandle(SQL_HANDLE_DBC...)``). 
+* A connected ``dbc`` takes up space, and in a multi-user scenario there might
+  be conflicts with other SQL-sessions using the same server. You should always
+  call ``SQLDisconnect`` to end an SQL-session, although some single-tier DBMSs
+  don't require it. After you call ``SQLDisconnect``, you can either re-connect
+  (see ``SQLConnect``) or finish the tear-down process by freeing the ``dbc``
+  (see ``SQLFreeHandle(SQL_HANDLE_DBC...)``).
 
-* There is a side effect: a previously-dormant SQL-Connection might become 
-  current. That can only happen if the DBMS allows double-connections on the 
-  same ``dbc``. 
+* There is a side effect: a previously-dormant SQL-Connection might become
+  current. That can only happen if the DBMS allows double-connections on the
+  same ``dbc``.
 
 **Example:**
 
@@ -354,8 +356,8 @@ function. Analogous to the SQL ``DISCONNECT`` statement.
       SQLFreeHandle(hdbc,...); /* SQLFreeHandle call for dbc */
       SQLFreeHandle(...); }    /* SQLFreeHandle call for env */
 
-**ODBC:** The ``SQLDisconnect`` function has been around since ODBC 1.0. 
-``SQLDisconnect`` causes automatic dropping of all statements and 
+**ODBC:** The ``SQLDisconnect`` function has been around since ODBC 1.0.
+``SQLDisconnect`` causes automatic dropping of all statements and
 descriptors open on the connection.
 
 SQLGetConnectAttr
@@ -373,31 +375,31 @@ SQLGetConnectAttr
     SQLINTEGER *StringLength        /* pointer to 32-bit output */
     );
 
-**Job:** Get the value of a ``dbc`` attribute. The standard implementation of 
-the ``SQLGetConnectAttr`` function doesn't do anything important, but there 
-might be non-standard, implementation-defined attributes that you can retrieve 
-using ``SQLGetConnectAttr``. The standard connection attribute has this 
-``#define`` in ``sqlcli.h``: 
+**Job:** Get the value of a ``dbc`` attribute. The standard implementation of
+the ``SQLGetConnectAttr`` function doesn't do anything important, but there
+might be non-standard, implementation-defined attributes that you can retrieve
+using ``SQLGetConnectAttr``. The standard connection attribute has this
+``#define`` in ``sqlcli.h``:
 
 ::
 
     #define SQL_ATTR_AUTO_IPD 10001
 
-It is, of course, an integer and may not be set by ``SQLSetConnectAttr``. 
-``SQL_ATTR_AUTO_IPD`` stands for SQL Attribute: Automatically Populate IPD. 
-This is a flag integer with a value of either ``TRUE (1)`` or ``FALSE (0)``. 
-``SQL_ATTR_AUTO_IPD`` is the only standard attribute for a connection. If 
-``SQL_ATTR_AUTO_IPD`` is ``TRUE``, the DBMS "populates" the IPD (implementation 
-parameter descriptor) whenever you prepare an SQL statement. That means that 
-there will be, automatically, one parameter descriptor for every parameter 
-marker (symbolized by "?") inside your SQL statement. For example, if you 
-execute this SQL statement: 
+It is, of course, an integer and may not be set by ``SQLSetConnectAttr``.
+``SQL_ATTR_AUTO_IPD`` stands for SQL Attribute: Automatically Populate IPD.
+This is a flag integer with a value of either ``TRUE (1)`` or ``FALSE (0)``.
+``SQL_ATTR_AUTO_IPD`` is the only standard attribute for a connection. If
+``SQL_ATTR_AUTO_IPD`` is ``TRUE``, the DBMS "populates" the IPD (implementation
+parameter descriptor) whenever you prepare an SQL statement. That means that
+there will be, automatically, one parameter descriptor for every parameter
+marker (symbolized by "?") inside your SQL statement. For example, if you
+execute this SQL statement:
 
 ::
 
    INSERT INTO Table_1 VALUES (?);
 
-there will be an automatic IPD. IPD contents are the subject of a later 
+there will be an automatic IPD. IPD contents are the subject of a later
 chapter.
 
 **Algorithm:**
@@ -416,41 +418,41 @@ chapter.
 
 **Notes:**
 
-* There might be several implementation-defined attributes for connections. The 
-  Standard allows for that. That's why ``BufferLength`` and ``*Stringlength`` 
-  -- which aren't needed for ``SQL_ATTR_AUTO_IPD`` -- are defined parameters. 
-  They're there in case someday it's necessary to return a character string 
-  value. 
+* There might be several implementation-defined attributes for connections. The
+  Standard allows for that. That's why ``BufferLength`` and ``*Stringlength``
+  -- which aren't needed for ``SQL_ATTR_AUTO_IPD`` -- are defined parameters.
+  They're there in case someday it's necessary to return a character string
+  value.
 
-* Some things which we think of as "connection attributes" are not 
+* Some things which we think of as "connection attributes" are not
   retrieved with ``SQLGetConnectAttr``. They are:
 
-   * The default time zone offset -- get it by extracting the <time zone 
-     interval> from SQL's ``CURRENT_TIME`` function. 
+   * The default time zone offset -- get it by extracting the <time zone
+     interval> from SQL's ``CURRENT_TIME`` function.
 
-   * The default Catalog -- get it by selecting from the 
-     ``INFORMATION_SCHEMA_CATALOG_NAME`` View, or by using ``SQLGetInfo`` with 
-     ``SQL_CATALOG_NAME``. 
+   * The default Catalog -- get it by selecting from the
+     ``INFORMATION_SCHEMA_CATALOG_NAME`` View, or by using ``SQLGetInfo`` with
+     ``SQL_CATALOG_NAME``.
 
-   * The default Schema -- get it by using ``SQLGetDiagField`` after any 
-     erroneous statement. 
+   * The default Schema -- get it by using ``SQLGetDiagField`` after any
+     erroneous statement.
 
-   * The default Character set -- get it by using ``SQLGetDiagField`` after any 
-     erroneous statement. 
+   * The default Character set -- get it by using ``SQLGetDiagField`` after any
+     erroneous statement.
 
-   * The default Collation -- get it by using ``SQLGetInfo`` with 
-     ``SQL_COLLATING_SEQUENCE``. 
+   * The default Collation -- get it by using ``SQLGetInfo`` with
+     ``SQL_COLLATING_SEQUENCE``.
 
-   * The <Connection name> -- get it by using ``SQLGetDiagField`` after any 
-     erroneous statement. 
+   * The <Connection name> -- get it by using ``SQLGetDiagField`` after any
+     erroneous statement.
 
-   * The <SQL-server name> -- get it by using ``SQLGetInfo`` with 
-     ``SQL_DATA_SOURCE_NAME`` or ``SQLGetInfo`` with ``SQL_SERVER_NAME``. 
+   * The <SQL-server name> -- get it by using ``SQLGetInfo`` with
+     ``SQL_DATA_SOURCE_NAME`` or ``SQLGetInfo`` with ``SQL_SERVER_NAME``.
 
-   * The SQL-session user -- get it from SQL's ``SESSION_USER`` function, or by 
-     using ``SQLGetInfo`` with ``SQL_USER_NAME``. 
+   * The SQL-session user -- get it from SQL's ``SESSION_USER`` function, or by
+     using ``SQLGetInfo`` with ``SQL_USER_NAME``.
 
-* In the final version of the SQL/CLI there will be two more attributes — 
+* In the final version of the SQL/CLI there will be two more attributes —
   ``SQL_ATTR_SAVEPOINT_NAME`` and ``SQL_ATTR_SAVEPOINT_NUMBER``.
 
 **Example:**
@@ -471,11 +473,11 @@ chapter.
   can make sure our currently-assigned parameters are okay. If pop is false: we
   can still use parameters, but we have to fill in IPD values "manually". */
 
-**ODBC:** The ``SQLGetConnectAttr`` function is new to ODBC 3.0, but a very 
-similar function (``SQLGetConnectOption``) existed in ODBC 2.0. ODBC allows for 
-16 possible Attributes. One is ``SQL_ATTR_AUTO_IPD``. Most of the others are 
-related to ODBC's optional features (timeout, trace file, network packet size, 
-etc.). 
+**ODBC:** The ``SQLGetConnectAttr`` function is new to ODBC 3.0, but a very
+similar function (``SQLGetConnectOption``) existed in ODBC 2.0. ODBC allows for
+16 possible Attributes. One is ``SQL_ATTR_AUTO_IPD``. Most of the others are
+related to ODBC's optional features (timeout, trace file, network packet size,
+etc.).
 
 SQLSetConnectAttr
 =================
@@ -508,16 +510,16 @@ SQLSetConnectAttr
 
 **Notes:**
 
-* This function is useless unless there are implementation-defined ``dbc`` 
+* This function is useless unless there are implementation-defined ``dbc``
   attributes.
 
-* In the final version of the SQL/CLI there will be two more attributes — 
-  ``SQL_ATTR_SAVEPOINT_NAME`` and ``SQL_ATTR_SAVEPOINT_NUMBER``. 
+* In the final version of the SQL/CLI there will be two more attributes —
+  ``SQL_ATTR_SAVEPOINT_NAME`` and ``SQL_ATTR_SAVEPOINT_NUMBER``.
 
-* Value might be a pointer; that's why we've used ``SQLPOINTER`` in the 
-  prototype. But it's usually an integer. C programmers, when passing an 
-  integer value here, will use casts such as ``(PTR)`` or ``(SQLPOINTER)`` or 
-  ``(void*)``. 
+* Value might be a pointer; that's why we've used ``SQLPOINTER`` in the
+  prototype. But it's usually an integer. C programmers, when passing an
+  integer value here, will use casts such as ``(PTR)`` or ``(SQLPOINTER)`` or
+  ``(void*)``.
 
 **Example:**
 
@@ -532,8 +534,8 @@ SQLSetConnectAttr
   else
     /* function call failed, as expected */
 
-**ODBC:** The ``SQLSetConnectAttr`` function is new in ODBC 3.0, but ODBC 
-2.0 had a broadly similar function (``SQLSetConnectOption``). ODBC allows 
+**ODBC:** The ``SQLSetConnectAttr`` function is new in ODBC 3.0, but ODBC
+2.0 had a broadly similar function (``SQLSetConnectOption``). ODBC allows
 for 16 ``dbc`` attributes, of various types.
 
 SQLFreeHandle(SQL_HANDLE_DBC,...)
@@ -566,16 +568,16 @@ SQLFreeHandle(SQL_HANDLE_DBC,...)
 
 **Notes:**
 
-* If ``SQLFreeHandle`` returns ``SQL_ERROR``, then the handle is still live 
+* If ``SQLFreeHandle`` returns ``SQL_ERROR``, then the handle is still live
   and you can get diagnostics.
 
 * The name ``SQLFreeHandle`` is unfortunate. We are not "freeing a handle".
   We are destroying the resource that the handle refers to. In embedded SQL
   contexts, the preferred word for this process is "deallocate".
 
-* Before you call ``SQLFreeHandle(SQL_HANDLE_DBC...)``, you must call 
-  ``SQLDisconnect``. Therefore, by this time, there are no ``stmt``\s or 
-  ``desc``\s associated with the ``dbc``. 
+* Before you call ``SQLFreeHandle(SQL_HANDLE_DBC...)``, you must call
+  ``SQLDisconnect``. Therefore, by this time, there are no ``stmt``\s or
+  ``desc``\s associated with the ``dbc``.
 
 **Example:** Typically, an SQL application ends with a flurry of freeings:
 
@@ -585,8 +587,8 @@ SQLFreeHandle(SQL_HANDLE_DBC,...)
       SQLFreeHandle(SQL_HANDLE_DBC,hdbc);
       SQLFreeHandle(SQL_HANDLE_ENV,henv);  /* ends the application */
 
-**ODBC:** The ``SQLFreeHandle`` function is new in ODBC 3.0. There will be some 
-differences in behaviour if you use ODBC-specific features, such as tracing 
+**ODBC:** The ``SQLFreeHandle`` function is new in ODBC 3.0. There will be some
+differences in behaviour if you use ODBC-specific features, such as tracing
 or environment sharing.
 
 SQLFreeConnect
@@ -600,7 +602,7 @@ SQLFreeConnect
     SQLHDBC hdbc                      /* 32-bit input */
     );
 
-**Job:** Destroy a ``dbc``. This is the reverse of the ``SQLAllocConnect`` 
+**Job:** Destroy a ``dbc``. This is the reverse of the ``SQLAllocConnect``
 function. ``SQLFreeConnect`` is redundant.
 
 **Algorithm:**
@@ -617,7 +619,7 @@ is the same thing as
 
 **Notes:**
 
-* The Standard does not say that the ``SQLFreeConnect`` function is deprecated. 
+* The Standard does not say that the ``SQLFreeConnect`` function is deprecated.
   Nevertheless, ``SQLFreeHandle(SQL_HANDLE_DBC,...)`` is more modern.
 
 **Example:**
@@ -634,9 +636,9 @@ is the same thing as
       /* hdbc is now an invalid handle */
       ...
 
-**ODBC:** The ``SQLFreeConnect`` function has been in ODBC since version 
-1.0. The ODBC 3.0 manual deprecates it, suggesting that users should switch 
+**ODBC:** The ``SQLFreeConnect`` function has been in ODBC since version
+1.0. The ODBC 3.0 manual deprecates it, suggesting that users should switch
 to using ``SQLFreeHandle(SQL_HANDLE_DBC...)``.
 
-And that's it for the ``dbc`` functions. In the next chapter, we'll take a 
+And that's it for the ``dbc`` functions. In the next chapter, we'll take a
 look at the ``stmt`` functions.

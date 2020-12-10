@@ -4,34 +4,36 @@
 Chapter 35 -- Changing SQL-data
 ===============================
 
-The SQL-data change statements are ``INSERT``, ``UPDATE`` and ``DELETE``. Many 
-people call these the SQL "update" statements -- which is okay, provided you 
-don't mix up "update" (lower case, meaning ``INSERT`` or ``UPDATE`` or 
-``DELETE``) with ``UPDATE`` (upper case, meaning only ``UPDATE``). We prefer 
-the term "data change statements" because it's unambiguous. 
+.. include:: ../_include/note.rst
 
-In this chapter, we'll discuss changes to SQL-data in all aspects, including 
-hidden changes, changes of Views, the syntax of ``INSERT``, ``UPDATE`` and 
-``DELETE``, access (Privilege) rules and the new SQL3 feature: changes to 
-joined Tables. But we won't talk about four important and relevant matters 
-because they rate chapters of their own: 
+The SQL-data change statements are ``INSERT``, ``UPDATE`` and ``DELETE``. Many
+people call these the SQL "update" statements -- which is okay, provided you
+don't mix up "update" (lower case, meaning ``INSERT`` or ``UPDATE`` or
+``DELETE``) with ``UPDATE`` (upper case, meaning only ``UPDATE``). We prefer
+the term "data change statements" because it's unambiguous.
 
-**Multiple data changes and transactions**, discussed on our chapter on "SQL 
-Transactions". 
+In this chapter, we'll discuss changes to SQL-data in all aspects, including
+hidden changes, changes of Views, the syntax of ``INSERT``, ``UPDATE`` and
+``DELETE``, access (Privilege) rules and the new SQL3 feature: changes to
+joined Tables. But we won't talk about four important and relevant matters
+because they rate chapters of their own:
 
-**Data changes and Constraints**, discussed on our chapter on "SQL Constraints 
-and Assertions". 
+**Multiple data changes and transactions**, discussed on our chapter on "SQL
+Transactions".
 
-**Data changes and Triggers**, discussed on our chapter on "SQL Triggers". 
+**Data changes and Constraints**, discussed on our chapter on "SQL Constraints
+and Assertions".
 
-**Data changes through Cursors**, discussed on our chapter on "Embedded SQL 
-Binding Style" -- in particular, data changes with "positioned" 
-``UPDATE/DELETE``. 
+**Data changes and Triggers**, discussed on our chapter on "SQL Triggers".
 
-After reading this chapter, you'll know everything that there is to know about 
-the SQL data-change statements taken in isolation. But we give you fair 
-warning: we'll revisit some of these points when we put them in context later 
-on. 
+**Data changes through Cursors**, discussed on our chapter on "Embedded SQL
+Binding Style" -- in particular, data changes with "positioned"
+``UPDATE/DELETE``.
+
+After reading this chapter, you'll know everything that there is to know about
+the SQL data-change statements taken in isolation. But we give you fair
+warning: we'll revisit some of these points when we put them in context later
+on.
 
 .. rubric:: Table of Contents
 
@@ -41,89 +43,89 @@ on.
 The SQL-data Change Statements
 ==============================
 
-In SQL, there are fundamentally only three conceivable data-change operations 
-that can be performed at the row level: the addition of a new row, the editing 
-of an existing row and the removal of an existing row. So the only SQL 
-statements that you'll ever need to change SQL-data are (respectively): 
-``INSERT``, ``UPDATE`` and ``DELETE``. Before getting into the details of each 
-individual statement, we'll note those features or restrictions which are 
-common to two or more of them. 
+In SQL, there are fundamentally only three conceivable data-change operations
+that can be performed at the row level: the addition of a new row, the editing
+of an existing row and the removal of an existing row. So the only SQL
+statements that you'll ever need to change SQL-data are (respectively):
+``INSERT``, ``UPDATE`` and ``DELETE``. Before getting into the details of each
+individual statement, we'll note those features or restrictions which are
+common to two or more of them.
 
 **The "set at a Time" Rule**
 
-If multiple rows are involved in a data change operation, you must abandon "row 
-at a time" thinking. For example, a ``WHERE`` clause is completely evaluated 
-before a ``DELETE`` operation beings to remove rows, and an ``UPDATE`` 
-operation is not affected by a change to the last row for "uniqueness" 
-purposes. 
+If multiple rows are involved in a data change operation, you must abandon "row
+at a time" thinking. For example, a ``WHERE`` clause is completely evaluated
+before a ``DELETE`` operation beings to remove rows, and an ``UPDATE``
+operation is not affected by a change to the last row for "uniqueness"
+purposes.
 
 **The "Updatable Table" Rule**
 
-Although the object of a data-change statement can be a View (or a derived 
-Table), ultimately the changes actually happen to one or more Base tables. 
-Sometimes, though, an operation won't make sense if applied to the appropriate 
-Base table and so the SQL-data change statement won't work. 
+Although the object of a data-change statement can be a View (or a derived
+Table), ultimately the changes actually happen to one or more Base tables.
+Sometimes, though, an operation won't make sense if applied to the appropriate
+Base table and so the SQL-data change statement won't work.
 
 **The "Read Only" Rule**
 
-SQL provides a statement that is used to prevent any data changes from 
-happening: if you execute ``SET TRANSACTION READ ONLY``, then all ``INSERT``, 
-``UPDATE`` and ``DELETE`` statements will fail: your DBMS will return the 
-``SQLSTATE error 25006 "invalid transaction state-read-only transaction."`` 
+SQL provides a statement that is used to prevent any data changes from
+happening: if you execute ``SET TRANSACTION READ ONLY``, then all ``INSERT``,
+``UPDATE`` and ``DELETE`` statements will fail: your DBMS will return the
+``SQLSTATE error 25006 "invalid transaction state-read-only transaction."``
 
 **The "Default Values" Rule**
 
-Remember that any <Column definition> or Domain definition can include the 
-clause "``DEFAULT`` value". Your DBMS uses the value specified to provide a 
-value for a Column that is implicitly the object of a data change operation. 
-You can also use this value explicitly by specifying the <keyword> ``DEFAULT`` 
-in an ``INSERT`` statement or an ``UPDATE`` statement -- this has the effect of 
-setting a Column to its default value. If you didn't use a ``DEFAULT`` clause 
-when you defined a Column or Domain, that's okay -- it still has a default 
-value: ``NULL`` (provided, of course, that there isn't also a ``NOT NULL`` 
-Constraint on the Column or Domain). 
+Remember that any <Column definition> or Domain definition can include the
+clause "``DEFAULT`` value". Your DBMS uses the value specified to provide a
+value for a Column that is implicitly the object of a data change operation.
+You can also use this value explicitly by specifying the <keyword> ``DEFAULT``
+in an ``INSERT`` statement or an ``UPDATE`` statement -- this has the effect of
+setting a Column to its default value. If you didn't use a ``DEFAULT`` clause
+when you defined a Column or Domain, that's okay -- it still has a default
+value: ``NULL`` (provided, of course, that there isn't also a ``NOT NULL``
+Constraint on the Column or Domain).
 
 **The "Column Integrity" Rule**
 
-At the same time that you defined a Column, you declared what its <data type> 
-is. The <data type> limits the values that the Column can contain. For example, 
-if it's a ``DATE``, then you can't insert the character string ``'Hello, 
-world'`` into it. This limitation -- that a Column's data must conform to its 
-<data type> -- is enforced on any assignment: it is an implicit Constraint on 
-the Column. This implicit Constraint isn't like the explicit Constraints we 
-talked about in out chapter on constraints and assertions, though. The big 
-difference between them is that Column integrity is checked when the SQL-data 
-change statement starts, while explicit Constraints are checked when the SQL- 
-data change statement ends. In other words, your DBMS vets your ``INSERT``\s 
-and ``UPDATE``\s; it won't let utter garbage through no matter how you insist. 
+At the same time that you defined a Column, you declared what its <data type>
+is. The <data type> limits the values that the Column can contain. For example,
+if it's a ``DATE``, then you can't insert the character string ``'Hello,
+world'`` into it. This limitation -- that a Column's data must conform to its
+<data type> -- is enforced on any assignment: it is an implicit Constraint on
+the Column. This implicit Constraint isn't like the explicit Constraints we
+talked about in out chapter on constraints and assertions, though. The big
+difference between them is that Column integrity is checked when the SQL-data
+change statement starts, while explicit Constraints are checked when the SQL-
+data change statement ends. In other words, your DBMS vets your ``INSERT``\s
+and ``UPDATE``\s; it won't let utter garbage through no matter how you insist.
 
 **The "No Data" Condition**
 
-Any SQL-data change statement can be a perfect success -- and still affect zero 
-rows. ``INSERT``, ``UPDATE`` and ``DELETE`` all depend to some extent on 
-"search conditions", so it should be clear that sometimes there will be no rows 
-to insert or update or delete. In that case, the SQL-data change statement 
-hasn't failed -- it just hasn't found anything that fulfills your requirements 
-for a change. In such cases, your DBMS will return the ``SQLSTATE warning 02000 
-"no data."`` (If you're a programmer who'll want to know the exact number of 
-rows that any SQL-data change statement affects, see our discussion of the 
-``SQLRowCount`` function in our chapter on SQL/CLI diagnostics.) 
+Any SQL-data change statement can be a perfect success -- and still affect zero
+rows. ``INSERT``, ``UPDATE`` and ``DELETE`` all depend to some extent on
+"search conditions", so it should be clear that sometimes there will be no rows
+to insert or update or delete. In that case, the SQL-data change statement
+hasn't failed -- it just hasn't found anything that fulfills your requirements
+for a change. In such cases, your DBMS will return the ``SQLSTATE warning 02000
+"no data."`` (If you're a programmer who'll want to know the exact number of
+rows that any SQL-data change statement affects, see our discussion of the
+``SQLRowCount`` function in our chapter on SQL/CLI diagnostics.)
 
 **The "Data Change Object" Condition**
 
-For each SQL-data change statement, there is a syntax diagram that has "<Table 
-reference>" in a prominent place. This somewhat anticipates the conclusion of 
-the chapter, since a <Table reference> can include <Correlation name>s, 
-parentheses and various Table operators. As usual, we suggest that, until 
-you've read through the entire chapter, you should interpret <Table reference> 
-as <Table name>. 
+For each SQL-data change statement, there is a syntax diagram that has "<Table
+reference>" in a prominent place. This somewhat anticipates the conclusion of
+the chapter, since a <Table reference> can include <Correlation name>s,
+parentheses and various Table operators. As usual, we suggest that, until
+you've read through the entire chapter, you should interpret <Table reference>
+as <Table name>.
 
 **The "Tentative" Condition**
 
-Finally, you'll note that in the description of each SQL-data change statement, 
-we use the word "tentatively" when telling you what it does. This is not a 
-standard term -- we use it merely to indicate that any new row is "on 
-probation": it's not too late to take your move back until ``COMMIT`` time. 
+Finally, you'll note that in the description of each SQL-data change statement,
+we use the word "tentatively" when telling you what it does. This is not a
+standard term -- we use it merely to indicate that any new row is "on
+probation": it's not too late to take your move back until ``COMMIT`` time.
 
 INSERT Statement
 ================
@@ -138,39 +140,39 @@ target Table. The required syntax for the ``INSERT`` statement is:
     [ (<Column name> [ {,<Column name>} ... ]) ] <query expression> |
     DEFAULT VALUES
 
-The ``INSERT`` statement has two forms. The first evaluates a query to 
-construct one or more rows to be inserted into a Table. The second constructs 
-one row -- containing default values for every Column -- and inserts it into a 
-Table. The <Table reference> identifies your target Table: the Table that you 
-want ``INSERT`` to add rows to. The target Table must be updatable -- that is, 
-it must either be a Base table, or a View that is not a read-only Table. If 
-<Table reference> does not include a <Schema name> qualifier, your target Table 
-must belong to the SQL-session default Schema. If your target Table is a typed 
-Table, your ``INSERT`` statement may include the optional <keyword> ``ONLY``. 
+The ``INSERT`` statement has two forms. The first evaluates a query to
+construct one or more rows to be inserted into a Table. The second constructs
+one row -- containing default values for every Column -- and inserts it into a
+Table. The <Table reference> identifies your target Table: the Table that you
+want ``INSERT`` to add rows to. The target Table must be updatable -- that is,
+it must either be a Base table, or a View that is not a read-only Table. If
+<Table reference> does not include a <Schema name> qualifier, your target Table
+must belong to the SQL-session default Schema. If your target Table is a typed
+Table, your ``INSERT`` statement may include the optional <keyword> ``ONLY``.
 
-To execute ``INSERT``, your current <AuthorizationID> needs the ``INSERT`` 
-Privilege on every Column directly affected by the insert operation -- and, if 
-an object Column is a derived Column (as it is in the case of a View), your 
-current <AuthorizationID> also needs the ``INSERT`` Privilege on every 
-underlying Table that makes up your target Table. 
+To execute ``INSERT``, your current <AuthorizationID> needs the ``INSERT``
+Privilege on every Column directly affected by the insert operation -- and, if
+an object Column is a derived Column (as it is in the case of a View), your
+current <AuthorizationID> also needs the ``INSERT`` Privilege on every
+underlying Table that makes up your target Table.
 
 *INSERT Column List*
 --------------------
 
-In the first form of ``INSERT``, you can optionally specify a parenthesized 
-object Column list, wherein you provide your DBMS with the unqualified names of 
-the Columns that are the targets for each value returned by the <query 
-expression>. Each Column named must belong to the Table named in the ``INTO`` 
-clause; <Column name>s may not be repeated in the list but you may list the 
-Columns in any order; the number of Columns in the list must match the number 
-of result Columns returned by the query. ``INSERT`` places data into the 
-Columns of the target Table in the order that you list them in the ``INSERT`` 
-Column clause: the first value specified is assigned to the first Column named, 
-the second value is assigned to the second Column named, and so on. Any Columns 
-of the target Table that are omitted from the ``INSERT`` Column clause are 
-assigned their default value. For example, these SQL statements create a new 
-Table and insert one row of data into it (the default value for a Column that 
-is specifically defined with one is ``NULL``): 
+In the first form of ``INSERT``, you can optionally specify a parenthesized
+object Column list, wherein you provide your DBMS with the unqualified names of
+the Columns that are the targets for each value returned by the <query
+expression>. Each Column named must belong to the Table named in the ``INTO``
+clause; <Column name>s may not be repeated in the list but you may list the
+Columns in any order; the number of Columns in the list must match the number
+of result Columns returned by the query. ``INSERT`` places data into the
+Columns of the target Table in the order that you list them in the ``INSERT``
+Column clause: the first value specified is assigned to the first Column named,
+the second value is assigned to the second Column named, and so on. Any Columns
+of the target Table that are omitted from the ``INSERT`` Column clause are
+assigned their default value. For example, these SQL statements create a new
+Table and insert one row of data into it (the default value for a Column that
+is specifically defined with one is ``NULL``):
 
 ::
 
@@ -180,16 +182,16 @@ is specifically defined with one is ``NULL``):
    INSERT INTO Table_1 (column_3, column_1)
    VALUES (DATE '1996-12-31', 20);
 
-If a Column in the Column list is a self-referencing Column, your ``INSERT`` 
-statement must include the ``OVERRIDE SYSTEM GENERATED VALUES`` clause. 
+If a Column in the Column list is a self-referencing Column, your ``INSERT``
+statement must include the ``OVERRIDE SYSTEM GENERATED VALUES`` clause.
 
-If you omit the Column list clause from an ``INSERT`` statement, your DBMS will 
-assume you mean "all Columns in the Table, in their ordinal position order". In 
-this case, ``INSERT`` places data into the Columns of the target Table in the 
-implied order listed: the first value specified is assigned to the first Column 
-of the target Table, the second value is assigned to the second Column of the 
-target Table, and so on. For example, these SQL statements create a new Table 
-and insert one row of data into it: 
+If you omit the Column list clause from an ``INSERT`` statement, your DBMS will
+assume you mean "all Columns in the Table, in their ordinal position order". In
+this case, ``INSERT`` places data into the Columns of the target Table in the
+implied order listed: the first value specified is assigned to the first Column
+of the target Table, the second value is assigned to the second Column of the
+target Table, and so on. For example, these SQL statements create a new Table
+and insert one row of data into it:
 
 ::
 
@@ -202,28 +204,28 @@ and insert one row of data into it:
 *<query expression>*
 --------------------
 
-The <query expression> that makes up the first form of ``INSERT`` is usually a 
-``SELECT`` statement, but it's also common to see the Table constructor 
-"``VALUES`` (value commalist)" here (usually with only a single row). In this 
-latter case, you can use the specifications ``DEFAULT`` (for insert default 
-value), ``NULL`` (for insert null value), ``ARRAY??(??)`` or ``ARRAY[]`` (for 
-insert an empty array) within the "value commalist" to specify a value for a 
-Column. The order and number of the values must correspond to the order and 
-number of the Columns in the ``INSERT`` Column list. If you're using a <query 
-expression>, the ``INSERT``\'s <Table reference> may not identify a Table that 
-also appears in any ``FROM`` clause in that <query expression>. The <query 
-expression> provides zero or more rows of data values when it is evaluated: its 
-search conditions are effectively evaluated for each row before any rows are 
-added to the target Table. Here's an example: 
+The <query expression> that makes up the first form of ``INSERT`` is usually a
+``SELECT`` statement, but it's also common to see the Table constructor
+"``VALUES`` (value commalist)" here (usually with only a single row). In this
+latter case, you can use the specifications ``DEFAULT`` (for insert default
+value), ``NULL`` (for insert null value), ``ARRAY??(??)`` or ``ARRAY[]`` (for
+insert an empty array) within the "value commalist" to specify a value for a
+Column. The order and number of the values must correspond to the order and
+number of the Columns in the ``INSERT`` Column list. If you're using a <query
+expression>, the ``INSERT``\'s <Table reference> may not identify a Table that
+also appears in any ``FROM`` clause in that <query expression>. The <query
+expression> provides zero or more rows of data values when it is evaluated: its
+search conditions are effectively evaluated for each row before any rows are
+added to the target Table. Here's an example:
 
 ::
 
    INSERT INTO Table_1 (column_1, column_3)
       SELECT column_1, column_3 FROM Table_2;
 
-You can insert a null value into a Column either by placing the <keyword> 
-``NULL`` in the ``INSERT ... VALUES`` clause, or by omitting a Column that 
-has no defined default value from an explicit <Column name> clause. For 
+You can insert a null value into a Column either by placing the <keyword>
+``NULL`` in the ``INSERT ... VALUES`` clause, or by omitting a Column that
+has no defined default value from an explicit <Column name> clause. For
 example, given this Table definition:
 
 ::
@@ -231,7 +233,7 @@ example, given this Table definition:
    CREATE TABLE Table_1 (
       column_1 INTEGER, column_2 CHARACTER(7), column_3 DATE);
 
-these ``INSERT`` statements, which insert one row of data into ``TABLE_1`` 
+these ``INSERT`` statements, which insert one row of data into ``TABLE_1``
 using <literal>s and/or the <keyword> ``NULL``, are equivalent:
 
 ::
@@ -247,28 +249,28 @@ using <literal>s and/or the <keyword> ``NULL``, are equivalent:
 
 .. TIP::
 
-  All three of these examples result in a new record in ``TABLE_1``, with the 
-  specified values ``'GOODBYE'`` in ``COLUMN_2`` and ``'1996-12-31'`` in 
-  ``COLUMN_3``, and the null value in ``COLUMN_1``. 
+  All three of these examples result in a new record in ``TABLE_1``, with the
+  specified values ``'GOODBYE'`` in ``COLUMN_2`` and ``'1996-12-31'`` in
+  ``COLUMN_3``, and the null value in ``COLUMN_1``.
 
-* In the first example, the null value is implied since no explicit value is 
-  specified for ``COLUMN_1`` (this, of course, assumes that there is no other 
-  default value for ``COLUMN_1``). It is necessary to provide a <Column name> 
-  clause list of the Columns you want to assign the values to if your 
-  ``INSERT`` statement contains fewer source values than the target Table has 
-  Columns. 
+* In the first example, the null value is implied since no explicit value is
+  specified for ``COLUMN_1`` (this, of course, assumes that there is no other
+  default value for ``COLUMN_1``). It is necessary to provide a <Column name>
+  clause list of the Columns you want to assign the values to if your
+  ``INSERT`` statement contains fewer source values than the target Table has
+  Columns.
 
-* In the second and third examples, the null value is explicitly stated as the 
-  value to be assigned to ``TABLE_1.COLUMN_1`` and therefore the <Column name> 
-  clause can be (but does not have to be) omitted. The explicit use of the 
-  <keyword> ``NULL`` over-rides the assignment of a default value to a Column 
-  that is omitted from a <Column name> clause. This, of course, assumes that 
-  the Column has not been defined with a ``NOT NULL`` Constraint. 
+* In the second and third examples, the null value is explicitly stated as the
+  value to be assigned to ``TABLE_1.COLUMN_1`` and therefore the <Column name>
+  clause can be (but does not have to be) omitted. The explicit use of the
+  <keyword> ``NULL`` over-rides the assignment of a default value to a Column
+  that is omitted from a <Column name> clause. This, of course, assumes that
+  the Column has not been defined with a ``NOT NULL`` Constraint.
 
-You can insert a default value into a Column either by placing the <keyword> 
-``DEFAULT`` in the ``INSERT ... VALUES`` clause, or by omitting a Column that 
-has a defined default value from an explicit <Column name> clause. For example, 
-given this Table definition: 
+You can insert a default value into a Column either by placing the <keyword>
+``DEFAULT`` in the ``INSERT ... VALUES`` clause, or by omitting a Column that
+has a defined default value from an explicit <Column name> clause. For example,
+given this Table definition:
 
 ::
 
@@ -277,7 +279,7 @@ given this Table definition:
       column_2 CHARACTER(7),
       column_3 DATE);
 
-these ``INSERT`` statements, which insert one row of data into ``TABLE_1`` 
+these ``INSERT`` statements, which insert one row of data into ``TABLE_1``
 using <literal>s and/or the <keyword> ``DEFAULT``, are equivalent:
 
 ::
@@ -293,24 +295,24 @@ using <literal>s and/or the <keyword> ``DEFAULT``, are equivalent:
 
 .. TIP::
 
-  All three of these examples result in a new record in ``TABLE_1``, with the 
-  specified values ``'GOODBYE'`` in ``COLUMN_2`` and ``'1996-12-31'`` in 
-  ``COLUMN_3``, and the default value ``35`` in ``COLUMN_1``. 
+  All three of these examples result in a new record in ``TABLE_1``, with the
+  specified values ``'GOODBYE'`` in ``COLUMN_2`` and ``'1996-12-31'`` in
+  ``COLUMN_3``, and the default value ``35`` in ``COLUMN_1``.
 
-In the first example, the default value is implied since no explicit value is 
-specified for ``COLUMN_1``. 
+In the first example, the default value is implied since no explicit value is
+specified for ``COLUMN_1``.
 
-In the second and third examples, the default value is explicitly stated as 
-the value to be assigned to ``TABLE_1.COLUMN_1`` and therefore the <Column 
-name> clause can be (but does not have to be) omitted. 
+In the second and third examples, the default value is explicitly stated as
+the value to be assigned to ``TABLE_1.COLUMN_1`` and therefore the <Column
+name> clause can be (but does not have to be) omitted.
 
 *DEFAULT VALUES*
 ----------------
 
-You can write your ``INSERT`` statement with the <keyword>s ``DEFAULT VALUES`` 
-instead of with a <query expression> if every Column belonging to your target 
-Table is to get its default value for a single row. These two ``INSERT`` 
-statements are thus equivalent: 
+You can write your ``INSERT`` statement with the <keyword>s ``DEFAULT VALUES``
+instead of with a <query expression> if every Column belonging to your target
+Table is to get its default value for a single row. These two ``INSERT``
+statements are thus equivalent:
 
 ::
 
@@ -383,9 +385,9 @@ To add several rows at a time to ``AUTHORS_1``, we can do this:
           (6,DEFAULT),
           (7,NULL);
 
-The ``DEFAULT`` specification inserts the Column's default value (or ``NULL``, 
-if no default was defined). The ``NULL`` specification inserts a null value. At 
-this point, ``AUTHORS_1`` looks like this: 
+The ``DEFAULT`` specification inserts the Column's default value (or ``NULL``,
+if no default was defined). The ``NULL`` specification inserts a null value. At
+this point, ``AUTHORS_1`` looks like this:
 
 +----------------------+
 | AUTHORS_1            |
@@ -407,7 +409,7 @@ this point, ``AUTHORS_1`` looks like this:
 | 7      | ``NULL``    |
 +--------+-------------+
 
-To add all the rows in ``AUTHORS_1`` to ``AUTHORS_2``, we can do either of 
+To add all the rows in ``AUTHORS_1`` to ``AUTHORS_2``, we can do either of
 these:
 
 ::
@@ -467,34 +469,34 @@ At this point, ``AUTHORS_2`` looks like this (the first 7 rows come from
 *INSERT Physics*
 ----------------
 
-Most DBMSs simply append newly inserted rows to the end of the target Table. 
-But some (more sophisticated) DBMSs will put new rows wherever they can find 
-space (there might be gaps left by earlier ``DELETE`` statements). And a few 
-DBMSs will put new rows in order, according to the target Table's primary key 
-(this is called "clustering"; variants of *clustering* are practiced by DB2 and 
-Oracle). 
+Most DBMSs simply append newly inserted rows to the end of the target Table.
+But some (more sophisticated) DBMSs will put new rows wherever they can find
+space (there might be gaps left by earlier ``DELETE`` statements). And a few
+DBMSs will put new rows in order, according to the target Table's primary key
+(this is called "clustering"; variants of *clustering* are practiced by DB2 and
+Oracle).
 
-A general recommendation -- which we often ignore -- is that the optional 
-``INSERT`` Column list should always be explicitly stated. That way, if someday 
-the target Table is altered and a Column is dropped, the ``INSERT`` will fail 
-and you'll be reminded that you have to change that particular operation. 
+A general recommendation -- which we often ignore -- is that the optional
+``INSERT`` Column list should always be explicitly stated. That way, if someday
+the target Table is altered and a Column is dropped, the ``INSERT`` will fail
+and you'll be reminded that you have to change that particular operation.
 
-If you want to restrict your code to Core SQL, don't use a <query expression> 
-with ``EXCEPT``, ``INTERSECT`` or ``CORRESPONDING`` in an ``INSERT`` statement, 
-don't use a <query expression> that names an underlying Table of your target 
-Table in an ``INSERT`` statement, don't use the <query expression> ``TABLE`` 
-<Table name> in an ``INSERT`` statement, if you use the <query expression 
-``VALUES`` (value commalist) in an ``INSERT`` statement, make sure it 
-constructs only one new row, don't use the ``DEFAULT VALUES`` form of the 
-``INSERT`` statement and make sure all your ``INSERT`` <Table reference>s are 
-actually <Table name>s, with no <Correlation name>s or <derived Column list>s. 
+If you want to restrict your code to Core SQL, don't use a <query expression>
+with ``EXCEPT``, ``INTERSECT`` or ``CORRESPONDING`` in an ``INSERT`` statement,
+don't use a <query expression> that names an underlying Table of your target
+Table in an ``INSERT`` statement, don't use the <query expression> ``TABLE``
+<Table name> in an ``INSERT`` statement, if you use the <query expression
+``VALUES`` (value commalist) in an ``INSERT`` statement, make sure it
+constructs only one new row, don't use the ``DEFAULT VALUES`` form of the
+``INSERT`` statement and make sure all your ``INSERT`` <Table reference>s are
+actually <Table name>s, with no <Correlation name>s or <derived Column list>s.
 
 UPDATE Statement
 ================
 
-The ``UPDATE`` statement's job is to tentatively edit existing rows in a Table. 
-If ``UPDATE`` succeeds, there will be a number (zero or more) of changed rows 
-in your target Table. The required syntax for the ``UPDATE`` statement is: 
+The ``UPDATE`` statement's job is to tentatively edit existing rows in a Table.
+If ``UPDATE`` succeeds, there will be a number (zero or more) of changed rows
+in your target Table. The required syntax for the ``UPDATE`` statement is:
 
 ::
 
@@ -503,40 +505,40 @@ in your target Table. The required syntax for the ``UPDATE`` statement is:
     ROW=row_expression
     [ WHERE <search condition> ]
 
-``UPDATE`` works by changing one or more values in zero or more rows of the 
-target Table, Column by Column. The <Table reference> identifies your target 
-Table: the Table that you want ``UPDATE`` to change rows of. The target Table 
-must be updatable -- that is, it must either be a Base table, or a View that is 
-not a read-only Table. If <Table reference> does not include a <Schema name> 
-qualifier, your target Table must belong to the SQL-session default Schema. 
+``UPDATE`` works by changing one or more values in zero or more rows of the
+target Table, Column by Column. The <Table reference> identifies your target
+Table: the Table that you want ``UPDATE`` to change rows of. The target Table
+must be updatable -- that is, it must either be a Base table, or a View that is
+not a read-only Table. If <Table reference> does not include a <Schema name>
+qualifier, your target Table must belong to the SQL-session default Schema.
 
-There are two forms of ``UPDATE``: the first lets you specify multiple Column 
-changes that don't necessarily change every value in a row, the second lets you 
-specify changes to every value in a row with a single ``SET`` clause. To 
-execute ``UPDATE``, your current <AuthorizationID> needs the ``UPDATE`` 
-Privilege on every Column directly affected by the update operation -- and, if 
-an object Column is a derived Column (as it is in the case of a View), your 
-current <AuthorizationID> also needs the ``UPDATE`` Privilege on every 
-underlying Table that makes up your target Table -- or, if your target Table is 
-a <joined Table> made with ``LEFT OUTER JOIN``, ``RIGHT OUTER JOIN``, ``FULL 
-OUTER JOIN`` or ``UNION JOIN``, your current <AuthorizationID> also needs the 
-``INSERT`` Privilege on every underlying Table that makes up your target Table. 
+There are two forms of ``UPDATE``: the first lets you specify multiple Column
+changes that don't necessarily change every value in a row, the second lets you
+specify changes to every value in a row with a single ``SET`` clause. To
+execute ``UPDATE``, your current <AuthorizationID> needs the ``UPDATE``
+Privilege on every Column directly affected by the update operation -- and, if
+an object Column is a derived Column (as it is in the case of a View), your
+current <AuthorizationID> also needs the ``UPDATE`` Privilege on every
+underlying Table that makes up your target Table -- or, if your target Table is
+a <joined Table> made with ``LEFT OUTER JOIN``, ``RIGHT OUTER JOIN``, ``FULL
+OUTER JOIN`` or ``UNION JOIN``, your current <AuthorizationID> also needs the
+``INSERT`` Privilege on every underlying Table that makes up your target Table.
 
 *SET Column*
 ------------
 
-In the first form of ``UPDATE`` -- ``UPDATE`` <Table> ``SET`` <Column>=<value> 
--- you must specify at least one Column change expression. The Column named 
-must, of course, belong to your target Table; you can change multiple Columns 
-of the same Table (in any order), but you can't change the same Column more 
-than once in a single ``UPDATE`` statement. The ``scalar_expression`` you use 
-to assign a new value to a Column may be any expression (except one that 
-contains a set function) that evaluates to a single value that is assignable to 
-that Column's <data type>, including the specifications ``DEFAULT`` (for change 
-to default value), ``NULL`` (for change to null value), ``ARRAY??(??)`` or 
-``ARRAY[]`` (for change to an empty array). Most often, "scalar_expression" 
-will be a <literal>. For example, using the ``AUTHORS_1`` and ``AUTHORS_2`` 
-Tables from our discussion of the ``INSERT`` statement, we could do this: 
+In the first form of ``UPDATE`` -- ``UPDATE`` <Table> ``SET`` <Column>=<value>
+-- you must specify at least one Column change expression. The Column named
+must, of course, belong to your target Table; you can change multiple Columns
+of the same Table (in any order), but you can't change the same Column more
+than once in a single ``UPDATE`` statement. The ``scalar_expression`` you use
+to assign a new value to a Column may be any expression (except one that
+contains a set function) that evaluates to a single value that is assignable to
+that Column's <data type>, including the specifications ``DEFAULT`` (for change
+to default value), ``NULL`` (for change to null value), ``ARRAY??(??)`` or
+``ARRAY[]`` (for change to an empty array). Most often, "scalar_expression"
+will be a <literal>. For example, using the ``AUTHORS_1`` and ``AUTHORS_2``
+Tables from our discussion of the ``INSERT`` statement, we could do this:
 
 ::
 
@@ -544,21 +546,21 @@ Tables from our discussion of the ``INSERT`` statement, we could do this:
       name='Finch'
       WHERE id=7;
 
-This ``UPDATE`` statement changes the last row of ``AUTHORS_1`` from 
-{``7,NULL``} to {``7,'Finch'``} -- if you don't specify that a Column 
-should be changed, the DBMS leaves it alone; it keeps its original 
-value. 
+This ``UPDATE`` statement changes the last row of ``AUTHORS_1`` from
+{``7,NULL``} to {``7,'Finch'``} -- if you don't specify that a Column
+should be changed, the DBMS leaves it alone; it keeps its original
+value.
 
 *SET ROW*
 ---------
 
-In the second form of ``UPDATE`` -- ``UPDATE`` <Table> ``SET 
-ROW=row_expression`` -- you may specify only the one change expression: it will 
-change the entire applicable row. The "row_expression" may be any expression 
-that evaluates to a row of values, equal in number to, and <data type> 
-compatible with, every Column in your target Table (usually, this is a <row 
-value constructor, but it could also be a <row subquery>). For example, we 
-could change a whole row with either of these two statements: 
+In the second form of ``UPDATE`` -- ``UPDATE`` <Table> ``SET
+ROW=row_expression`` -- you may specify only the one change expression: it will
+change the entire applicable row. The "row_expression" may be any expression
+that evaluates to a row of values, equal in number to, and <data type>
+compatible with, every Column in your target Table (usually, this is a <row
+value constructor, but it could also be a <row subquery>). For example, we
+could change a whole row with either of these two statements:
 
 ::
 
@@ -571,17 +573,17 @@ could change a whole row with either of these two statements:
      name='Allan'
    WHERE id=7;
 
-As we've shown, you can add the optional ``WHERE`` clause in both forms of 
-``UPDATE``, to define the rows you want to change. If you omit the ``WHERE`` 
-clause, your DBMS will assume that the condition is ``TRUE`` for all rows (and 
-so ``UPDATE`` every row of the target Table). The ``WHERE`` clause's <search 
-condition> can be any condition at all, as long as it doesn't invoke an 
-SQL-invoked routine that possibly modifies SQL-data. The ``WHERE`` clause's 
-search condition is effectively evaluated for each row of the target Table 
-before any of the Table's rows are changed; each <subquery> in a ``WHERE`` 
-clause's search condition is effectively executed for each row of the target 
-Table and the results are then used to apply the search condition to the given 
-row. Here's some examples: 
+As we've shown, you can add the optional ``WHERE`` clause in both forms of
+``UPDATE``, to define the rows you want to change. If you omit the ``WHERE``
+clause, your DBMS will assume that the condition is ``TRUE`` for all rows (and
+so ``UPDATE`` every row of the target Table). The ``WHERE`` clause's <search
+condition> can be any condition at all, as long as it doesn't invoke an
+SQL-invoked routine that possibly modifies SQL-data. The ``WHERE`` clause's
+search condition is effectively evaluated for each row of the target Table
+before any of the Table's rows are changed; each <subquery> in a ``WHERE``
+clause's search condition is effectively executed for each row of the target
+Table and the results are then used to apply the search condition to the given
+row. Here's some examples:
 
 ::
 
@@ -600,7 +602,7 @@ row. Here's some examples:
 *UPDATE Examples*
 -----------------
 
-To change the last row in ``AUTHORS_1`` so that the ``ID`` Column is the 
+To change the last row in ``AUTHORS_1`` so that the ``ID`` Column is the
 last ``ID`` belonging to ``AUTHORS_2``, and the ``NAME`` Column is ``NULL``:
 
 ::
@@ -610,7 +612,7 @@ last ``ID`` belonging to ``AUTHORS_2``, and the ``NAME`` Column is ``NULL``:
      name = NULL
    WHERE id = 9;
 
-To add 1 to the ``ID`` Column and cast the ``ID`` value to a character 
+To add 1 to the ``ID`` Column and cast the ``ID`` value to a character
 string, putting the result in the ``NAME`` Column:
 
 ::
@@ -620,18 +622,18 @@ string, putting the result in the ``NAME`` Column:
      name = CAST(id AS VARCHAR(6))
    WHERE id =1;
 
-This example is even sillier than it looks, since real people very rarely 
-change the value in a primary key Column -- but we put it here to bring up an 
-important fact. Consider the result of this statement, which is the row: 
-{``2,'1'``}. Why isn't the result: {``2,'2'``}? Because the assignments in the 
-``SET`` clause happen all at once, rather than in a sequence -- so the ``ID`` 
-value in the ``CAST(id AS VARCHAR(6))`` expression is the original value 
-(``1``), rather than the value we're changing it to (``2``). This "all at once" 
-effect is typical of SQL. Because of it, Column value swaps are easy. 
+This example is even sillier than it looks, since real people very rarely
+change the value in a primary key Column -- but we put it here to bring up an
+important fact. Consider the result of this statement, which is the row:
+{``2,'1'``}. Why isn't the result: {``2,'2'``}? Because the assignments in the
+``SET`` clause happen all at once, rather than in a sequence -- so the ``ID``
+value in the ``CAST(id AS VARCHAR(6))`` expression is the original value
+(``1``), rather than the value we're changing it to (``2``). This "all at once"
+effect is typical of SQL. Because of it, Column value swaps are easy.
 
-Let's try to do some updates which will cause errors. The first ``UPDATE`` 
-statement in this set of examples will result in a "constraint violation" 
-error, the next two will result in a "syntax" error: 
+Let's try to do some updates which will cause errors. The first ``UPDATE``
+statement in this set of examples will result in a "constraint violation"
+error, the next two will result in a "syntax" error:
 
 ::
 
@@ -657,7 +659,7 @@ corresponding ``AUTHORS_2.NAME`` value:
    UPDATE Authors_1 SET
      name=(SELECT name FROM Authors_2 WHERE id<=7 and id=Authors_1.id);
 
-This example will only work if ``AUTHORS_2`` has a row, with a matching 
+This example will only work if ``AUTHORS_2`` has a row, with a matching
 ``ID``, for every applicable row in ``AUTHORS_1``.
 
 At this point, ``AUTHORS_1`` and ``AUTHORS_2`` look like this:
@@ -687,62 +689,62 @@ At this point, ``AUTHORS_1`` and ``AUTHORS_2`` look like this:
 *UPDATE Physics*
 ----------------
 
-Most DBMSs fit a changed row in the same place as the old one -- a good idea, 
-because if ``UPDATE``\s always caused changes in row location, there would be 
-much more disk activity (especially if there are indexes which point to the 
-original row location). But your DBMS might shift rows if you change the 
-primary key or if you change a variable size Column and it becomes longer. (In 
-the latter case, there might not be enough room to fit the changed row in the 
-original location.) These, of course, are "implementation-dependent" 
-considerations, but we suggest that you hesitate slightly before you change 
-primary key or variable size Columns. 
+Most DBMSs fit a changed row in the same place as the old one -- a good idea,
+because if ``UPDATE``\s always caused changes in row location, there would be
+much more disk activity (especially if there are indexes which point to the
+original row location). But your DBMS might shift rows if you change the
+primary key or if you change a variable size Column and it becomes longer. (In
+the latter case, there might not be enough room to fit the changed row in the
+original location.) These, of course, are "implementation-dependent"
+considerations, but we suggest that you hesitate slightly before you change
+primary key or variable size Columns.
 
-Some general recommendations -- try to group all updates for the same Table 
-into the same ``UPDATE`` statement, do not substitute a ``DELETE`` plus an 
-``INSERT`` for an ``UPDATE`` and keep in mind that ``UPDATE`` can be a 
-relatively slow operation. 
+Some general recommendations -- try to group all updates for the same Table
+into the same ``UPDATE`` statement, do not substitute a ``DELETE`` plus an
+``INSERT`` for an ``UPDATE`` and keep in mind that ``UPDATE`` can be a
+relatively slow operation.
 
-If you want to restrict your code to Core SQL, don't use a <search condition> 
-that names an underlying Table of your target Table in an ``UPDATE`` statement 
-and make sure all your ``UPDATE`` <Table reference>s are actually <Table 
-name>s, with no <Correlation name>s or <derived Column list>s. 
+If you want to restrict your code to Core SQL, don't use a <search condition>
+that names an underlying Table of your target Table in an ``UPDATE`` statement
+and make sure all your ``UPDATE`` <Table reference>s are actually <Table
+name>s, with no <Correlation name>s or <derived Column list>s.
 
 DELETE Statement
 ================
 
-The ``DELETE`` statement's job is to tentatively remove existing rows from a 
-Table. If ``DELETE`` succeeds, there will be a fewer number (zero or more) of 
-rows in your target Table. The required syntax for the ``DELETE`` statement is: 
+The ``DELETE`` statement's job is to tentatively remove existing rows from a
+Table. If ``DELETE`` succeeds, there will be a fewer number (zero or more) of
+rows in your target Table. The required syntax for the ``DELETE`` statement is:
 
 ::
 
     DELETE FROM <Table reference>
     [ WHERE <search condition> ]
 
-The rules for ``DELETE`` are analogous to the rules for ``UPDATE``\: 
+The rules for ``DELETE`` are analogous to the rules for ``UPDATE``\:
 
-* The <Table reference must identify an updatable Table that belongs to the 
-  SQL-session default Schema if you don't provide an explicit <Schema name> 
-  qualifier. 
+* The <Table reference must identify an updatable Table that belongs to the
+  SQL-session default Schema if you don't provide an explicit <Schema name>
+  qualifier.
 
-* If the ``WHERE`` clause is omitted, the DBMS will assume that the condition 
-  is ``TRUE`` for all rows (and so ``DELETE`` every row). 
+* If the ``WHERE`` clause is omitted, the DBMS will assume that the condition
+  is ``TRUE`` for all rows (and so ``DELETE`` every row).
 
-* The ``WHERE`` clause's <search condition> can be any condition at all, as 
-  long as it doesn't invoke an SQL-invoked routine that possibly modifies 
-  SQL-data. 
+* The ``WHERE`` clause's <search condition> can be any condition at all, as
+  long as it doesn't invoke an SQL-invoked routine that possibly modifies
+  SQL-data.
 
-* The ``WHERE`` clause's search condition is effectively evaluated for each row 
-  of the target Table before any of the Table's rows are marked for deletion. 
+* The ``WHERE`` clause's search condition is effectively evaluated for each row
+  of the target Table before any of the Table's rows are marked for deletion.
 
-* Each <subquery> in a ``WHERE`` clause's search condition is effectively 
-  executed for each row of the target Table and the results are then used to 
-  apply the search condition to the given row. 
+* Each <subquery> in a ``WHERE`` clause's search condition is effectively
+  executed for each row of the target Table and the results are then used to
+  apply the search condition to the given row.
 
-To execute ``DELETE``, your current <AuthorizationID> needs the ``DELETE`` 
-Privilege on the target Table -- and, if the target Table is a derived Table 
-(as it is in the case of a View), your current <AuthorizationID> also needs the 
-``DELETE`` Privilege on every underlying Table that makes up your target Table. 
+To execute ``DELETE``, your current <AuthorizationID> needs the ``DELETE``
+Privilege on the target Table -- and, if the target Table is a derived Table
+(as it is in the case of a View), your current <AuthorizationID> also needs the
+``DELETE`` Privilege on every underlying Table that makes up your target Table.
 
 *DELETE Examples*
 -----------------
@@ -769,32 +771,32 @@ Here's some examples of ``DELETE`` statements:
 *DELETE Physics*
 ----------------
 
-With most DBMSs, a deleted row disappears from view in the Table, but actually 
-remains in the underlying file for a while. Consider: if row #1 is at file 
-offset 0, row #2 is at file offset 100 and row#3 is file offset 200 -- and you 
-delete row #1 -- should your DBMS now move row #2 to file offset 0, move row #3 
-to file offset 100, change all indexes and truncate the file? That would take a 
-long time, so the typical response is to put a "record deleted" flag at file 
-offset 0 instead. 
+With most DBMSs, a deleted row disappears from view in the Table, but actually
+remains in the underlying file for a while. Consider: if row #1 is at file
+offset 0, row #2 is at file offset 100 and row#3 is file offset 200 -- and you
+delete row #1 -- should your DBMS now move row #2 to file offset 0, move row #3
+to file offset 100, change all indexes and truncate the file? That would take a
+long time, so the typical response is to put a "record deleted" flag at file
+offset 0 instead.
 
-There are some DBMSs which will eventually reclaim this space. Of course that's 
-usually good -- otherwise they wouldn't do it -- but it could cause trouble if 
-you use a non-standard "row id" address which is derived from a row's location. 
-If row ids can change without warning, you've got trouble. With such DBMSs, it 
-might be useful to put a row in limbo rather than delete it: set all Columns to 
-``NULL``. Once that's done, the row effectively disappears because most 
-searches are never ``TRUE`` for ``NULL`` Columns. But the row stays in 
-position, reserved, and won't be reclaimed. 
+There are some DBMSs which will eventually reclaim this space. Of course that's
+usually good -- otherwise they wouldn't do it -- but it could cause trouble if
+you use a non-standard "row id" address which is derived from a row's location.
+If row ids can change without warning, you've got trouble. With such DBMSs, it
+might be useful to put a row in limbo rather than delete it: set all Columns to
+``NULL``. Once that's done, the row effectively disappears because most
+searches are never ``TRUE`` for ``NULL`` Columns. But the row stays in
+position, reserved, and won't be reclaimed.
 
-If you want to restrict your code to Core SQL, don't use a <search condition> 
-that names an underlying Table of your target Table in a ``DELETE`` statement 
-and make sure all your ``DELETE`` <Table reference>s are actually <Table 
-name>s, with no <Correlation name>s or <derived Column list>s. 
+If you want to restrict your code to Core SQL, don't use a <search condition>
+that names an underlying Table of your target Table in a ``DELETE`` statement
+and make sure all your ``DELETE`` <Table reference>s are actually <Table
+name>s, with no <Correlation name>s or <derived Column list>s.
 
 Data Change Operations
 ======================
 
-Generalizing shamelessly, we compare here the steps required to do an 
+Generalizing shamelessly, we compare here the steps required to do an
 ``UPDATE`` with the step required to do a ``SELECT``:
 
 +------------------------------------------------+-----------------------+
@@ -813,14 +815,14 @@ Generalizing shamelessly, we compare here the steps required to do an
 | Write row back to file                         |                       |
 +------------------------------------------------+-----------------------+
 
-The bottom line is: changes cost more than queries. Be consoled by the thought 
-that updates are less frequent than reads (in a bank that we used to work for, 
-we measured the ratio as 1 to 1,000). In fact, both programmers and users are 
-willing to sacrifice a lot of extra trouble during data changes -- constructing 
-an index, say -- if the result is a little less trouble during queries. The 
-investment should not merely be to save speed, but to save trouble. That is why 
-there are many mechanisms for guaranteeing that the data is valid. The makers 
-of SQL were well aware that updates need care and protection. 
+The bottom line is: changes cost more than queries. Be consoled by the thought
+that updates are less frequent than reads (in a bank that we used to work for,
+we measured the ratio as 1 to 1,000). In fact, both programmers and users are
+willing to sacrifice a lot of extra trouble during data changes -- constructing
+an index, say -- if the result is a little less trouble during queries. The
+investment should not merely be to save speed, but to save trouble. That is why
+there are many mechanisms for guaranteeing that the data is valid. The makers
+of SQL were well aware that updates need care and protection.
 
 *Bulk Changes*
 --------------
@@ -831,10 +833,10 @@ extremely slow. There are some DBMS-specific ways to reduce the pain:
 
 * Use a vendor utility for multiple insertions (such as Oracle's SQLLOAD).
 
-* Pass and retrieve arrays of rows with one call (ODBC's 
+* Pass and retrieve arrays of rows with one call (ODBC's
   ``SQLBulkOperations``).
 
-* Access the underlying DBMS files directly (possible if the DBMS uses a 
+* Access the underlying DBMS files directly (possible if the DBMS uses a
   non-proprietary file format such as comma-delimited, or ``.dbf``).
 
 * Drop indexes and re-create them after the update.
@@ -862,10 +864,10 @@ And here's an equivalent ``UPDATE`` statement that might be a bit faster:
      column_1 = 'Jonson'
     WHERE column_1 <> 'Jonson' OR column_1 IS NULL;
 
-The reasoning here is that if ``COLUMN_1`` already has ``'Jonson'`` in it, 
-there's no point setting it to ``'Jonson'``. It's a mechanical process: just 
-look at what's in the ``SET`` clause, and put the reverse in the ``WHERE`` 
-clause. Here's another example: 
+The reasoning here is that if ``COLUMN_1`` already has ``'Jonson'`` in it,
+there's no point setting it to ``'Jonson'``. It's a mechanical process: just
+look at what's in the ``SET`` clause, and put the reverse in the ``WHERE``
+clause. Here's another example:
 
 ::
 
@@ -880,8 +882,8 @@ And here's an equivalent ``UPDATE`` statement that might be a bit faster:
      column_1 = column_1 * 1.1
    WHERE column_1 <> 0;
 
-The reasoning here is that if ``COLUMN_1`` is zero or ``NULL``, then 
-multiplication can't affect it. There are analogous observations for 
+The reasoning here is that if ``COLUMN_1`` is zero or ``NULL``, then
+multiplication can't affect it. There are analogous observations for
 addition, division and subtraction.
 
 **2 -- Do Multiple Updates in One Pass**
@@ -911,7 +913,7 @@ And here's how to do it faster, in one pass:
                  WHERE balance <> 0
                END;
 
-Often it's just a matter of anticipating what other jobs are likely to come 
+Often it's just a matter of anticipating what other jobs are likely to come
 up in the near future, for the same data.
 
 Dialects
@@ -920,17 +922,17 @@ Dialects
 Data change is a stable section of SQL. All vendors support it, few vendors
 offer any variations or extensions. The ones that you might run into are:
 
-* Dropped ``INTO`` clause, for example ``INSERT Employees VALUES (...);``, 
+* Dropped ``INTO`` clause, for example ``INSERT Employees VALUES (...);``,
   supported by Sybase.
 
-* Multi-column ``SET`` clauses, for example ``UPDATE Employees SET 
+* Multi-column ``SET`` clauses, for example ``UPDATE Employees SET
   (column1,column2) = (column3,column4)``, supported by Oracle.
 
-* ``TRUNCATE`` -- to delete all rows but leave definition intact, supported 
+* ``TRUNCATE`` -- to delete all rows but leave definition intact, supported
   by Oracle 7.
 
-At the time of writing, we know of no vendor with complete support for the SQL3 
-"update a join" feature. Many have partial support, though. This is the sort of 
-feature that attracts awed attention (it's hard to implement), but the 
-important things are before that: it's best to look for a clean, simple 
-implementation. 
+At the time of writing, we know of no vendor with complete support for the SQL3
+"update a join" feature. Many have partial support, though. This is the sort of
+feature that attracts awed attention (it's hard to implement), but the
+important things are before that: it's best to look for a clean, simple
+implementation.

@@ -4,6 +4,8 @@
 Chapter 6 -- Characters
 =======================
 
+.. include:: ../_include/note.rst
+
 *"Now we know our Alphabet all the way from A to Z[ed]"*
 
 *(Grade 1 Tune)*
