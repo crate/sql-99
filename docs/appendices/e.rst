@@ -20,7 +20,7 @@ interesting common feature: FREE STUFF. Our list of SQL web sites includes:
 
 Our selection is primarily of English-speaking sites. As URLs change, and as
 new sites match our criteria, we will update a copy of this list at our own
-web site: http://ourworld.compuserve.com/homepages/OCELOTSQL/sites.htm
+web site: https://web.archive.org/web/20021015234703/http://ourworld.compuserve.com/homepages/OCELOTSQL/sites.htm
 
 So probably your best way to keep up-to-date is to add our web site to your
 favourite places, and click links from there.
