@@ -41,20 +41,14 @@ You must install `fswatch`_ to use the ``dev`` target.
 Continuous integration and deployment
 =====================================
 
-|build| |travis| |rtd|
+|build| |rtd|
 
-Travis CI is `configured`_ to run ``make check`` from the ``docs`` directory.
-Please do not merge pull requests until the tests pass.
+This project uses GitHub Actions to run make check from the docs directory.
 
-`Read the Docs`_ automatically deploys the documentation whenever a configured
-branch is updated.
+Also, Read the Docs automatically rebuilds the documentation whenever an active docs branch is updated.
 
-To make changes to the RTD configuration (e.g., to activate or deactivate a
-release version), please contact the `@crate/tech-writing`_ team.
+To make changes to the RTD configuration (e.g., to activate or deactivate a release version), please contact an admin.
 
-
-.. _@crate/tech-writing: https://github.com/orgs/crate/teams/tech-writing
-.. _configured: https://github.com/crate/sql-99/blob/master/.travis.yml
 .. _fswatch: https://github.com/emcrisostomo/fswatch
 .. _Read the Docs: http://readthedocs.org
 .. _ReStructuredText: http://docutils.sourceforge.net/rst.html
@@ -63,12 +57,7 @@ release version), please contact the `@crate/tech-writing`_ team.
 
 .. |build| image:: https://img.shields.io/endpoint.svg?color=blue&url=https%3A%2F%2Fraw.githubusercontent.com%2Fcrate%2Fsql-99%2Fmaster%2Fdocs%2Fbuild.json
     :alt: Build version
-    :target: https://github.com/crate/sql-99/blob/master/docs/build.json
-
-.. |travis| image:: https://img.shields.io/travis/crate/sql-99.svg?style=flat
-    :alt: Travis CI status
-    :scale: 100%
-    :target: https://travis-ci.org/crate/sql-99
+    :target: https://github.com/crate/sql-99/blob/main/docs/build.json
 
 .. |rtd| image:: https://readthedocs.org/projects/sql-99/badge/?version=latest
     :alt: Read The Docs status
