@@ -27,6 +27,5 @@ Looking for more help?
 .. _Crate.io: http://crate.io/
 .. _developer docs: DEVELOP.rst
 .. _project docs: https://crate.io/docs/sql-99/en/latest/
-.. _Sphinx: http://www.sphinx-doc.org/en/master/
 .. _SQL-99 Complete, Really: https://openlibrary.org/books/OL8128443M/SQL-99_Complete_Really
 .. _support channels: https://crate.io/support/
