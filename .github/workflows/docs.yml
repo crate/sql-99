@@ -15,11 +15,14 @@ jobs:
         os: [ubuntu-latest, macos-latest]
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Acquire sources
+        uses: actions/checkout@v4
+
       - name: Set up Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.7
+          python-version: '3.11'
+
       - name: Build docs
         run: |
           cd docs && make check
