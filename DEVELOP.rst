@@ -8,7 +8,7 @@ The project is written using `Sphinx`_ and `ReStructuredText`_.
 Working on the project
 ======================
 
-Python 3.7 is required.
+You will need a recent installation of Python 3.
 
 Change into the ``docs`` directory:
 
