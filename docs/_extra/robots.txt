@@ -1,4 +1,4 @@
 User-agent: *
-Disallow: /
+Disallow:
 
-Sitemap: https://crate.io/docs/sql-99/en/latest/site.xml
+Sitemap: https://sql-99.readthedocs.io/en/latest/site.xml
