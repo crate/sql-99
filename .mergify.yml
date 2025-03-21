@@ -1,20 +1,19 @@
----
 queue_rules:
   - name: default
-    conditions:
-      - check-success~=^Build docs on ubuntu-latest
-      - check-success~=^Build docs on macos-latest
-      - check-success~=docs/readthedocs.org
-
-pull_request_rules:
-  - name: automatic merge
-    conditions:
+    queue_conditions:
       - label=ready-to-merge
       - '#approved-reviews-by>=1'
       - status-success~=^Build docs on ubuntu-latest
       - status-success~=^Build docs on macos-latest
       - status-success~=docs/readthedocs.org
+    merge_conditions:
+      - check-success~=^Build docs on ubuntu-latest
+      - check-success~=^Build docs on macos-latest
+      - check-success~=docs/readthedocs.org
+    merge_method: rebase
+
+pull_request_rules:
+  - name: automatic merge
+    conditions: []
     actions:
       queue:
-        method: rebase
-        name: default
