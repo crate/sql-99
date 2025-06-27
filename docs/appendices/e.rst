@@ -48,7 +48,7 @@ Here's the list:
   | You can get the ODBC manual from here, as a .hlp file.
 
 * | **miniSQL**
-  | http://www.hughes.com.au/
+  | https://hughestech.com.au/products/msql/
   | A Unix-oriented SQL-89 implementation.
 
 * | **NIST**
