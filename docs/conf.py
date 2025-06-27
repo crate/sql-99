@@ -8,3 +8,8 @@ html_context.update({
     "current_version": None,
     "versions": [],
 })
+
+linkcheck_ignore = [
+    r"https://www.mysql.com/",
+    r"http://www.hughes.com.au/*",
+]
