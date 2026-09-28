@@ -1,6 +1,8 @@
 from crate.theme.rtd.conf.sql_99 import *
 
-html_baseurl = "https://sql-99.readthedocs.io/"
+# NOTE: `html_baseurl` used to be pinned to https://sql-99.readthedocs.io/ here.
+# It now comes from `crate.theme.rtd.conf.sql_99`, which derives it from the
+# Read the Docs environment for the docs.cratedb.com migration PoC.
 
 # Disable version chooser.
 html_context.update({
