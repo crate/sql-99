@@ -1,1 +1,5 @@
-crate-docs-theme
+# TEMPORARY, for the docs.cratedb.com migration proof of concept.
+#
+# Restore the unpinned `crate-docs-theme` once the migration theme ships as a
+# final release.
+crate-docs-theme==0.51.0.dev0
